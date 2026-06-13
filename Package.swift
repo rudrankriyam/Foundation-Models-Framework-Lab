@@ -36,10 +36,6 @@ let package = Package(
         .library(
             name: "BenchmarkCore",
             targets: ["AppBenchCore"]
-        ),
-        .library(
-            name: "AppBenchEvaluations",
-            targets: ["AppBenchEvaluations"]
         )
     ],
     dependencies: [
@@ -78,11 +74,6 @@ let package = Package(
             name: "AppBenchCore",
             path: "Tools/AppBench/BenchmarkCore/Sources/AppBenchCore"
         ),
-        .target(
-            name: "AppBenchEvaluations",
-            dependencies: ["AppBenchCore"],
-            path: "Tools/AppBench/BenchmarkCore/Sources/AppBenchEvaluations"
-        ),
         .executableTarget(
             name: "AppBenchCLI",
             dependencies: ["AppBenchCore"],
@@ -112,11 +103,6 @@ let package = Package(
             name: "AppBenchCoreTests",
             dependencies: ["AppBenchCore"],
             path: "Tools/AppBench/BenchmarkCore/Tests/AppBenchCoreTests"
-        ),
-        .testTarget(
-            name: "AppBenchEvaluationsTests",
-            dependencies: ["AppBenchCore", "AppBenchEvaluations"],
-            path: "Tools/AppBench/BenchmarkCore/Tests/AppBenchEvaluationsTests"
         )
     ]
 )

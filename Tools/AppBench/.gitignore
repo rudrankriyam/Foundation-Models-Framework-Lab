@@ -30,6 +30,7 @@ playground.xcworkspace
 # .swiftpm
 
 .build/
+.xceval/
 
 # CocoaPods
 #
@@ -63,6 +64,9 @@ fastlane/test_output
 
 # AppBench generated artifacts
 *.trace/
+*.xcresult/
+*.xcevalresult
+*.xcevalresults.jsonl
 Results/*.json
 Results/*.md
 !Results/README.md

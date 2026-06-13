@@ -43,10 +43,13 @@ are large generated artifacts.
 ## Foundation Lab Consolidation
 
 AppBench now lives at `Tools/AppBench` in Foundation Models Framework Lab. The Lab's
-root package exports `AppBenchCore`, `AppBenchEvaluations`, `BenchmarkCore`, and the
-`appbench` executable, while `BenchmarkCore/Package.swift` remains available for
-focused package development and the device runner keeps its existing local package
-reference.
+root package exports the portable `AppBenchCore`, `BenchmarkCore`, and `appbench`
+products, while `BenchmarkCore/Package.swift` remains available for focused package
+development and the device runner keeps its existing local package reference.
+
+Apple Evaluations support moved to `Tools/AppBench/Evaluations/Package.swift`.
+That package requires macOS 27 and Xcode 27, and is intentionally absent from the
+root iOS-compatible product graph.
 
 The canonical commands from the Lab repository root are:
 

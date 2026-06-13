@@ -160,11 +160,17 @@ AppBench is complementary:
   OS build, and raw portable JSON.
 - It compares physical devices and PCC service behavior outside an Xcode test
   report.
-- Its OS 27 adapter produces Evaluations `ModelSample`, deterministic
-  `Evaluator`, and `ToolCallEvaluator` values from the same fixture semantics.
+- Its macOS 27 replay package produces Evaluations `ModelSample`, deterministic
+  `Evaluator`, and native `ToolCallEvaluator` values from recorded responses.
+- The standalone `xceval` CLI reads, streams, compares, and extracts generic
+  `.xcevalresult` JSON without requiring the Xcode report UI or AppBench code.
 
 The two systems should share datasets and grading definitions, not duplicate
 truth in two unrelated corpora.
+
+See [AppBench and Apple Evaluations](EVALUATIONS.md) for the full Apple resource
+inventory, Xcode folder disambiguation, result schema, producer/consumer boundary,
+and verified Xcode 27 beta behavior.
 
 ## Safety Trigger Design
 

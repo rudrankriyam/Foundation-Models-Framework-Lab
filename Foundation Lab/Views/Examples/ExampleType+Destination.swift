@@ -65,7 +65,17 @@ extension ExampleType {
         case .providerBridgeWalkthrough:
             ProviderBridgeWalkthroughView()
         case .evaluationsLab:
+#if os(macOS)
             EvaluationsLabView()
+#else
+            ContentUnavailableView(
+                "Evaluations are available on Mac",
+                systemImage: "macbook",
+                description: Text(
+                    "Run AppBench on the device, then use the macOS evaluation tools."
+                )
+            )
+#endif
         case .fmCLIPythonPlayground:
             FMCLIPythonPlaygroundView()
         case .health:
@@ -102,7 +112,7 @@ extension ExampleType {
     }
 
     static var studioExamples: [ExampleType] {
-        [
+        var examples: [ExampleType] = [
             .structuredData,
             .generationGuides,
             .generationOptions,
@@ -123,10 +133,13 @@ extension ExampleType {
             .foundationModelsSecurityPlayground,
             .usagePerformanceTrace,
             .spotlightRAGExplorer,
-            .providerBridgeWalkthrough,
-            .evaluationsLab,
-            .fmCLIPythonPlayground
+            .providerBridgeWalkthrough
         ]
+#if os(macOS)
+        examples.append(.evaluationsLab)
+#endif
+        examples.append(.fmCLIPythonPlayground)
+        return examples
     }
 
     static var insightExamples: [ExampleType] {

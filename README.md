@@ -187,9 +187,16 @@ The repository also distributes reusable Swift package products for applications
 - `FoundationModelsTools` provides calendar, contacts, health, location, music, reminders, weather, and web tools. It re-exports `FoundationModelsKit` for compatibility with existing users.
 - `FoundationLabCore` provides the UI-independent capability requests, results, use cases, and Foundation Models providers used by the Lab app.
 - `AppBenchCore` provides the benchmark corpus, deterministic graders, runner, metrics, and reports.
-- `AppBenchEvaluations` adapts AppBench fixtures and graders to the OS 27 Evaluations framework.
 - `BenchmarkCore` preserves the original AppBench package product name as a compatibility alias.
 - `appbench` is the canonical macOS benchmark executable.
+
+Apple Evaluations support intentionally lives in the separate macOS 27 package at
+`Tools/AppBench/Evaluations`, rather than the root cross-platform package. Its
+`appbench-evaluate` command converts recorded AppBench JSON into native evaluation
+results without running the model again. Generic inspection, comparison, JSONL,
+and `.xcresult` export are provided by the standalone
+[`xceval`](https://github.com/rudrankriyam/Evaluations-Framework-CLI) CLI. Neither
+Evaluations integration is linked into or shown by the iOS app.
 
 Add the repository to your package dependencies:
 

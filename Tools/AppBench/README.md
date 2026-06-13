@@ -133,6 +133,39 @@ Tools/AppBench/BenchmarkCore/run-trace.sh \
   --suite quick --samples 1 --repetitions 1 --no-randomize
 ```
 
+## Apple Evaluations on macOS 27
+
+AppBench keeps Apple’s Evaluations framework out of the portable benchmark package
+and the iOS device runner. A separate macOS 27 package replays recorded AppBench
+responses into native `.xcevalresult` files without invoking the model again.
+
+```bash
+# Create a native evaluation result from a portable AppBench JSON report.
+Tools/AppBench/appbench-evaluate replay \
+  Tools/AppBench/Results/run.json \
+  --output /tmp/appbench-evaluations \
+  --format json
+
+# Inspect, stream, compare, or export results without opening Xcode.
+xceval doctor --output json
+xceval inspect result.xcevalresult --output json
+xceval report result.xcevalresult --output json
+xceval samples result.xcevalresult --output jsonl
+xceval compare baseline.xcevalresult candidate.xcevalresult --output json
+
+# Run replay, validation, report generation, failure extraction, and datasets.
+# APPBENCH_RESULT is relative to Tools/AppBench.
+xceval pipeline Tools/AppBench/xceval.pipeline.json \
+  --set APPBENCH_RESULT=Results/run.json \
+  --force
+```
+
+The generic [`xceval`](https://github.com/rudrankriyam/Evaluations-Framework-CLI)
+CLI is a separate public tool and does not know about AppBench’s JSON schema.
+See
+[AppBench and Apple Evaluations](docs/EVALUATIONS.md) for the framework locations,
+storage format, Xcode integration, beta caveats, and complete Apple resource list.
+
 ## Execution Surfaces
 
 Official Mac results come from `AppBenchCLI` through `swift run appbench` or the
@@ -213,12 +246,14 @@ comparable with current reports.
 The Lab's root `Package.swift` exports:
 
 - `AppBenchCore`: scenarios, graders, runner, statistics, and reports.
-- `AppBenchEvaluations`: OS 27 adapter for Evaluations samples and evaluators.
 - `BenchmarkCore`: compatibility product that exposes the `AppBenchCore` module.
 - `appbench`: command-line experiment runner backed by the `AppBenchCLI` target.
 
-The nested `BenchmarkCore/Package.swift` exports the same libraries and keeps the
-original `AppBenchCLI` executable product for focused package development.
+The nested `BenchmarkCore/Package.swift` exports the same portable products and keeps
+the original `AppBenchCLI` executable product for focused package development.
+`Tools/AppBench/Evaluations/Package.swift` is a separate macOS 27 developer-tool
+package that exports `AppBenchEvaluations` and the AppBench-specific
+`appbench-evaluate` replay command. Generic artifact tooling lives in `xceval`.
 
 ## License
 

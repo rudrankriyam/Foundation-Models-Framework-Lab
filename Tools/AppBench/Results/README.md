@@ -13,6 +13,11 @@ Each published result should include:
 - Network notes for PCC.
 - Any Instruments trace reference stored outside Git.
 
+Native `.xcevalresult`, `.xcresult`, and JSON Lines history files are generated
+developer artifacts and are ignored by Git. Use the standalone `xceval` CLI to
+inspect, stream, compare, or export them, then publish only intentionally curated
+summaries alongside the portable AppBench JSON.
+
 ## June 12, 2026 M5 Baseline
 
 Environment: MacBook Pro `Mac17,2`, Apple M5, 32 GB, macOS 27.0 beta build

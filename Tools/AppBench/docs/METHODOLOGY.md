@@ -53,16 +53,20 @@ This mirrors IFEval’s distinction between instruction-level and prompt-level a
 The prompt pass rate is intentionally strict because a production action can fail when
 only one required field is wrong.
 
-Subjective model judging is intentionally absent from the portable runner. OS 27's
-`AppBenchEvaluationsAdapter` converts the same samples and deterministic metrics into
-Apple Evaluations `ModelSample`, `Evaluator`, and `ToolCallEvaluator` values. Future rubrics
-for tone, fluency, or usefulness should:
+Subjective model judging is intentionally absent from the portable runner. The
+macOS 27 `AppBenchReplayEvaluation` converts recorded trials into Apple Evaluations
+`ModelSample`, custom `Evaluator`, and native `ToolCallEvaluator` values without
+running the model again. Future rubrics for tone, fluency, or usefulness should:
 
 - Use a frozen judge and rubric version.
 - Grade responses independently before pairwise comparison.
 - Swap pairwise response order.
 - Retain judge explanations and raw outputs.
 - Be calibrated periodically against human ratings.
+
+The Evaluations package is deliberately separate from `AppBenchCore`. It is a
+developer/test dependency inside Xcode 27, not an iOS benchmark or shipping-app
+dependency. See [AppBench and Apple Evaluations](EVALUATIONS.md).
 
 ## Safety Guardrails
 

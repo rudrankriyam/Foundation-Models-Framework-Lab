@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "xceval.pipeline/v1",
+  "name": "AppBench recorded-run evaluation",
+  "workingDirectory": ".",
+  "artifactsDirectory": ".xceval/pipeline",
+  "resultsPath": ".xceval/results",
+  "requiresEvaluationsXcode": true,
+  "steps": [
+    {
+      "name": "replay-recorded-run",
+      "command": [
+        "./appbench-evaluate",
+        "replay",
+        "${APPBENCH_RESULT}",
+        "--output",
+        ".xceval/results",
+        "--format",
+        "json"
+      ]
+    }
+  ],
+  "selection": {
+    "evaluationID": "AppBenchReplayEvaluation"
+  }
+}
