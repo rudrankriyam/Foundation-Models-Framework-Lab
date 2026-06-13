@@ -157,9 +157,13 @@ public enum AppBenchRecordedRunLoader {
     _ result: LegacyRunDocument,
     sourceName: String?
   ) -> AppBenchRecordedRun {
-    let catalog = Dictionary(
-      uniqueKeysWithValues: AppBenchScenarioCatalog.all.map { ($0.id, $0) }
-    )
+    let historicalScenarios = result.trials.reduce(
+      into: [String: LegacyScenario]()
+    ) { scenarios, trial in
+      if scenarios[trial.scenario.id] == nil {
+        scenarios[trial.scenario.id] = trial.scenario
+      }
+    }
     let measuredFailures = result.failures.filter {
       $0.scenarioID != "__warmup__"
     }
@@ -169,7 +173,7 @@ public enum AppBenchRecordedRunLoader {
         legacyFailureRecord(
           $0,
           model: result.model,
-          scenarios: catalog
+          scenarios: historicalScenarios
         )
       }
 
@@ -270,7 +274,7 @@ public enum AppBenchRecordedRunLoader {
   private static func legacyFailureRecord(
     _ failure: LegacyFailure,
     model: AppBenchModel,
-    scenarios: [String: AppBenchScenario]
+    scenarios: [String: LegacyScenario]
   ) -> AppBenchEvaluationRecord {
     let scenario = scenarios[failure.scenarioID]
     return AppBenchEvaluationRecord(

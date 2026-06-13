@@ -101,10 +101,10 @@ final class AppBenchEvaluationsTests: XCTestCase {
         "trials": [{
           "id": "DE0A593A-DEB4-415B-A9FC-1D016364E070",
           "scenario": {
-            "id": "legacy-scenario",
-            "title": "Legacy scenario",
+            "id": "journal-summary",
+            "title": "Historical journal summary",
             "instructions": "Answer briefly.",
-            "prompt": "Hello",
+            "prompt": "Historical prompt",
             "checks": []
           },
           "model": "onDevice",
@@ -125,7 +125,7 @@ final class AppBenchEvaluationsTests: XCTestCase {
           },
           {
             "id": "90788F0C-28B3-44A8-97A2-E3C98494AB72",
-            "scenarioID": "legacy-scenario",
+            "scenarioID": "journal-summary",
             "iteration": 2,
             "message": "Measured trial failed"
           }
@@ -139,13 +139,19 @@ final class AppBenchEvaluationsTests: XCTestCase {
     )
 
     XCTAssertEqual(recorded.records.count, 2)
-    XCTAssertEqual(recorded.records[0].scenarioID, "legacy-scenario")
+    XCTAssertEqual(recorded.records[0].scenarioID, "journal-summary")
     XCTAssertEqual(recorded.records[0].duration, 1.25)
     XCTAssertFalse(recorded.records.contains { $0.scenarioID == "__warmup__" })
     XCTAssertEqual(
       recorded.records.count(where: { !$0.executionSucceeded }),
       1
     )
+    let failure = try XCTUnwrap(
+      recorded.records.first { !$0.executionSucceeded }
+    )
+    XCTAssertEqual(failure.scenarioTitle, "Historical journal summary")
+    XCTAssertEqual(failure.prompt, "Historical prompt")
+    XCTAssertTrue(failure.checks.isEmpty)
     XCTAssertEqual(recorded.info["AppBench Source Schema"], "legacy")
     XCTAssertEqual(recorded.info["System Build"], "26A5353q")
   }
