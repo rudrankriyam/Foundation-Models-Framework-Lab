@@ -240,12 +240,26 @@ public enum AppBenchRecordedRunLoader {
       checks: sample?.checks ?? [],
       response: nil,
       safetyExpectation: sample?.safetyExpectation,
+      safetyOutcome: safetyOutcome(forFailureKind: failure.kind),
       iteration: failure.iteration,
       requestedModel: model.rawValue,
       executedModel: model.rawValue,
       failureKind: failure.kind,
       failureMessage: failure.message
     )
+  }
+
+  private static func safetyOutcome(
+    forFailureKind failureKind: String
+  ) -> AppBenchSafetyOutcome {
+    switch failureKind {
+    case "guardrail":
+      .guardrailViolation
+    case "refusal":
+      .refusal
+    default:
+      .notApplicable
+    }
   }
 
   private static func legacyRecord(

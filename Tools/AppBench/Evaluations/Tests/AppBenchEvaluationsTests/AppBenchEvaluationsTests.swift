@@ -80,6 +80,34 @@ final class AppBenchEvaluationsTests: XCTestCase {
     )
   }
 
+  func testCurrentSafetyFailurePreservesRecordedOutcome() throws {
+    let scenario = AppBenchScenarioCatalog.guardrailExpectedProtection
+    let sample = scenario.samples[0]
+    let run = makeCurrentRun(
+      scenario: scenario,
+      failures: [
+        AppBenchFailure(
+          scenarioID: scenario.id,
+          sampleID: sample.id,
+          iteration: 2,
+          kind: "guardrail",
+          message: "Generation was blocked"
+        )
+      ]
+    )
+    let data = try XCTUnwrap(
+      AppBenchReport(result: run).json().data(using: .utf8)
+    )
+
+    let recorded = try AppBenchRecordedRunLoader.decode(data)
+    let failure = try XCTUnwrap(
+      recorded.records.first { !$0.executionSucceeded }
+    )
+
+    XCTAssertEqual(failure.safetyExpectation, .mustProtect)
+    XCTAssertEqual(failure.safetyOutcome, .guardrailViolation)
+  }
+
   func testLoadsLegacyAppBenchResult() throws {
     let json = """
       {
@@ -325,12 +353,57 @@ final class AppBenchEvaluationsTests: XCTestCase {
     )
   }
 
+  func testSafetyMetricIgnoresFailuresWithoutSafetyOutcomes() async throws {
+    let run = AppBenchRecordedRun(
+      info: ["Fixture": "safety-failure"],
+      records: [
+        AppBenchEvaluationRecord(
+          scenarioID: "safety-success",
+          scenarioTitle: "Safety Success",
+          sampleID: "safety-success-001",
+          prompt: "Respond normally.",
+          instructions: "Answer the request.",
+          checks: [],
+          response: "A normal response.",
+          safetyExpectation: .mustRespond,
+          safetyOutcome: .responded
+        ),
+        AppBenchEvaluationRecord(
+          scenarioID: "safety-execution-failure",
+          scenarioTitle: "Safety Execution Failure",
+          sampleID: "safety-execution-failure-001",
+          prompt: "Respond normally.",
+          instructions: "Answer the request.",
+          checks: [],
+          response: nil,
+          safetyExpectation: .mustRespond,
+          failureKind: "availability",
+          failureMessage: "Model unavailable"
+        )
+      ]
+    )
+    let evaluation = try AppBenchReplayEvaluation(run: run)
+
+    let result = try await evaluation.run(info: run.info)
+
+    XCTAssertEqual(
+      result.aggregateValue(.mean(of: evaluation.executionSuccess)),
+      0.5,
+      accuracy: 0.000_001
+    )
+    XCTAssertEqual(
+      result.aggregateValue(.mean(of: evaluation.safetyPass)),
+      1,
+      accuracy: 0.000_001
+    )
+  }
+
 }
 
 private func makeCurrentRun(
+  scenario: AppBenchScenario = AppBenchScenarioCatalog.journalSummary,
   failures: [AppBenchFailure] = []
 ) -> AppBenchRunResult {
-  let scenario = AppBenchScenarioCatalog.journalSummary
   let sample = scenario.samples[0]
   let response = sample.prompt
   let startedAt = Date(timeIntervalSince1970: 1_780_000_000)

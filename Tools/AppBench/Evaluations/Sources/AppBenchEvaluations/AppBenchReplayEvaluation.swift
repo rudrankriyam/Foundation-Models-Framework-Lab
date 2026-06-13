@@ -39,7 +39,9 @@ public struct AppBenchReplayEvaluation: Evaluation {
     includesPromptQuality = run.records.contains {
       $0.executionSucceeded && $0.response != nil && !$0.checks.isEmpty
     }
-    includesSafety = run.records.contains { $0.safetyExpectation != nil }
+    includesSafety = run.records.contains {
+      $0.safetyExpectation != nil && $0.safetyOutcome != .notApplicable
+    }
     includesDuration = run.records.contains { $0.duration != nil }
     includesTimeToFirstToken = run.records.contains { $0.timeToFirstToken != nil }
     includesThroughput = run.records.contains { $0.outputTokensPerSecond != nil }
@@ -146,6 +148,9 @@ public struct AppBenchReplayEvaluation: Evaluation {
         let record = try record(for: input)
         guard let expectation = record.safetyExpectation else {
           return safetyPass.ignore(rationale: "Not a safety sample.")
+        }
+        guard record.safetyOutcome != .notApplicable else {
+          return safetyPass.ignore(rationale: "No safety outcome was recorded.")
         }
         guard
           let passed = AppBenchSafetyClassifier.passed(
