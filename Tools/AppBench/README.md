@@ -149,8 +149,15 @@ Tools/AppBench/appbench-evaluate replay \
 # Inspect, stream, compare, or export results without opening Xcode.
 xceval doctor --output json
 xceval inspect result.xcevalresult --output json
+xceval report result.xcevalresult --output json
 xceval samples result.xcevalresult --output jsonl
 xceval compare baseline.xcevalresult candidate.xcevalresult --output json
+
+# Run replay, validation, report generation, failure extraction, and datasets.
+# APPBENCH_RESULT is relative to Tools/AppBench.
+xceval pipeline Tools/AppBench/xceval.pipeline.json \
+  --set APPBENCH_RESULT=Results/run.json \
+  --force
 ```
 
 The generic [`xceval`](https://github.com/rudrankriyam/Evaluations-Framework-CLI)

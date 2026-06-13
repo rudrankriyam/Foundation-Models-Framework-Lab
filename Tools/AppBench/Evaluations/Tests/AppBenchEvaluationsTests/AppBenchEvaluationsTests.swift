@@ -12,7 +12,8 @@ final class AppBenchEvaluationsTests: XCTestCase {
     )
 
     XCTAssertEqual(samples.count, 25)
-    XCTAssertEqual(samples[0].expected, "task-capture-001")
+    XCTAssertEqual(samples[0].recordID, "task-capture-001")
+    XCTAssertNil(samples[0].expected)
     XCTAssertNotNil(samples[0].generationSchema)
   }
 
@@ -44,6 +45,39 @@ final class AppBenchEvaluationsTests: XCTestCase {
     XCTAssertEqual(recorded.records[0].sampleID, run.trials[0].sample.id)
     XCTAssertEqual(recorded.info["AppBench Source Schema"], "current")
     XCTAssertEqual(recorded.info["AppBench Source File"], "current.json")
+  }
+
+  func testCurrentResultExcludesWarmupFailures() throws {
+    let run = makeCurrentRun(
+      failures: [
+        AppBenchFailure(
+          scenarioID: "__warmup__",
+          sampleID: "__warmup__-1",
+          iteration: 1,
+          kind: "availability",
+          message: "Warmup failed"
+        ),
+        AppBenchFailure(
+          scenarioID: AppBenchScenarioCatalog.journalSummary.id,
+          sampleID: AppBenchScenarioCatalog.journalSummary.samples[0].id,
+          iteration: 2,
+          kind: "generation",
+          message: "Measured trial failed"
+        )
+      ]
+    )
+    let data = try XCTUnwrap(
+      AppBenchReport(result: run).json().data(using: .utf8)
+    )
+
+    let recorded = try AppBenchRecordedRunLoader.decode(data)
+
+    XCTAssertEqual(recorded.records.count, 2)
+    XCTAssertFalse(recorded.records.contains { $0.scenarioID == "__warmup__" })
+    XCTAssertEqual(
+      recorded.records.count(where: { !$0.executionSucceeded }),
+      1
+    )
   }
 
   func testLoadsLegacyAppBenchResult() throws {
@@ -82,7 +116,20 @@ final class AppBenchEvaluationsTests: XCTestCase {
             "outputTokensPerSecond": 30
           }
         }],
-        "failures": []
+        "failures": [
+          {
+            "id": "73D234B8-C266-4ECF-8A28-ECC2DF3657DC",
+            "scenarioID": "__warmup__",
+            "iteration": 1,
+            "message": "Warmup failed"
+          },
+          {
+            "id": "90788F0C-28B3-44A8-97A2-E3C98494AB72",
+            "scenarioID": "legacy-scenario",
+            "iteration": 2,
+            "message": "Measured trial failed"
+          }
+        ]
       }
       """
 
@@ -91,9 +138,14 @@ final class AppBenchEvaluationsTests: XCTestCase {
       sourceName: "legacy.json"
     )
 
-    XCTAssertEqual(recorded.records.count, 1)
+    XCTAssertEqual(recorded.records.count, 2)
     XCTAssertEqual(recorded.records[0].scenarioID, "legacy-scenario")
     XCTAssertEqual(recorded.records[0].duration, 1.25)
+    XCTAssertFalse(recorded.records.contains { $0.scenarioID == "__warmup__" })
+    XCTAssertEqual(
+      recorded.records.count(where: { !$0.executionSucceeded }),
+      1
+    )
     XCTAssertEqual(recorded.info["AppBench Source Schema"], "legacy")
     XCTAssertEqual(recorded.info["System Build"], "26A5353q")
   }
@@ -223,8 +275,13 @@ final class AppBenchEvaluationsTests: XCTestCase {
 
     let result = try await evaluation.run(info: run.info)
     let data = try result.jsonData(includeReportMetadata: true)
+    let document = try XCTUnwrap(
+      JSONSerialization.jsonObject(with: data) as? [String: Any]
+    )
+    let rows = try XCTUnwrap(document["results"] as? [[String: Any]])
 
     XCTAssertFalse(data.isEmpty)
+    XCTAssertTrue(rows.allSatisfy { $0["Expected"] == nil })
     XCTAssertEqual(
       result.aggregateValue(.mean(of: evaluation.promptPass)),
       1,
@@ -264,7 +321,9 @@ final class AppBenchEvaluationsTests: XCTestCase {
 
 }
 
-private func makeCurrentRun() -> AppBenchRunResult {
+private func makeCurrentRun(
+  failures: [AppBenchFailure] = []
+) -> AppBenchRunResult {
   let scenario = AppBenchScenarioCatalog.journalSummary
   let sample = scenario.samples[0]
   let response = sample.prompt
@@ -295,7 +354,8 @@ private func makeCurrentRun() -> AppBenchRunResult {
     trial: trial,
     environment: environment,
     startedAt: startedAt,
-    endedAt: endedAt
+    endedAt: endedAt,
+    failures: failures
   )
 }
 
@@ -344,7 +404,8 @@ private func makeTestRun(
   trial: AppBenchTrialResult,
   environment: EnvironmentSnapshot,
   startedAt: Date,
-  endedAt: Date
+  endedAt: Date,
+  failures: [AppBenchFailure] = []
 ) -> AppBenchRunResult {
   AppBenchRunResult(
     suite: .quick,
@@ -365,7 +426,7 @@ private func makeTestRun(
     endedAt: endedAt,
     environment: environment,
     trials: [trial],
-    failures: [],
+    failures: failures,
     scenarios: [scenario]
   )
 }

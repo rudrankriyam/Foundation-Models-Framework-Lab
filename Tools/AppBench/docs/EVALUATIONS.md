@@ -17,7 +17,8 @@ Keep the responsibilities separate:
    `.xcevalresult` files.
 4. The standalone, generic
    [`xceval`](https://github.com/rudrankriyam/Evaluations-Framework-CLI) CLI
-   inspects, streams, compares, and exports those artifacts for automation.
+   runs the complete replay pipeline and inspects, reports, streams, compares,
+   and exports those artifacts for automation.
 5. Xcode and Swift Testing remain available when a human wants the native report
    UI or a test should attach an evaluation result.
 
@@ -44,7 +45,7 @@ appbench-evaluate replay (macOS 27)
   v
 .xcevalresult JSON
   |                             \
-  | xceval inspect/samples       \ Swift Testing .evaluates
+  | xceval pipeline/report       \ Swift Testing .evaluates
   | xceval compare                v
   v                          .xcresult attachment
 agent-readable JSON               |
@@ -97,6 +98,12 @@ Each result row contains serialized input, response, expected value, and one
 entry per metric. Metric entries record their evaluator kind, pass/fail/score/
 ignore kind, numeric or Boolean value, and optional rationale.
 
+AppBench keeps its internal record ID in the serialized input sample and leaves
+the framework's `Expected` column empty. AppBench workloads usually express
+expected behavior as constraints and tool trajectories rather than one exact
+response. Storing the record UUID as `Expected` would make Xcode and generic
+reporting tools show a false subject-versus-expected mismatch on every row.
+
 The `Input` column is itself a JSON string containing the model sample input and
 expected output metadata. Consumers must decode it a second time if they need the
 prompt fields.
@@ -117,9 +124,13 @@ xcrun xcresulttool export evaluations \
 The export directory contains:
 
 - One or more `.xcevalresult` JSON files.
-- `manifest.json`, currently schema version `0.4.0` in the tested beta.
+- `manifest.json`, currently a JSON array of test records and their attachments.
 - Test identifiers, destination/configuration metadata, attachment names,
   timestamps, and failure association.
+
+`xcresulttool export evaluations --schema` reports `0.4.0` as the default
+export schema version in the tested beta. That version is command metadata; the
+emitted `manifest.json` does not currently include a `schemaVersion` field.
 
 `--test-id` narrows the export and `--only-failures` exports only attachments
 associated with failed tests.
@@ -172,6 +183,9 @@ xceval inspect \
   /tmp/appbench-evaluations/AppBenchReplayEvaluation-*.xcevalresult \
   --output json
 
+# Recreate the data behind Xcode's report, including distributions and issues.
+xceval report result.xcevalresult --output json
+
 # Return only metadata and aggregate metrics.
 xceval inspect result.xcevalresult \
   --summary-only \
@@ -195,10 +209,31 @@ xceval export Tests.xcresult \
   --output json
 ```
 
+The checked-in pipeline runs the AppBench replay command and writes one
+analysis directory containing the selected native result, logs, validation,
+Xcode-style report data, metric profiles, failing samples, and extracted
+datasets:
+
+```bash
+# APPBENCH_RESULT is relative to Tools/AppBench.
+xceval pipeline Tools/AppBench/xceval.pipeline.json \
+  --set APPBENCH_RESULT=Results/run.json \
+  --force
+```
+
+Add a `baseline` path and explicit `gates` to a local copy of the manifest when
+the comparison policy is known. The shared manifest intentionally does not
+guess whether a recorded failure, latency change, or PCC attempt should fail a
+particular release workflow.
+
 `appbench-evaluate replay` accepts both the current AppBench result schema and the
 repository’s historical June 2026 result schema. `xceval compare` reports raw
 deltas without assuming whether higher or lower is better; an AppBench policy
 layer can apply metric-specific regression thresholds later.
+
+Warmup failures remain in the portable AppBench report for diagnostics but are
+excluded from Evaluations replay samples. They are setup failures, not measured
+benchmark trials, and must not lower the execution-success aggregate.
 
 ## Why `xceval` Uses Raw JSON
 

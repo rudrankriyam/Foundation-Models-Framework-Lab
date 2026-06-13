@@ -123,9 +123,12 @@ public enum AppBenchRecordedRunLoader {
     let scenarios = Dictionary(
       uniqueKeysWithValues: AppBenchScenarioCatalog.all.map { ($0.id, $0) }
     )
+    let measuredFailures = result.failures.filter {
+      $0.scenarioID != "__warmup__"
+    }
     let records =
       result.trials.map { currentRecord($0, scenarios: scenarios) }
-      + result.failures.map {
+      + measuredFailures.map {
         currentFailureRecord(
           $0,
           model: result.model,
@@ -157,9 +160,12 @@ public enum AppBenchRecordedRunLoader {
     let catalog = Dictionary(
       uniqueKeysWithValues: AppBenchScenarioCatalog.all.map { ($0.id, $0) }
     )
+    let measuredFailures = result.failures.filter {
+      $0.scenarioID != "__warmup__"
+    }
     let records =
       result.trials.map(legacyRecord)
-      + result.failures.map {
+      + measuredFailures.map {
         legacyFailureRecord(
           $0,
           model: result.model,

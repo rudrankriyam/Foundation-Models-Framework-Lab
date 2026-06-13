@@ -9,7 +9,9 @@ public enum AppBenchEvaluationsAdapter {
   public static let toolCallsPassMetric = Metric("AppBench Tool Calls Pass")
   public static let toolCallsPercentageMetric = Metric("AppBench Tool Calls Percentage")
 
-  public static func samples(for scenario: AppBenchScenario) throws -> [ModelSample<String>] {
+  public static func samples(
+    for scenario: AppBenchScenario
+  ) throws -> [AppBenchEvaluationSample] {
     let schema: GenerationSchema?
     switch scenario.outputMode {
     case .text:
@@ -19,9 +21,9 @@ public enum AppBenchEvaluationsAdapter {
     }
 
     return try scenario.samples.map { sample in
-      ModelSample(
+      AppBenchEvaluationSample(
+        recordID: sample.id,
         prompt: try appBenchPrompt(for: sample),
-        expected: sample.id,
         instructions: Instructions(scenario.instructions),
         generationSchema: schema,
         expectations: trajectoryExpectation(for: sample.checks)
@@ -31,10 +33,10 @@ public enum AppBenchEvaluationsAdapter {
 
   public static func promptPassEvaluator(
     for scenario: AppBenchScenario
-  ) -> Evaluator<ModelSample<String>> {
+  ) -> Evaluator<AppBenchEvaluationSample> {
     let checks = checksBySampleID(scenario)
     return Evaluator { input, subject in
-      guard let sampleID = input.expected, let sampleChecks = checks[sampleID] else {
+      guard let sampleChecks = checks[input.recordID] else {
         return promptPassMetric.ignore(rationale: "Missing AppBench sample metadata.")
       }
       let grade = AppBenchGrader.grade(
@@ -50,10 +52,10 @@ public enum AppBenchEvaluationsAdapter {
 
   public static func constraintScoreEvaluator(
     for scenario: AppBenchScenario
-  ) -> Evaluator<ModelSample<String>> {
+  ) -> Evaluator<AppBenchEvaluationSample> {
     let checks = checksBySampleID(scenario)
     return Evaluator { input, subject in
-      guard let sampleID = input.expected, let sampleChecks = checks[sampleID] else {
+      guard let sampleChecks = checks[input.recordID] else {
         return constraintScoreMetric.ignore(
           rationale: "Missing AppBench sample metadata."
         )
@@ -72,7 +74,7 @@ public enum AppBenchEvaluationsAdapter {
 
   public static func toolCallEvaluator(
     for scenario: AppBenchScenario
-  ) -> ToolCallEvaluator<ModelSample<String>>? {
+  ) -> ToolCallEvaluator<AppBenchEvaluationSample>? {
     guard scenario.samples.contains(where: { trajectoryExpectation(for: $0.checks) != nil })
     else {
       return nil

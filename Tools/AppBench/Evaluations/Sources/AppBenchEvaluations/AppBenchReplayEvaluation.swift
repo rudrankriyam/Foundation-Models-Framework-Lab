@@ -16,7 +16,7 @@ public struct AppBenchReplayEvaluation: Evaluation {
   public let toolCallsPass = Metric("AppBench Tool Calls Pass")
   public let toolCallsPercentage = Metric("AppBench Tool Calls Percentage")
 
-  public let dataset: ArrayLoader<ModelSample<String>>
+  public let dataset: ArrayLoader<AppBenchEvaluationSample>
   public let run: AppBenchRecordedRun
   private let recordsByID: [String: AppBenchEvaluationRecord]
   private let includesPromptQuality: Bool
@@ -51,10 +51,10 @@ public struct AppBenchReplayEvaluation: Evaluation {
     }
     dataset = ArrayLoader(
       samples: run.records.map { record in
-        ModelSample(
-          prompt: record.prompt,
-          expected: record.id,
-          instructions: record.instructions,
+        AppBenchEvaluationSample(
+          recordID: record.id,
+          prompt: Prompt(record.prompt),
+          instructions: Instructions(record.instructions),
           expectations: AppBenchEvaluationsAdapter.trajectoryExpectation(
             for: record.checks
           )
@@ -64,7 +64,7 @@ public struct AppBenchReplayEvaluation: Evaluation {
   }
 
   public func subject(
-    from sample: ModelSample<String>
+    from sample: AppBenchEvaluationSample
   ) async throws -> ModelSubject<String> {
     let record = try record(for: sample)
     let transcript = try StructuredTranscript(
@@ -256,10 +256,10 @@ public struct AppBenchReplayEvaluation: Evaluation {
 @available(macOS 27.0, *)
 extension AppBenchReplayEvaluation {
   private func record(
-    for sample: ModelSample<String>
+    for sample: AppBenchEvaluationSample
   ) throws -> AppBenchEvaluationRecord {
-    guard let id = sample.expected, let record = recordsByID[id] else {
-      throw AppBenchReplayEvaluationError.missingRecord(sample.expected)
+    guard let record = recordsByID[sample.recordID] else {
+      throw AppBenchReplayEvaluationError.missingRecord(sample.recordID)
     }
     return record
   }
@@ -268,7 +268,7 @@ extension AppBenchReplayEvaluation {
     metric: Metric,
     value: @escaping @Sendable (AppBenchEvaluationRecord) -> Double?,
     missingRationale: String
-  ) -> Evaluator<ModelSample<String>> {
+  ) -> Evaluator<AppBenchEvaluationSample> {
     Evaluator { input, _ in
       let record = try record(for: input)
       guard let score = value(record) else {
