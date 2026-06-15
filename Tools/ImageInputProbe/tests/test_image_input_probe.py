@@ -1,6 +1,8 @@
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 TOOL_DIRECTORY = Path(__file__).resolve().parents[1]
@@ -85,6 +87,88 @@ class EstimatedBufferTests(unittest.TestCase):
 
         self.assertLess(last_success_bytes, image_input_probe.TWO_GIB_BYTES)
         self.assertGreaterEqual(first_failure_bytes, image_input_probe.TWO_GIB_BYTES)
+
+
+class MainLoopTests(unittest.TestCase):
+    def test_pixel_cap_skip_does_not_abort_non_monotonic_explicit_sizes(self):
+        successful_record = {
+            "ratio": "1:1",
+            "width": 10,
+            "height": 10,
+            "megapixels": 0.0,
+            "bytes": 1,
+            "response_seconds": 0.0,
+            "response": "ok",
+            "success": True,
+        }
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source.jpg"
+            source.touch()
+            output_directory = root / "output"
+
+            with (
+                mock.patch.object(
+                    image_input_probe,
+                    "run_command",
+                    return_value=image_input_probe.CommandResult(0, "", "", 0),
+                ),
+                mock.patch.object(
+                    image_input_probe,
+                    "resolve_executable",
+                    side_effect=lambda value: value,
+                ),
+                mock.patch.object(
+                    image_input_probe,
+                    "macos_version_value",
+                    return_value="test",
+                ),
+                mock.patch.object(
+                    image_input_probe,
+                    "generate_variant",
+                    return_value=image_input_probe.CommandResult(0, "", "", 0),
+                ) as generate_variant,
+                mock.patch.object(
+                    image_input_probe,
+                    "image_properties",
+                    return_value={
+                        "width": 10,
+                        "height": 10,
+                        "format": "jpeg",
+                        "bytes": 1,
+                    },
+                ),
+                mock.patch.object(
+                    image_input_probe,
+                    "test_image",
+                    return_value=successful_record,
+                ) as test_image,
+            ):
+                exit_code = image_input_probe.main(
+                    [
+                        str(source),
+                        "--skip-source",
+                        "--ratios",
+                        "1:1",
+                        "--sizes",
+                        "20,10",
+                        "--max-pixels",
+                        "150",
+                        "--fm-path",
+                        "fm",
+                        "--sips-path",
+                        "sips",
+                        "--output-dir",
+                        str(output_directory),
+                    ]
+                )
+
+        self.assertEqual(exit_code, 0)
+        generate_variant.assert_called_once()
+        self.assertEqual(generate_variant.call_args.kwargs["width"], 10)
+        self.assertEqual(generate_variant.call_args.kwargs["height"], 10)
+        self.assertEqual(test_image.call_args.kwargs["long_edge"], 10)
 
 
 if __name__ == "__main__":

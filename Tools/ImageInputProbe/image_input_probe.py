@@ -610,7 +610,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                         f"{format_megapixels(width, height):>8.2f} MP  "
                         f"{'-':>7}      SKIP         {skipped['reason']}"
                     )
-                    break
+                    continue
 
                 image_path = image_root / (
                     f"{ratio.width}x{ratio.height}-{width}x{height}.{extension}"
