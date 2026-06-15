@@ -640,7 +640,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                         "generation_seconds": round(generated.seconds, 4),
                     }
                     write_record(report_path, generation_failure)
-                    failures[ratio.label] = generation_failure
+                    failures.setdefault(ratio.label, generation_failure)
                     print(
                         f"{ratio.label:>7}  {f'{width}x{height}':>13}  "
                         f"{format_megapixels(width, height):>8.2f} MP  "
@@ -666,7 +666,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                         "generation_seconds": round(generated.seconds, 4),
                     }
                     write_record(report_path, inspection_failure)
-                    failures[ratio.label] = inspection_failure
+                    failures.setdefault(ratio.label, inspection_failure)
                     print(
                         f"{ratio.label:>7}  {f'{width}x{height}':>13}  "
                         f"{format_megapixels(width, height):>8.2f} MP  "

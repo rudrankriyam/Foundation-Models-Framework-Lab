@@ -1,6 +1,8 @@
+import io
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 from unittest import mock
 
@@ -145,6 +147,103 @@ class MainLoopTests(unittest.TestCase):
                     return_value=successful_record,
                 ) as test_image,
             ):
+                with redirect_stdout(io.StringIO()):
+                    exit_code = image_input_probe.main(
+                        [
+                            str(source),
+                            "--skip-source",
+                            "--ratios",
+                            "1:1",
+                            "--sizes",
+                            "20,10",
+                            "--max-pixels",
+                            "150",
+                            "--fm-path",
+                            "fm",
+                            "--sips-path",
+                            "sips",
+                            "--output-dir",
+                            str(output_directory),
+                        ]
+                    )
+
+        self.assertEqual(exit_code, 0)
+        generate_variant.assert_called_once()
+        self.assertEqual(generate_variant.call_args.kwargs["width"], 10)
+        self.assertEqual(generate_variant.call_args.kwargs["height"], 10)
+        self.assertEqual(test_image.call_args.kwargs["long_edge"], 10)
+
+    def test_first_failure_is_preserved_when_later_generation_fails(self):
+        successful_record = {
+            "ratio": "1:1",
+            "width": 5,
+            "height": 5,
+            "megapixels": 0.0,
+            "bytes": 1,
+            "response_seconds": 0.0,
+            "response": "ok",
+            "success": True,
+        }
+        semantic_failure = {
+            "ratio": "1:1",
+            "width": 10,
+            "height": 10,
+            "megapixels": 0.0,
+            "bytes": 1,
+            "response_seconds": 0.0,
+            "error": "missing expected term",
+            "success": False,
+        }
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source.jpg"
+            source.touch()
+            output_directory = root / "output"
+            output = io.StringIO()
+
+            with (
+                mock.patch.object(
+                    image_input_probe,
+                    "run_command",
+                    return_value=image_input_probe.CommandResult(0, "", "", 0),
+                ),
+                mock.patch.object(
+                    image_input_probe,
+                    "resolve_executable",
+                    side_effect=lambda value: value,
+                ),
+                mock.patch.object(
+                    image_input_probe,
+                    "macos_version_value",
+                    return_value="test",
+                ),
+                mock.patch.object(
+                    image_input_probe,
+                    "generate_variant",
+                    side_effect=[
+                        image_input_probe.CommandResult(0, "", "", 0),
+                        image_input_probe.CommandResult(0, "", "", 0),
+                        image_input_probe.CommandResult(1, "", "generation failed", 0),
+                    ],
+                ),
+                mock.patch.object(
+                    image_input_probe,
+                    "image_properties",
+                    return_value={
+                        "width": 5,
+                        "height": 5,
+                        "format": "jpeg",
+                        "bytes": 1,
+                    },
+                ),
+                mock.patch.object(
+                    image_input_probe,
+                    "test_image",
+                    side_effect=[successful_record, semantic_failure],
+                ),
+                redirect_stdout(output),
+            ):
                 exit_code = image_input_probe.main(
                     [
                         str(source),
@@ -152,9 +251,8 @@ class MainLoopTests(unittest.TestCase):
                         "--ratios",
                         "1:1",
                         "--sizes",
-                        "20,10",
-                        "--max-pixels",
-                        "150",
+                        "5,10,20",
+                        "--continue-after-failure",
                         "--fm-path",
                         "fm",
                         "--sips-path",
@@ -165,10 +263,8 @@ class MainLoopTests(unittest.TestCase):
                 )
 
         self.assertEqual(exit_code, 0)
-        generate_variant.assert_called_once()
-        self.assertEqual(generate_variant.call_args.kwargs["width"], 10)
-        self.assertEqual(generate_variant.call_args.kwargs["height"], 10)
-        self.assertEqual(test_image.call_args.kwargs["long_edge"], 10)
+        self.assertIn("first failure 10x10.", output.getvalue())
+        self.assertNotIn("first failure 20x20.", output.getvalue())
 
 
 if __name__ == "__main__":
