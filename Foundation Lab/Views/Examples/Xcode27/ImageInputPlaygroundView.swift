@@ -14,7 +14,7 @@ struct ImageInputPlaygroundView: View {
     var body: some View {
         ExampleViewBase(
             title: "Image Input",
-            description: "Explore image attachments and generated image references",
+            description: "Explore image attachments, references, and empirical resolution boundaries",
             defaultPrompt: "Turn this screenshot into a concise bug report.",
             currentPrompt: $currentPrompt,
             codeExample: selectedRecipe.code,
@@ -43,6 +43,8 @@ struct ImageInputPlaygroundView: View {
                         )
                     }
                 }
+
+                ImageInputResolutionFindingsView()
 
                 Xcode27Section("Recipes", systemImage: "list.bullet.clipboard") {
                     Picker("Recipe", selection: $selectedRecipe) {
@@ -114,13 +116,11 @@ private enum ImageInputRecipe: String, CaseIterable, Identifiable {
                 .label("screenshot")
 
             let session = LanguageModelSession()
-            let response = try await session.respond(
-                to: Prompt("\(prompt)")
-                // Include image attachment with the prompt when using the Xcode 27 attachment API.
-            )
-
-            let reference = try response.content as ImageReference
-            let resolved = reference.resolve(in: session.transcript)
+            let response = try await session.respond {
+                "\(prompt)"
+                image
+            }
+            print(response.content)
         }
         """
     }
@@ -131,4 +131,3 @@ private enum ImageInputRecipe: String, CaseIterable, Identifiable {
         ImageInputPlaygroundView()
     }
 }
-

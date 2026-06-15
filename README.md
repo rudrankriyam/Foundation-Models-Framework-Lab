@@ -47,6 +47,21 @@ Xcode 27 adds several Foundation Models surfaces that are not available in the X
 - `GenerationOptions.toolCallingMode` with `.allowed`, `.required`, and `.disallowed`.
 - Foundation Models types are now available to watchOS 27 for many prompting, schema, transcript, tool, and feedback surfaces, while tvOS remains unavailable.
 
+### Probe image input limits
+
+Apple does not currently publish a maximum image resolution for Foundation
+Models attachments. The repo includes a CLI that resamples any source image
+through square and common landscape/portrait ratios, calls Apple's `fm` CLI,
+and records the first failing size:
+
+```bash
+Tools/ImageInputProbe/image_input_probe.py path/to/photo.jpg
+```
+
+See [Tools/ImageInputProbe/README.md](Tools/ImageInputProbe/README.md) for
+larger sweeps, semantic checks, JSONL reports, and the current beta's observed
+decoded-buffer boundary.
+
 ## Try it on TestFlight
 
 You can now try Foundation Lab on TestFlight! Join the beta: [https://testflight.apple.com/join/JWR9FpP3](https://testflight.apple.com/join/JWR9FpP3)

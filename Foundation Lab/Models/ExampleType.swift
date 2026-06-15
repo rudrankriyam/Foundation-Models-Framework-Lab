@@ -135,7 +135,7 @@ enum ExampleType: String, CaseIterable, Identifiable {
         case .privateCloudCompute:
             return "Probe PCC availability, quota, and context size"
         case .imageInputPlayground:
-            return "Explore image attachments and references"
+            return "Explore image attachments and resolution boundaries"
         case .toolCallingModeLab:
             return "Compare allowed, required, and disallowed tools"
         case .dynamicProfileBuilder:
