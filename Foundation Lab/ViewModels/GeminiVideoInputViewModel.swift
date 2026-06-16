@@ -48,8 +48,18 @@ final class GeminiVideoInputViewModel {
     }
 
     var videoSize: String {
-        guard let videoURL,
-              let values = try? videoURL.resourceValues(forKeys: [.fileSizeKey]),
+        guard let videoURL else {
+            return "Unknown size"
+        }
+
+        let accessed = videoURL.startAccessingSecurityScopedResource()
+        defer {
+            if accessed {
+                videoURL.stopAccessingSecurityScopedResource()
+            }
+        }
+
+        guard let values = try? videoURL.resourceValues(forKeys: [.fileSizeKey]),
               let bytes = values.fileSize else {
             return "Unknown size"
         }
@@ -159,8 +169,13 @@ private extension GeminiVideoInputViewModel {
             }
         }
 
+        let file = try FileHandle(forReadingFrom: url)
+        defer {
+            try? file.close()
+        }
+
         return LoadedVideo(
-            data: try Data(contentsOf: url, options: .mappedIfSafe),
+            data: try file.readToEnd() ?? Data(),
             mimeType: mimeType(for: url)
         )
     }

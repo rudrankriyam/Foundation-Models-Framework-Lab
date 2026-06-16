@@ -14,13 +14,9 @@ import SwiftUI
 struct GeminiVideoPreview: View {
     let url: URL
 
-    @State private var player: AVPlayer
+    @State private var player = AVPlayer()
     @State private var isPlaying = false
-
-    init(url: URL) {
-        self.url = url
-        _player = State(initialValue: AVPlayer(url: url))
-    }
+    @State private var securityScopedURL: URL?
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -43,10 +39,11 @@ struct GeminiVideoPreview: View {
         }
         .accessibilityLabel("Selected Gemini video input")
         .onAppear {
+            load(url)
             play()
         }
         .onChange(of: url) { _, newURL in
-            player.replaceCurrentItem(with: AVPlayerItem(url: newURL))
+            load(newURL)
             play()
         }
         .onReceive(NotificationCenter.default.publisher(for: .AVPlayerItemDidPlayToEndTime)) { notification in
@@ -59,7 +56,21 @@ struct GeminiVideoPreview: View {
         .onDisappear {
             player.pause()
             isPlaying = false
+            stopAccessingSecurityScopedURL()
         }
+    }
+
+    private func load(_ url: URL) {
+        stopAccessingSecurityScopedURL()
+        if url.startAccessingSecurityScopedResource() {
+            securityScopedURL = url
+        }
+        player.replaceCurrentItem(with: AVPlayerItem(url: url))
+    }
+
+    private func stopAccessingSecurityScopedURL() {
+        securityScopedURL?.stopAccessingSecurityScopedResource()
+        securityScopedURL = nil
     }
 
     private func togglePlayback() {
