@@ -21,6 +21,7 @@ enum ExampleType: String, CaseIterable, Identifiable {
     case contextWindowInspector = "context_window_inspector"
     case privateCloudCompute = "private_cloud_compute"
     case imageInputPlayground = "image_input_playground"
+    case geminiVideoInput = "gemini_video_input"
     case toolCallingModeLab = "tool_calling_mode_lab"
     case dynamicProfileBuilder = "dynamic_profile_builder"
     case reasoningLevelComparison = "reasoning_level_comparison"
@@ -69,6 +70,8 @@ enum ExampleType: String, CaseIterable, Identifiable {
             return "Private Cloud"
         case .imageInputPlayground:
             return "Image Input"
+        case .geminiVideoInput:
+            return "Gemini Video"
         case .toolCallingModeLab:
             return "Tool Modes"
         case .dynamicProfileBuilder:
@@ -136,6 +139,8 @@ enum ExampleType: String, CaseIterable, Identifiable {
             return "Probe PCC availability, quota, and context size"
         case .imageInputPlayground:
             return "Explore image attachments and resolution boundaries"
+        case .geminiVideoInput:
+            return "Analyze video with a custom LanguageModelSession"
         case .toolCallingModeLab:
             return "Compare allowed, required, and disallowed tools"
         case .dynamicProfileBuilder:
@@ -203,6 +208,8 @@ enum ExampleType: String, CaseIterable, Identifiable {
             return "icloud.and.arrow.up"
         case .imageInputPlayground:
             return "photo.on.rectangle.angled"
+        case .geminiVideoInput:
+            return "video.badge.waveform"
         case .toolCallingModeLab:
             return "hammer"
         case .dynamicProfileBuilder:
