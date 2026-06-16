@@ -36,6 +36,16 @@ extension ExampleType {
             PrivateCloudComputeView()
         case .imageInputPlayground:
             ImageInputPlaygroundView()
+        case .geminiVideoInput:
+            if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) {
+                GeminiVideoInputView()
+            } else {
+                ContentUnavailableView(
+                    "Xcode 27 Required",
+                    systemImage: "video.slash",
+                    description: Text("Custom LanguageModel executors require iOS, macOS, or visionOS 27.")
+                )
+            }
         case .toolCallingModeLab:
             ToolCallingModeLabView()
         case .dynamicProfileBuilder:
@@ -91,7 +101,7 @@ extension ExampleType {
         switch self {
         case .structuredData, .generationGuides, .generationOptions, .modelRuntime,
              .contextWindowInspector, .privateCloudCompute, .imageInputPlayground,
-             .toolCallingModeLab, .dynamicProfileBuilder, .reasoningLevelComparison,
+             .geminiVideoInput, .toolCallingModeLab, .dynamicProfileBuilder, .reasoningLevelComparison,
              .transcriptExplorer, .agentFlowInspector, .historyTransformLab,
              .riskyToolConfirmation, .modelRouterDashboard, .contextBudgetVisualizer,
              .toolCallTrajectoryViewer, .foundationModelsSecurityPlayground,
@@ -120,6 +130,7 @@ extension ExampleType {
             .contextWindowInspector,
             .privateCloudCompute,
             .imageInputPlayground,
+            .geminiVideoInput,
             .toolCallingModeLab,
             .dynamicProfileBuilder,
             .reasoningLevelComparison,
