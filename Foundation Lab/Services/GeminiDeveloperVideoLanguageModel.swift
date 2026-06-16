@@ -362,7 +362,8 @@ struct GeminiDeveloperAPIClient: Sendable {
         contents: [Content],
         systemInstruction: Content?
     ) async throws -> Response {
-        guard !apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+        let requestAPIKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !requestAPIKey.isEmpty else {
             throw GeminiDeveloperAPIError.apiKeyMissing
         }
 
@@ -378,7 +379,7 @@ struct GeminiDeveloperAPIClient: Sendable {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
+        request.setValue(requestAPIKey, forHTTPHeaderField: "x-goog-api-key")
         request.httpBody = try JSONEncoder().encode(
             RequestBody(
                 contents: contents,

@@ -8,6 +8,7 @@
 import Foundation
 import FoundationModels
 import Observation
+import UniformTypeIdentifiers
 
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
 @available(tvOS, unavailable)
@@ -176,23 +177,37 @@ private extension GeminiVideoInputViewModel {
 
         return LoadedVideo(
             data: try file.readToEnd() ?? Data(),
-            mimeType: mimeType(for: url)
+            mimeType: try mimeType(for: url)
         )
     }
 
-    nonisolated static func mimeType(for url: URL) -> String {
-        switch url.pathExtension.lowercased() {
-        case "mov":
-            return "video/quicktime"
-        case "m4v":
-            return "video/x-m4v"
-        default:
-            return "video/mp4"
+    nonisolated static func mimeType(for url: URL) throws -> String {
+        let resourceType = try? url.resourceValues(forKeys: [.contentTypeKey]).contentType
+        let fileType = resourceType ?? UTType(filenameExtension: url.pathExtension)
+
+        guard let fileType,
+              fileType.conforms(to: .movie),
+              let mimeType = fileType.preferredMIMEType else {
+            throw GeminiVideoInputError.unsupportedVideoFormat(url.pathExtension)
         }
+
+        return mimeType
     }
 }
 
 private struct LoadedVideo: Sendable {
     let data: Data
     let mimeType: String
+}
+
+private enum GeminiVideoInputError: LocalizedError {
+    case unsupportedVideoFormat(String)
+
+    var errorDescription: String? {
+        switch self {
+        case let .unsupportedVideoFormat(pathExtension):
+            let format = pathExtension.isEmpty ? "unknown" : pathExtension.uppercased()
+            return "The selected \(format) file does not have a recognized video MIME type."
+        }
+    }
 }
