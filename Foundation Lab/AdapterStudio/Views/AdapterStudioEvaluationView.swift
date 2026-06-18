@@ -8,7 +8,7 @@ struct AdapterStudioEvaluationView: View {
         VStack(alignment: .leading, spacing: Spacing.xLarge) {
             VStack(alignment: .leading, spacing: Spacing.small) {
                 Text("Interactive Timing")
-                    .font(.title3.bold())
+                    .font(.headline)
 
                 Text(
                     "The two models stream concurrently for fast visual comparison. "
@@ -36,16 +36,16 @@ struct AdapterStudioEvaluationView: View {
                 ) {
                     GridRow {
                         Text("Metric")
-                            .font(.caption.bold())
+                            .font(.subheadline.bold())
                             .foregroundStyle(.secondary)
                         Text("Base")
-                            .font(.caption.bold())
+                            .font(.subheadline.bold())
                             .foregroundStyle(.secondary)
                         Text("Adapter")
-                            .font(.caption.bold())
+                            .font(.subheadline.bold())
                             .foregroundStyle(.secondary)
                         Text("Adapter delta")
-                            .font(.caption.bold())
+                            .font(.subheadline.bold())
                             .foregroundStyle(.secondary)
                     }
 
@@ -93,18 +93,13 @@ struct AdapterStudioEvaluationView: View {
                     }
                 }
                 .font(.callout.monospacedDigit())
-                .padding(Spacing.large)
-                .background(
-                    Color.secondaryBackgroundColor,
-                    in: .rect(cornerRadius: CornerRadius.large)
-                )
             }
         }
     }
 
     private func durationLabel(_ duration: TimeInterval?) -> String {
         guard let duration else { return "--" }
-        return duration.formatted(.number.precision(.fractionLength(2))) + "s"
+        return "\(duration.formatted(.number.precision(.fractionLength(2))))s"
     }
 
     private func deltaLabel(
@@ -114,9 +109,7 @@ struct AdapterStudioEvaluationView: View {
         guard let base, let adapter else { return "--" }
         let delta = adapter - base
         let prefix = delta > 0 ? "+" : ""
-        return prefix
-            + delta.formatted(.number.precision(.fractionLength(2)))
-            + "s"
+        return "\(prefix)\(delta.formatted(.number.precision(.fractionLength(2))))s"
     }
 }
 #endif

@@ -8,7 +8,7 @@ struct AdapterStudioPreviewView: View {
         VStack(alignment: .leading, spacing: Spacing.xLarge) {
             VStack(alignment: .leading, spacing: Spacing.small) {
                 Text("Adapter Workflow")
-                    .font(.title3.bold())
+                    .font(.headline)
 
                 Text(
                     "Train and export with Apple's toolkit, then use this workspace "
@@ -20,28 +20,24 @@ struct AdapterStudioPreviewView: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 LabeledContent("1. Configure toolkit", value: "fmas init")
-                    .padding(Spacing.medium)
+                    .padding(.vertical, Spacing.small)
                 Divider()
                 LabeledContent("2. Install dependencies", value: "fmas setup")
-                    .padding(Spacing.medium)
+                    .padding(.vertical, Spacing.small)
                 Divider()
                 LabeledContent("3. Train", value: "fmas train-adapter --help")
-                    .padding(Spacing.medium)
+                    .padding(.vertical, Spacing.small)
                 Divider()
                 LabeledContent("4. Export", value: "fmas export --help")
-                    .padding(Spacing.medium)
+                    .padding(.vertical, Spacing.small)
                 Divider()
                 LabeledContent(
                     "5. Compare",
                     value: viewModel.adapterContext?.metadata.fileName
                         ?? "Import the .fmadapter package"
                 )
-                .padding(Spacing.medium)
+                .padding(.vertical, Spacing.small)
             }
-            .background(
-                Color.secondaryBackgroundColor,
-                in: .rect(cornerRadius: CornerRadius.large)
-            )
 
             Label(
                 "Adapters are tied to a specific system-model version. "

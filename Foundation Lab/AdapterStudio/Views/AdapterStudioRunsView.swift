@@ -8,7 +8,7 @@ struct AdapterStudioRunsView: View {
         VStack(alignment: .leading, spacing: Spacing.xLarge) {
             VStack(alignment: .leading, spacing: Spacing.small) {
                 Text("Prompt")
-                    .font(.title3.bold())
+                    .font(.headline)
 
                 TextField(
                     "Enter one prompt for both models",
@@ -16,12 +16,7 @@ struct AdapterStudioRunsView: View {
                     axis: .vertical
                 )
                 .lineLimit(5...10)
-                .textFieldStyle(.plain)
-                .padding(Spacing.medium)
-                .background(
-                    Color.secondaryBackgroundColor,
-                    in: .rect(cornerRadius: CornerRadius.medium)
-                )
+                .textFieldStyle(.roundedBorder)
                 .disabled(viewModel.isRunning)
 
                 HStack {
@@ -70,6 +65,8 @@ struct AdapterStudioRunsView: View {
                         isActive: viewModel.isRunning
                     )
 
+                    Divider()
+
                     AdapterStudioResponseColumn(
                         title: "Custom Adapter",
                         subtitle: viewModel.adapterContext?.metadata.fileName
@@ -86,6 +83,8 @@ struct AdapterStudioRunsView: View {
                         column: viewModel.baseColumn,
                         isActive: viewModel.isRunning
                     )
+
+                    Divider()
 
                     AdapterStudioResponseColumn(
                         title: "Custom Adapter",

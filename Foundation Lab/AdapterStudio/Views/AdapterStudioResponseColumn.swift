@@ -14,7 +14,7 @@ struct AdapterStudioResponseColumn: View {
                     .font(.headline)
 
                 Text(subtitle)
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
@@ -54,18 +54,18 @@ struct AdapterStudioResponseColumn: View {
                 HStack(spacing: Spacing.large) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("First token")
-                            .font(.caption)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                         Text(durationLabel(metrics.timeToFirstToken))
-                        .font(.callout.monospacedDigit())
+                            .font(.callout.monospacedDigit())
                     }
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Total")
-                            .font(.caption)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                         Text(durationLabel(metrics.totalDuration))
-                        .font(.callout.monospacedDigit())
+                            .font(.callout.monospacedDigit())
                     }
 
                     Spacer(minLength: 0)
@@ -73,17 +73,12 @@ struct AdapterStudioResponseColumn: View {
                 .accessibilityElement(children: .combine)
             }
         }
-        .padding(Spacing.large)
-        .frame(maxWidth: .infinity, alignment: .topLeading)
-        .background(
-            Color.secondaryBackgroundColor,
-            in: .rect(cornerRadius: CornerRadius.large)
-        )
+        .frame(minWidth: 280, maxWidth: .infinity, alignment: .topLeading)
     }
 
     private func durationLabel(_ duration: TimeInterval?) -> String {
         guard let duration else { return "--" }
-        return duration.formatted(.number.precision(.fractionLength(2))) + "s"
+        return "\(duration.formatted(.number.precision(.fractionLength(2))))s"
     }
 }
 

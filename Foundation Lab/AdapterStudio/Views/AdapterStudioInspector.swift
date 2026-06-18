@@ -3,40 +3,16 @@ import SwiftUI
 struct AdapterStudioInspector: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.large) {
-            HStack(spacing: 0) {
-                VStack(spacing: 2) {
-                    Text("2")
-                        .font(.headline.monospacedDigit())
-                    Text("Models")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
+            VStack(alignment: .leading, spacing: Spacing.small) {
+                Text("Comparison")
+                    .font(.headline)
 
-                Divider()
-
-                VStack(spacing: 2) {
-                    Text("Fresh")
-                        .font(.headline)
-                    Text("Sessions")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-
-                Divider()
-
-                VStack(spacing: 2) {
-                    Text("Local")
-                        .font(.headline)
-                    Text("Inference")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
+                LabeledContent("Models", value: "2")
+                LabeledContent("Sessions", value: "Fresh")
+                LabeledContent("Inference", value: "Local")
             }
-            .frame(height: 52)
-            .accessibilityElement(children: .contain)
+
+            Divider()
 
             VStack(alignment: .leading, spacing: Spacing.medium) {
                 Text("Comparison Rules")

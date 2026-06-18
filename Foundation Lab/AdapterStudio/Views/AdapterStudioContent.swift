@@ -28,9 +28,7 @@ struct AdapterStudioContent: View {
         .alert(
             "Adapter Studio",
             isPresented: $viewModel.isShowingError
-        ) {
-            Button("OK", role: .cancel) {}
-        } message: {
+        ) { } message: {
             Text(viewModel.presentedError)
         }
         .onDisappear(perform: viewModel.cancel)

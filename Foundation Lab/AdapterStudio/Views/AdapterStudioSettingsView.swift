@@ -8,7 +8,7 @@ struct AdapterStudioSettingsView: View {
         VStack(alignment: .leading, spacing: Spacing.xLarge) {
             VStack(alignment: .leading, spacing: Spacing.small) {
                 Text("Adapter Package")
-                    .font(.title3.bold())
+                    .font(.headline)
 
                 Text(
                     "Foundation Lab copies imported .fmadapter packages into "
@@ -18,33 +18,18 @@ struct AdapterStudioSettingsView: View {
                 .foregroundStyle(.secondary)
             }
 
-            HStack(spacing: Spacing.small) {
-                Button(
-                    "Import Adapter",
-                    systemImage: "tray.and.arrow.down",
-                    action: viewModel.importAdapter
-                )
-                .buttonStyle(.borderedProminent)
-
-                Menu("Saved Adapters", systemImage: "archivebox") {
-                    if viewModel.availableAdapters.isEmpty {
-                        Text("No saved adapters")
-                    } else {
-                        ForEach(viewModel.availableAdapters, id: \.self) { url in
-                            Button(url.lastPathComponent) {
-                                viewModel.loadAdapter(at: url)
-                            }
-                        }
-                    }
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: Spacing.small) {
+                    importButton
+                    savedAdaptersMenu
+                    showInFinderButton
                 }
 
-                Button(
-                    "Show in Finder",
-                    systemImage: "folder",
-                    action: viewModel.showAdaptersDirectory
-                )
-
-                Spacer(minLength: 0)
+                VStack(alignment: .leading, spacing: Spacing.small) {
+                    importButton
+                    savedAdaptersMenu
+                    showInFinderButton
+                }
             }
 
             if let metadata = viewModel.adapterContext?.metadata {
@@ -58,12 +43,39 @@ struct AdapterStudioSettingsView: View {
                     )
                 )
                 .frame(maxWidth: .infinity, minHeight: 220)
-                .background(
-                    Color.secondaryBackgroundColor,
-                    in: .rect(cornerRadius: CornerRadius.large)
-                )
             }
         }
+    }
+
+    private var importButton: some View {
+        Button(
+            "Import Adapter",
+            systemImage: "tray.and.arrow.down",
+            action: viewModel.importAdapter
+        )
+        .buttonStyle(.borderedProminent)
+    }
+
+    private var savedAdaptersMenu: some View {
+        Menu("Saved Adapters", systemImage: "archivebox") {
+            if viewModel.availableAdapters.isEmpty {
+                Text("No saved adapters")
+            } else {
+                ForEach(viewModel.availableAdapters, id: \.self) { url in
+                    Button(url.lastPathComponent) {
+                        viewModel.loadAdapter(at: url)
+                    }
+                }
+            }
+        }
+    }
+
+    private var showInFinderButton: some View {
+        Button(
+            "Show in Finder",
+            systemImage: "folder",
+            action: viewModel.showAdaptersDirectory
+        )
     }
 }
 #endif

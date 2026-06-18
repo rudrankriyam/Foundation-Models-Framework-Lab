@@ -30,7 +30,9 @@ struct AppBenchStudioContent: View {
             section(title: "Execution Surfaces") {
                 VStack(spacing: 0) {
                     detailRow(title: "Mac", value: "appbench CLI")
+                    Divider()
                     detailRow(title: "iPhone and iPad", value: "Signed AppBenchDeviceRunner")
+                    Divider()
                     detailRow(title: "Simulator", value: "Build and interface validation only")
                 }
             }
@@ -38,8 +40,11 @@ struct AppBenchStudioContent: View {
             section(title: "Publishable Protocol") {
                 VStack(spacing: 0) {
                     detailRow(title: "Warmups", value: "5")
+                    Divider()
                     detailRow(title: "Measured runs", value: "20 or more")
+                    Divider()
                     detailRow(title: "Order", value: "Randomized with a recorded seed")
+                    Divider()
                     detailRow(title: "Report", value: "Median, p90, and failure rate")
                 }
             }
@@ -97,9 +102,13 @@ struct AppBenchStudioContent: View {
             section(title: "Suites") {
                 VStack(spacing: 0) {
                     detailRow(title: "Practical Quick", value: "Fast development pass")
+                    Divider()
                     detailRow(title: "Practical Full", value: "10 workloads, 25 samples each")
+                    Divider()
                     detailRow(title: "Safety Guardrails", value: "False positives and expected protection")
+                    Divider()
                     detailRow(title: "Synthetic Performance", value: "Sustained generation")
+                    Divider()
                     detailRow(title: "Context Limits", value: "Long-context behavior")
                 }
             }
@@ -118,7 +127,9 @@ struct AppBenchStudioContent: View {
             section(title: "Artifacts") {
                 VStack(spacing: 0) {
                     detailRow(title: "JSON", value: "Complete machine-readable trials and environment")
+                    Divider()
                     detailRow(title: "Markdown", value: "Human-readable scenario summaries")
+                    Divider()
                     detailRow(title: "Curated results", value: "Tools/AppBench/Results")
                 }
             }
@@ -137,7 +148,7 @@ struct AppBenchStudioContent: View {
     ) -> some View {
         VStack(alignment: .leading, spacing: Spacing.large) {
             Text(title)
-                .font(.title3.bold())
+                .font(.headline)
 
             content()
         }
@@ -151,12 +162,7 @@ struct AppBenchStudioContent: View {
         } label: {
             Text(title)
         }
-        .font(.callout)
-        .padding(.horizontal, Spacing.large)
-        .padding(.vertical, Spacing.medium)
-        .overlay(alignment: .bottom) {
-            Divider()
-        }
+        .padding(.vertical, Spacing.small)
     }
 
     private func command(_ command: String) -> some View {
@@ -165,21 +171,15 @@ struct AppBenchStudioContent: View {
             .textSelection(.enabled)
             .padding(Spacing.medium)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.tertiaryBackgroundColor, in: .rect(cornerRadius: CornerRadius.medium))
+            .background(Color.tertiaryBackgroundColor, in: .rect(cornerRadius: CornerRadius.small))
     }
 
     private func note(title: String, detail: String) -> some View {
-        Label {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.callout.bold())
-                Text(detail)
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-            }
-        } icon: {
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(.green)
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+            Text(detail)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
         }
     }
 }
