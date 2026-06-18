@@ -18,7 +18,7 @@ struct StudioView: View {
     @State private var promptTestError: String?
     @State private var studioCreatedAt = Date.now
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
     @State private var isShowingInspector = false
 #endif
 
@@ -43,7 +43,7 @@ struct StudioView: View {
         .navigationBarTitleDisplayMode(.inline)
 #endif
         .toolbar {
-#if os(iOS)
+#if os(iOS) || os(visionOS)
             if selectedWorkspace == .promptTesting {
                 ToolbarItem(placement: .primaryAction) {
                     Button(
@@ -56,13 +56,13 @@ struct StudioView: View {
             }
 
             ToolbarItem(placement: .secondaryAction) {
-                Button("Studio Details", systemImage: "sidebar.trailing") {
+                Button("More Options", systemImage: "sidebar.trailing") {
                     isShowingInspector.toggle()
                 }
             }
 #endif
         }
-#if os(iOS)
+#if os(iOS) || os(visionOS)
         .inspector(isPresented: $isShowingInspector) {
             ScrollView {
                 studioInspector
@@ -82,7 +82,7 @@ struct StudioView: View {
             ContentUnavailableView(
                 selectedWorkspace.title,
                 systemImage: selectedWorkspace.icon,
-                description: Text("This workspace is planned for a future Foundation Lab update.")
+                description: Text(selectedWorkspace.subtitle)
             )
             .frame(maxWidth: .infinity, minHeight: 320)
         } else {

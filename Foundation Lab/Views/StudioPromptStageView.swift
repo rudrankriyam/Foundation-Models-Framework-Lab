@@ -61,9 +61,6 @@ struct StudioPromptStageView: View {
                     Divider()
                 }
             }
-            .popover(item: $selectedRun, arrowEdge: .trailing) { run in
-                StudioPromptRunDetailView(run: run)
-            }
         }
     }
 
@@ -100,6 +97,19 @@ struct StudioPromptStageView: View {
         .buttonStyle(.plain)
         .padding(.vertical, Spacing.small)
         .help("Show full prompt run")
+        .popover(
+            isPresented: Binding(
+                get: { selectedRun?.id == run.id },
+                set: { isPresented in
+                    if !isPresented, selectedRun?.id == run.id {
+                        selectedRun = nil
+                    }
+                }
+            ),
+            arrowEdge: .trailing
+        ) {
+            StudioPromptRunDetailView(run: run)
+        }
     }
 
     @ViewBuilder

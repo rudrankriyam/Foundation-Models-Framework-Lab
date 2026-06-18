@@ -11,9 +11,6 @@ struct AppBenchStudioInspector: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.large) {
             VStack(alignment: .leading, spacing: Spacing.small) {
-                Text("Benchmark")
-                    .font(.headline)
-
                 metric(value: "5", title: "Suites")
                 metric(value: "10", title: "Workloads")
                 metric(value: "2", title: "Runners")

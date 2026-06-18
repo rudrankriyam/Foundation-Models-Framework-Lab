@@ -59,7 +59,10 @@ struct AppBenchStudioContent: View {
 
             section(title: "Physical Device") {
                 VStack(alignment: .leading, spacing: Spacing.medium) {
-                    Text("Open the AppBenchDeviceRunner project, select a physical Apple Intelligence device, and run its scheme.")
+                    Text(
+                        "Open the AppBenchDeviceRunner project, select a physical Apple Intelligence device, "
+                            + "and run its scheme."
+                    )
                     .font(.callout)
                     .foregroundStyle(.secondary)
 

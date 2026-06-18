@@ -21,9 +21,9 @@ struct StudioActivityInspector: View {
             promptInspector
         case .structuredOutput, .capabilityMatrix:
             ContentUnavailableView(
-                "No Activity",
+                workspace.title,
                 systemImage: workspace.icon,
-                description: Text("This workspace is planned for a future update.")
+                description: Text(workspace.subtitle)
             )
             .padding(Spacing.large)
         }
@@ -70,11 +70,8 @@ struct StudioActivityInspector: View {
 
     private var summary: some View {
         VStack(alignment: .leading, spacing: Spacing.small) {
-            Text("Summary")
-                .font(.headline)
-
             metric(value: "\(promptRuns.count)", title: "Runs")
-            metric(value: averageDurationLabel, title: "Average Duration")
+            metric(value: averageDurationLabel, title: "Average")
             metric(value: "\(selectedVariantCount)", title: "Variants")
         }
     }

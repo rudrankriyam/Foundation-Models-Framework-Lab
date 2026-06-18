@@ -58,7 +58,7 @@ struct StudioPromptSettingsView: View {
                 .font(.headline)
 
             TextField(
-                "Enter a prompt to run through each selected variant",
+                "Enter your prompt...",
                 text: $promptText,
                 axis: .vertical
             )

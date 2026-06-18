@@ -67,21 +67,16 @@ struct StudioStageBar: View {
     }
 
     private var compactBar: some View {
-        HStack {
-            Label(stage.title, systemImage: stage.systemImage)
-                .font(.headline)
-
-            Spacer(minLength: Spacing.medium)
-
-            Picker("Stage", selection: $stage) {
-                ForEach(StudioPipelineStage.allCases) { stage in
-                    Label(stage.title, systemImage: stage.systemImage)
-                        .tag(stage)
-                }
+        Picker("Stage", selection: $stage) {
+            ForEach(StudioPipelineStage.allCases) { stage in
+                Label(stage.title, systemImage: stage.systemImage)
+                    .tag(stage)
             }
-            .pickerStyle(.menu)
-            .labelsHidden()
         }
+        .pickerStyle(.menu)
+        .labelsHidden()
+        .accessibilityLabel("Stage")
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, Spacing.medium)
         .frame(minHeight: 44)
         .background(.bar)
