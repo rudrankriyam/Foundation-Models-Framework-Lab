@@ -6,11 +6,14 @@
 import Foundation
 
 enum SecurityCodeExample {
-    static func make(for access: SecurityToolAccess) -> String {
+    static func make(for access: SecurityToolAccess, requiresApproval: Bool) -> String {
         let tool = switch access {
         case .none: ""
         case .readOnly: "tools: [SearchTool()],\n    "
-        case .sideEffect: "tools: [SendMessageTool(approval: approval)],\n    "
+        case .sideEffect:
+            requiresApproval
+                ? "tools: [SendMessageTool(approval: approval)],\n    "
+                : "tools: [SendMessageTool()],\n    "
         }
 
         return #"""

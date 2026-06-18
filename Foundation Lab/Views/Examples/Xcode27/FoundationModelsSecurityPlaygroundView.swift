@@ -20,7 +20,10 @@ struct FoundationModelsSecurityPlaygroundView: View {
             description: "Inspect the boundary between Foundation Models and your app",
             defaultPrompt: Self.defaultPrompt,
             currentPrompt: $currentPrompt,
-            codeExample: SecurityCodeExample.make(for: toolAccess),
+            codeExample: SecurityCodeExample.make(
+                for: toolAccess,
+                requiresApproval: requiresApproval
+            ),
             onRun: inspectPolicy,
             onReset: reset
         ) {
