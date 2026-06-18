@@ -21,14 +21,27 @@ struct DynamicProfileBuilderView: View {
             defaultPrompt: "Summarize this release note for developers.",
             currentPrompt: $currentPrompt,
             codeExample: codeExample,
-            onRun: {},
+            onRun: run,
             onReset: reset
         ) {
             VStack(spacing: Spacing.medium) {
-                Xcode27Section("Profile Controls", systemImage: "slider.horizontal.3") {
-                    VStack(spacing: 16) {
-                        labeledSlider("Temperature", value: $temperature, range: 0...1)
-                        labeledSlider("Maximum tokens", value: $maxTokens, range: 64...1_000)
+                Xcode27Section("Profile Controls") {
+                    VStack(spacing: Spacing.large) {
+                        Xcode27ValueSlider(
+                            title: "Temperature",
+                            valueText: temperature.formatted(.number.precision(.fractionLength(2))),
+                            systemImage: "thermometer.medium",
+                            value: $temperature,
+                            range: 0...1,
+                            step: 0.01
+                        )
+                        Xcode27ValueSlider(
+                            title: "Maximum tokens",
+                            valueText: Int(maxTokens).formatted(),
+                            systemImage: "text.line.last.and.arrowtriangle.forward",
+                            value: $maxTokens,
+                            range: 64...1_000
+                        )
 
                         Picker("Reasoning", selection: $reasoningLevel) {
                             ForEach(ReasoningLevelChoice.allCases) { level in
@@ -46,36 +59,14 @@ struct DynamicProfileBuilderView: View {
                     }
                 }
 
-                Xcode27Section("Generated Recipe", systemImage: "curlybraces") {
+                Xcode27Section("Generated Recipe") {
                     Text(recipePreview)
                         .font(.body.monospaced())
                         .textSelection(.enabled)
-                        .padding()
+                        .padding(.vertical, Spacing.small)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.gray.opacity(0.1))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
             }
-        }
-    }
-
-    private func labeledSlider(
-        _ title: String,
-        value: Binding<Double>,
-        range: ClosedRange<Double>
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(title)
-                    .font(.subheadline.weight(.medium))
-                Spacer()
-                Text(title == "Maximum tokens" ? "\(Int(value.wrappedValue))" : value.wrappedValue.formatted(.number.precision(.fractionLength(2))))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Slider(value: value, in: range)
-                .accessibilityLabel(title)
         }
     }
 
@@ -87,6 +78,8 @@ struct DynamicProfileBuilderView: View {
         toolCallingMode: .\(toolMode.rawValue)
         """
     }
+
+    private func run() {}
 
     private var codeExample: String {
         """
@@ -142,4 +135,3 @@ private enum DynamicToolMode: String, CaseIterable, Identifiable {
         DynamicProfileBuilderView()
     }
 }
-

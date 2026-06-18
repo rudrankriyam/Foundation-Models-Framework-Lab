@@ -37,17 +37,21 @@ struct ContextBudgetVisualizerView: View {
                 }
                 .pickerStyle(.segmented)
 
-                Xcode27StatusCard(
+                Xcode27StatusRow(
                     title: "Compacted Prompt",
                     value: "\(keptTokens) tokens kept",
                     systemImage: "chart.pie",
                     tint: strategy.tint
                 )
 
-                Xcode27Section("Transcript Entries", systemImage: "list.bullet.rectangle.portrait") {
-                    VStack(spacing: 10) {
+                Xcode27Section("Transcript Entries") {
+                    VStack(spacing: 0) {
                         ForEach(entries) { entry in
                             BudgetEntryRow(entry: entry)
+
+                            if entry.id != entries.last?.id {
+                                Divider()
+                            }
                         }
                     }
                 }
@@ -71,28 +75,28 @@ private struct BudgetEntryRow: View {
     let entry: BudgetEntry
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.medium) {
             Image(systemName: entry.state.icon)
                 .foregroundStyle(entry.state.tint)
                 .frame(width: 26)
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Spacing.xSmall) {
                 Text(entry.title)
-                    .font(.subheadline.weight(.semibold))
+                    .font(.subheadline)
+                    .bold()
                 Text(entry.state.description)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
             }
 
             Spacer()
 
-            Text("\(entry.displayTokens)")
-                .font(.caption.monospacedDigit())
+            Text("\(entry.displayTokens) tokens")
+                .font(.footnote.monospacedDigit())
                 .foregroundStyle(.secondary)
         }
-        .padding(10)
-        .background(Color.secondary.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .frame(minHeight: 44)
+        .accessibilityElement(children: .combine)
     }
 }
 

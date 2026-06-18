@@ -18,8 +18,8 @@ struct TranscriptExplorerView: View {
             defaultPrompt: "Browse the Xcode 27 transcript segment types.",
             currentPrompt: $currentPrompt,
             codeExample: codeExample,
-            onRun: {},
-            onReset: { currentPrompt = "" }
+            onRun: run,
+            onReset: reset
         ) {
             VStack(spacing: Spacing.medium) {
                 Picker("Segment", selection: $selectedSegment) {
@@ -30,8 +30,8 @@ struct TranscriptExplorerView: View {
                 }
                 .pickerStyle(.segmented)
 
-                Xcode27Section(selectedSegment.title, systemImage: selectedSegment.icon) {
-                    VStack(alignment: .leading, spacing: 12) {
+                Xcode27Section(selectedSegment.title) {
+                    VStack(alignment: .leading, spacing: Spacing.medium) {
                         Text(selectedSegment.detail)
                             .font(.callout)
                             .foregroundStyle(.secondary)
@@ -39,30 +39,43 @@ struct TranscriptExplorerView: View {
                         Text(selectedSegment.sample)
                             .font(.body.monospaced())
                             .textSelection(.enabled)
-                            .padding()
+                            .padding(.vertical, Spacing.small)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.gray.opacity(0.1))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                 }
 
-                Xcode27Section("Why this matters", systemImage: "wrench.and.screwdriver") {
-                    VStack(alignment: .leading, spacing: 10) {
+                Xcode27Section("Why this matters") {
+                    VStack(alignment: .leading, spacing: 0) {
                         Xcode27InfoRow(
                             title: "Switches need new cases",
-                            detail: "Code that walked transcript entries or segments in Xcode 26 should explicitly handle the new Xcode 27 cases.",
+                            detail: """
+                            Code that walked transcript entries or segments in Xcode 26 should explicitly handle the new Xcode 27 cases.
+                            """,
                             systemImage: "switch.2"
                         )
+                        .padding(.vertical, Spacing.small)
+
+                        Divider()
 
                         Xcode27InfoRow(
                             title: "Debug views get richer",
-                            detail: "A transcript debugger can now show reasoning, image attachments, generated references, and app-defined custom content.",
+                            detail: """
+                            A transcript debugger can now show reasoning, image attachments, generated references, and app-defined \
+                            custom content.
+                            """,
                             systemImage: "ladybug"
                         )
+                        .padding(.vertical, Spacing.small)
                     }
                 }
             }
         }
+    }
+
+    private func run() {}
+
+    private func reset() {
+        currentPrompt = ""
     }
 
     private var codeExample: String {

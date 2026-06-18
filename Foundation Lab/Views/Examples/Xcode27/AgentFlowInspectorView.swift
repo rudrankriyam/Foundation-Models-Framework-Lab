@@ -22,22 +22,31 @@ struct AgentFlowInspectorView: View {
             onReset: reset
         ) {
             VStack(spacing: Spacing.medium) {
-                Xcode27Section("Turn Timeline", systemImage: "point.topleft.down.curvedto.point.bottomright.up") {
-                    VStack(spacing: 10) {
+                Xcode27Section("Turn Timeline") {
+                    VStack(spacing: 0) {
                         ForEach(AgentFlowStep.allCases) { step in
-                            AgentFlowStepRow(step: step, isSelected: step == selectedStep)
-                                .onTapGesture { selectedStep = step }
+                            Button {
+                                select(step)
+                            } label: {
+                                AgentFlowStepRow(step: step, isSelected: step == selectedStep)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityAddTraits(step == selectedStep ? .isSelected : [])
+
+                            if step != AgentFlowStep.allCases.last {
+                                Divider()
+                            }
                         }
                     }
                 }
 
-                Xcode27Section(selectedStep.title, systemImage: selectedStep.icon) {
-                    VStack(alignment: .leading, spacing: 12) {
+                Xcode27Section(selectedStep.title) {
+                    VStack(alignment: .leading, spacing: Spacing.medium) {
                         Text(selectedStep.detail)
                             .font(.callout)
                             .foregroundStyle(.secondary)
 
-                        AgentFlowDataGrid(items: selectedStep.facts)
+                        Xcode27KeyValueList(items: selectedStep.facts)
                     }
                 }
             }
@@ -48,6 +57,10 @@ struct AgentFlowInspectorView: View {
         let steps = AgentFlowStep.allCases
         guard let index = steps.firstIndex(of: selectedStep) else { return }
         selectedStep = steps[(index + 1) % steps.count]
+    }
+
+    private func select(_ step: AgentFlowStep) {
+        selectedStep = step
     }
 
     private func reset() {
@@ -61,48 +74,30 @@ private struct AgentFlowStepRow: View {
     let isSelected: Bool
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.medium) {
             Image(systemName: step.icon)
-                .foregroundStyle(isSelected ? .white : step.tint)
-                .frame(width: 28, height: 28)
-                .background(isSelected ? step.tint : Color.clear)
-                .clipShape(Circle())
+                .foregroundStyle(step.tint)
+                .frame(width: 28)
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: Spacing.xSmall) {
                 Text(step.title)
-                    .font(.subheadline.weight(.semibold))
+                    .font(.subheadline)
+                    .bold()
                 Text(step.summary)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
             }
 
             Spacer()
-        }
-        .padding(10)
-        .background(isSelected ? step.tint.opacity(0.12) : Color.secondary.opacity(0.06))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-}
 
-struct AgentFlowDataGrid: View {
-    let items: [(String, String)]
-
-    var body: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 10)], spacing: 10) {
-            ForEach(items, id: \.0) { title, value in
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(value)
-                        .font(.subheadline.weight(.medium))
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(10)
-                .background(Color.secondary.opacity(0.08))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+            if isSelected {
+                Image(systemName: "checkmark")
+                    .foregroundStyle(step.tint)
+                    .accessibilityHidden(true)
             }
         }
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        .contentShape(.rect)
     }
 }
 
@@ -144,9 +139,15 @@ private enum AgentFlowStep: String, CaseIterable, Identifiable {
     var detail: String {
         switch self {
         case .profile:
-            return "A DynamicProfile is the control plane for an agent turn. It explains why this mode got these instructions, tools, model, and lifecycle hooks."
+            return """
+            A DynamicProfile is the control plane for an agent turn. It explains why this mode got these instructions, tools, model, \
+            and lifecycle hooks.
+            """
         case .history:
-            return "History transforms are where context compaction and safety become visible. Show what was kept, dropped, summarized, or marked as untrusted."
+            return """
+            History transforms are where context compaction and safety become visible. Show what was kept, dropped, summarized, \
+            or marked as untrusted.
+            """
         case .toolPolicy:
             return "Tool calling mode should be a product decision. A weather answer may require a tool; a draft may disallow tools."
         case .modelCall:
@@ -154,7 +155,9 @@ private enum AgentFlowStep: String, CaseIterable, Identifiable {
         case .toolCall:
             return "Risky tools should pause for confirmation before doing irreversible or user-visible work."
         case .response:
-            return "Responses are not just strings. They carry transcript entries, generated content, and usage data that should feed diagnostics."
+            return """
+            Responses are not just strings. They carry transcript entries, generated content, and usage data that should feed diagnostics.
+            """
         case .usage:
             return "Usage closes the loop: token counts, cached tokens, reasoning tokens, and latency tell you whether the flow is healthy."
         }
@@ -195,7 +198,12 @@ private enum AgentFlowStep: String, CaseIterable, Identifiable {
         case .modelCall:
             return [("Reasoning", "Moderate"), ("Max output", "600"), ("Metadata", "turn-id"), ("Context", "Compacted")]
         case .toolCall:
-            return [("Tool", "createGroceryList"), ("Side effect", "Draft only"), ("Confirmation", "Not needed"), ("Arguments", "Validated")]
+            return [
+                ("Tool", "createGroceryList"),
+                ("Side effect", "Draft only"),
+                ("Confirmation", "Not needed"),
+                ("Arguments", "Validated")
+            ]
         case .response:
             return [("Format", "Checklist"), ("Sources", "Pantry tool"), ("Transcript", "4 new entries"), ("Status", "Rendered")]
         case .usage:

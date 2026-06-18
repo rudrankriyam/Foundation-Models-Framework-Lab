@@ -27,7 +27,7 @@ struct GeminiVideoInputView: View {
                             .frame(minWidth: 560)
 
                         promptSection
-                            .frame(width: 380)
+                            .frame(minWidth: 320, idealWidth: 360, maxWidth: 400)
                     }
 
                     VStack(alignment: .leading, spacing: Spacing.large) {
@@ -60,9 +60,7 @@ struct GeminiVideoInputView: View {
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button {
-                    isShowingAPIKey = true
-                } label: {
+                Button(action: showAPIKey) {
                     Label(
                         "API Key",
                         systemImage: viewModel.apiKey.isEmpty ? "key" : "key.fill"
@@ -77,15 +75,16 @@ struct GeminiVideoInputView: View {
     }
 
     private var videoSection: some View {
-        Xcode27Section("Video Input", systemImage: "video") {
+        Xcode27Section("Video Input") {
             if let videoURL = viewModel.videoURL {
                 GeminiVideoPreview(url: videoURL)
                     .aspectRatio(16 / 9, contentMode: .fit)
 
                 HStack {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: Spacing.xSmall) {
                         Text(viewModel.videoName)
-                            .font(.subheadline.weight(.semibold))
+                            .font(.subheadline)
+                            .bold()
                             .lineLimit(1)
 
                         Text(viewModel.videoSize)
@@ -95,9 +94,7 @@ struct GeminiVideoInputView: View {
 
                     Spacer()
 
-                    Button("Choose Video") {
-                        isChoosingVideo = true
-                    }
+                    Button("Choose Video", action: chooseVideo)
                     .buttonStyle(.bordered)
                 }
             } else {
@@ -107,21 +104,17 @@ struct GeminiVideoInputView: View {
                     description: Text("Choose an MP4, MOV, or M4V file to continue.")
                 )
 
-                Button("Choose Video") {
-                    isChoosingVideo = true
-                }
+                Button("Choose Video", action: chooseVideo)
                 .buttonStyle(.borderedProminent)
             }
         }
     }
 
     private var promptSection: some View {
-        Xcode27Section("Ask Gemini", systemImage: "sparkles") {
+        Xcode27Section("Ask Gemini") {
             TextField("Describe what Gemini should inspect", text: $viewModel.prompt, axis: .vertical)
                 .lineLimit(8...12)
-                .textFieldStyle(.plain)
-                .padding(Spacing.medium)
-                .background(.quaternary, in: RoundedRectangle(cornerRadius: CornerRadius.medium))
+                .textFieldStyle(.roundedBorder)
 
             if let errorMessage = viewModel.errorMessage {
                 Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
@@ -132,12 +125,9 @@ struct GeminiVideoInputView: View {
 
             Button(
                 viewModel.isRunning ? "Analyzing Video..." : "Analyze Video",
-                systemImage: viewModel.isRunning ? "hourglass" : "play.fill"
-            ) {
-                Task {
-                    await viewModel.analyzeVideo()
-                }
-            }
+                systemImage: viewModel.isRunning ? "hourglass" : "play.fill",
+                action: analyzeVideo
+            )
             .buttonStyle(.glassProminent)
             .controlSize(.large)
             .frame(maxWidth: .infinity)
@@ -145,6 +135,20 @@ struct GeminiVideoInputView: View {
                 viewModel.isRunning
                     || viewModel.prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             )
+        }
+    }
+
+    private func chooseVideo() {
+        isChoosingVideo = true
+    }
+
+    private func showAPIKey() {
+        isShowingAPIKey = true
+    }
+
+    private func analyzeVideo() {
+        Task {
+            await viewModel.analyzeVideo()
         }
     }
 
@@ -179,7 +183,6 @@ private struct GeminiAPIKeySheet: View {
             Form {
                 Section {
                     SecureField("AI Studio API key", text: $apiKey)
-                        .textFieldStyle(.roundedBorder)
                         .privacySensitive()
                 } footer: {
                     Text("Kept in memory for this session.")

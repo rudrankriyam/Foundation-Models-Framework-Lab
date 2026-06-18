@@ -18,8 +18,8 @@ struct ReasoningLevelComparisonView: View {
             defaultPrompt: "Plan a migration from an Xcode 26 Foundation Models app to Xcode 27.",
             currentPrompt: $currentPrompt,
             codeExample: selectedLevel.code,
-            onRun: {},
-            onReset: { currentPrompt = "" }
+            onRun: run,
+            onReset: reset
         ) {
             VStack(spacing: Spacing.medium) {
                 Picker("Reasoning level", selection: $selectedLevel) {
@@ -29,8 +29,8 @@ struct ReasoningLevelComparisonView: View {
                 }
                 .pickerStyle(.segmented)
 
-                Xcode27Section(selectedLevel.title, systemImage: selectedLevel.icon) {
-                    VStack(alignment: .leading, spacing: 12) {
+                Xcode27Section(selectedLevel.title) {
+                    VStack(alignment: .leading, spacing: Spacing.medium) {
                         Text(selectedLevel.detail)
                             .font(.callout)
                             .foregroundStyle(.secondary)
@@ -42,13 +42,24 @@ struct ReasoningLevelComparisonView: View {
                     }
                 }
 
-                Xcode27Section("ContextOptions", systemImage: "gearshape.2") {
-                    Text("Xcode 27 adds ContextOptions(reasoningLevel:) so examples can make reasoning depth an explicit runtime choice instead of burying it in prompt wording.")
+                Xcode27Section("ContextOptions") {
+                    Text(
+                        """
+                        Xcode 27 adds ContextOptions(reasoningLevel:) so examples can make reasoning depth an explicit runtime choice \
+                        instead of burying it in prompt wording.
+                        """
+                    )
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
             }
         }
+    }
+
+    private func run() {}
+
+    private func reset() {
+        currentPrompt = ""
     }
 }
 
@@ -61,17 +72,6 @@ private enum ReasoningComparisonLevel: String, CaseIterable, Identifiable {
 
     var title: String {
         rawValue.capitalized
-    }
-
-    var icon: String {
-        switch self {
-        case .light:
-            return "bolt"
-        case .moderate:
-            return "brain"
-        case .deep:
-            return "brain.head.profile"
-        }
     }
 
     var detail: String {
@@ -119,4 +119,3 @@ private enum ReasoningComparisonLevel: String, CaseIterable, Identifiable {
         ReasoningLevelComparisonView()
     }
 }
-

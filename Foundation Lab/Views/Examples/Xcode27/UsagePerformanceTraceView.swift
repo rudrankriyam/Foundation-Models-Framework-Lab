@@ -29,14 +29,16 @@ struct UsagePerformanceTraceView: View {
                 }
                 .pickerStyle(.segmented)
 
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 12)], spacing: 12) {
-                    Xcode27StatusCard(title: "TTFT", value: trace.ttft, systemImage: "timer", tint: trace.tint)
-                    Xcode27StatusCard(title: "Latency", value: trace.latency, systemImage: "speedometer", tint: trace.tint)
-                    Xcode27StatusCard(title: "Input", value: trace.inputTokens, systemImage: "arrow.down.doc", tint: .blue)
-                    Xcode27StatusCard(title: "Reasoning", value: trace.reasoningTokens, systemImage: "brain", tint: .purple)
+                Xcode27Section("Measurements") {
+                    Xcode27KeyValueList(items: [
+                        ("Time to first token", trace.ttft),
+                        ("Total latency", trace.latency),
+                        ("Input tokens", trace.inputTokens),
+                        ("Reasoning tokens", trace.reasoningTokens)
+                    ])
                 }
 
-                Xcode27Section("Diagnosis", systemImage: "waveform.path.ecg") {
+                Xcode27Section("Diagnosis") {
                     Text(trace.diagnosis)
                         .font(.callout)
                         .foregroundStyle(.secondary)
@@ -125,7 +127,9 @@ private enum UsageTrace: String, CaseIterable, Identifiable {
         case .highInput:
             return "Most latency comes from oversized input. Add history compaction or narrower tool guidance."
         case .slowTools:
-            return "Model streaming starts quickly, but the end-to-end turn waits on slow tools. Inspect tool duration before tuning prompts."
+            return """
+            Model streaming starts quickly, but the end-to-end turn waits on slow tools. Inspect tool duration before tuning prompts.
+            """
         }
     }
 

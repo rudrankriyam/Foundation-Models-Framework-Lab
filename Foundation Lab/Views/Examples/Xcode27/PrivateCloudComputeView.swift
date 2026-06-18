@@ -29,27 +29,35 @@ struct PrivateCloudComputeView: View {
             onReset: reset
         ) {
             VStack(spacing: Spacing.medium) {
-                Xcode27StatusCard(
-                    title: "Availability",
-                    value: report.availability,
-                    systemImage: report.isAvailable ? "checkmark.icloud.fill" : "icloud.slash",
-                    tint: report.isAvailable ? .green : .orange
-                )
+                Xcode27Section("Runtime Status") {
+                    VStack(spacing: 0) {
+                        Xcode27StatusRow(
+                            title: "Availability",
+                            value: report.availability,
+                            systemImage: report.isAvailable ? "checkmark.icloud.fill" : "icloud.slash",
+                            tint: report.isAvailable ? .green : .orange
+                        )
 
-                Xcode27StatusCard(
-                    title: "Context Size",
-                    value: report.contextSize.map { "\($0) tokens" } ?? "Unknown",
-                    systemImage: "text.page.badge.magnifyingglass"
-                )
+                        Divider()
 
-                Xcode27StatusCard(
-                    title: "Quota",
-                    value: report.quota,
-                    systemImage: "gauge.with.dots.needle.67percent",
-                    tint: report.quotaLimitReached ? .red : .blue
-                )
+                        Xcode27StatusRow(
+                            title: "Context Size",
+                            value: report.contextSize.map { "\($0) tokens" } ?? "Unknown",
+                            systemImage: "text.page.badge.magnifyingglass"
+                        )
 
-                Xcode27Section("Supported Languages", systemImage: "globe") {
+                        Divider()
+
+                        Xcode27StatusRow(
+                            title: "Quota",
+                            value: report.quota,
+                            systemImage: "gauge.with.dots.needle.67percent",
+                            tint: report.quotaLimitReached ? .red : .blue
+                        )
+                    }
+                }
+
+                Xcode27Section("Supported Languages") {
                     Text(report.supportedLanguages)
                         .font(.callout)
                         .foregroundStyle(.secondary)

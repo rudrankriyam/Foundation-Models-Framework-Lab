@@ -22,22 +22,22 @@ struct ToolCallTrajectoryViewerView: View {
             onReset: reset
         ) {
             VStack(spacing: Spacing.medium) {
-                Xcode27StatusCard(
+                Xcode27StatusRow(
                     title: "Evaluation Result",
                     value: scenario.result,
                     systemImage: scenario.icon,
                     tint: scenario.tint
                 )
 
-                Xcode27Section("Expected Path", systemImage: "target") {
+                Xcode27Section("Expected Path") {
                     TrajectoryPathView(steps: TrajectoryScenario.expected)
                 }
 
-                Xcode27Section("Actual Path", systemImage: "arrow.triangle.branch") {
+                Xcode27Section("Actual Path") {
                     TrajectoryPathView(steps: scenario.actual)
                 }
 
-                Xcode27Section("Why It Matters", systemImage: "checklist.checked") {
+                Xcode27Section("Why It Matters") {
                     Text(scenario.explanation)
                         .font(.callout)
                         .foregroundStyle(.secondary)
@@ -62,24 +62,32 @@ private struct TrajectoryPathView: View {
     let steps: [TrajectoryStep]
 
     var body: some View {
-        VStack(spacing: 8) {
-            ForEach(Array(steps.enumerated()), id: \.element.id) { index, step in
-                HStack(spacing: 10) {
+        VStack(spacing: 0) {
+            ForEach(steps.enumerated(), id: \.element.id) { index, step in
+                HStack(spacing: Spacing.medium) {
                     Text("\(index + 1)")
-                        .font(.caption.weight(.bold))
+                        .font(.footnote.monospacedDigit())
+                        .bold()
                         .frame(width: 24, height: 24)
-                        .background(step.tint.opacity(0.16))
-                        .clipShape(Circle())
+                        .foregroundStyle(step.tint)
 
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: Spacing.xSmall) {
                         Text(step.name)
-                            .font(.subheadline.weight(.semibold))
+                            .font(.subheadline)
+                            .bold()
                         Text(step.detail)
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
 
                     Spacer()
+                }
+                .frame(minHeight: 44)
+                .accessibilityElement(children: .combine)
+
+                if index < steps.count - 1 {
+                    Divider()
+                        .padding(.leading, Spacing.xxLarge)
                 }
             }
         }
