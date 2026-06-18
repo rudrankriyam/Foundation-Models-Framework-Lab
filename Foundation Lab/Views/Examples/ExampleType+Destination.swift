@@ -41,7 +41,7 @@ extension ExampleType {
                 GeminiVideoInputView()
             } else {
                 ContentUnavailableView(
-                    "Xcode 27 Required",
+                    "OS 27 Required",
                     systemImage: "video.slash",
                     description: Text("Custom LanguageModel executors require iOS, macOS, or visionOS 27.")
                 )

@@ -8,6 +8,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
+#if compiler(>=6.4)
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
@@ -223,3 +224,15 @@ private struct GeminiAPIKeySheet: View {
         }
     }
 }
+#else
+struct GeminiVideoInputView: View {
+    var body: some View {
+        ContentUnavailableView(
+            "Xcode 27 Required",
+            systemImage: "video.slash",
+            description: Text("Build with Xcode 27 to use custom LanguageModel executors.")
+        )
+        .navigationTitle("Gemini Video")
+    }
+}
+#endif

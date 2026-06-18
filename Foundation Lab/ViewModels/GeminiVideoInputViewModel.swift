@@ -10,6 +10,7 @@ import FoundationModels
 import Observation
 import UniformTypeIdentifiers
 
+#if compiler(>=6.4)
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
@@ -211,3 +212,4 @@ private enum GeminiVideoInputError: LocalizedError {
         }
     }
 }
+#endif
