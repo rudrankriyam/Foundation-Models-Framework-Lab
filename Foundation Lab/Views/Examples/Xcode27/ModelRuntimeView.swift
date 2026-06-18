@@ -11,123 +11,147 @@ import SwiftUI
 
 struct ModelRuntimeView: View {
     @State private var currentPrompt = "Inspect the current Foundation Models runtime."
-    @State private var report = ModelRuntimeReport.placeholder
+    @State private var report: ModelRuntimeReport?
     @State private var isInspecting = false
+    @State private var errorMessage: String?
+    @State private var inspectionID = UUID()
 
     var body: some View {
         ExampleViewBase(
-            title: "Model Runtime",
-            description: "Compare the system model with Xcode 27 runtime capabilities",
+            title: "System Model",
+            description: "Inspect this device's model and tokenize the prompt",
             defaultPrompt: "Inspect the current Foundation Models runtime.",
             currentPrompt: $currentPrompt,
             isRunning: isInspecting,
-            errorMessage: nil,
+            errorMessage: errorMessage,
             codeExample: codeExample,
             onRun: inspectRuntime,
             onReset: reset
         ) {
-            VStack(spacing: Spacing.medium) {
-                Xcode27Section("System Model") {
-                    VStack(spacing: 0) {
-                        Xcode27StatusRow(
-                            title: "Context",
-                            value: "\(report.systemContextSize) tokens",
-                            systemImage: "text.page"
-                        )
-
-                        Divider()
-
-                        Xcode27StatusRow(
-                            title: "Availability",
-                            value: report.systemAvailability,
-                            systemImage: report.systemAvailable ? "checkmark.circle.fill" : "xmark.circle.fill",
-                            tint: report.systemAvailable ? .green : .orange
-                        )
-                    }
-                }
-
-                Xcode27Section("Capabilities") {
-                    VStack(alignment: .leading, spacing: 0) {
-                        ForEach(report.capabilities, id: \.name) { capability in
-                            Xcode27InfoRow(
-                                title: capability.name,
-                                detail: capability.isSupported ? "Supported by this model surface." : "Not reported by this model surface.",
-                                systemImage: capability.isSupported ? "checkmark.circle" : "circle",
-                                tint: capability.isSupported ? .green : .secondary
+            VStack(spacing: Spacing.large) {
+                if let report {
+                    Xcode27Section("Current Device") {
+                        VStack(spacing: 0) {
+                            Xcode27StatusRow(
+                                title: "Availability",
+                                value: report.availability,
+                                systemImage: report.isAvailable ? "checkmark.circle.fill" : "exclamationmark.circle.fill",
+                                tint: report.isAvailable ? .green : .orange
                             )
-                            .padding(.vertical, Spacing.small)
 
-                            if capability.name != report.capabilities.last?.name {
-                                Divider()
+                            Divider()
+
+                            Xcode27StatusRow(
+                                title: "Context size",
+                                value: tokenLabel(report.contextSize),
+                                systemImage: "text.page"
+                            )
+
+                            Divider()
+
+                            Xcode27StatusRow(
+                                title: "This prompt",
+                                value: report.promptTokenDescription,
+                                systemImage: "number"
+                            )
+                        }
+                    }
+
+                    Xcode27Section("Model Capabilities") {
+                        VStack(alignment: .leading, spacing: 0) {
+                            ForEach(report.capabilities) { capability in
+                                Xcode27InfoRow(
+                                    title: capability.name,
+                                    detail: capability.detail,
+                                    systemImage: capability.systemImage,
+                                    tint: capability.tint
+                                )
+                                .padding(.vertical, Spacing.small)
+
+                                if capability.id != report.capabilities.last?.id {
+                                    Divider()
+                                }
                             }
                         }
                     }
+                } else {
+                    ContentUnavailableView {
+                        Label("Runtime Not Inspected", systemImage: "cpu")
+                    } description: {
+                        Text("Run the prompt to read availability, context size, tokenizer output, and capabilities from the system model.")
+                    }
                 }
 
-                Xcode27Section("Runtime Note") {
-                    Text(report.runtimeNote)
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
+                Xcode27Section("Scope") {
+                    Text(
+                        "These values describe SystemLanguageModel.default on this device. Private Cloud Compute is a separate " +
+                        "language model with its own availability, quota, supported languages, and asynchronous context size."
+                    )
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
                 }
-            }
-            .task {
-                inspectRuntime()
             }
         }
     }
 
     private func inspectRuntime() {
+        let id = UUID()
+        inspectionID = id
         isInspecting = true
-        defer { isInspecting = false }
+        errorMessage = nil
 
-        let systemModel = SystemLanguageModel.default
-        let availability = systemModel.availability
-        let availabilityText: String
-        let isAvailable: Bool
+        Task { @MainActor in
+            defer {
+                if inspectionID == id {
+                    isInspecting = false
+                }
+            }
 
-        switch availability {
-        case .available:
-            availabilityText = "Available"
-            isAvailable = true
-        case .unavailable(let reason):
-            availabilityText = unavailableReasonDescription(reason)
-            isAvailable = false
+            let model = SystemLanguageModel.default
+            let availability = availabilityDescription(model.availability)
+            let promptTokenDescription: String
+
+            if #available(iOS 26.4, macOS 26.4, visionOS 26.4, *) {
+                do {
+                    let promptTokens = try await model.tokenCount(for: currentPrompt)
+                    promptTokenDescription = tokenLabel(promptTokens)
+                } catch {
+                    promptTokenDescription = "Tokenization failed"
+                    errorMessage = "The runtime was inspected, but the prompt could not be tokenized: \(error.localizedDescription)"
+                }
+            } else {
+                promptTokenDescription = "Requires OS 26.4"
+            }
+
+            guard inspectionID == id else { return }
+            report = ModelRuntimeReport(
+                contextSize: model.contextSize,
+                availability: availability.text,
+                isAvailable: availability.isAvailable,
+                promptTokenDescription: promptTokenDescription,
+                capabilities: capabilityRows(for: model)
+            )
         }
-
-        var capabilities = [
-            ModelCapabilityRow(name: "Vision", isSupported: false),
-            ModelCapabilityRow(name: "Guided generation", isSupported: false),
-            ModelCapabilityRow(name: "Reasoning", isSupported: false),
-            ModelCapabilityRow(name: "Tool calling", isSupported: false)
-        ]
-
-        #if compiler(>=6.4)
-        if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) {
-            let modelCapabilities = systemModel.capabilities
-            capabilities = [
-                ModelCapabilityRow(name: "Vision", isSupported: modelCapabilities.contains(.vision)),
-                ModelCapabilityRow(name: "Guided generation", isSupported: modelCapabilities.contains(.guidedGeneration)),
-                ModelCapabilityRow(name: "Reasoning", isSupported: modelCapabilities.contains(.reasoning)),
-                ModelCapabilityRow(name: "Tool calling", isSupported: modelCapabilities.contains(.toolCalling))
-            ]
-        }
-        #endif
-
-        report = ModelRuntimeReport(
-            systemContextSize: systemModel.contextSize,
-            systemAvailability: availabilityText,
-            systemAvailable: isAvailable,
-            capabilities: capabilities,
-            runtimeNote: """
-            PrivateCloudComputeLanguageModel is inspected separately because its context size is async and may require macOS/iOS 27 \
-            runtime support plus service eligibility.
-            """
-        )
     }
 
     private func reset() {
+        inspectionID = UUID()
+        isInspecting = false
         currentPrompt = ""
-        report = .placeholder
+        report = nil
+        errorMessage = nil
+    }
+
+    private func availabilityDescription(
+        _ availability: SystemLanguageModel.Availability
+    ) -> (text: String, isAvailable: Bool) {
+        switch availability {
+        case .available:
+            ("Available", true)
+        case .unavailable(let reason):
+            (unavailableReasonDescription(reason), false)
+        }
     }
 
     private func unavailableReasonDescription(
@@ -135,23 +159,50 @@ struct ModelRuntimeView: View {
     ) -> String {
         switch reason {
         case .deviceNotEligible:
-            return "Device not eligible"
+            "Device not eligible"
         case .appleIntelligenceNotEnabled:
-            return "Apple Intelligence not enabled"
+            "Apple Intelligence not enabled"
         case .modelNotReady:
-            return "Model not ready"
+            "Model not ready"
         @unknown default:
-            return "Unavailable"
+            "Unavailable"
         }
+    }
+
+    private func capabilityRows(for model: SystemLanguageModel) -> [ModelCapabilityRow] {
+        #if compiler(>=6.4)
+        if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) {
+            let capabilities = model.capabilities
+            return [
+                ModelCapabilityRow(name: "Vision", isSupported: capabilities.contains(.vision)),
+                ModelCapabilityRow(name: "Guided generation", isSupported: capabilities.contains(.guidedGeneration)),
+                ModelCapabilityRow(name: "Reasoning", isSupported: capabilities.contains(.reasoning)),
+                ModelCapabilityRow(name: "Tool calling", isSupported: capabilities.contains(.toolCalling))
+            ]
+        }
+        #endif
+
+        return [
+            ModelCapabilityRow(name: "Vision", isSupported: nil),
+            ModelCapabilityRow(name: "Guided generation", isSupported: nil),
+            ModelCapabilityRow(name: "Reasoning", isSupported: nil),
+            ModelCapabilityRow(name: "Tool calling", isSupported: nil)
+        ]
+    }
+
+    private func tokenLabel(_ count: Int) -> String {
+        count.formatted() + (count == 1 ? " token" : " tokens")
     }
 
     private var codeExample: String {
         """
-        let systemModel = SystemLanguageModel.default
-        let contextSize = systemModel.contextSize
+        let model = SystemLanguageModel.default
+        let availability = model.availability
+        let contextSize = model.contextSize
+        let promptTokens = try await model.tokenCount(for: prompt)
 
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) {
-            let capabilities = systemModel.capabilities
+            let capabilities = model.capabilities
             capabilities.contains(.toolCalling)
             capabilities.contains(.vision)
         }
@@ -160,29 +211,45 @@ struct ModelRuntimeView: View {
 }
 
 private struct ModelRuntimeReport {
-    var systemContextSize: Int
-    var systemAvailability: String
-    var systemAvailable: Bool
-    var capabilities: [ModelCapabilityRow]
-    var runtimeNote: String
-
-    static let placeholder = ModelRuntimeReport(
-        systemContextSize: 4_096,
-        systemAvailability: "Not inspected yet",
-        systemAvailable: false,
-        capabilities: [
-            ModelCapabilityRow(name: "Vision", isSupported: false),
-            ModelCapabilityRow(name: "Guided generation", isSupported: false),
-            ModelCapabilityRow(name: "Reasoning", isSupported: false),
-            ModelCapabilityRow(name: "Tool calling", isSupported: false)
-        ],
-        runtimeNote: "Tap Run to inspect the local runtime."
-    )
+    let contextSize: Int
+    let availability: String
+    let isAvailable: Bool
+    let promptTokenDescription: String
+    let capabilities: [ModelCapabilityRow]
 }
 
-private struct ModelCapabilityRow {
+private struct ModelCapabilityRow: Identifiable {
     let name: String
-    let isSupported: Bool
+    let isSupported: Bool?
+
+    var id: String { name }
+
+    var detail: String {
+        switch isSupported {
+        case true:
+            "Reported by this model."
+        case false:
+            "Not reported by this model."
+        case nil:
+            "Capability inspection requires the Xcode 27 SDK and an OS 27 runtime."
+        }
+    }
+
+    var systemImage: String {
+        switch isSupported {
+        case true: "checkmark.circle"
+        case false: "xmark.circle"
+        case nil: "questionmark.circle"
+        }
+    }
+
+    var tint: Color {
+        switch isSupported {
+        case true: .green
+        case false: .secondary
+        case nil: .secondary
+        }
+    }
 }
 
 #Preview {
