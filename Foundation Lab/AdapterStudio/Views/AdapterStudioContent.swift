@@ -28,9 +28,7 @@ struct AdapterStudioContent: View {
         .alert(
             "Adapter Studio",
             isPresented: $viewModel.isShowingError
-        ) {
-            Button("OK", role: .cancel) {}
-        } message: {
+        ) { } message: {
             Text(viewModel.presentedError)
         }
         .onDisappear(perform: viewModel.cancel)
@@ -39,8 +37,7 @@ struct AdapterStudioContent: View {
             "Adapter Comparison Requires macOS",
             systemImage: "macbook",
             description: Text(
-                "Use Foundation Lab on a Mac to import .fmadapter packages. "
-                    + "Training and export remain available through the fmas CLI."
+                "Use Foundation Lab on a Mac to import .fmadapter packages. Training and export remain available through the fmas CLI."
             )
         )
 #endif

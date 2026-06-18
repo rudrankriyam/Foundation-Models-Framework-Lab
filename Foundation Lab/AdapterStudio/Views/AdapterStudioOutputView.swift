@@ -8,7 +8,7 @@ struct AdapterStudioOutputView: View {
         VStack(alignment: .leading, spacing: Spacing.xLarge) {
             VStack(alignment: .leading, spacing: Spacing.small) {
                 Text("Latest Output")
-                    .font(.title3.bold())
+                    .font(.headline)
 
                 Text(
                     "Responses remain selectable for manual review. "
@@ -35,6 +35,8 @@ struct AdapterStudioOutputView: View {
                             isActive: false
                         )
 
+                        Divider()
+
                         AdapterStudioResponseColumn(
                             title: "Custom Adapter",
                             subtitle: viewModel.adapterContext?.metadata.fileName
@@ -51,6 +53,8 @@ struct AdapterStudioOutputView: View {
                             column: viewModel.baseColumn,
                             isActive: false
                         )
+
+                        Divider()
 
                         AdapterStudioResponseColumn(
                             title: "Custom Adapter",

@@ -7,7 +7,7 @@ struct AdapterStudioMetadataView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             LabeledContent("Name", value: metadata.fileName)
-                .padding(Spacing.medium)
+                .padding(.vertical, Spacing.small)
 
             Divider()
 
@@ -18,7 +18,7 @@ struct AdapterStudioMetadataView: View {
                     countStyle: .file
                 )
             )
-            .padding(Spacing.medium)
+            .padding(.vertical, Spacing.small)
 
             if let modifiedAt = metadata.modifiedAt {
                 Divider()
@@ -28,28 +28,24 @@ struct AdapterStudioMetadataView: View {
                 } label: {
                     Text("Modified")
                 }
-                .padding(Spacing.medium)
+                .padding(.vertical, Spacing.small)
             }
 
             if !metadata.creatorDefinedMetadata.isEmpty {
-                Divider()
-
                 ForEach(
                     metadata.creatorDefinedMetadata.keys.sorted(),
                     id: \.self
                 ) { key in
+                    Divider()
+
                     LabeledContent(
                         key,
                         value: metadata.creatorDefinedMetadata[key] ?? ""
                     )
-                    .padding(Spacing.medium)
+                    .padding(.vertical, Spacing.small)
                 }
             }
         }
-        .background(
-            Color.secondaryBackgroundColor,
-            in: .rect(cornerRadius: CornerRadius.large)
-        )
     }
 }
 #endif
