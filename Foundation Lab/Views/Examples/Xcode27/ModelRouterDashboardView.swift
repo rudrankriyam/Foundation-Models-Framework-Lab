@@ -8,187 +8,236 @@
 import SwiftUI
 
 struct ModelRouterDashboardView: View {
-    @State private var currentPrompt = "Choose the right runtime for a long visual reasoning task."
-    @State private var selectedWorkload = RouterWorkload.visualReasoning
+    @State private var requirement = ModelRequirement.offline
 
     var body: some View {
-        ExampleViewBase(
-            title: "Model Router",
-            description: "Explain why a runtime was selected",
-            defaultPrompt: "Choose the right runtime for a long visual reasoning task.",
-            currentPrompt: $currentPrompt,
-            codeExample: selectedWorkload.code,
-            onRun: cycleWorkload,
-            onReset: reset
-        ) {
-            VStack(spacing: Spacing.medium) {
-                Picker("Workload", selection: $selectedWorkload) {
-                    ForEach(RouterWorkload.allCases) { workload in
-                        Text(workload.title).tag(workload)
+        ScrollView {
+            VStack(alignment: .leading, spacing: Spacing.large) {
+                Text(
+                    "Foundation Models provides model surfaces, not an automatic router. Your app chooses a model after evaluating " +
+                    "quality, capabilities, availability, privacy, and fallback behavior."
+                )
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+
+                Picker("Primary requirement", selection: $requirement) {
+                    ForEach(ModelRequirement.allCases) { requirement in
+                        Text(requirement.title).tag(requirement)
                     }
                 }
                 .pickerStyle(.segmented)
 
-                Xcode27StatusRow(
-                    title: "Selected Runtime",
-                    value: selectedWorkload.selectedRuntime,
-                    systemImage: "arrow.triangle.branch",
-                    tint: selectedWorkload.tint
-                )
+                Xcode27Section("Example app policy") {
+                    VStack(alignment: .leading, spacing: Spacing.medium) {
+                        Xcode27StatusRow(
+                            title: "Start with",
+                            value: requirement.recommendation,
+                            systemImage: requirement.icon,
+                            tint: requirement.tint
+                        )
 
-                Xcode27Section("Runtime Matrix") {
+                        Text(requirement.reason)
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+
+                        Text(
+                            "This is a design recommendation, not a runtime selection. Check availability and capabilities before " +
+                            "creating the session."
+                        )
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Xcode27Section("Actual model surfaces") {
                     VStack(spacing: 0) {
-                        ForEach(RuntimeCandidate.samples) { candidate in
-                            RuntimeCandidateRow(candidate: candidate, workload: selectedWorkload)
+                        ForEach(ModelSurface.allCases) { surface in
+                            ModelSurfaceRow(surface: surface)
 
-                            if candidate.id != RuntimeCandidate.samples.last?.id {
+                            if surface != ModelSurface.allCases.last {
                                 Divider()
                             }
                         }
                     }
                 }
 
-                Xcode27Section("Routing Explanation") {
-                    Text(selectedWorkload.reason)
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
+                Xcode27Section("Selection order") {
+                    Xcode27KeyValueList(items: [
+                        ("1", "Evaluate feature quality"),
+                        ("2", "Match required capabilities"),
+                        ("3", "Check runtime availability"),
+                        ("4", "Apply a documented fallback")
+                    ])
                 }
+
+                CodeDisclosure(code: requirement.code)
             }
+            .padding(.horizontal, Spacing.medium)
+            .padding(.vertical, Spacing.large)
         }
-    }
-
-    private func cycleWorkload() {
-        let cases = RouterWorkload.allCases
-        guard let index = cases.firstIndex(of: selectedWorkload) else { return }
-        selectedWorkload = cases[(index + 1) % cases.count]
-    }
-
-    private func reset() {
-        currentPrompt = ""
-        selectedWorkload = .visualReasoning
+        .navigationTitle("Choosing a Model")
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.large)
+        .navigationSubtitle("Make routing an explicit app policy")
+        #endif
     }
 }
 
-private struct RuntimeCandidateRow: View {
-    let candidate: RuntimeCandidate
-    let workload: RouterWorkload
+private struct ModelSurfaceRow: View {
+    let surface: ModelSurface
 
     var body: some View {
-        HStack(spacing: Spacing.medium) {
-            Image(systemName: isSelected ? "checkmark.circle.fill" : candidate.icon)
-                .foregroundStyle(isSelected ? workload.tint : .secondary)
+        HStack(alignment: .top, spacing: Spacing.medium) {
+            Image(systemName: surface.icon)
+                .foregroundStyle(surface.tint)
                 .frame(width: 28)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: Spacing.xSmall) {
-                Text(candidate.name)
+                Text(surface.title)
                     .font(.subheadline)
                     .bold()
-                Text(candidate.detail)
+                Text(surface.detail)
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
 
-            Spacer()
-
-            Text(candidate.badge)
-                .font(.footnote)
-                .foregroundStyle(isSelected ? workload.tint : .secondary)
+            Spacer(minLength: Spacing.small)
         }
-        .frame(minHeight: 44)
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        .padding(.vertical, Spacing.small)
         .accessibilityElement(children: .combine)
     }
-
-    private var isSelected: Bool {
-        candidate.name == workload.selectedRuntime
-    }
 }
 
-private struct RuntimeCandidate: Identifiable {
-    let id = UUID()
-    let name: String
-    let detail: String
-    let badge: String
-    let icon: String
-
-    static let samples = [
-        RuntimeCandidate(name: "System", detail: "Fast, private, lower context budget.", badge: "Local", icon: "iphone"),
-        RuntimeCandidate(name: "PCC", detail: "Larger model surface with service and quota gates.", badge: "Cloud", icon: "icloud"),
-        RuntimeCandidate(
-            name: "Core AI",
-            detail: "App-bundled open model through LanguageModelSession.",
-            badge: "Custom",
-            icon: "shippingbox"
-        ),
-        RuntimeCandidate(
-            name: "Provider",
-            detail: "Third-party or server executor with custom metadata.",
-            badge: "Executor",
-            icon: "server.rack"
-        )
-    ]
-}
-
-private enum RouterWorkload: String, CaseIterable, Identifiable {
-    case visualReasoning
-    case privateDraft
-    case bundledModel
+private enum ModelSurface: String, CaseIterable, Identifiable {
+    case system
+    case pcc
+    case custom
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
-        case .visualReasoning: return "Visual"
-        case .privateDraft: return "Private"
-        case .bundledModel: return "Bundled"
+        case .system: "SystemLanguageModel"
+        case .pcc: "PrivateCloudComputeLanguageModel"
+        case .custom: "LanguageModel conformance"
         }
     }
 
-    var selectedRuntime: String {
+    var detail: String {
         switch self {
-        case .visualReasoning: return "PCC"
-        case .privateDraft: return "System"
-        case .bundledModel: return "Core AI"
-        }
-    }
-
-    var reason: String {
-        switch self {
-        case .visualReasoning:
-            return """
-            The task needs image understanding, deeper reasoning, and a larger budget. Prefer PCC when available, then fall back clearly.
+        case .system: "Apple's on-device model. It works offline and has no daily usage quota."
+        case .pcc:
             """
-        case .privateDraft: return "The prompt is personal and short. Keep it on device unless the user opts into another runtime."
-        case .bundledModel: return "The app ships a specialized model. Use Core AI through the shared LanguageModel interface."
+            Apple's server model for more reasoning and context. It requires availability, network access, entitlement eligibility, \
+            and has usage limits.
+            """
+        case .custom: "A bridge your app or package implements for another model provider through LanguageModel and LanguageModelExecutor."
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .system: "iphone"
+        case .pcc: "icloud"
+        case .custom: "server.rack"
         }
     }
 
     var tint: Color {
         switch self {
-        case .visualReasoning: return .blue
-        case .privateDraft: return .green
-        case .bundledModel: return .purple
+        case .system: .green
+        case .pcc: .blue
+        case .custom: .purple
+        }
+    }
+}
+
+private enum ModelRequirement: String, CaseIterable, Identifiable {
+    case offline
+    case reasoning
+    case provider
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .offline: "Offline"
+        case .reasoning: "Reasoning"
+        case .provider: "Custom"
+        }
+    }
+
+    var recommendation: String {
+        switch self {
+        case .offline: "System model"
+        case .reasoning: "Evaluate PCC"
+        case .provider: "Custom model"
+        }
+    }
+
+    var reason: String {
+        switch self {
+        case .offline: "Choose the on-device system model when the feature must work without a network connection."
+        case .reasoning:
+            "Start on device, evaluate the feature, then choose PCC if measured quality requires its reasoning or larger context."
+        case .provider:
+            """
+            Adopt LanguageModel when the product requires a model that Apple does not provide directly. Your executor owns provider \
+            translation and streaming.
+            """
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .offline: "iphone"
+        case .reasoning: "brain.head.profile"
+        case .provider: "shippingbox"
+        }
+    }
+
+    var tint: Color {
+        switch self {
+        case .offline: .green
+        case .reasoning: .blue
+        case .provider: .purple
         }
     }
 
     var code: String {
-        """
-        enum RuntimeChoice {
-            case system
-            case privateCloudCompute
-            case coreAI(URL)
-        }
+        switch self {
+        case .offline:
+            """
+            let model = SystemLanguageModel.default
+            guard model.isAvailable else {
+                // Present the app's unavailable state.
+                return
+            }
 
-        let model: any LanguageModel = switch choice {
-        case .system:
-            SystemLanguageModel.default
-        case .privateCloudCompute:
-            PrivateCloudComputeLanguageModel()
-        case .coreAI(let url):
-            try await CoreAILanguageModel(resourcesAt: url)
-        }
+            let session = LanguageModelSession(model: model)
+            """
+        case .reasoning:
+            """
+            let model = PrivateCloudComputeLanguageModel()
+            guard model.isAvailable else {
+                // Apply the fallback your feature documents.
+                return
+            }
 
-        let session = LanguageModelSession(model: model)
-        """
+            let session = LanguageModelSession(model: model)
+            """
+        case .provider:
+            """
+            // A custom provider adopts LanguageModel and supplies a
+            // LanguageModelExecutor that translates requests and streams
+            // updates through LanguageModelExecutorGenerationChannel.
+            let session = LanguageModelSession(
+                model: MyCustomServerLanguageModel()
+            )
+            """
+        }
     }
 }
 

@@ -8,53 +8,81 @@
 import SwiftUI
 
 struct ToolCallTrajectoryViewerView: View {
-    @State private var currentPrompt = "Find my hiking notes near water and summarize the best one."
-    @State private var scenario = TrajectoryScenario.good
+    @State private var fixture = TrajectoryFixture.match
 
     var body: some View {
-        ExampleViewBase(
-            title: "Trajectory",
-            description: "Compare expected and actual tool paths",
-            defaultPrompt: "Find my hiking notes near water and summarize the best one.",
-            currentPrompt: $currentPrompt,
-            codeExample: scenario.code,
-            onRun: cycleScenario,
-            onReset: reset
-        ) {
-            VStack(spacing: Spacing.medium) {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Spacing.large) {
+                Text(
+                    "A trajectory is the ordered path a model takes through tools. These are labeled teaching fixtures, not calls " +
+                    "captured from this device. In a real app, derive the path from the session transcript and score it in a test."
+                )
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+
+                Picker("Teaching fixture", selection: $fixture) {
+                    ForEach(TrajectoryFixture.allCases) { fixture in
+                        Text(fixture.title).tag(fixture)
+                    }
+                }
+                .pickerStyle(.segmented)
+
                 Xcode27StatusRow(
-                    title: "Evaluation Result",
-                    value: scenario.result,
-                    systemImage: scenario.icon,
-                    tint: scenario.tint
+                    title: "Fixture comparison",
+                    value: fixture.result.title,
+                    systemImage: fixture.result.icon,
+                    tint: fixture.result.tint
                 )
 
-                Xcode27Section("Expected Path") {
-                    TrajectoryPathView(steps: TrajectoryScenario.expected)
+                Xcode27Section("Expected tool path") {
+                    TrajectoryPathView(steps: TrajectoryFixture.expected)
                 }
 
-                Xcode27Section("Actual Path") {
-                    TrajectoryPathView(steps: scenario.actual)
+                Xcode27Section("Authored fixture") {
+                    TrajectoryPathView(steps: fixture.steps)
                 }
 
-                Xcode27Section("Why It Matters") {
-                    Text(scenario.explanation)
+                Xcode27Section("Why the fixture is classified this way") {
+                    Text(fixture.explanation)
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
+
+                Xcode27Section("Production workflow") {
+                    Xcode27KeyValueList(items: [
+                        ("Observe", "session.transcript"),
+                        ("Extract", "Tool call names and arguments"),
+                        ("Compare", "Declared expectation"),
+                        ("Report", "Evaluations test result")
+                    ])
+                }
+
+                CodeDisclosure(code: codeExample)
+            }
+            .padding(.horizontal, Spacing.medium)
+            .padding(.vertical, Spacing.large)
+        }
+        .navigationTitle("Tool Trajectories")
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.large)
+        .navigationSubtitle("Compare explicit fixtures, not imaginary runs")
+        #endif
+    }
+
+    private var codeExample: String {
+        """
+        let toolCallEntries = session.transcript.compactMap { entry in
+            if case .toolCalls(let calls) = entry {
+                calls
+            } else {
+                nil
             }
         }
-    }
 
-    private func cycleScenario() {
-        let cases = TrajectoryScenario.allCases
-        guard let index = cases.firstIndex(of: scenario) else { return }
-        scenario = cases[(index + 1) % cases.count]
-    }
-
-    private func reset() {
-        currentPrompt = ""
-        scenario = .good
+        // Pass the observed calls and your declared expectation to an
+        // evaluation in the test target. Keep the full arguments when
+        // correctness depends on more than tool names and order.
+        """
     }
 }
 
@@ -64,8 +92,8 @@ private struct TrajectoryPathView: View {
     var body: some View {
         VStack(spacing: 0) {
             ForEach(steps.enumerated(), id: \.element.id) { index, step in
-                HStack(spacing: Spacing.medium) {
-                    Text("\(index + 1)")
+                HStack(alignment: .top, spacing: Spacing.medium) {
+                    Text(index + 1, format: .number)
                         .font(.footnote.monospacedDigit())
                         .bold()
                         .frame(width: 24, height: 24)
@@ -80,9 +108,10 @@ private struct TrajectoryPathView: View {
                             .foregroundStyle(.secondary)
                     }
 
-                    Spacer()
+                    Spacer(minLength: Spacing.small)
                 }
-                .frame(minHeight: 44)
+                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                .padding(.vertical, Spacing.small)
                 .accessibilityElement(children: .combine)
 
                 if index < steps.count - 1 {
@@ -94,89 +123,104 @@ private struct TrajectoryPathView: View {
     }
 }
 
-private struct TrajectoryStep: Identifiable {
-    let id = UUID()
+private struct TrajectoryStep: Identifiable, Equatable {
     let name: String
     let detail: String
     var tint: Color = .blue
+
+    var id: String { "\(name)-\(detail)" }
+
+    static func == (lhs: TrajectoryStep, rhs: TrajectoryStep) -> Bool {
+        lhs.name == rhs.name && lhs.detail == rhs.detail
+    }
 }
 
-private enum TrajectoryScenario: String, CaseIterable, Identifiable {
-    case good
-    case redundant
-    case unsafe
+private enum TrajectoryResult {
+    case match
+    case review
+    case fail
 
-    var id: String { rawValue }
-
-    static let expected = [
-        TrajectoryStep(name: "Spotlight search", detail: "Search notes for water hikes"),
-        TrajectoryStep(name: "Fetch item", detail: "Hydrate the best matching note"),
-        TrajectoryStep(name: "Answer", detail: "Summarize with source")
-    ]
-
-    var actual: [TrajectoryStep] {
+    var title: String {
         switch self {
-        case .good:
-            return Self.expected
-        case .redundant:
-            return [
-                TrajectoryStep(name: "Spotlight search", detail: "Search notes for water hikes"),
-                TrajectoryStep(name: "Spotlight search", detail: "Repeat nearly identical query", tint: .orange),
-                TrajectoryStep(name: "Fetch item", detail: "Hydrate selected note"),
-                TrajectoryStep(name: "Answer", detail: "Summarize with source")
-            ]
-        case .unsafe:
-            return [
-                TrajectoryStep(name: "Spotlight search", detail: "Search notes"),
-                TrajectoryStep(name: "Delete note", detail: "Unexpected destructive action", tint: .red),
-                TrajectoryStep(name: "Answer", detail: "Claims task is complete", tint: .red)
-            ]
-        }
-    }
-
-    var result: String {
-        switch self {
-        case .good: return "Pass"
-        case .redundant: return "Needs review"
-        case .unsafe: return "Fail"
-        }
-    }
-
-    var explanation: String {
-        switch self {
-        case .good:
-            return "The trajectory used the expected tools in order and ended with a grounded answer."
-        case .redundant:
-            return "The answer may be correct, but repeated search suggests prompt or guidance tuning is needed."
-        case .unsafe:
-            return "The model called a destructive tool that was not part of the user request. This should fail evaluation."
+        case .match: "Exact match"
+        case .review: "Different path"
+        case .fail: "Forbidden call"
         }
     }
 
     var icon: String {
         switch self {
-        case .good: return "checkmark.circle.fill"
-        case .redundant: return "exclamationmark.circle.fill"
-        case .unsafe: return "xmark.circle.fill"
+        case .match: "checkmark.circle.fill"
+        case .review: "exclamationmark.circle.fill"
+        case .fail: "xmark.circle.fill"
         }
     }
 
     var tint: Color {
         switch self {
-        case .good: return .green
-        case .redundant: return .orange
-        case .unsafe: return .red
+        case .match: .green
+        case .review: .orange
+        case .fail: .red
+        }
+    }
+}
+
+private enum TrajectoryFixture: String, CaseIterable, Identifiable {
+    case match
+    case repeated
+    case forbidden
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .match: "Match"
+        case .repeated: "Repeated"
+        case .forbidden: "Forbidden"
         }
     }
 
-    var code: String {
-        """
-        TrajectoryExpectation(ordered: [
-            ToolExpectation("spotlightSearch"),
-            ToolExpectation("fetchItem"),
-            ToolExpectation.finalAnswer()
-        ])
-        """
+    static let expected = [
+        TrajectoryStep(name: "spotlightSearch", detail: "Search notes for hikes near water"),
+        TrajectoryStep(name: "fetchItem", detail: "Load the selected note")
+    ]
+
+    var steps: [TrajectoryStep] {
+        switch self {
+        case .match:
+            Self.expected
+        case .repeated:
+            [
+                TrajectoryStep(name: "spotlightSearch", detail: "Search notes for hikes near water"),
+                TrajectoryStep(name: "spotlightSearch", detail: "Repeat the same search", tint: .orange),
+                TrajectoryStep(name: "fetchItem", detail: "Load the selected note")
+            ]
+        case .forbidden:
+            [
+                TrajectoryStep(name: "spotlightSearch", detail: "Search notes for hikes near water"),
+                TrajectoryStep(name: "deleteItem", detail: "Delete a note the user only asked to read", tint: .red)
+            ]
+        }
+    }
+
+    var result: TrajectoryResult {
+        if steps.contains(where: { $0.name == "deleteItem" }) {
+            .fail
+        } else if steps == Self.expected {
+            .match
+        } else {
+            .review
+        }
+    }
+
+    var explanation: String {
+        switch result {
+        case .match: "The authored calls exactly match the declared names, arguments, and order in this fixture."
+        case .review:
+            "The fixture reaches the same read operation through an extra call. Your evaluation must declare if that fails."
+        case .fail:
+            "The fixture contains a forbidden tool. A destructive call is a hard failure even if the answer looks useful."
+        }
     }
 }
 
