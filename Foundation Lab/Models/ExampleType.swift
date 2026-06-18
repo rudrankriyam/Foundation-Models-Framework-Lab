@@ -95,7 +95,7 @@ enum ExampleType: String, CaseIterable, Identifiable {
         case .foundationModelsSecurityPlayground:
             return "Agent Security"
         case .usagePerformanceTrace:
-            return "Usage Trace"
+            return "Response Usage"
         case .spotlightRAGExplorer:
             return "Spotlight RAG"
         case .providerBridgeWalkthrough:
@@ -132,7 +132,7 @@ enum ExampleType: String, CaseIterable, Identifiable {
         case .generationOptions:
             return "Experiment with model parameters"
         case .modelRuntime:
-            return "Compare system and cloud model surfaces"
+            return "Inspect this device's system model and tokenizer"
         case .contextWindowInspector:
             return "Inspect context size and token budget"
         case .privateCloudCompute:
@@ -164,7 +164,7 @@ enum ExampleType: String, CaseIterable, Identifiable {
         case .foundationModelsSecurityPlayground:
             return "Inspect framework guarantees and app-owned boundaries"
         case .usagePerformanceTrace:
-            return "Read tokens, latency, cache, and reasoning metrics"
+            return "Measure streaming time and inspect reported token usage"
         case .spotlightRAGExplorer:
             return "Explore Core Spotlight grounded answers"
         case .providerBridgeWalkthrough:
