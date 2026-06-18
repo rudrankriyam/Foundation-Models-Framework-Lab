@@ -100,6 +100,7 @@ struct ModelRuntimeView: View {
         inspectionID = id
         isInspecting = true
         errorMessage = nil
+        report = nil
 
         Task { @MainActor in
             defer {
