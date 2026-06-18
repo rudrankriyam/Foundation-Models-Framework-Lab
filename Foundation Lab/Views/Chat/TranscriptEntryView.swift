@@ -21,8 +21,8 @@ struct TranscriptEntryView: View {
             entryContent
 
             if let tokenCount {
-                Text("\(tokenCount) tokens")
-                    .font(.caption2)
+                Text("^[\(tokenCount) token](inflect: true)")
+                    .font(.caption)
                     .foregroundStyle(.tertiary)
                     .frame(
                         maxWidth: .infinity,
@@ -105,11 +105,11 @@ struct TranscriptEntryView: View {
 
     private func waitForStreamingToFinish() async {
         while chatViewModel.session.isResponding, !Task.isCancelled {
-            try? await Task.sleep(nanoseconds: 150_000_000)
+            try? await Task.sleep(for: .milliseconds(150))
         }
 
         // Give the transcript a moment to publish its final segment.
-        try? await Task.sleep(nanoseconds: 50_000_000)
+        try? await Task.sleep(for: .milliseconds(50))
     }
 
     private func tokenCount(for entry: Transcript.Entry) async -> Int? {
@@ -122,40 +122,34 @@ struct TranscriptEntryView: View {
 private struct ReasoningTraceView: View {
     let reasoning: Transcript.Reasoning
 
+    @State private var isExpanded = true
+
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.small) {
-            HStack(spacing: Spacing.small) {
-                Image(systemName: "brain.head.profile")
-                    .foregroundStyle(.purple)
-
-                Text("Reasoning Trace")
-                    .font(.subheadline.weight(.semibold))
-
-                Spacer()
-
-                if reasoning.signature != nil {
-                    Text("Signed")
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(.purple)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(.purple.opacity(0.12), in: .capsule)
-                }
-            }
-
+        DisclosureGroup(isExpanded: $isExpanded) {
             Text(traceText)
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .textSelection(.enabled)
+                .padding(.bottom, Spacing.small)
+        } label: {
+            HStack(spacing: Spacing.small) {
+                Label("Reasoning Trace", systemImage: "brain.head.profile")
+                    .font(.subheadline)
+
+                Spacer(minLength: Spacing.small)
+
+                if reasoning.signature != nil {
+                    Text("Signed")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .frame(minHeight: 44)
         }
-        .padding(Spacing.medium)
+        .tint(.secondary)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.purple.opacity(0.08), in: .rect(cornerRadius: CornerRadius.large))
-        .overlay {
-            RoundedRectangle(cornerRadius: CornerRadius.large)
-                .stroke(.purple.opacity(0.18), lineWidth: 1)
-        }
-        .padding(.horizontal, Spacing.medium)
+        .padding(.horizontal, Spacing.large)
+        .accessibilityHint("Shows the model's reasoning trace")
     }
 
     private var traceText: String {
