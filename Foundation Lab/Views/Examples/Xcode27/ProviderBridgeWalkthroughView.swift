@@ -8,20 +8,27 @@
 import SwiftUI
 
 struct ProviderBridgeWalkthroughView: View {
-    @State private var currentPrompt = "Explain how a custom model becomes a LanguageModelSession backend."
     @State private var selectedLayer = ProviderBridgeLayer.protocols
 
     var body: some View {
-        ExampleViewBase(
-            title: "Provider Bridge",
-            description: "Map custom models into LanguageModelSession",
-            defaultPrompt: "Explain how a custom model becomes a LanguageModelSession backend.",
-            currentPrompt: $currentPrompt,
-            codeExample: selectedLayer.code,
-            onRun: nextLayer,
-            onReset: reset
-        ) {
-            VStack(spacing: Spacing.medium) {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Spacing.large) {
+                Label {
+                    VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                        Text("Reference walkthrough")
+                            .bold()
+                        Text("No model is loaded and no request is sent. Select a layer to inspect the provider contract.")
+                            .foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    Image(systemName: "book.pages")
+                        .foregroundStyle(.purple)
+                }
+                .font(.callout)
+                .padding(Spacing.medium)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.purple.opacity(0.08), in: .rect(cornerRadius: CornerRadius.medium))
+
                 Xcode27Section("Bridge Layers") {
                     VStack(spacing: 0) {
                         ForEach(ProviderBridgeLayer.allCases) { layer in
@@ -56,12 +63,26 @@ struct ProviderBridgeWalkthroughView: View {
                 }
 
                 Xcode27Section(selectedLayer.title) {
-                    Text(selectedLayer.explanation)
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: Spacing.medium) {
+                        Text(selectedLayer.explanation)
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+
+                        Button("Inspect Next Layer", systemImage: "arrow.down", action: nextLayer)
+                            .buttonStyle(.glassProminent)
+                    }
                 }
+
+                CodeDisclosure(code: selectedLayer.code)
             }
+            .padding(.horizontal, Spacing.medium)
+            .padding(.vertical, Spacing.large)
         }
+        .navigationTitle("Provider Bridge")
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.large)
+        .navigationSubtitle("How a custom LanguageModel executes session requests")
+        #endif
     }
 
     private func nextLayer() {
@@ -73,19 +94,14 @@ struct ProviderBridgeWalkthroughView: View {
     private func select(_ layer: ProviderBridgeLayer) {
         selectedLayer = layer
     }
-
-    private func reset() {
-        currentPrompt = ""
-        selectedLayer = .protocols
-    }
 }
 
 private enum ProviderBridgeLayer: String, CaseIterable, Identifiable {
     case protocols
     case prewarm
+    case request
     case transcript
     case streaming
-    case metadata
 
     var id: String { rawValue }
 
@@ -95,7 +111,7 @@ private enum ProviderBridgeLayer: String, CaseIterable, Identifiable {
         case .prewarm: return "Prewarm"
         case .transcript: return "Transcript"
         case .streaming: return "Streaming"
-        case .metadata: return "Metadata"
+        case .request: return "Request Mapping"
         }
     }
 
@@ -105,24 +121,27 @@ private enum ProviderBridgeLayer: String, CaseIterable, Identifiable {
         case .prewarm: return "Load resources before the user waits."
         case .transcript: return "Map transcript entries to provider messages."
         case .streaming: return "Send tokens and tool output through the channel."
-        case .metadata: return "Attach provider diagnostics to responses."
+        case .request: return "Translate the transcript and options for the backend."
         }
     }
 
     var explanation: String {
         switch self {
         case .protocols:
-            return "A provider bridge should make a custom backend feel like any other LanguageModelSession model."
+            return "A custom model adopts LanguageModel and pairs itself with one LanguageModelExecutor type. "
+                + "LanguageModelSession continues to own the public prompting API."
         case .prewarm:
-            return "Prewarm is where package authors hide weight loading, connection setup, or KV cache preparation."
+            return "The framework calls the executor's prewarm hook when a session is prewarmed. "
+                + "Providers can load assets or prepare cached state before generation begins."
         case .transcript:
-            return "The executor owns the translation from Foundation Models transcript entries to its provider's message format."
+            return "The executor receives the session transcript and is responsible for mapping its entries "
+                + "to the provider's request format."
         case .streaming:
-            return "Streaming should preserve cancellation, partial output, tool calls, and errors without blocking UI state."
-        case .metadata:
-            return """
-            Metadata makes custom providers inspectable: model id, cache hits, latency, safety filters, and provider-specific usage.
-            """
+            return "The executor sends incremental generation events through LanguageModelExecutorGenerationChannel. "
+                + "The channel finishes when respond returns or throws."
+        case .request:
+            return "LanguageModelExecutorGenerationRequest carries the transcript plus generation and context options. "
+                + "A provider maps supported options and defines deliberate fallbacks for unsupported ones."
         }
     }
 
@@ -132,21 +151,54 @@ private enum ProviderBridgeLayer: String, CaseIterable, Identifiable {
         case .prewarm: return "flame"
         case .transcript: return "list.bullet.rectangle.portrait"
         case .streaming: return "waveform"
-        case .metadata: return "tag"
+        case .request: return "arrow.left.arrow.right"
         }
     }
 
     var code: String {
-        """
-        public struct MyLanguageModel: LanguageModel {
-            public typealias Executor = MyLanguageModelExecutor
-            public var capabilities: LanguageModelCapabilities
-            public var executorConfiguration: Executor.Configuration
-        }
+        switch self {
+        case .protocols:
+            return """
+            struct MyLanguageModel: LanguageModel {
+                typealias Executor = MyLanguageModelExecutor
 
-        let custom = try await CoreAILanguageModel(resourcesAt: modelURL)
-        let session = LanguageModelSession(model: custom)
-        """
+                let capabilities: LanguageModelCapabilities
+                let executorConfiguration: Executor.Configuration
+            }
+
+            let session = LanguageModelSession(model: myModel)
+            """
+        case .prewarm:
+            return """
+            func prewarm(
+                model: MyLanguageModel,
+                transcript: Transcript
+            ) {
+                // Load assets or prepare cached state.
+            }
+            """
+        case .transcript, .request:
+            return """
+            func respond(
+                to request: LanguageModelExecutorGenerationRequest,
+                model: MyLanguageModel,
+                streamingInto channel: LanguageModelExecutorGenerationChannel
+            ) async throws {
+                // Map request.transcript and the requested options.
+            }
+            """
+        case .streaming:
+            return """
+            func respond(
+                to request: LanguageModelExecutorGenerationRequest,
+                model: MyLanguageModel,
+                streamingInto channel: LanguageModelExecutorGenerationChannel
+            ) async throws {
+                // Send incremental generation events to channel.
+                // Returning or throwing finishes the channel.
+            }
+            """
+        }
     }
 }
 
