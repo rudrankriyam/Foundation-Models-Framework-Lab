@@ -36,7 +36,7 @@ struct SecurityBoundaryReport {
         }
 
         return SecurityBoundaryReport(
-            requestBoundary: "The app sends a (requestCount)-character user request as prompt content.",
+            requestBoundary: "The app sends a \(requestCount)-character user request as prompt content.",
             contextBoundary: context,
             toolBoundary: toolAccess.detail,
             actionBoundary: action,
