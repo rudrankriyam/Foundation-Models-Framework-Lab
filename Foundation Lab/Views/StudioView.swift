@@ -32,7 +32,6 @@ struct StudioView: View {
         StudioWorkbenchView(
             workspace: $selectedWorkspace,
             stage: $selectedStage,
-            selectedPromptVariants: $selectedPromptVariants,
             isRunning: isRunningPromptTests,
             canRun: canRunPromptTests,
             run: runPromptTests,

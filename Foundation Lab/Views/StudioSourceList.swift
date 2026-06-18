@@ -7,7 +7,6 @@ import SwiftUI
 
 struct StudioSourceList: View {
     @Binding var selectedWorkspace: StudioWorkspace
-    @Binding var selectedPromptVariants: Set<StudioPromptVariant>
 
     var body: some View {
         List {
@@ -40,19 +39,7 @@ struct StudioSourceList: View {
     private var workspaceSources: some View {
         switch selectedWorkspace {
         case .promptTesting:
-            Section("Prompt Variants") {
-                ForEach(StudioPromptVariant.allCases) { variant in
-                    Toggle(isOn: variantBinding(for: variant)) {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(variant.title)
-                            Text(variant.subtitle)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(2)
-                        }
-                    }
-                }
-            }
+            EmptyView()
         case .benchmarkRuns:
             Section("Runners") {
                 sourceInfoRow(title: "Mac CLI", subtitle: "Publishable", systemImage: "terminal")
@@ -83,26 +70,11 @@ struct StudioSourceList: View {
         }
     }
 
-    private func variantBinding(for variant: StudioPromptVariant) -> Binding<Bool> {
-        Binding {
-            selectedPromptVariants.contains(variant)
-        } set: { isSelected in
-            if isSelected {
-                selectedPromptVariants.insert(variant)
-            } else {
-                selectedPromptVariants.remove(variant)
-            }
-        }
-    }
 }
 
 #Preview {
     @Previewable @State var selectedWorkspace = StudioWorkspace.promptTesting
-    @Previewable @State var variants = Set(StudioPromptVariant.allCases)
 
-    StudioSourceList(
-        selectedWorkspace: $selectedWorkspace,
-        selectedPromptVariants: $variants
-    )
+    StudioSourceList(selectedWorkspace: $selectedWorkspace)
     .frame(width: 260)
 }

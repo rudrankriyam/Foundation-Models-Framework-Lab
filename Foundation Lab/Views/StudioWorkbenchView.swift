@@ -10,7 +10,6 @@ struct StudioWorkbenchView<Content: View, Inspector: View>: View {
 
     @Binding var workspace: StudioWorkspace
     @Binding var stage: StudioPipelineStage
-    @Binding var selectedPromptVariants: Set<StudioPromptVariant>
 
     let isRunning: Bool
     let canRun: Bool
@@ -43,10 +42,7 @@ struct StudioWorkbenchView<Content: View, Inspector: View>: View {
             }
 #else
             HStack(spacing: 0) {
-                StudioSourceList(
-                    selectedWorkspace: $workspace,
-                    selectedPromptVariants: $selectedPromptVariants
-                )
+                StudioSourceList(selectedWorkspace: $workspace)
                 .frame(width: 240)
 
                 Divider()
