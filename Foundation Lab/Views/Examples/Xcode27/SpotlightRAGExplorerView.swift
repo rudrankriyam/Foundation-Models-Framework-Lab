@@ -8,20 +8,36 @@
 import SwiftUI
 
 struct SpotlightRAGExplorerView: View {
-    @State private var currentPrompt = "What did I decide about the Kyoto itinerary?"
-    @State private var selectedStage = SpotlightRAGStage.search
+    @State private var selectedStage = SpotlightRAGStage.index
 
     var body: some View {
-        ExampleViewBase(
-            title: "Spotlight RAG",
-            description: "Explain search-grounded Foundation Models answers",
-            defaultPrompt: "What did I decide about the Kyoto itinerary?",
-            currentPrompt: $currentPrompt,
-            codeExample: selectedStage.code,
-            onRun: nextStage,
-            onReset: reset
-        ) {
-            VStack(spacing: Spacing.medium) {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Spacing.large) {
+                Label {
+                    VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                        Text("Architecture walkthrough")
+                            .bold()
+                        Text(
+                            "This screen does not query Spotlight or a language model. "
+                                + "It explains how SpotlightSearchTool grounds a real session in content your app has indexed."
+                        )
+                            .foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    Image(systemName: "book.pages")
+                        .foregroundStyle(.blue)
+                }
+                .font(.callout)
+                .padding(Spacing.medium)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.blue.opacity(0.08), in: .rect(cornerRadius: CornerRadius.medium))
+
+                Xcode27Section("Example Question") {
+                    Text("“What did I decide about the Kyoto itinerary?”")
+                        .font(.callout)
+                        .textSelection(.enabled)
+                }
+
                 Xcode27Section("Pipeline") {
                     VStack(spacing: 0) {
                         ForEach(SpotlightRAGStage.allCases) { stage in
@@ -56,12 +72,26 @@ struct SpotlightRAGExplorerView: View {
                 }
 
                 Xcode27Section(selectedStage.title) {
-                    Text(selectedStage.explanation)
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: Spacing.medium) {
+                        Text(selectedStage.explanation)
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+
+                        Button("Inspect Next Stage", systemImage: "arrow.down", action: nextStage)
+                            .buttonStyle(.glassProminent)
+                    }
                 }
+
+                CodeDisclosure(code: selectedStage.code)
             }
+            .padding(.horizontal, Spacing.medium)
+            .padding(.vertical, Spacing.large)
         }
+        .navigationTitle("Spotlight RAG")
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.large)
+        .navigationSubtitle("Ground a session in your app's indexed content")
+        #endif
     }
 
     private func nextStage() {
@@ -73,85 +103,96 @@ struct SpotlightRAGExplorerView: View {
     private func select(_ stage: SpotlightRAGStage) {
         selectedStage = stage
     }
-
-    private func reset() {
-        currentPrompt = ""
-        selectedStage = .search
-    }
 }
 
 private enum SpotlightRAGStage: String, CaseIterable, Identifiable {
-    case search
-    case hydrate
-    case guide
-    case answer
+    case index
+    case tool
+    case prompt
     case evaluate
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
-        case .search: return "Search"
-        case .hydrate: return "Hydrate"
-        case .guide: return "Guide"
-        case .answer: return "Answer"
+        case .index: return "Index Content"
+        case .tool: return "Add Search Tool"
+        case .prompt: return "Prompt Session"
         case .evaluate: return "Evaluate"
         }
     }
 
     var detail: String {
         switch self {
-        case .search: return "Use SpotlightSearchTool against indexed app content."
-        case .hydrate: return "Fetch complete objects for selected results."
-        case .guide: return "Constrain attributes and date/person matching."
-        case .answer: return "Respond with grounded source references."
-        case .evaluate: return "Check trajectory and answer quality."
+        case .index: return "Maintain a Core Spotlight index for your app's content."
+        case .tool: return "Make that index available to LanguageModelSession."
+        case .prompt: return "Ask a question that requires indexed knowledge."
+        case .evaluate: return "Test retrieval relevance and answer quality."
         }
     }
 
     var explanation: String {
         switch self {
-        case .search:
-            return "Search should return enough candidates to ground the answer without stuffing the whole index into context."
-        case .hydrate:
-            return "Hydration lets the model start with compact search hits, then request full data only when needed."
-        case .guide:
-            return "Guidance profiles teach the search tool which attributes matter for a task, such as dates, titles, or people."
-        case .answer:
-            return "The answer should name the source or explain when the index did not contain enough evidence."
+        case .index:
+            return "SpotlightSearchTool searches content already indexed by your app. "
+                + "Index useful metadata and keep the index synchronized as content changes."
+        case .tool:
+            return "Add SpotlightSearchTool to the tools passed to LanguageModelSession. "
+                + "The model can then search the local index when a prompt requires app-specific knowledge."
+        case .prompt:
+            return "Call respond on the session as usual. Tool calling lets the model retrieve relevant indexed content "
+                + "and use it as additional context for the answer."
         case .evaluate:
-            return """
-            Evaluate both result relevance and the tool-call path. A good answer with the wrong trajectory can still hide a fragile flow.
-            """
+            return "Use representative questions and verify retrieval relevance, honest handling of missing evidence, "
+                + "and answers that stay grounded in the index."
         }
     }
 
     var icon: String {
         switch self {
-        case .search: return "magnifyingglass"
-        case .hydrate: return "tray.and.arrow.down"
-        case .guide: return "slider.horizontal.3"
-        case .answer: return "quote.bubble"
+        case .index: return "square.stack.3d.up"
+        case .tool: return "wrench.and.screwdriver"
+        case .prompt: return "text.bubble"
         case .evaluate: return "checklist.checked"
         }
     }
 
     var code: String {
-        """
-        import CoreSpotlight
-        import FoundationModels
+        switch self {
+        case .index:
+            return """
+            import CoreSpotlight
+            import UniformTypeIdentifiers
 
-        let tool = SpotlightSearchTool(
-            configuration: .init(
-                guide: .init(level: .dynamic(profile))
+            let attributes = CSSearchableItemAttributeSet(contentType: .text)
+            attributes.title = "Kyoto itinerary"
+            attributes.contentDescription = "Dinner in Gion on Friday."
+
+            let item = CSSearchableItem(
+                uniqueIdentifier: "trip.kyoto",
+                domainIdentifier: "travel",
+                attributeSet: attributes
             )
-        )
-        let session = LanguageModelSession(
-            model: SystemLanguageModel.default,
-            tools: [tool],
-            instructions: instructions
-        )
-        """
+            try await CSSearchableIndex.default().indexSearchableItems([item])
+            """
+        case .tool, .prompt:
+            return """
+            import CoreSpotlight
+            import FoundationModels
+
+            let tool = SpotlightSearchTool()
+            let session = LanguageModelSession(tools: [tool])
+            let response = try await session.respond(
+                to: "What did I decide about the Kyoto itinerary?"
+            )
+            """
+        case .evaluate:
+            return """
+            // Exercise questions with relevant, missing, and ambiguous evidence.
+            // Inspect retrieval and final-answer quality with Instruments
+            // and your evaluation suite.
+            """
+        }
     }
 }
 
