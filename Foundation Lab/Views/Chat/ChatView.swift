@@ -53,14 +53,6 @@ struct ChatView: View {
         .navigationBarTitleDisplayMode(.inline)
 #endif
         .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                modelRuntimeMenu
-            }
-
-            ToolbarItem(placement: .cancellationAction) {
-                reasoningMenu
-            }
-
             if showsDoneButton {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") {
@@ -70,15 +62,15 @@ struct ChatView: View {
                 }
             }
 
-            ToolbarItemGroup(placement: .primaryAction) {
-                Button(action: { showInstructionsSheet = true }, label: {
-                    Label("Instructions", systemImage: "doc.text")
-                })
-                .help("Customize AI behavior")
-
-                Button(action: clearChat, label: { Image(systemName: "xmark") })
-                .disabled(isChatEffectivelyEmpty)
-                .help("Clear chat")
+            ToolbarItem(placement: .primaryAction) {
+                ChatOptionsMenu(
+                    viewModel: viewModel,
+                    isChatEmpty: isChatEffectivelyEmpty,
+                    onSelectModelRuntime: selectModelRuntime,
+                    onSelectReasoningLevel: selectReasoningLevel,
+                    onShowInstructions: showInstructions,
+                    onClearChat: clearChat
+                )
             }
         }
         .alert(
@@ -141,38 +133,22 @@ struct ChatView: View {
                             .padding(.bottom, 48)
                     }
 
-                    ForEach(transcriptDisplayEntries, id: \.id) { displayEntry in
+                    ForEach(transcriptDisplayEntries) { displayEntry in
                         TranscriptEntryView(
                             entry: displayEntry.entry,
-                            transcriptIndex: displayEntry.index
+                            transcriptIndex: displayEntry.transcriptIndex
                         )
-                            .id(displayEntry.id)
+                        .id(displayEntry.id)
                     }
 
                     if viewModel.isSummarizing {
-                        HStack {
-                            ProgressView()
-                                .scaleEffect(0.8)
-                            Text("Summarizing conversation...")
-                                .font(.caption)
-                                .foregroundStyle(.orange)
-                            Spacer()
-                        }
-                        .padding(.horizontal)
-                        .id("summarizing")
+                        ChatActivityView(title: "Summarizing conversation...")
+                            .id("summarizing")
                     }
 
                     if viewModel.isApplyingWindow {
-                        HStack {
-                            ProgressView()
-                                .scaleEffect(0.8)
-                            Text("Optimizing conversation history...")
-                                .font(.caption)
-                                .foregroundStyle(.blue)
-                            Spacer()
-                        }
-                        .padding(.horizontal)
-                        .id("windowing")
+                        ChatActivityView(title: "Optimizing conversation history...")
+                            .id("windowing")
                     }
 
                     // Empty spacer for bottom padding
@@ -212,56 +188,10 @@ struct ChatView: View {
         .defaultScrollAnchor(.bottom)
     }
 
-    private var modelRuntimeMenu: some View {
-        Menu {
-            ForEach(FoundationLabModelRuntime.allCases, id: \.self) { runtime in
-                Button {
-                    viewModel.selectModelRuntime(runtime)
-                    clearInputAfterRuntimeChange()
-                } label: {
-                    Label(runtime.displayName, systemImage: runtime.systemImage)
-                }
-                .disabled(runtime == .privateCloudCompute && !viewModel.canSelectPrivateCloudCompute)
-            }
-
-            Divider()
-
-            Text(viewModel.modelRuntimeStatus)
-        } label: {
-            Label(viewModel.selectedModelRuntime.shortName, systemImage: viewModel.selectedModelRuntime.systemImage)
-        }
-        .help(viewModel.modelRuntimeStatus)
-    }
-
-    private var transcriptDisplayEntries: [(id: String, index: Int, entry: Transcript.Entry)] {
+    private var transcriptDisplayEntries: [TranscriptDisplayEntry] {
         viewModel.session.transcript.enumerated().map { index, entry in
-            ("\(index)-\(entry.id)", index, entry)
+            TranscriptDisplayEntry(transcriptIndex: index, entry: entry)
         }
-    }
-
-    private var reasoningMenu: some View {
-        Menu {
-            ForEach(FoundationLabReasoningLevel.allCases, id: \.self) { level in
-                Button {
-                    viewModel.selectReasoningLevel(level)
-                    clearInputAfterRuntimeChange()
-                } label: {
-                    Label(level.displayName, systemImage: level.systemImage)
-                }
-                .disabled(level != .none && !viewModel.canUseReasoning)
-            }
-
-            Divider()
-
-            Toggle("Show Reasoning Trace", isOn: .init(
-                get: { viewModel.showsReasoningTrace },
-                set: { viewModel.showsReasoningTrace = $0 }
-            ))
-        } label: {
-            Label(viewModel.selectedReasoningLevel.displayName, systemImage: viewModel.selectedReasoningLevel.systemImage)
-        }
-        .disabled(viewModel.selectedModelRuntime == .onDevice)
-        .help("Reasoning levels require PCC on Xcode 27.")
     }
 
     private var isChatEffectivelyEmpty: Bool {
@@ -281,7 +211,21 @@ struct ChatView: View {
         viewModel.clearChat()
     }
 
-    private func clearInputAfterRuntimeChange() {
+    private func showInstructions() {
+        showInstructionsSheet = true
+    }
+
+    private func selectModelRuntime(_ runtime: FoundationLabModelRuntime) {
+        viewModel.selectModelRuntime(runtime)
+        clearInputAfterConfigurationChange()
+    }
+
+    private func selectReasoningLevel(_ level: FoundationLabReasoningLevel) {
+        viewModel.selectReasoningLevel(level)
+        clearInputAfterConfigurationChange()
+    }
+
+    private func clearInputAfterConfigurationChange() {
         messageText = ""
         scrollID = "bottom"
     }
