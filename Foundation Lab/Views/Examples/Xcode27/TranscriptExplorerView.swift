@@ -8,18 +8,14 @@
 import SwiftUI
 
 struct TranscriptExplorerView: View {
-    @State private var currentPrompt = "Browse the Xcode 27 transcript segment types."
     @State private var selectedSegment = TranscriptSegmentExample.reasoning
 
     var body: some View {
-        ExampleViewBase(
+        ReferenceExampleView(
             title: "Transcript Explorer",
-            description: "Browse new reasoning, attachment, and custom segment cases",
-            defaultPrompt: "Browse the Xcode 27 transcript segment types.",
-            currentPrompt: $currentPrompt,
+            description: "Inspect reasoning, attachment, and custom transcript cases",
             codeExample: codeExample,
-            onRun: run,
-            onReset: reset
+            referenceNote: "Choose a segment to inspect its API case and code path. This page does not create a session or transcript."
         ) {
             VStack(spacing: Spacing.medium) {
                 Picker("Segment", selection: $selectedSegment) {
@@ -70,12 +66,6 @@ struct TranscriptExplorerView: View {
                 }
             }
         }
-    }
-
-    private func run() {}
-
-    private func reset() {
-        currentPrompt = ""
     }
 
     private var codeExample: String {

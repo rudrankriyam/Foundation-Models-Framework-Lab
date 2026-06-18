@@ -9,18 +9,14 @@ import FoundationModels
 import SwiftUI
 
 struct ToolCallingModeLabView: View {
-    @State private var currentPrompt = "What is the weather in Cupertino?"
     @State private var selectedMode = ToolModeExample.allowed
 
     var body: some View {
-        ExampleViewBase(
-            title: "Tool Modes",
-            description: "Compare allowed, required, and disallowed tool calling",
-            defaultPrompt: "What is the weather in Cupertino?",
-            currentPrompt: $currentPrompt,
+        ReferenceExampleView(
+            title: "Tool Calling Modes",
+            description: "Inspect allowed, required, and disallowed tool behavior",
             codeExample: selectedMode.code,
-            onRun: run,
-            onReset: reset
+            referenceNote: "Choose a mode to inspect the corresponding GenerationOptions recipe. This page does not call a model or tool."
         ) {
             VStack(spacing: Spacing.medium) {
                 Picker("Tool mode", selection: $selectedMode) {
@@ -66,11 +62,6 @@ struct ToolCallingModeLabView: View {
         }
     }
 
-    private func run() {}
-
-    private func reset() {
-        currentPrompt = ""
-    }
 }
 
 private enum ToolModeExample: String, CaseIterable, Identifiable {
