@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import FoundationModels
 
 struct ContextBudgetSimulation {
     struct Entry: Identifiable {
@@ -32,38 +33,103 @@ struct ContextBudgetSimulation {
         let id: String
         let title: String
         let kind: String
-        let originalTokens: Int
-        let resultingTokens: Int
+        let originalTokens: Int?
+        let resultingTokens: Int?
         let disposition: Disposition
     }
 
+    struct SourceEntry: Identifiable {
+        let id: String
+        let title: String
+        let kind: String
+        let transcriptEntry: Transcript.Entry
+    }
+
     let contextSize: Int
-    let promptTokens: Int
+    let promptTokens: Int?
+    let historyTokenCounts: [String: Int]?
     let responseReserve: Int
     let policy: ContextBudgetPolicy
 
-    private let sourceEntries = [
-        Entry(
-            id: "instructions", title: "System instructions", kind: "Instructions",
-            originalTokens: 360, resultingTokens: 360, disposition: .kept
+    static let sampleEntries: [SourceEntry] = [
+        SourceEntry(
+            id: "instructions",
+            title: "System instructions",
+            kind: "Instructions",
+            transcriptEntry: .instructions(
+                Transcript.Instructions(
+                    segments: [.text(Transcript.TextSegment(content: longInstructions))],
+                    toolDefinitions: []
+                )
+            )
         ),
-        Entry(
-            id: "old-plan", title: "Early architecture discussion", kind: "Prompt + response",
-            originalTokens: 780, resultingTokens: 780, disposition: .kept
+        SourceEntry(
+            id: "old-plan",
+            title: "Early architecture discussion",
+            kind: "Prompt",
+            transcriptEntry: .prompt(
+                Transcript.Prompt(segments: [.text(Transcript.TextSegment(content: earlyArchitecturePrompt))])
+            )
         ),
-        Entry(
-            id: "draft", title: "Discarded implementation draft", kind: "Prompt + response",
-            originalTokens: 920, resultingTokens: 920, disposition: .kept
+        SourceEntry(
+            id: "draft",
+            title: "Discarded implementation draft",
+            kind: "Response",
+            transcriptEntry: .response(
+                Transcript.Response(
+                    assetIDs: [],
+                    segments: [.text(Transcript.TextSegment(content: discardedDraft))]
+                )
+            )
         ),
-        Entry(
-            id: "tools", title: "Completed research tool output", kind: "Tool calls + output",
-            originalTokens: 1_100, resultingTokens: 1_100, disposition: .kept
+        SourceEntry(
+            id: "tools",
+            title: "Completed research output",
+            kind: "Tool output",
+            transcriptEntry: .toolOutput(
+                Transcript.ToolOutput(
+                    id: "sample-research",
+                    toolName: "documentationSearch",
+                    segments: [.text(Transcript.TextSegment(content: researchOutput))]
+                )
+            )
         ),
-        Entry(
-            id: "latest", title: "Latest decision and constraints", kind: "Prompt + response",
-            originalTokens: 620, resultingTokens: 620, disposition: .kept
+        SourceEntry(
+            id: "latest",
+            title: "Latest decision and constraints",
+            kind: "Prompt",
+            transcriptEntry: .prompt(
+                Transcript.Prompt(segments: [.text(Transcript.TextSegment(content: latestConstraints))])
+            )
         )
     ]
+
+    static let summaryEntry = SourceEntry(
+        id: "summary",
+        title: "Summary of earlier conversation",
+        kind: "App-generated prompt context",
+        transcriptEntry: .prompt(
+            Transcript.Prompt(segments: [.text(Transcript.TextSegment(content: compactedSummary))])
+        )
+    )
+
+    static var entriesToMeasure: [SourceEntry] {
+        sampleEntries + [summaryEntry]
+    }
+
+    private var sourceEntries: [Entry] {
+        Self.sampleEntries.map { source in
+            let tokens = historyTokenCounts?[source.id]
+            return Entry(
+                id: source.id,
+                title: source.title,
+                kind: source.kind,
+                originalTokens: tokens,
+                resultingTokens: tokens,
+                disposition: .kept
+            )
+        }
+    }
 
     var processedEntries: [Entry] {
         switch policy {
@@ -77,7 +143,7 @@ struct ContextBudgetSimulation {
                         title: entry.title,
                         kind: entry.kind,
                         originalTokens: entry.originalTokens,
-                        resultingTokens: 0,
+                        resultingTokens: entry.originalTokens == nil ? nil : 0,
                         disposition: .dropped
                     )
                 }
@@ -87,11 +153,11 @@ struct ContextBudgetSimulation {
             [
                 sourceEntries[0],
                 Entry(
-                    id: "summary",
-                    title: "Summary of earlier conversation",
-                    kind: "App-generated prompt context",
-                    originalTokens: sourceEntries[1...3].map(\.originalTokens).reduce(0, +),
-                    resultingTokens: 320,
+                    id: Self.summaryEntry.id,
+                    title: Self.summaryEntry.title,
+                    kind: Self.summaryEntry.kind,
+                    originalTokens: combinedEarlierTokens,
+                    resultingTokens: historyTokenCounts?[Self.summaryEntry.id],
                     disposition: .summarized
                 ),
                 sourceEntries[4]
@@ -99,49 +165,95 @@ struct ContextBudgetSimulation {
         }
     }
 
-    var historyTokensBeforePolicy: Int {
-        sourceEntries.map(\.originalTokens).reduce(0, +)
+    var historyTokensBeforePolicy: Int? {
+        sum(sourceEntries.map(\.originalTokens))
     }
 
-    var historyTokensAfterPolicy: Int {
-        processedEntries.map(\.resultingTokens).reduce(0, +)
+    var historyTokensAfterPolicy: Int? {
+        sum(processedEntries.map(\.resultingTokens))
     }
 
-    var totalBeforePolicy: Int {
-        historyTokensBeforePolicy + promptTokens + responseReserve
+    var totalBeforePolicy: Int? {
+        guard let historyTokensBeforePolicy, let promptTokens else { return nil }
+        return historyTokensBeforePolicy + promptTokens + responseReserve
     }
 
-    var totalAfterPolicy: Int {
-        historyTokensAfterPolicy + promptTokens + responseReserve
+    var totalAfterPolicy: Int? {
+        guard let historyTokensAfterPolicy, let promptTokens else { return nil }
+        return historyTokensAfterPolicy + promptTokens + responseReserve
     }
 
     var budgetEquation: String {
-        "\(historyTokensAfterPolicy) history + \(promptTokens) prompt + \(responseReserve) response"
+        guard let historyTokensAfterPolicy, let promptTokens else {
+            return "Waiting for tokenizer"
+        }
+        return "\(historyTokensAfterPolicy) history + \(promptTokens) prompt + \(responseReserve) response"
     }
 
-    var fitsAfterPolicy: Bool {
-        totalAfterPolicy <= contextSize
-    }
-
-    var remainingTokens: Int {
-        max(0, contextSize - totalAfterPolicy)
+    var fitsAfterPolicy: Bool? {
+        totalAfterPolicy.map { $0 <= contextSize }
     }
 
     var outcomeTitle: String {
-        fitsAfterPolicy ? "Fits with \(remainingTokens) tokens free" : "Over by \(totalAfterPolicy - contextSize) tokens"
+        guard let totalAfterPolicy else { return "Not measured" }
+        let difference = contextSize - totalAfterPolicy
+        return difference >= 0 ? "Fits with \(difference) tokens free" : "Over by \(-difference) tokens"
     }
 
     var outcomeIcon: String {
-        fitsAfterPolicy ? "checkmark.circle.fill" : "exclamationmark.triangle.fill"
+        guard let fitsAfterPolicy else { return "ruler" }
+        return fitsAfterPolicy ? "checkmark.circle.fill" : "exclamationmark.triangle.fill"
     }
 
     var recommendation: String {
-        if fitsAfterPolicy {
-            "Create the next LanguageModelSession with the prepared transcript, then send the prompt with the response limit."
-        } else if policy == .preserveAll {
-            "This request can trigger exceededContextWindowSize. Choose an app policy that reduces history before calling respond."
-        } else {
-            "The selected policy still leaves too little room. Reduce the response reserve, compact more history, or start a fresh session."
+        guard let fitsAfterPolicy else {
+            return "Measure the prompt and sample transcript before comparing policies."
         }
+        if fitsAfterPolicy {
+            return "Create the next LanguageModelSession with the prepared transcript, then send the prompt with the response limit."
+        }
+        if policy == .preserveAll {
+            return "This request can trigger exceededContextWindowSize. Choose an app policy that reduces history before calling respond."
+        }
+        return "Reduce the response reserve, compact more history, or start a fresh session."
+    }
+
+    private var combinedEarlierTokens: Int? {
+        sum([historyTokenCounts?["old-plan"], historyTokenCounts?["draft"], historyTokenCounts?["tools"]])
+    }
+
+    private func sum(_ values: [Int?]) -> Int? {
+        guard values.allSatisfy({ $0 != nil }) else { return nil }
+        return values.compactMap { $0 }.reduce(0, +)
     }
 }
+
+private let longInstructions = String(
+    repeating: "Be precise, preserve user constraints, cite the relevant framework behavior, and avoid inventing APIs. ",
+    count: 24
+)
+
+private let earlyArchitecturePrompt = String(
+    repeating: "Compare the session architecture, transcript lifecycle, tool definitions, and structured-generation requirements. ",
+    count: 34
+)
+
+private let discardedDraft = String(
+    repeating: "The first implementation explored several alternatives, recorded tradeoffs, and included code that was later rejected. ",
+    count: 42
+)
+
+private let researchOutput = String(
+    repeating: "Apple documentation confirms the model context, transcript entry, token counting, and response option behavior. ",
+    count: 48
+)
+
+private let latestConstraints = String(
+    repeating: "Keep the interface native, truthful, accessible, and focused on the exact behavior a developer controls. ",
+    count: 26
+)
+
+private let compactedSummary = """
+The user needs a native and truthful Foundation Models example. Preserve the latest constraints and use official APIs. Clearly separate
+framework behavior from app-owned transcript policy. Earlier alternatives were rejected.
+"""

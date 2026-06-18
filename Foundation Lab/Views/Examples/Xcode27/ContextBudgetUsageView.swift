@@ -16,7 +16,7 @@ struct ContextBudgetUsageView: View {
                     title: "After app policy",
                     value: simulation.outcomeTitle,
                     systemImage: simulation.outcomeIcon,
-                    tint: simulation.fitsAfterPolicy ? .green : .red
+                    tint: outcomeColor
                 )
 
                 usageRow(
@@ -28,7 +28,7 @@ struct ContextBudgetUsageView: View {
                 usageRow(
                     title: "After",
                     usedTokens: simulation.totalAfterPolicy,
-                    tint: simulation.fitsAfterPolicy ? .green : .red
+                    tint: outcomeColor
                 )
 
                 LabeledContent("After-policy math") {
@@ -45,18 +45,33 @@ struct ContextBudgetUsageView: View {
         }
     }
 
-    private func usageRow(title: String, usedTokens: Int, tint: Color) -> some View {
+    private var outcomeColor: Color {
+        switch simulation.fitsAfterPolicy {
+        case true: .green
+        case false: .red
+        case nil: .secondary
+        }
+    }
+
+    private func usageRow(title: String, usedTokens: Int?, tint: Color) -> some View {
         VStack(alignment: .leading, spacing: Spacing.xSmall) {
             LabeledContent(title) {
-                Text("\(usedTokens) / \(simulation.contextSize) tokens")
-                    .monospacedDigit()
+                if let usedTokens {
+                    Text("\(usedTokens) / \(simulation.contextSize) tokens")
+                        .monospacedDigit()
+                } else {
+                    Text("Not measured")
+                        .foregroundStyle(.secondary)
+                }
             }
             .font(.footnote)
 
-            ProgressView(value: min(Double(usedTokens) / Double(simulation.contextSize), 1))
-                .tint(tint)
-                .accessibilityLabel("\(title) context usage")
-                .accessibilityValue("\(usedTokens) of \(simulation.contextSize) tokens")
+            if let usedTokens {
+                ProgressView(value: min(Double(usedTokens) / Double(simulation.contextSize), 1))
+                    .tint(tint)
+                    .accessibilityLabel("\(title) context usage")
+                    .accessibilityValue("\(usedTokens) of \(simulation.contextSize) tokens")
+            }
         }
     }
 }

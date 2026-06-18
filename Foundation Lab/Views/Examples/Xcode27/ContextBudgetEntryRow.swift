@@ -27,11 +27,19 @@ struct ContextBudgetEntryRow: View {
             Spacer(minLength: Spacing.small)
 
             VStack(alignment: .trailing, spacing: Spacing.xSmall) {
-                Text("\(entry.resultingTokens) tokens")
-                    .font(.footnote.monospacedDigit())
+                if let resultingTokens = entry.resultingTokens {
+                    Text("\(resultingTokens) tokens")
+                        .font(.footnote.monospacedDigit())
+                } else {
+                    Text("Not measured")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
 
-                if entry.originalTokens != entry.resultingTokens {
-                    Text("was \(entry.originalTokens)")
+                if let originalTokens = entry.originalTokens,
+                   let resultingTokens = entry.resultingTokens,
+                   originalTokens != resultingTokens {
+                    Text("was \(originalTokens)")
                         .font(.footnote.monospacedDigit())
                         .foregroundStyle(.secondary)
                 }

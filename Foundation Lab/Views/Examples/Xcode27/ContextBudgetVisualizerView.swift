@@ -16,14 +16,16 @@ struct ContextBudgetVisualizerView: View {
     @State private var policy = ContextBudgetPolicy.keepRecent
     @State private var responseReserve = 640.0
     @State private var measuredPromptTokens: Int?
-    @State private var measurementNote = "Run to measure this prompt with the model tokenizer."
+    @State private var measuredHistoryTokens: [String: Int]?
+    @State private var measurementNote = "Measure the prompt and sample transcript with the model tokenizer."
     @State private var isRunning = false
     @State private var activeMeasurementID: UUID?
 
     private var simulation: ContextBudgetSimulation {
         ContextBudgetSimulation(
             contextSize: SystemLanguageModel.default.contextSize,
-            promptTokens: measuredPromptTokens ?? estimatedPromptTokens(for: currentPrompt),
+            promptTokens: measuredPromptTokens,
+            historyTokenCounts: measuredHistoryTokens,
             responseReserve: Int(responseReserve),
             policy: policy
         )
@@ -37,7 +39,7 @@ struct ContextBudgetVisualizerView: View {
             currentPrompt: $currentPrompt,
             isRunning: isRunning,
             codeExample: codeExample,
-            runLabel: "Measure Prompt",
+            runLabel: "Measure Budget",
             onRun: runSimulation,
             onReset: reset
         ) {
@@ -49,8 +51,8 @@ struct ContextBudgetVisualizerView: View {
                 Xcode27Section("Sample transcript after policy") {
                     VStack(alignment: .leading, spacing: Spacing.small) {
                         Text(
-                            "These entries and their history counts are a fixed teaching sample. "
-                            + "Measure Prompt tokenizes only the prompt above."
+                            "This is a synthetic long conversation for comparing app-owned policies. "
+                            + "Its displayed counts come from the same model tokenizer as your prompt."
                         )
                             .font(.footnote)
                             .foregroundStyle(.secondary)
@@ -70,7 +72,7 @@ struct ContextBudgetVisualizerView: View {
                 Xcode27Section("What happens next") {
                     Label(simulation.recommendation, systemImage: simulation.outcomeIcon)
                         .font(.callout)
-                        .foregroundStyle(simulation.fitsAfterPolicy ? Color.primary : Color.red)
+                        .foregroundStyle(simulation.fitsAfterPolicy == false ? Color.red : Color.primary)
                 }
             }
         }
@@ -133,34 +135,37 @@ struct ContextBudgetVisualizerView: View {
     private func runSimulation() {
         let prompt = currentPrompt
         let measurementID = UUID()
-        let fallback = estimatedPromptTokens(for: prompt)
-
         activeMeasurementID = measurementID
         isRunning = true
         measuredPromptTokens = nil
-        measurementNote = "Measuring prompt tokens…"
+        measuredHistoryTokens = nil
+        measurementNote = "Measuring prompt and sample transcript…"
 
         Task { @MainActor in
-            let tokens: Int
-            let note: String
-
             do {
                 if #available(iOS 26.4, macOS 26.4, visionOS 26.4, *) {
-                    tokens = try await SystemLanguageModel.default.tokenCount(for: Prompt(prompt))
-                    note = "Prompt measured with SystemLanguageModel.tokenCount(for:)."
+                    let model = SystemLanguageModel.default
+                    let promptTokens = try await model.tokenCount(for: Prompt(prompt))
+                    var historyTokens: [String: Int] = [:]
+
+                    for sample in ContextBudgetSimulation.entriesToMeasure {
+                        historyTokens[sample.id] = try await model.tokenCount(for: [sample.transcriptEntry])
+                    }
+
+                    guard activeMeasurementID == measurementID, currentPrompt == prompt else { return }
+
+                    measuredPromptTokens = promptTokens
+                    measuredHistoryTokens = historyTokens
+                    measurementNote = "Measured with SystemLanguageModel.tokenCount(for:)."
                 } else {
-                    tokens = fallback
-                    note = "Prompt estimated because model token counting requires version 26.4 or later."
+                    measurementNote = "Model token counting requires version 26.4 or later; no estimates are shown."
                 }
             } catch {
-                tokens = fallback
-                note = "Prompt estimated because the model tokenizer was unavailable."
+                measurementNote = "The model tokenizer is unavailable; no estimates are shown."
             }
 
             guard activeMeasurementID == measurementID, currentPrompt == prompt else { return }
 
-            measuredPromptTokens = tokens
-            measurementNote = note
             isRunning = false
             activeMeasurementID = nil
         }
@@ -173,20 +178,18 @@ struct ContextBudgetVisualizerView: View {
         policy = .keepRecent
         responseReserve = 640
         measuredPromptTokens = nil
-        measurementNote = "Enter a prompt, then run to measure it with the model tokenizer."
+        measuredHistoryTokens = nil
+        measurementNote = "Enter a prompt, then measure it with the sample transcript."
     }
 
     private func invalidatePromptMeasurement() {
         activeMeasurementID = nil
         isRunning = false
         measuredPromptTokens = nil
+        measuredHistoryTokens = nil
         measurementNote = currentPrompt.isEmpty
-            ? "Enter a prompt, then run to measure it with the model tokenizer."
-            : "Prompt changed. Run to measure it with the model tokenizer."
-    }
-
-    private func estimatedPromptTokens(for prompt: String) -> Int {
-        max(1, Int(ceil(Double(prompt.count) / 4.5)))
+            ? "Enter a prompt, then measure it with the sample transcript."
+            : "Prompt changed. Measure again to update the budget."
     }
 
     private var codeExample: String {
