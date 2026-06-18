@@ -123,8 +123,13 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
         isSynthesisInFlight = true
         defer { isSynthesisInFlight = false }
 
-        await configurePlaybackSession()
-        try Task.checkCancellation()
+        let playbackSessionWasActivated = await configurePlaybackSession()
+        do {
+            try Task.checkCancellation()
+        } catch {
+            await deactivatePlaybackSessionAfterCancelledStartup(ifActivated: playbackSessionWasActivated)
+            throw error
+        }
 
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             self.pendingContinuation = continuation
@@ -140,13 +145,30 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
         logger.debug("Speech synthesizer ready for first use")
     }
 
-    private func configurePlaybackSession() async {
+    private func configurePlaybackSession() async -> Bool {
         #if os(iOS)
         do {
             try await Self.activatePlaybackSession()
             logger.debug("Configured audio session for speech synthesis playback")
+            return true
         } catch {
             logger.error("Failed to configure audio session for playback: \(error.localizedDescription, privacy: .public)")
+            return false
+        }
+        #else
+        return false
+        #endif
+    }
+
+    private func deactivatePlaybackSessionAfterCancelledStartup(ifActivated: Bool) async {
+        #if os(iOS)
+        guard ifActivated else { return }
+
+        do {
+            try await Self.deactivatePlaybackSession()
+            logger.debug("Deactivated audio session after cancelled speech startup")
+        } catch {
+            logger.error("Failed to deactivate audio session after cancelled startup: \(error.localizedDescription, privacy: .public)")
         }
         #endif
     }
