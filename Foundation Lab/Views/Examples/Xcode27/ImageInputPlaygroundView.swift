@@ -8,18 +8,16 @@
 import SwiftUI
 
 struct ImageInputPlaygroundView: View {
-    @State private var currentPrompt = "Turn this screenshot into a concise bug report."
     @State private var selectedRecipe = ImageInputRecipe.altText
 
     var body: some View {
-        ExampleViewBase(
-            title: "Image Input",
-            description: "Explore image attachments, references, and empirical resolution boundaries",
-            defaultPrompt: "Turn this screenshot into a concise bug report.",
-            currentPrompt: $currentPrompt,
+        ReferenceExampleView(
+            title: "Image Input Reference",
+            description: "Inspect image attachment recipes and measured resolution boundaries",
             codeExample: selectedRecipe.code,
-            onRun: run,
-            onReset: reset
+            referenceNote: """
+            Choose a recipe to update the sample prompt and code. No image is attached and no model request is sent on this page.
+            """
         ) {
             VStack(spacing: Spacing.medium) {
                 Xcode27Section("Attachment Flow") {
@@ -72,18 +70,13 @@ struct ImageInputPlaygroundView: View {
                         .padding(.top, Spacing.small)
                 }
 
-                ResultDisplay(
-                    result: selectedRecipe.resultPreview,
-                    isSuccess: true
-                )
+                Xcode27Section("Response focus") {
+                    Text(selectedRecipe.responseFocus)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
             }
         }
-    }
-
-    private func run() {}
-
-    private func reset() {
-        currentPrompt = ""
     }
 }
 
@@ -116,14 +109,14 @@ private enum ImageInputRecipe: String, CaseIterable, Identifiable {
         }
     }
 
-    var resultPreview: String {
+    var responseFocus: String {
         switch self {
         case .altText:
-            return "Example output: A compact description of the image suitable for accessibility labels and summaries."
+            return "Ask for a compact description suitable for accessibility labels and summaries."
         case .screenshotBug:
-            return "Example output: Title, observed behavior, expected behavior, visible evidence, and repro hints."
+            return "Ask for a title, observed behavior, expected behavior, visible evidence, and reproduction hints."
         case .uiAudit:
-            return "Example output: Layout, hierarchy, contrast, spacing, text clipping, and actionable fixes."
+            return "Ask the model to inspect layout, hierarchy, contrast, spacing, text clipping, and actionable fixes."
         }
     }
 

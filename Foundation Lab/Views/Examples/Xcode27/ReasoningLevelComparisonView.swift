@@ -8,18 +8,17 @@
 import SwiftUI
 
 struct ReasoningLevelComparisonView: View {
-    @State private var currentPrompt = "Plan a migration from an Xcode 26 Foundation Models app to Xcode 27."
     @State private var selectedLevel = ReasoningComparisonLevel.moderate
 
     var body: some View {
-        ExampleViewBase(
+        ReferenceExampleView(
             title: "Reasoning Levels",
-            description: "Compare light, moderate, and deep reasoning contexts",
-            defaultPrompt: "Plan a migration from an Xcode 26 Foundation Models app to Xcode 27.",
-            currentPrompt: $currentPrompt,
+            description: "Inspect light, moderate, and deep ContextOptions",
             codeExample: selectedLevel.code,
-            onRun: run,
-            onReset: reset
+            referenceNote: """
+            Choose a level to inspect its ContextOptions recipe. This page describes the requested reasoning budget; it does not run a \
+            comparison.
+            """
         ) {
             VStack(spacing: Spacing.medium) {
                 Picker("Reasoning level", selection: $selectedLevel) {
@@ -35,10 +34,11 @@ struct ReasoningLevelComparisonView: View {
                             .font(.callout)
                             .foregroundStyle(.secondary)
 
-                        ResultDisplay(
-                            result: selectedLevel.expectedShape,
-                            isSuccess: true
-                        )
+                        LabeledContent("Framework effect") {
+                            Text(selectedLevel.frameworkEffect)
+                                .multilineTextAlignment(.trailing)
+                        }
+                        .font(.callout)
                     }
                 }
 
@@ -56,11 +56,6 @@ struct ReasoningLevelComparisonView: View {
         }
     }
 
-    private func run() {}
-
-    private func reset() {
-        currentPrompt = ""
-    }
 }
 
 private enum ReasoningComparisonLevel: String, CaseIterable, Identifiable {
@@ -85,14 +80,14 @@ private enum ReasoningComparisonLevel: String, CaseIterable, Identifiable {
         }
     }
 
-    var expectedShape: String {
+    var frameworkEffect: String {
         switch self {
         case .light:
-            return "Expected output: short, direct, low-latency answer with minimal planning."
+            return "Allows less thinking before the response."
         case .moderate:
-            return "Expected output: structured answer with a few explicit steps and tradeoffs."
+            return "Allows a moderate amount of thinking before the response."
         case .deep:
-            return "Expected output: fuller plan with assumptions, risks, sequencing, and validation."
+            return "Allows more thinking before the response."
         }
     }
 

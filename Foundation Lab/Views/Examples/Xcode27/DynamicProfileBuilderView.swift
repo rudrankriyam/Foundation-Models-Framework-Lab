@@ -8,21 +8,17 @@
 import SwiftUI
 
 struct DynamicProfileBuilderView: View {
-    @State private var currentPrompt = "Summarize this release note for developers."
     @State private var temperature = 0.4
     @State private var maxTokens = 240.0
     @State private var reasoningLevel = ReasoningLevelChoice.moderate
     @State private var toolMode = DynamicToolMode.allowed
 
     var body: some View {
-        ExampleViewBase(
+        ReferenceExampleView(
             title: "Dynamic Profile",
-            description: "Compose Xcode 27 session profile options",
-            defaultPrompt: "Summarize this release note for developers.",
-            currentPrompt: $currentPrompt,
+            description: "Compose a LanguageModelSession.Profile recipe",
             codeExample: codeExample,
-            onRun: run,
-            onReset: reset
+            referenceNote: "Adjust the controls to generate a profile recipe. This page does not create a session or send a prompt."
         ) {
             VStack(spacing: Spacing.medium) {
                 Xcode27Section("Profile Controls") {
@@ -79,8 +75,6 @@ struct DynamicProfileBuilderView: View {
         """
     }
 
-    private func run() {}
-
     private var codeExample: String {
         """
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) {
@@ -97,13 +91,6 @@ struct DynamicProfileBuilderView: View {
         """
     }
 
-    private func reset() {
-        currentPrompt = ""
-        temperature = 0.4
-        maxTokens = 240
-        reasoningLevel = .moderate
-        toolMode = .allowed
-    }
 }
 
 private enum ReasoningLevelChoice: String, CaseIterable, Identifiable {
