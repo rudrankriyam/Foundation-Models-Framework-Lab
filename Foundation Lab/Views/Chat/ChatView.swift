@@ -216,11 +216,13 @@ struct ChatView: View {
     }
 
     private func selectModelRuntime(_ runtime: FoundationLabModelRuntime) {
+        guard runtime != viewModel.selectedModelRuntime else { return }
         viewModel.selectModelRuntime(runtime)
         clearInputAfterConfigurationChange()
     }
 
     private func selectReasoningLevel(_ level: FoundationLabReasoningLevel) {
+        guard level != viewModel.selectedReasoningLevel else { return }
         viewModel.selectReasoningLevel(level)
         clearInputAfterConfigurationChange()
     }
