@@ -16,6 +16,7 @@ struct ExampleViewBase<Content: View>: View {
   let isRunning: Bool
   let errorMessage: String?
   let codeExample: String?
+  let runLabel: String
   let onRun: () -> Void
   let onReset: () -> Void
   let content: Content
@@ -28,6 +29,7 @@ struct ExampleViewBase<Content: View>: View {
     isRunning: Bool = false,
     errorMessage: String? = nil,
     codeExample: String? = nil,
+    runLabel: String = "Run",
     onRun: @escaping () -> Void,
     onReset: @escaping () -> Void,
     @ViewBuilder content: () -> Content
@@ -39,6 +41,7 @@ struct ExampleViewBase<Content: View>: View {
     self.isRunning = isRunning
     self.errorMessage = errorMessage
     self.codeExample = codeExample
+    self.runLabel = runLabel
     self.onRun = onRun
     self.onReset = onReset
     self.content = content()
@@ -116,7 +119,7 @@ struct ExampleViewBase<Content: View>: View {
               .scaleEffect(0.8)
               .tint(.white)
           }
-          Text(isRunning ? "Running..." : "Run")
+          Text(isRunning ? "Running..." : runLabel)
             .font(.callout)
             .fontWeight(.medium)
         }

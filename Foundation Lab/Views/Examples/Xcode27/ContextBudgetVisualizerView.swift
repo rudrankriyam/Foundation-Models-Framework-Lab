@@ -5,197 +5,210 @@
 //  Created by Codex on 6/8/26.
 //
 
+import Foundation
+import FoundationModels
 import SwiftUI
 
 struct ContextBudgetVisualizerView: View {
-    @State private var currentPrompt = "Visualize which transcript entries survive compaction."
-    @State private var strategy = BudgetStrategy.balanced
+    private static let defaultPrompt = "Use the latest research and our earlier decisions to propose the next three implementation steps."
 
-    private var entries: [BudgetEntry] {
-        BudgetEntry.samples.map { entry in entry.applying(strategy) }
-    }
+    @State private var currentPrompt = defaultPrompt
+    @State private var policy = ContextBudgetPolicy.keepRecent
+    @State private var responseReserve = 640.0
+    @State private var measuredPromptTokens: Int?
+    @State private var measurementNote = "Run to measure this prompt with the model tokenizer."
+    @State private var isRunning = false
+    @State private var activeMeasurementID: UUID?
 
-    private var keptTokens: Int {
-        entries.filter { $0.state != .dropped }.map(\.displayTokens).reduce(0, +)
+    private var simulation: ContextBudgetSimulation {
+        ContextBudgetSimulation(
+            contextSize: SystemLanguageModel.default.contextSize,
+            promptTokens: measuredPromptTokens ?? estimatedPromptTokens(for: currentPrompt),
+            responseReserve: Int(responseReserve),
+            policy: policy
+        )
     }
 
     var body: some View {
         ExampleViewBase(
-            title: "Budget Visualizer",
-            description: "See what gets kept, summarized, or dropped",
-            defaultPrompt: "Visualize which transcript entries survive compaction.",
+            title: "Transcript Budget Lab",
+            description: "Decide what your app keeps before a session runs out of context",
+            defaultPrompt: Self.defaultPrompt,
             currentPrompt: $currentPrompt,
-            codeExample: strategy.code,
-            onRun: cycleStrategy,
+            isRunning: isRunning,
+            codeExample: codeExample,
+            runLabel: "Measure Prompt",
+            onRun: runSimulation,
             onReset: reset
         ) {
-            VStack(spacing: Spacing.medium) {
-                Picker("Strategy", selection: $strategy) {
-                    ForEach(BudgetStrategy.allCases) { strategy in
-                        Text(strategy.title).tag(strategy)
-                    }
-                }
-                .pickerStyle(.segmented)
+            VStack(alignment: .leading, spacing: Spacing.large) {
+                frameworkBoundary
+                policyControls
+                ContextBudgetUsageView(simulation: simulation, measurementNote: measurementNote)
 
-                Xcode27StatusRow(
-                    title: "Compacted Prompt",
-                    value: "\(keptTokens) tokens kept",
-                    systemImage: "chart.pie",
-                    tint: strategy.tint
-                )
+                Xcode27Section("Sample transcript after policy") {
+                    VStack(alignment: .leading, spacing: Spacing.small) {
+                        Text(
+                            "These entries and their history counts are a fixed teaching sample. "
+                            + "Measure Prompt tokenizes only the prompt above."
+                        )
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
 
-                Xcode27Section("Transcript Entries") {
-                    VStack(spacing: 0) {
-                        ForEach(entries) { entry in
-                            BudgetEntryRow(entry: entry)
+                        VStack(spacing: 0) {
+                            ForEach(simulation.processedEntries) { entry in
+                                ContextBudgetEntryRow(entry: entry)
 
-                            if entry.id != entries.last?.id {
-                                Divider()
+                                if entry.id != simulation.processedEntries.last?.id {
+                                    Divider()
+                                }
                             }
                         }
                     }
                 }
+
+                Xcode27Section("What happens next") {
+                    Label(simulation.recommendation, systemImage: simulation.outcomeIcon)
+                        .font(.callout)
+                        .foregroundStyle(simulation.fitsAfterPolicy ? Color.primary : Color.red)
+                }
             }
+        }
+        .onChange(of: currentPrompt) {
+            invalidatePromptMeasurement()
         }
     }
 
-    private func cycleStrategy() {
-        let cases = BudgetStrategy.allCases
-        guard let index = cases.firstIndex(of: strategy) else { return }
-        strategy = cases[(index + 1) % cases.count]
+    private var frameworkBoundary: some View {
+        Xcode27Section("Framework boundary") {
+            VStack(alignment: .leading, spacing: Spacing.small) {
+                Text(
+                    "Foundation Models can report the context limit and count tokens. "
+                    + "It does not choose a ‘balanced’ or ‘aggressive’ compaction strategy for your app."
+                )
+                    .font(.callout)
+
+                Label("Framework: context size, token counts, transcript, and overflow error", systemImage: "apple.intelligence")
+                Label("Your app: response reserve and which history to keep, summarize, or drop", systemImage: "slider.horizontal.3")
+            }
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+        }
     }
 
-    private func reset() {
-        currentPrompt = ""
-        strategy = .balanced
-    }
-}
+    private var policyControls: some View {
+        Xcode27Section("App-owned policy") {
+            VStack(alignment: .leading, spacing: Spacing.medium) {
+                LabeledContent("Transcript policy") {
+                    Picker("Transcript policy", selection: $policy) {
+                        ForEach(ContextBudgetPolicy.allCases) { policy in
+                            Label(policy.title, systemImage: policy.systemImage)
+                                .tag(policy)
+                        }
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.menu)
+                }
 
-private struct BudgetEntryRow: View {
-    let entry: BudgetEntry
+                Text(policy.explanation)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
 
-    var body: some View {
-        HStack(spacing: Spacing.medium) {
-            Image(systemName: entry.state.icon)
-                .foregroundStyle(entry.state.tint)
-                .frame(width: 26)
+                Xcode27ValueSlider(
+                    title: "Response reserve",
+                    valueText: "\(Int(responseReserve)) tokens",
+                    systemImage: "arrow.down.doc",
+                    value: $responseReserve,
+                    range: 256...1_024,
+                    step: 64
+                )
 
-            VStack(alignment: .leading, spacing: Spacing.xSmall) {
-                Text(entry.title)
-                    .font(.subheadline)
-                    .bold()
-                Text(entry.state.description)
+                Text("The reserve mirrors GenerationOptions.maximumResponseTokens: space held back for the model’s answer.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
-
-            Spacer()
-
-            Text("\(entry.displayTokens) tokens")
-                .font(.footnote.monospacedDigit())
-                .foregroundStyle(.secondary)
-        }
-        .frame(minHeight: 44)
-        .accessibilityElement(children: .combine)
-    }
-}
-
-private struct BudgetEntry: Identifiable {
-    let id = UUID()
-    let title: String
-    let originalTokens: Int
-    let priority: Int
-    var state: BudgetEntryState = .kept
-
-    var displayTokens: Int {
-        switch state {
-        case .kept: return originalTokens
-        case .summarized: return max(80, originalTokens / 5)
-        case .dropped: return 0
         }
     }
 
-    func applying(_ strategy: BudgetStrategy) -> BudgetEntry {
-        var copy = self
-        switch strategy {
-        case .lossless:
-            copy.state = .kept
-        case .balanced:
-            copy.state = priority >= 4 ? .kept : priority >= 2 ? .summarized : .dropped
-        case .aggressive:
-            copy.state = priority >= 5 ? .kept : priority >= 3 ? .summarized : .dropped
-        }
-        return copy
-    }
+    private func runSimulation() {
+        let prompt = currentPrompt
+        let measurementID = UUID()
+        let fallback = estimatedPromptTokens(for: prompt)
 
-    static let samples = [
-        BudgetEntry(title: "Initial instructions", originalTokens: 420, priority: 5),
-        BudgetEntry(title: "User preferences", originalTokens: 680, priority: 5),
-        BudgetEntry(title: "Old brainstorming", originalTokens: 1_800, priority: 2),
-        BudgetEntry(title: "Tool results", originalTokens: 2_400, priority: 3),
-        BudgetEntry(title: "Recent question", originalTokens: 160, priority: 5),
-        BudgetEntry(title: "Stale retry loop", originalTokens: 900, priority: 1)
-    ]
-}
+        activeMeasurementID = measurementID
+        isRunning = true
+        measuredPromptTokens = nil
+        measurementNote = "Measuring prompt tokens…"
 
-private enum BudgetEntryState {
-    case kept
-    case summarized
-    case dropped
+        Task { @MainActor in
+            let tokens: Int
+            let note: String
 
-    var icon: String {
-        switch self {
-        case .kept: return "checkmark.circle"
-        case .summarized: return "text.badge.checkmark"
-        case .dropped: return "minus.circle"
-        }
-    }
+            do {
+                if #available(iOS 26.4, macOS 26.4, visionOS 26.4, *) {
+                    tokens = try await SystemLanguageModel.default.tokenCount(for: Prompt(prompt))
+                    note = "Prompt measured with SystemLanguageModel.tokenCount(for:)."
+                } else {
+                    tokens = fallback
+                    note = "Prompt estimated because model token counting requires version 26.4 or later."
+                }
+            } catch {
+                tokens = fallback
+                note = "Prompt estimated because the model tokenizer was unavailable."
+            }
 
-    var tint: Color {
-        switch self {
-        case .kept: return .green
-        case .summarized: return .orange
-        case .dropped: return .red
+            guard activeMeasurementID == measurementID, currentPrompt == prompt else { return }
+
+            measuredPromptTokens = tokens
+            measurementNote = note
+            isRunning = false
+            activeMeasurementID = nil
         }
     }
 
-    var description: String {
-        switch self {
-        case .kept: return "Kept verbatim"
-        case .summarized: return "Replaced by compact memory"
-        case .dropped: return "Removed before model call"
-        }
-    }
-}
-
-private enum BudgetStrategy: String, CaseIterable, Identifiable {
-    case lossless
-    case balanced
-    case aggressive
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .lossless: return "Lossless"
-        case .balanced: return "Balanced"
-        case .aggressive: return "Aggressive"
-        }
+    private func reset() {
+        activeMeasurementID = nil
+        isRunning = false
+        currentPrompt = ""
+        policy = .keepRecent
+        responseReserve = 640
+        measuredPromptTokens = nil
+        measurementNote = "Enter a prompt, then run to measure it with the model tokenizer."
     }
 
-    var tint: Color {
-        switch self {
-        case .lossless: return .green
-        case .balanced: return .orange
-        case .aggressive: return .red
-        }
+    private func invalidatePromptMeasurement() {
+        activeMeasurementID = nil
+        isRunning = false
+        measuredPromptTokens = nil
+        measurementNote = currentPrompt.isEmpty
+            ? "Enter a prompt, then run to measure it with the model tokenizer."
+            : "Prompt changed. Run to measure it with the model tokenizer."
     }
 
-    var code: String {
+    private func estimatedPromptTokens(for prompt: String) -> Int {
+        max(1, Int(ceil(Double(prompt.count) / 4.5)))
+    }
+
+    private var codeExample: String {
         """
-        .historyTransform { entries in
-            ContextBudgetManager(strategy: .\(rawValue))
-                .compact(entries)
+        let model = SystemLanguageModel.default
+        let contextSize = model.contextSize
+        let historyTokens = try await model.tokenCount(for: session.transcript)
+        let promptTokens = try await model.tokenCount(for: Prompt(prompt))
+
+        let options = GenerationOptions(maximumResponseTokens: \(Int(responseReserve)))
+        let requiredTokens = historyTokens + promptTokens + \(Int(responseReserve))
+
+        if requiredTokens > contextSize {
+            // App policy: rebuild a smaller Transcript before creating the next session.
+            let compactedEntries = preparedEntries(from: session.transcript)
+            session = LanguageModelSession(transcript: Transcript(entries: compactedEntries))
+        }
+
+        do {
+            try await session.respond(to: prompt, options: options)
+        } catch LanguageModelSession.GenerationError.exceededContextWindowSize {
+            // Reduce history or start a fresh session, then retry intentionally.
         }
         """
     }
