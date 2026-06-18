@@ -85,7 +85,7 @@ enum ExampleType: String, CaseIterable, Identifiable {
         case .historyTransformLab:
             return "History Lab"
         case .riskyToolConfirmation:
-            return "Tool Safety"
+            return "Tool Authorization"
         case .modelRouterDashboard:
             return "Model Router"
         case .contextBudgetVisualizer:
@@ -154,7 +154,7 @@ enum ExampleType: String, CaseIterable, Identifiable {
         case .historyTransformLab:
             return "Compare trimming, redaction, and spotlighting"
         case .riskyToolConfirmation:
-            return "Pause risky tools before side effects"
+            return "Review app-owned authorization before side effects"
         case .modelRouterDashboard:
             return "Explain system, PCC, Core AI, and provider choices"
         case .contextBudgetVisualizer:
@@ -162,7 +162,7 @@ enum ExampleType: String, CaseIterable, Identifiable {
         case .toolCallTrajectoryViewer:
             return "Compare expected and actual tool paths"
         case .foundationModelsSecurityPlayground:
-            return "Make untrusted context and action boundaries visible"
+            return "Inspect framework guarantees and app-owned boundaries"
         case .usagePerformanceTrace:
             return "Read tokens, latency, cache, and reasoning metrics"
         case .spotlightRAGExplorer:
