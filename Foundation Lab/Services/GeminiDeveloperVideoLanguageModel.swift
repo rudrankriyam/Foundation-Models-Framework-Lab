@@ -8,6 +8,7 @@
 import Foundation
 import FoundationModels
 
+#if compiler(>=6.4)
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
@@ -431,3 +432,4 @@ enum GeminiDeveloperAPIError: LocalizedError, Sendable {
         }
     }
 }
+#endif
