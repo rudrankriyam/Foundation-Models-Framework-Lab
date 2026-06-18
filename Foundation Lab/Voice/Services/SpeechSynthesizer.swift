@@ -85,6 +85,7 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
     private let synthesizer = AVSpeechSynthesizer()
     private var currentUtterance: AVSpeechUtterance?
     private var pendingContinuation: CheckedContinuation<Void, Error>?
+    private var isSynthesisInFlight = false
     var speakingStateHandler: ((Bool) -> Void)?
     var errorHandler: ((SpeechSynthesizerError) -> Void)?
 
@@ -109,7 +110,7 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
             throw SpeechSynthesizerError.invalidInput
         }
 
-        guard !isSpeaking else {
+        guard !isSpeaking, !isSynthesisInFlight else {
             throw SpeechSynthesizerError.alreadySpeaking
         }
 
@@ -119,7 +120,11 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
             throw SpeechSynthesizerError.alreadySpeaking
         }
 
+        isSynthesisInFlight = true
+        defer { isSynthesisInFlight = false }
+
         await configurePlaybackSession()
+        try Task.checkCancellation()
 
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             self.pendingContinuation = continuation
