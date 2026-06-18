@@ -118,6 +118,7 @@ struct ModelRuntimeView: View {
                     let promptTokens = try await model.tokenCount(for: currentPrompt)
                     promptTokenDescription = tokenLabel(promptTokens)
                 } catch {
+                    guard inspectionID == id else { return }
                     promptTokenDescription = "Tokenization failed"
                     errorMessage = "The runtime was inspected, but the prompt could not be tokenized: \(error.localizedDescription)"
                 }
