@@ -18,35 +18,47 @@ struct ImageInputPlaygroundView: View {
             defaultPrompt: "Turn this screenshot into a concise bug report.",
             currentPrompt: $currentPrompt,
             codeExample: selectedRecipe.code,
-            onRun: {},
-            onReset: { currentPrompt = "" }
+            onRun: run,
+            onReset: reset
         ) {
             VStack(spacing: Spacing.medium) {
-                Xcode27Section("Attachment Flow", systemImage: "photo.on.rectangle.angled") {
-                    VStack(alignment: .leading, spacing: 10) {
+                Xcode27Section("Attachment Flow") {
+                    VStack(alignment: .leading, spacing: 0) {
                         Xcode27InfoRow(
                             title: "Attach an image",
-                            detail: "Create Attachment<ImageAttachmentContent> from a CGImage, CIImage, pixel buffer, image URL, UIImage, or NSImage depending on platform.",
+                            detail: """
+                            Create Attachment<ImageAttachmentContent> from a CGImage, CIImage, pixel buffer, or image URL. On supported \
+                            platforms, UIImage and NSImage also work.
+                            """,
                             systemImage: "1.circle"
                         )
+                        .padding(.vertical, Spacing.small)
+
+                        Divider()
 
                         Xcode27InfoRow(
                             title: "Label it",
-                            detail: "Use a short label so generated ImageReference values can resolve back to the right transcript attachment.",
+                            detail: """
+                            Use a short label so generated ImageReference values can resolve back to the right transcript attachment.
+                            """,
                             systemImage: "2.circle"
                         )
+                        .padding(.vertical, Spacing.small)
+
+                        Divider()
 
                         Xcode27InfoRow(
                             title: "Resolve references",
                             detail: "Generated ImageReference can resolve in the transcript, which is useful for multimodal follow-ups.",
                             systemImage: "3.circle"
                         )
+                        .padding(.vertical, Spacing.small)
                     }
                 }
 
                 ImageInputResolutionFindingsView()
 
-                Xcode27Section("Recipes", systemImage: "list.bullet.clipboard") {
+                Xcode27Section("Recipes") {
                     Picker("Recipe", selection: $selectedRecipe) {
                         ForEach(ImageInputRecipe.allCases) { recipe in
                             Text(recipe.title).tag(recipe)
@@ -57,7 +69,7 @@ struct ImageInputPlaygroundView: View {
                     Text(selectedRecipe.prompt)
                         .font(.callout)
                         .foregroundStyle(.secondary)
-                        .padding(.top, 8)
+                        .padding(.top, Spacing.small)
                 }
 
                 ResultDisplay(
@@ -66,6 +78,12 @@ struct ImageInputPlaygroundView: View {
                 )
             }
         }
+    }
+
+    private func run() {}
+
+    private func reset() {
+        currentPrompt = ""
     }
 }
 

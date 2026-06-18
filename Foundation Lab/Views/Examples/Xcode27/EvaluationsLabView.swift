@@ -29,13 +29,13 @@ struct EvaluationsLabView: View {
                 }
                 .pickerStyle(.segmented)
 
-                Xcode27Section(target.title, systemImage: target.icon) {
-                    VStack(alignment: .leading, spacing: 12) {
+                Xcode27Section(target.title) {
+                    VStack(alignment: .leading, spacing: Spacing.medium) {
                         Text(target.explanation)
                             .font(.callout)
                             .foregroundStyle(.secondary)
 
-                        AgentFlowDataGrid(items: target.metrics)
+                        Xcode27KeyValueList(items: target.metrics)
                     }
                 }
             }
@@ -66,14 +66,6 @@ private enum EvaluationTarget: String, CaseIterable, Identifiable {
         case .judge: return "Judge"
         case .synthetic: return "Samples"
         case .trajectory: return "Tools"
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .judge: return "checkmark.seal"
-        case .synthetic: return "square.stack.3d.up"
-        case .trajectory: return "point.topleft.down.curvedto.point.bottomright.up"
         }
     }
 

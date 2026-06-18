@@ -22,16 +22,16 @@ struct RiskyToolConfirmationDemoView: View {
             onReset: reset
         ) {
             VStack(spacing: Spacing.medium) {
-                Xcode27StatusCard(
+                Xcode27StatusRow(
                     title: "Current Decision",
                     value: decision.title,
                     systemImage: decision.icon,
                     tint: decision.tint
                 )
 
-                Xcode27Section("Tool Call", systemImage: "envelope.badge") {
-                    VStack(alignment: .leading, spacing: 10) {
-                        AgentFlowDataGrid(items: [
+                Xcode27Section("Tool Call") {
+                    VStack(alignment: .leading, spacing: Spacing.medium) {
+                        Xcode27KeyValueList(items: [
                             ("Tool", "sendMessage"),
                             ("Recipient", "Client"),
                             ("Side effect", "External message"),
@@ -44,11 +44,31 @@ struct RiskyToolConfirmationDemoView: View {
                     }
                 }
 
-                Xcode27Section("Recommended Boundary", systemImage: "hand.raised") {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Xcode27InfoRow(title: "Low risk", detail: "Read-only tools can run with logging.", systemImage: "eye", tint: .green)
-                        Xcode27InfoRow(title: "Medium risk", detail: "Draft-changing tools should show undo or review.", systemImage: "pencil", tint: .orange)
-                        Xcode27InfoRow(title: "High risk", detail: "External, destructive, or financial tools should require confirmation.", systemImage: "exclamationmark.triangle", tint: .red)
+                Xcode27Section("Recommended Boundary") {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Xcode27InfoRow(
+                            title: "Low risk",
+                            detail: "Read-only tools can run with logging.",
+                            systemImage: "eye",
+                            tint: .green
+                        )
+                            .padding(.vertical, Spacing.small)
+                        Divider()
+                        Xcode27InfoRow(
+                            title: "Medium risk",
+                            detail: "Draft-changing tools should show undo or review.",
+                            systemImage: "pencil",
+                            tint: .orange
+                        )
+                            .padding(.vertical, Spacing.small)
+                        Divider()
+                        Xcode27InfoRow(
+                            title: "High risk",
+                            detail: "External, destructive, or financial tools should require confirmation.",
+                            systemImage: "exclamationmark.triangle",
+                            tint: .red
+                        )
+                            .padding(.vertical, Spacing.small)
                     }
                 }
             }

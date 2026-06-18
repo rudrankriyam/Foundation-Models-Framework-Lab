@@ -22,21 +22,40 @@ struct SpotlightRAGExplorerView: View {
             onReset: reset
         ) {
             VStack(spacing: Spacing.medium) {
-                Xcode27Section("Pipeline", systemImage: "magnifyingglass.circle") {
-                    VStack(spacing: 10) {
+                Xcode27Section("Pipeline") {
+                    VStack(spacing: 0) {
                         ForEach(SpotlightRAGStage.allCases) { stage in
-                            Xcode27InfoRow(
-                                title: stage.title,
-                                detail: stage.detail,
-                                systemImage: stage.icon,
-                                tint: stage == selectedStage ? .blue : .secondary
-                            )
-                            .onTapGesture { selectedStage = stage }
+                            Button {
+                                select(stage)
+                            } label: {
+                                HStack {
+                                    Xcode27InfoRow(
+                                        title: stage.title,
+                                        detail: stage.detail,
+                                        systemImage: stage.icon,
+                                        tint: stage == selectedStage ? .blue : .secondary
+                                    )
+
+                                    if stage == selectedStage {
+                                        Image(systemName: "checkmark")
+                                            .foregroundStyle(.blue)
+                                            .accessibilityHidden(true)
+                                    }
+                                }
+                                .frame(minHeight: 44)
+                                .contentShape(.rect)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityAddTraits(stage == selectedStage ? .isSelected : [])
+
+                            if stage != SpotlightRAGStage.allCases.last {
+                                Divider()
+                            }
                         }
                     }
                 }
 
-                Xcode27Section(selectedStage.title, systemImage: selectedStage.icon) {
+                Xcode27Section(selectedStage.title) {
                     Text(selectedStage.explanation)
                         .font(.callout)
                         .foregroundStyle(.secondary)
@@ -49,6 +68,10 @@ struct SpotlightRAGExplorerView: View {
         let cases = SpotlightRAGStage.allCases
         guard let index = cases.firstIndex(of: selectedStage) else { return }
         selectedStage = cases[(index + 1) % cases.count]
+    }
+
+    private func select(_ stage: SpotlightRAGStage) {
+        selectedStage = stage
     }
 
     private func reset() {
@@ -97,7 +120,9 @@ private enum SpotlightRAGStage: String, CaseIterable, Identifiable {
         case .answer:
             return "The answer should name the source or explain when the index did not contain enough evidence."
         case .evaluate:
-            return "Evaluate both result relevance and the tool-call path. A good answer with the wrong trajectory can still hide a fragile flow."
+            return """
+            Evaluate both result relevance and the tool-call path. A good answer with the wrong trajectory can still hide a fragile flow.
+            """
         }
     }
 

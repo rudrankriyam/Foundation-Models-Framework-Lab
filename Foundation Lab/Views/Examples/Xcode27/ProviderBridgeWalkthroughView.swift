@@ -22,21 +22,40 @@ struct ProviderBridgeWalkthroughView: View {
             onReset: reset
         ) {
             VStack(spacing: Spacing.medium) {
-                Xcode27Section("Bridge Layers", systemImage: "link") {
-                    VStack(spacing: 10) {
+                Xcode27Section("Bridge Layers") {
+                    VStack(spacing: 0) {
                         ForEach(ProviderBridgeLayer.allCases) { layer in
-                            Xcode27InfoRow(
-                                title: layer.title,
-                                detail: layer.detail,
-                                systemImage: layer.icon,
-                                tint: layer == selectedLayer ? .purple : .secondary
-                            )
-                            .onTapGesture { selectedLayer = layer }
+                            Button {
+                                select(layer)
+                            } label: {
+                                HStack {
+                                    Xcode27InfoRow(
+                                        title: layer.title,
+                                        detail: layer.detail,
+                                        systemImage: layer.icon,
+                                        tint: layer == selectedLayer ? .purple : .secondary
+                                    )
+
+                                    if layer == selectedLayer {
+                                        Image(systemName: "checkmark")
+                                            .foregroundStyle(.purple)
+                                            .accessibilityHidden(true)
+                                    }
+                                }
+                                .frame(minHeight: 44)
+                                .contentShape(.rect)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityAddTraits(layer == selectedLayer ? .isSelected : [])
+
+                            if layer != ProviderBridgeLayer.allCases.last {
+                                Divider()
+                            }
                         }
                     }
                 }
 
-                Xcode27Section(selectedLayer.title, systemImage: selectedLayer.icon) {
+                Xcode27Section(selectedLayer.title) {
                     Text(selectedLayer.explanation)
                         .font(.callout)
                         .foregroundStyle(.secondary)
@@ -49,6 +68,10 @@ struct ProviderBridgeWalkthroughView: View {
         let cases = ProviderBridgeLayer.allCases
         guard let index = cases.firstIndex(of: selectedLayer) else { return }
         selectedLayer = cases[(index + 1) % cases.count]
+    }
+
+    private func select(_ layer: ProviderBridgeLayer) {
+        selectedLayer = layer
     }
 
     private func reset() {
@@ -97,7 +120,9 @@ private enum ProviderBridgeLayer: String, CaseIterable, Identifiable {
         case .streaming:
             return "Streaming should preserve cancellation, partial output, tool calls, and errors without blocking UI state."
         case .metadata:
-            return "Metadata makes custom providers inspectable: model id, cache hits, latency, safety filters, and provider-specific usage."
+            return """
+            Metadata makes custom providers inspectable: model id, cache hits, latency, safety filters, and provider-specific usage.
+            """
         }
     }
 

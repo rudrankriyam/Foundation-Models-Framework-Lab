@@ -19,8 +19,8 @@ struct ToolCallingModeLabView: View {
             defaultPrompt: "What is the weather in Cupertino?",
             currentPrompt: $currentPrompt,
             codeExample: selectedMode.code,
-            onRun: {},
-            onReset: { currentPrompt = "" }
+            onRun: run,
+            onReset: reset
         ) {
             VStack(spacing: Spacing.medium) {
                 Picker("Tool mode", selection: $selectedMode) {
@@ -30,26 +30,46 @@ struct ToolCallingModeLabView: View {
                 }
                 .pickerStyle(.segmented)
 
-                Xcode27Section(selectedMode.title, systemImage: selectedMode.icon) {
+                Xcode27Section(selectedMode.title) {
                     Text(selectedMode.explanation)
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
 
-                Xcode27Section("Behavior Matrix", systemImage: "tablecells") {
-                    VStack(alignment: .leading, spacing: 12) {
+                Xcode27Section("Behavior Matrix") {
+                    VStack(alignment: .leading, spacing: 0) {
                         ForEach(ToolModeExample.allCases) { mode in
-                            Xcode27InfoRow(
-                                title: mode.title,
-                                detail: mode.shortDescription,
-                                systemImage: mode.icon,
-                                tint: mode == selectedMode ? .blue : .secondary
-                            )
+                            HStack {
+                                Xcode27InfoRow(
+                                    title: mode.title,
+                                    detail: mode.shortDescription,
+                                    systemImage: mode.icon,
+                                    tint: mode == selectedMode ? .blue : .secondary
+                                )
+
+                                if mode == selectedMode {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(.blue)
+                                        .accessibilityLabel("Selected")
+                                }
+                            }
+                            .frame(minHeight: 44)
+                            .accessibilityElement(children: .combine)
+
+                            if mode != ToolModeExample.allCases.last {
+                                Divider()
+                            }
                         }
                     }
                 }
             }
         }
+    }
+
+    private func run() {}
+
+    private func reset() {
+        currentPrompt = ""
     }
 }
 
@@ -129,4 +149,3 @@ private enum ToolModeExample: String, CaseIterable, Identifiable {
         ToolCallingModeLabView()
     }
 }
-

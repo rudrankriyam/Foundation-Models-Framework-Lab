@@ -12,19 +12,19 @@ struct ContextWindowInspectorView: View {
     @State private var currentPrompt = """
     You are a helpful assistant. Explain Foundation Models, then call tools if needed.
     """
-    @State private var instructionsTokens = 180
-    @State private var promptTokens = 120
-    @State private var schemaTokens = 520
-    @State private var toolTokens = 740
-    @State private var historyTokens = 1_240
-    @State private var responseReserveTokens = 600
+    @State private var instructionsTokens = 180.0
+    @State private var promptTokens = 120.0
+    @State private var schemaTokens = 520.0
+    @State private var toolTokens = 740.0
+    @State private var historyTokens = 1_240.0
+    @State private var responseReserveTokens = 600.0
 
     private var maxContextSize: Int {
         SystemLanguageModel.default.contextSize
     }
 
     private var totalTokens: Int {
-        instructionsTokens + promptTokens + schemaTokens + toolTokens + historyTokens + responseReserveTokens
+        Int(instructionsTokens + promptTokens + schemaTokens + toolTokens + historyTokens + responseReserveTokens)
     }
 
     private var usageFraction: Double {
@@ -42,7 +42,7 @@ struct ContextWindowInspectorView: View {
             onReset: reset
         ) {
             VStack(spacing: Spacing.medium) {
-                Xcode27StatusCard(
+                Xcode27StatusRow(
                     title: "Current Budget",
                     value: "\(totalTokens) / \(maxContextSize) tokens",
                     systemImage: "chart.bar.xaxis",
@@ -55,18 +55,60 @@ struct ContextWindowInspectorView: View {
                     tokenUsageFraction: usageFraction
                 )
 
-                Xcode27Section("Token Sources", systemImage: "list.bullet.rectangle") {
-                    VStack(spacing: 14) {
-                        tokenStepper("Instructions", value: $instructionsTokens, icon: "text.quote")
-                        tokenStepper("Prompt", value: $promptTokens, icon: "text.cursor")
-                        tokenStepper("Schemas", value: $schemaTokens, icon: "curlybraces")
-                        tokenStepper("Tools", value: $toolTokens, icon: "hammer")
-                        tokenStepper("History", value: $historyTokens, icon: "clock.arrow.circlepath")
-                        tokenStepper("Response reserve", value: $responseReserveTokens, icon: "arrow.down.doc")
+                Xcode27Section("Token Sources") {
+                    VStack(spacing: Spacing.large) {
+                        Xcode27ValueSlider(
+                            title: "Instructions",
+                            valueText: "\(Int(instructionsTokens)) tokens",
+                            systemImage: "text.quote",
+                            value: $instructionsTokens,
+                            range: 0...2_000,
+                            step: 20
+                        )
+                        Xcode27ValueSlider(
+                            title: "Prompt",
+                            valueText: "\(Int(promptTokens)) tokens",
+                            systemImage: "text.cursor",
+                            value: $promptTokens,
+                            range: 0...2_000,
+                            step: 20
+                        )
+                        Xcode27ValueSlider(
+                            title: "Schemas",
+                            valueText: "\(Int(schemaTokens)) tokens",
+                            systemImage: "curlybraces",
+                            value: $schemaTokens,
+                            range: 0...2_000,
+                            step: 20
+                        )
+                        Xcode27ValueSlider(
+                            title: "Tools",
+                            valueText: "\(Int(toolTokens)) tokens",
+                            systemImage: "hammer",
+                            value: $toolTokens,
+                            range: 0...2_000,
+                            step: 20
+                        )
+                        Xcode27ValueSlider(
+                            title: "History",
+                            valueText: "\(Int(historyTokens)) tokens",
+                            systemImage: "clock.arrow.circlepath",
+                            value: $historyTokens,
+                            range: 0...2_000,
+                            step: 20
+                        )
+                        Xcode27ValueSlider(
+                            title: "Response reserve",
+                            valueText: "\(Int(responseReserveTokens)) tokens",
+                            systemImage: "arrow.down.doc",
+                            value: $responseReserveTokens,
+                            range: 0...2_000,
+                            step: 20
+                        )
                     }
                 }
 
-                Xcode27Section("Compaction Trigger", systemImage: "arrow.triangle.2.circlepath") {
+                Xcode27Section("Compaction Trigger") {
                     Text(compactionAdvice)
                         .font(.callout)
                         .foregroundStyle(.secondary)
@@ -86,38 +128,9 @@ struct ContextWindowInspectorView: View {
         }
     }
 
-    private func tokenStepper(
-        _ title: String,
-        value: Binding<Int>,
-        icon: String
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Label(title, systemImage: icon)
-                    .font(.subheadline.weight(.medium))
-
-                Spacer()
-
-                Text("\(value.wrappedValue) tokens")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Slider(
-                value: Binding(
-                    get: { Double(value.wrappedValue) },
-                    set: { value.wrappedValue = Int($0) }
-                ),
-                in: 0...2_000,
-                step: 20
-            )
-            .accessibilityLabel(title)
-        }
-    }
-
     private func rebalance() {
         let promptEstimate = max(40, currentPrompt.split(separator: " ").count * 2)
-        promptTokens = promptEstimate
+        promptTokens = Double(promptEstimate)
     }
 
     private func reset() {
@@ -148,4 +161,3 @@ struct ContextWindowInspectorView: View {
         ContextWindowInspectorView()
     }
 }
-

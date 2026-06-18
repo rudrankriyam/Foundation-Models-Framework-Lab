@@ -29,13 +29,13 @@ struct FMCLIPythonPlaygroundView: View {
                 }
                 .pickerStyle(.segmented)
 
-                Xcode27Section(surface.title, systemImage: surface.icon) {
-                    VStack(alignment: .leading, spacing: 12) {
+                Xcode27Section(surface.title) {
+                    VStack(alignment: .leading, spacing: Spacing.medium) {
                         Text(surface.explanation)
                             .font(.callout)
                             .foregroundStyle(.secondary)
 
-                        AgentFlowDataGrid(items: surface.uses)
+                        Xcode27KeyValueList(items: surface.uses)
                     }
                 }
             }
@@ -66,14 +66,6 @@ private enum ScriptingSurface: String, CaseIterable, Identifiable {
         case .cli: return "CLI"
         case .python: return "Python"
         case .evaluation: return "Eval"
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .cli: return "terminal"
-        case .python: return "chevron.left.forwardslash.chevron.right"
-        case .evaluation: return "chart.xyaxis.line"
         }
     }
 

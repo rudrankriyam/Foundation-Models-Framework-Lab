@@ -29,22 +29,26 @@ struct ModelRouterDashboardView: View {
                 }
                 .pickerStyle(.segmented)
 
-                Xcode27StatusCard(
+                Xcode27StatusRow(
                     title: "Selected Runtime",
                     value: selectedWorkload.selectedRuntime,
                     systemImage: "arrow.triangle.branch",
                     tint: selectedWorkload.tint
                 )
 
-                Xcode27Section("Runtime Matrix", systemImage: "tablecells") {
-                    VStack(spacing: 10) {
+                Xcode27Section("Runtime Matrix") {
+                    VStack(spacing: 0) {
                         ForEach(RuntimeCandidate.samples) { candidate in
                             RuntimeCandidateRow(candidate: candidate, workload: selectedWorkload)
+
+                            if candidate.id != RuntimeCandidate.samples.last?.id {
+                                Divider()
+                            }
                         }
                     }
                 }
 
-                Xcode27Section("Routing Explanation", systemImage: "lightbulb") {
+                Xcode27Section("Routing Explanation") {
                     Text(selectedWorkload.reason)
                         .font(.callout)
                         .foregroundStyle(.secondary)
@@ -70,28 +74,32 @@ private struct RuntimeCandidateRow: View {
     let workload: RouterWorkload
 
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: candidate.icon)
-                .foregroundStyle(candidate.name == workload.selectedRuntime ? workload.tint : .secondary)
+        HStack(spacing: Spacing.medium) {
+            Image(systemName: isSelected ? "checkmark.circle.fill" : candidate.icon)
+                .foregroundStyle(isSelected ? workload.tint : .secondary)
                 .frame(width: 28)
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Spacing.xSmall) {
                 Text(candidate.name)
-                    .font(.subheadline.weight(.semibold))
+                    .font(.subheadline)
+                    .bold()
                 Text(candidate.detail)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
             }
 
             Spacer()
 
             Text(candidate.badge)
-                .font(.caption.weight(.semibold))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(Color.secondary.opacity(0.10))
-                .clipShape(Capsule())
+                .font(.footnote)
+                .foregroundStyle(isSelected ? workload.tint : .secondary)
         }
+        .frame(minHeight: 44)
+        .accessibilityElement(children: .combine)
+    }
+
+    private var isSelected: Bool {
+        candidate.name == workload.selectedRuntime
     }
 }
 
@@ -105,8 +113,18 @@ private struct RuntimeCandidate: Identifiable {
     static let samples = [
         RuntimeCandidate(name: "System", detail: "Fast, private, lower context budget.", badge: "Local", icon: "iphone"),
         RuntimeCandidate(name: "PCC", detail: "Larger model surface with service and quota gates.", badge: "Cloud", icon: "icloud"),
-        RuntimeCandidate(name: "Core AI", detail: "App-bundled open model through LanguageModelSession.", badge: "Custom", icon: "shippingbox"),
-        RuntimeCandidate(name: "Provider", detail: "Third-party or server executor with custom metadata.", badge: "Executor", icon: "server.rack")
+        RuntimeCandidate(
+            name: "Core AI",
+            detail: "App-bundled open model through LanguageModelSession.",
+            badge: "Custom",
+            icon: "shippingbox"
+        ),
+        RuntimeCandidate(
+            name: "Provider",
+            detail: "Third-party or server executor with custom metadata.",
+            badge: "Executor",
+            icon: "server.rack"
+        )
     ]
 }
 
@@ -135,7 +153,10 @@ private enum RouterWorkload: String, CaseIterable, Identifiable {
 
     var reason: String {
         switch self {
-        case .visualReasoning: return "The task needs image understanding, deeper reasoning, and a larger budget. Prefer PCC when available, then fall back clearly."
+        case .visualReasoning:
+            return """
+            The task needs image understanding, deeper reasoning, and a larger budget. Prefer PCC when available, then fall back clearly.
+            """
         case .privateDraft: return "The prompt is personal and short. Keep it on device unless the user opts into another runtime."
         case .bundledModel: return "The app ships a specialized model. Use Core AI through the shared LanguageModel interface."
         }

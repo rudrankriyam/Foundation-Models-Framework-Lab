@@ -27,21 +27,27 @@ struct ModelRuntimeView: View {
             onReset: reset
         ) {
             VStack(spacing: Spacing.medium) {
-                Xcode27StatusCard(
-                    title: "System Context",
-                    value: "\(report.systemContextSize) tokens",
-                    systemImage: "text.page"
-                )
+                Xcode27Section("System Model") {
+                    VStack(spacing: 0) {
+                        Xcode27StatusRow(
+                            title: "Context",
+                            value: "\(report.systemContextSize) tokens",
+                            systemImage: "text.page"
+                        )
 
-                Xcode27StatusCard(
-                    title: "System Availability",
-                    value: report.systemAvailability,
-                    systemImage: report.systemAvailable ? "checkmark.circle.fill" : "xmark.circle.fill",
-                    tint: report.systemAvailable ? .green : .orange
-                )
+                        Divider()
 
-                Xcode27Section("Capabilities", systemImage: "sparkles.rectangle.stack") {
-                    VStack(alignment: .leading, spacing: 10) {
+                        Xcode27StatusRow(
+                            title: "Availability",
+                            value: report.systemAvailability,
+                            systemImage: report.systemAvailable ? "checkmark.circle.fill" : "xmark.circle.fill",
+                            tint: report.systemAvailable ? .green : .orange
+                        )
+                    }
+                }
+
+                Xcode27Section("Capabilities") {
+                    VStack(alignment: .leading, spacing: 0) {
                         ForEach(report.capabilities, id: \.name) { capability in
                             Xcode27InfoRow(
                                 title: capability.name,
@@ -49,11 +55,16 @@ struct ModelRuntimeView: View {
                                 systemImage: capability.isSupported ? "checkmark.circle" : "circle",
                                 tint: capability.isSupported ? .green : .secondary
                             )
+                            .padding(.vertical, Spacing.small)
+
+                            if capability.name != report.capabilities.last?.name {
+                                Divider()
+                            }
                         }
                     }
                 }
 
-                Xcode27Section("Runtime Note", systemImage: "info.circle") {
+                Xcode27Section("Runtime Note") {
                     Text(report.runtimeNote)
                         .font(.callout)
                         .foregroundStyle(.secondary)
@@ -107,7 +118,10 @@ struct ModelRuntimeView: View {
             systemAvailability: availabilityText,
             systemAvailable: isAvailable,
             capabilities: capabilities,
-            runtimeNote: "PrivateCloudComputeLanguageModel is inspected separately because its context size is async and may require macOS/iOS 27 runtime support plus service eligibility."
+            runtimeNote: """
+            PrivateCloudComputeLanguageModel is inspected separately because its context size is async and may require macOS/iOS 27 \
+            runtime support plus service eligibility.
+            """
         )
     }
 

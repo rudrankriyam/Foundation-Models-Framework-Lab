@@ -32,7 +32,7 @@ struct GeminiVideoPreview: View {
             .buttonStyle(.glassProminent)
             .padding(Spacing.small)
         }
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
+        .clipShape(.rect(cornerRadius: CornerRadius.medium))
         .overlay {
             RoundedRectangle(cornerRadius: CornerRadius.medium)
                 .strokeBorder(.quaternary)
