@@ -84,8 +84,8 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
     private let logger = VoiceLogging.synthesis
     private let synthesizer = AVSpeechSynthesizer()
     private var currentUtterance: AVSpeechUtterance?
-    private var audioSessionConfigured = false
     private var pendingContinuation: CheckedContinuation<Void, Error>?
+    private var isSynthesisInFlight = false
     var speakingStateHandler: ((Bool) -> Void)?
     var errorHandler: ((SpeechSynthesizerError) -> Void)?
 
@@ -101,7 +101,6 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
         super.init()
 
         synthesizer.delegate = self
-        setupAudioSession()
         loadAvailableVoices()
         preWarmSynthesizer()
     }
@@ -111,7 +110,7 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
             throw SpeechSynthesizerError.invalidInput
         }
 
-        guard !isSpeaking else {
+        guard !isSpeaking, !isSynthesisInFlight else {
             throw SpeechSynthesizerError.alreadySpeaking
         }
 
@@ -119,6 +118,17 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
         // another synthesis call is in-flight and we should reject this one
         guard pendingContinuation == nil else {
             throw SpeechSynthesizerError.alreadySpeaking
+        }
+
+        isSynthesisInFlight = true
+        defer { isSynthesisInFlight = false }
+
+        let playbackSessionWasActivated = await configurePlaybackSession()
+        do {
+            try Task.checkCancellation()
+        } catch {
+            await deactivatePlaybackSessionAfterCancelledStartup(ifActivated: playbackSessionWasActivated)
+            throw error
         }
 
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
@@ -129,29 +139,57 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
         }
     }
 
-    private func setupAudioSession() {
-        configurePlaybackSession()
-    }
-
     private func preWarmSynthesizer() {
         // Don't pre-warm automatically - it can cause audio engine conflicts
         // We'll initialize on first use instead
         logger.debug("Speech synthesizer ready for first use")
     }
 
-    private func configurePlaybackSession() {
+    private func configurePlaybackSession() async -> Bool {
         #if os(iOS)
         do {
-            let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setCategory(.playback, mode: .default, options: [.duckOthers])
-            try audioSession.setActive(true, options: [])
-            audioSessionConfigured = true
+            try await Self.activatePlaybackSession()
             logger.debug("Configured audio session for speech synthesis playback")
+            return true
         } catch {
             logger.error("Failed to configure audio session for playback: \(error.localizedDescription, privacy: .public)")
+            return false
+        }
+        #else
+        return false
+        #endif
+    }
+
+    private func deactivatePlaybackSessionAfterCancelledStartup(ifActivated: Bool) async {
+        #if os(iOS)
+        guard ifActivated else { return }
+
+        do {
+            try await Self.deactivatePlaybackSession()
+            logger.debug("Deactivated audio session after cancelled speech startup")
+        } catch {
+            logger.error("Failed to deactivate audio session after cancelled startup: \(error.localizedDescription, privacy: .public)")
         }
         #endif
     }
+
+    #if os(iOS)
+    /// `setActive` is synchronous, so keep it off the main actor to avoid blocking UI work.
+    private nonisolated static func activatePlaybackSession() async throws {
+        try await Task.detached(priority: .userInitiated) {
+            let audioSession = AVAudioSession.sharedInstance()
+            try audioSession.setCategory(.playback, mode: .default, options: [.duckOthers])
+            try audioSession.setActive(true, options: [])
+        }.value
+    }
+
+    private nonisolated static func deactivatePlaybackSession() async throws {
+        try await Task.detached(priority: .utility) {
+            let audioSession = AVAudioSession.sharedInstance()
+            try audioSession.setActive(false, options: .notifyOthersOnDeactivation)
+        }.value
+    }
+    #endif
 
     func loadAvailableVoices() {
         Task { @MainActor in
@@ -219,8 +257,7 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
         #if os(iOS)
         Task { @MainActor in
             do {
-                let audioSession = AVAudioSession.sharedInstance()
-                try audioSession.setActive(false, options: .notifyOthersOnDeactivation)
+                try await Self.deactivatePlaybackSession()
                 logger.debug("Deactivated audio session after speech synthesis")
             } catch {
                 logger.error("Failed to deactivate audio session: \(error.localizedDescription, privacy: .public)")
@@ -244,8 +281,7 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
 #if os(iOS)
         Task { @MainActor in
             do {
-                let audioSession = AVAudioSession.sharedInstance()
-                try audioSession.setActive(false, options: .notifyOthersOnDeactivation)
+                try await Self.deactivatePlaybackSession()
                 logger.debug("Deactivated audio session after speech synthesis error")
             } catch {
                 logger.error("Failed to deactivate audio session after error: \(error.localizedDescription, privacy: .public)")
