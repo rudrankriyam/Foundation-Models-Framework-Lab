@@ -122,19 +122,28 @@ extension ExampleType {
     }
 
     static var studioExamples: [ExampleType] {
-        var examples: [ExampleType] = [
-            .structuredData,
-            .generationGuides,
-            .generationOptions,
-            .modelRuntime,
-            .contextWindowInspector,
-            .privateCloudCompute,
-            .imageInputPlayground,
-            .geminiVideoInput,
-            .toolCallingModeLab,
-            .dynamicProfileBuilder,
-            .reasoningLevelComparison,
-            .transcriptExplorer,
+        var examples = generationExamples + modelAndInputExamples + sessionExamples + agentExamples
+#if os(macOS)
+        examples.append(.evaluationsLab)
+#endif
+        examples.append(.fmCLIPythonPlayground)
+        return examples
+    }
+
+    static var generationExamples: [ExampleType] {
+        [.structuredData, .generationGuides, .generationOptions]
+    }
+
+    static var modelAndInputExamples: [ExampleType] {
+        [.modelRuntime, .contextWindowInspector, .privateCloudCompute, .imageInputPlayground, .geminiVideoInput]
+    }
+
+    static var sessionExamples: [ExampleType] {
+        [.toolCallingModeLab, .dynamicProfileBuilder, .reasoningLevelComparison, .transcriptExplorer]
+    }
+
+    static var agentExamples: [ExampleType] {
+        [
             .agentFlowInspector,
             .historyTransformLab,
             .riskyToolConfirmation,
@@ -146,6 +155,10 @@ extension ExampleType {
             .spotlightRAGExplorer,
             .providerBridgeWalkthrough
         ]
+    }
+
+    static var developerToolExamples: [ExampleType] {
+        var examples: [ExampleType] = []
 #if os(macOS)
         examples.append(.evaluationsLab)
 #endif

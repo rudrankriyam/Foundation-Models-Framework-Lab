@@ -8,191 +8,27 @@
 import SwiftUI
 
 struct LabView: View {
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-
     @State private var searchText = ""
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Spacing.xLarge) {
-                if horizontalSizeClass != .compact {
-                    labHeader
-                }
-
-                if hasResults {
-                    examplesSection
-                    toolsSection
-                    schemasSection
-                    languagesSection
-                } else {
-                    ContentUnavailableView.search(text: searchText)
-                }
-            }
-            .padding(.horizontal, Spacing.medium)
-            .padding(.vertical, Spacing.large)
-        }
-        .navigationTitle("Lab")
+        LabCatalogList(searchText: searchText)
+            .navigationTitle("Lab")
 #if os(iOS)
-        .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.large)
 #endif
-        .searchable(text: $searchText, prompt: "Search Lab")
-        .navigationDestination(for: ExampleType.self) { exampleType in
-            exampleType.destination
-        }
-        .navigationDestination(for: ToolExample.self) { tool in
-            tool.destination
-        }
-        .navigationDestination(for: DynamicSchemaExampleType.self) { example in
-            example.destination
-        }
-        .navigationDestination(for: LanguageExample.self) { languageExample in
-            languageExample.destination
-        }
-    }
-
-    private var labHeader: some View {
-        VStack(alignment: .leading, spacing: Spacing.xSmall) {
-            Text("Lab")
-                .font(.largeTitle.bold())
-
-            Text("Foundation Models examples, tools, dynamic schemas, and language demos.")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-        }
-    }
-
-    private var examplesSection: some View {
-        LabSection(
-            title: "Model Controls",
-            subtitle: "Generation options, guides, and structured output."
-        ) {
-            ForEach(filteredStudioExamples) { exampleType in
-                NavigationLink(value: exampleType) {
-                    GenericCardView(
-                        icon: exampleType.icon,
-                        title: exampleType.title,
-                        subtitle: exampleType.subtitle
-                    )
-                }
-                .buttonStyle(.plain)
+            .searchable(text: $searchText, prompt: "Search Lab")
+            .navigationDestination(for: ExampleType.self) { exampleType in
+                exampleType.destination
             }
-        }
-    }
-
-    private var toolsSection: some View {
-        LabSection(
-            title: "Tools",
-            subtitle: "System capabilities the model can call."
-        ) {
-            ForEach(filteredTools, id: \.self) { tool in
-                NavigationLink(value: tool) {
-                    GenericCardView(
-                        icon: tool.icon,
-                        title: tool.displayName,
-                        subtitle: tool.shortDescription
-                    )
-                }
-                .buttonStyle(.plain)
+            .navigationDestination(for: ToolExample.self) { tool in
+                tool.destination
             }
-        }
-    }
-
-    private var schemasSection: some View {
-        LabSection(
-            title: "Dynamic Schemas",
-            subtitle: "Build and validate generation schemas."
-        ) {
-            ForEach(filteredSchemas) { example in
-                NavigationLink(value: example) {
-                    GenericCardView(
-                        icon: example.icon,
-                        title: example.title,
-                        subtitle: example.subtitle
-                    )
-                }
-                .buttonStyle(.plain)
+            .navigationDestination(for: DynamicSchemaExampleType.self) { example in
+                example.destination
             }
-        }
-    }
-
-    private var languagesSection: some View {
-        LabSection(
-            title: "Languages",
-            subtitle: "Detect, select, and manage multilingual sessions."
-        ) {
-            ForEach(filteredLanguages) { languageExample in
-                NavigationLink(value: languageExample) {
-                    GenericCardView(
-                        icon: languageExample.icon,
-                        title: languageExample.title,
-                        subtitle: languageExample.subtitle
-                    )
-                }
-                .buttonStyle(.plain)
+            .navigationDestination(for: LanguageExample.self) { languageExample in
+                languageExample.destination
             }
-        }
-    }
-
-    private var filteredStudioExamples: [ExampleType] {
-        ExampleType.studioExamples.filter { matches($0.title, $0.subtitle) }
-    }
-
-    private var filteredTools: [ToolExample] {
-        ToolExample.allCases.filter { matches($0.displayName, $0.shortDescription) }
-    }
-
-    private var filteredSchemas: [DynamicSchemaExampleType] {
-        DynamicSchemaExampleType.allCases.filter { matches($0.title, $0.subtitle) }
-    }
-
-    private var filteredLanguages: [LanguageExample] {
-        LanguageExample.allCases.filter { matches($0.title, $0.subtitle) }
-    }
-
-    private var hasResults: Bool {
-        !filteredStudioExamples.isEmpty ||
-        !filteredTools.isEmpty ||
-        !filteredSchemas.isEmpty ||
-        !filteredLanguages.isEmpty
-    }
-
-    private var trimmedSearchText: String {
-        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private func matches(_ title: String, _ subtitle: String) -> Bool {
-        let query = trimmedSearchText
-        guard !query.isEmpty else { return true }
-
-        return title.localizedStandardContains(query) ||
-        subtitle.localizedStandardContains(query)
-    }
-}
-
-private struct LabSection<Content: View>: View {
-    let title: String
-    let subtitle: String
-    @ViewBuilder var content: Content
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.medium) {
-            SectionHeader(title: title, subtitle: subtitle)
-
-            LazyVGrid(columns: adaptiveGridColumns, spacing: Spacing.large) {
-                content
-            }
-        }
-    }
-
-    private var adaptiveGridColumns: [GridItem] {
-#if os(iOS)
-        [
-            GridItem(.flexible(minimum: 140), spacing: Spacing.large),
-            GridItem(.flexible(minimum: 140), spacing: Spacing.large)
-        ]
-#else
-        [GridItem(.adaptive(minimum: 240), spacing: Spacing.large)]
-#endif
     }
 }
 
