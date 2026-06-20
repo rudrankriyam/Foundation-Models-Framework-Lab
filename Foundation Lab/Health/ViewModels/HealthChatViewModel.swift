@@ -49,10 +49,7 @@ final class HealthChatViewModel {
 
     // MARK: - Tools
 
-    private let tools: [any Tool] = [
-        HealthDataTool(),
-        HealthAnalysisTool()
-    ]
+    private let tools: [any Tool] = [HealthDataTool()]
 
     // MARK: - Initialization
 
@@ -164,7 +161,11 @@ final class HealthChatViewModel {
 private extension HealthChatViewModel {
     static let baseInstructions = """
     You are a friendly and knowledgeable health coach AI assistant.
-    Based on the user's health data, provide personalized, encouraging responses.
+    Use the HealthDataTool whenever a response depends on the user's measurements.
+    Never invent measurements, trends, correlations, diagnoses, or predictions.
+    If the requested data is unavailable, say so plainly and suggest what the user can check next.
+    Explain that health information is educational and not a substitute for professional medical advice when appropriate.
+    Based only on available health data, provide personalized, encouraging responses.
     Be supportive and celebrate small wins. Use emojis occasionally.
     """
 
