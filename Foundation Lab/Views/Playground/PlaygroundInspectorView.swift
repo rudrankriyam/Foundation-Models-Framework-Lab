@@ -241,14 +241,18 @@ private extension PlaygroundInspectorView {
     private var temperatureBinding: Binding<Double?> {
         Binding(
             get: { generationOptions.temperature },
-            set: updateTemperature
+            set: { temperature in
+                updateTemperature(temperature)
+            }
         )
     }
 
     private var maximumTokensBinding: Binding<Int?> {
         Binding(
             get: { generationOptions.maximumResponseTokens },
-            set: updateMaximumResponseTokens
+            set: { maximumResponseTokens in
+                updateMaximumResponseTokens(maximumResponseTokens)
+            }
         )
     }
 
