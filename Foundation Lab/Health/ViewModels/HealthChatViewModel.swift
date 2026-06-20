@@ -161,17 +161,23 @@ final class HealthChatViewModel {
     }
 
     func loadInitialHealthData() async {
+        errorMessage = nil
+        showError = false
+
         do {
+            if !healthDataManager.isAuthorized {
+                try await healthDataManager.requestAuthorization()
+            }
+
+            guard !Task.isCancelled else { return }
             try await healthDataManager.fetchTodayHealthData()
+        } catch is CancellationError {
+            return
         } catch {
             logger.error("Failed to load health data: \(error.localizedDescription, privacy: .public)")
             let errorText = FoundationModelsErrorHandler.handleError(error)
             errorMessage = errorText
             showError = true
-            await saveMessageToSession(
-                errorText,
-                isFromUser: false
-            )
         }
 
         currentHealthMetrics = healthDataManager.currentMetrics

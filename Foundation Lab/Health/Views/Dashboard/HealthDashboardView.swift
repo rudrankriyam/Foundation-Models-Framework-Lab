@@ -53,6 +53,7 @@ struct HealthDashboardView: View {
                         .foregroundStyle(.primary)
                 }
                 .accessibilityLabel("Open Health AI chat")
+                .disabled(isLoading)
             }
         }
         .sheet(isPresented: $showingBuddyChat) {

@@ -46,6 +46,8 @@ final class HealthDataManager {
     // MARK: - Authorization
 
     func requestAuthorization() async throws {
+        guard !isAuthorized else { return }
+
         try await healthKitService.requestAuthorization()
         isAuthorized = await healthKitService.isAuthorized
     }
