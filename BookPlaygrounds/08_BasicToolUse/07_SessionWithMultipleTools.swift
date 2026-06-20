@@ -7,6 +7,7 @@
 
 import Foundation
 import FoundationModels
+import FoundationModelsTools
 import Playgrounds
 
 #Playground {
@@ -17,7 +18,7 @@ import Playgrounds
     - Use the calculate tool for any mathematical calculations
     - Use the getCurrentWeather tool for weather-related questions
     - Use the searchWeb tool for current information and research
-    - Use the fetchHealthData tool for health and fitness metrics
+    - Use the accessHealth tool for health and fitness metrics
 
     Choose the appropriate tool based on the user's question. If multiple tools
     might be useful, use the most relevant one and explain your choice.
@@ -26,9 +27,9 @@ import Playgrounds
     let multiToolSession = LanguageModelSession(
         tools: [
             CalculatorTool(),
-            MockWeatherTool(),
+            WeatherTool(),
             SearchTool(),
-            HealthDataTool()
+            HealthTool()
         ],
         instructions: multiToolInstructions
     )
@@ -58,8 +59,8 @@ import Playgrounds
     let smartSession = LanguageModelSession(
         tools: [
             CalculatorTool(),
-            MockWeatherTool(),
-            HealthDataTool()
+            WeatherTool(),
+            HealthTool()
         ],
         instructions: smartSelectionInstructions
     )

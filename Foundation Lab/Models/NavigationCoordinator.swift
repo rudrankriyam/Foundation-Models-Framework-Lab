@@ -11,16 +11,24 @@ import Observation
 @Observable
 @MainActor
 final class NavigationCoordinator {
-    static let shared = NavigationCoordinator()
+    private static let fallback = NavigationCoordinator()
+    private static weak var activeCoordinator: NavigationCoordinator?
 
-    var tabSelection: TabSelection = .home
-    var splitViewSelection: TabSelection? = .home
-    var homePath = NavigationPath()
-    var labPath = NavigationPath()
-    var studioPath = NavigationPath()
-    var insightsPath = NavigationPath()
+    static var shared: NavigationCoordinator {
+        activeCoordinator ?? fallback
+    }
 
-    private init() {}
+    var tabSelection: TabSelection = .library
+    var splitViewSelection: TabSelection? = .library
+    var libraryPath = NavigationPath()
+    var playgroundPath = NavigationPath()
+    var runsPath = NavigationPath()
+
+    init() {}
+
+    func activate() {
+        Self.activeCoordinator = self
+    }
 
     public func navigate(to tab: TabSelection) {
         tabSelection = tab
@@ -28,55 +36,53 @@ final class NavigationCoordinator {
     }
 
     public func navigateToExample(_ example: ExampleType) {
-        switch example.preferredTab {
-        case .home:
-            tabSelection = .home
-            splitViewSelection = .home
-            homePath = NavigationPath()
-            homePath.append(example)
-        case .session:
-            openChat()
-        case .lab:
-            tabSelection = .lab
-            splitViewSelection = .lab
-            labPath = NavigationPath()
-            labPath.append(example)
-        case .studio:
-            tabSelection = .studio
-            splitViewSelection = .studio
-            studioPath = NavigationPath()
-            studioPath.append(example)
-        case .insights:
-            tabSelection = .insights
-            splitViewSelection = .insights
-            insightsPath = NavigationPath()
-            insightsPath.append(example)
+        if example == .chat {
+            openPlayground()
+        } else {
+            tabSelection = .library
+            splitViewSelection = .library
+            libraryPath = NavigationPath()
+            libraryPath.append(example)
         }
     }
 
     public func navigateToTool(_ tool: ToolExample) {
-        tabSelection = .lab
-        splitViewSelection = .lab
-        labPath = NavigationPath()
-        labPath.append(tool)
+        tabSelection = .library
+        splitViewSelection = .library
+        libraryPath = NavigationPath()
+        libraryPath.append(tool)
     }
 
     public func navigateToSchema(_ schema: DynamicSchemaExampleType) {
-        tabSelection = .lab
-        splitViewSelection = .lab
-        labPath = NavigationPath()
-        labPath.append(schema)
+        tabSelection = .library
+        splitViewSelection = .library
+        libraryPath = NavigationPath()
+        libraryPath.append(schema)
     }
 
     public func navigateToLanguage(_ language: LanguageExample) {
-        tabSelection = .lab
-        splitViewSelection = .lab
-        labPath = NavigationPath()
-        labPath.append(language)
+        tabSelection = .library
+        splitViewSelection = .library
+        libraryPath = NavigationPath()
+        libraryPath.append(language)
     }
 
     public func openChat() {
-        tabSelection = .session
-        splitViewSelection = .session
+        openPlayground()
+    }
+
+    public func openLibrary() {
+        tabSelection = .library
+        splitViewSelection = .library
+    }
+
+    public func openPlayground() {
+        tabSelection = .playground
+        splitViewSelection = .playground
+    }
+
+    public func openRuns() {
+        tabSelection = .runs
+        splitViewSelection = .runs
     }
 }

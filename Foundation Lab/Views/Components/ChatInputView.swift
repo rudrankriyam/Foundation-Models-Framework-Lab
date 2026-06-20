@@ -11,10 +11,39 @@ struct ChatInputView: View {
     @Binding var messageText: String
     var chatViewModel: ChatViewModel
     @FocusState.Binding var isTextFieldFocused: Bool
+    var onSend: (@MainActor (String) async -> Void)?
+    var onVoiceWillSend: (@MainActor () -> Void)?
+    var onVoiceCompleted: (@MainActor (String, String, Date, TimeInterval) -> Void)?
     @Namespace private var glassNamespace
+
+    init(
+        messageText: Binding<String>,
+        chatViewModel: ChatViewModel,
+        isTextFieldFocused: FocusState<Bool>.Binding,
+        onSend: (@MainActor (String) async -> Void)? = nil,
+        onVoiceWillSend: (@MainActor () -> Void)? = nil,
+        onVoiceCompleted: (@MainActor (String, String, Date, TimeInterval) -> Void)? = nil
+    ) {
+        _messageText = messageText
+        self.chatViewModel = chatViewModel
+        _isTextFieldFocused = isTextFieldFocused
+        self.onSend = onSend
+        self.onVoiceWillSend = onVoiceWillSend
+        self.onVoiceCompleted = onVoiceCompleted
+    }
 
     var body: some View {
 #if os(iOS) || os(macOS)
+        glassComposer
+#else
+        standardComposer
+#endif
+    }
+}
+
+private extension ChatInputView {
+#if os(iOS) || os(macOS)
+    var glassComposer: some View {
         GlassEffectContainer(spacing: Spacing.medium) {
             HStack(spacing: Spacing.medium) {
                 Group {
@@ -49,10 +78,23 @@ struct ChatInputView: View {
                     }
                     .foregroundStyle(.white)
                     .padding(Spacing.medium)
+                } else if chatViewModel.isLoading {
+                    Button("Stop") {
+                        chatViewModel.cancelGeneration()
+                    }
+                    .keyboardShortcut(".", modifiers: .command)
+                    .foregroundStyle(.white)
+                    .font(.subheadline.weight(.medium))
+                    .padding(Spacing.medium)
+                    .glassEffect(
+                        .regular
+                            .tint(.red)
+                            .interactive(true), in: .circle
+                    )
                 } else if case .listening = chatViewModel.voiceState {
                     Button("End") {
                         Task {
-                            await chatViewModel.stopVoiceModeAndSend()
+                            await endVoiceAndSend()
                         }
                     }
                     .foregroundStyle(.white)
@@ -101,6 +143,7 @@ struct ChatInputView: View {
                             .foregroundStyle(.white)
                     }
                     .accessibilityLabel("Send message")
+                    .keyboardShortcut("r", modifiers: .command)
                     .padding(Spacing.medium)
                     .glassEffect(
                         .regular
@@ -116,7 +159,10 @@ struct ChatInputView: View {
             }
         }
         .padding()
-#else
+    }
+#endif
+
+    var standardComposer: some View {
         HStack(spacing: Spacing.medium) {
             Group {
                 if case .listening(let partialText) = chatViewModel.voiceState {
@@ -143,10 +189,16 @@ struct ChatInputView: View {
                     chatViewModel.cancelVoiceMode()
                 }
                 .padding(Spacing.small)
+            } else if chatViewModel.isLoading {
+                Button("Stop") {
+                    chatViewModel.cancelGeneration()
+                }
+                .keyboardShortcut(".", modifiers: .command)
+                .padding(Spacing.small)
             } else if case .listening = chatViewModel.voiceState {
                 Button("End") {
                     Task {
-                        await chatViewModel.stopVoiceModeAndSend()
+                        await endVoiceAndSend()
                     }
                 }
                 .padding(Spacing.small)
@@ -178,6 +230,7 @@ struct ChatInputView: View {
                         )
                 }
                 .accessibilityLabel("Send message")
+                .keyboardShortcut("r", modifiers: .command)
                 .buttonStyle(.plain)
                 .padding(Spacing.small)
                 .disabled(
@@ -189,18 +242,35 @@ struct ChatInputView: View {
         }
         .padding()
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: messageText.isEmpty)
-#endif
     }
 
     private func sendMessage() {
         let trimmedMessage = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedMessage.isEmpty else { return }
+        guard !trimmedMessage.isEmpty,
+              chatViewModel.canStartTextGeneration else { return }
 
         messageText = ""
         isTextFieldFocused = true // Keep focus for continuous conversation
 
         Task {
-            await chatViewModel.sendMessage(trimmedMessage)
+            if let onSend {
+                await onSend(trimmedMessage)
+            } else {
+                await chatViewModel.sendMessage(trimmedMessage)
+            }
         }
+    }
+
+    @MainActor
+    private func endVoiceAndSend() async {
+        onVoiceWillSend?()
+        let startedAt = Date.now
+        guard let result = await chatViewModel.stopVoiceModeAndSend() else { return }
+        onVoiceCompleted?(
+            result.prompt,
+            result.response,
+            startedAt,
+            Date.now.timeIntervalSince(startedAt)
+        )
     }
 }

@@ -47,31 +47,31 @@ extension Color {
 
 /// Gradient presets for health metrics
 extension LinearGradient {
-    static let healthGradient = LinearGradient(
+    @MainActor static let healthGradient = LinearGradient(
         colors: [.healthPrimary, .healthSecondary],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
 
-    static let heartGradient = LinearGradient(
+    @MainActor static let heartGradient = LinearGradient(
         colors: [.heartColor, .heartColor.opacity(0.8)],
         startPoint: .top,
         endPoint: .bottom
     )
 
-    static let activityGradient = LinearGradient(
+    @MainActor static let activityGradient = LinearGradient(
         colors: [.stepsColor, .stepsColor.opacity(0.7)],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
 
-    static let sleepGradient = LinearGradient(
+    @MainActor static let sleepGradient = LinearGradient(
         colors: [.sleepColor.opacity(0.8), .sleepColor],
         startPoint: .top,
         endPoint: .bottom
     )
 
-    static let energyGradient = LinearGradient(
+    @MainActor static let energyGradient = LinearGradient(
         colors: [.caloriesColor, .caloriesColor.opacity(0.7)],
         startPoint: .topLeading,
         endPoint: .bottomTrailing

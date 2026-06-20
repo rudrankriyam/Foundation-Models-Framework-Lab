@@ -9,17 +9,16 @@ import Foundation
 import FoundationModels
 import Playgrounds
 
-struct MockWeatherTool: Tool {
+struct WeatherTool: Tool {
     let name = "getCurrentWeather"
-    let description = "Gets current weather conditions for a specific city including temperature, humidity, and " +
-                      "conditions"
+    let description = "Gets live weather conditions for a city from Open-Meteo"
 
     @Generable
     struct Arguments {
         @Guide(description: "The city name to get weather for")
         var city: String
 
-        @Guide(description: "Country code (optional, e.g., 'US', 'UK')")
+        @Guide(description: "An optional ISO 3166-1 alpha-2 country code, such as US or GB")
         var countryCode: String?
     }
 
@@ -37,136 +36,161 @@ struct MockWeatherTool: Tool {
 
     func call(arguments: Arguments) async throws -> WeatherData {
         let city = arguments.city.trimmingCharacters(in: .whitespacesAndNewlines)
-
         guard !city.isEmpty else {
             throw WeatherError.emptyCity
         }
 
-        // In a real implementation, you would:
-        // 1. Make API call to OpenMeteo or another weather service
-        // 2. Parse the JSON response
-        // 3. Return structured weather data
+        let place = try await geocode(city: city, countryCode: arguments.countryCode)
+        let conditions = try await currentConditions(
+            latitude: place.latitude,
+            longitude: place.longitude
+        )
+        let description = weatherDescription(for: conditions.weatherCode)
 
-        // Mock weather data for demonstration
-        let mockWeatherData = generateMockWeatherData(for: city, countryCode: arguments.countryCode)
-
-        print("THIS IS CALLED")
-
-        return mockWeatherData
+        return WeatherData(
+            city: place.name,
+            country: place.country ?? place.countryCode ?? "Unknown",
+            temperature: conditions.temperature,
+            feelsLike: conditions.apparentTemperature,
+            humidity: conditions.relativeHumidity,
+            conditions: description.title,
+            description: description.detail,
+            windSpeed: conditions.windSpeed
+        )
     }
 
-    @available(iOS 26.1, macOS 26.1, *)
-    private func findRecentLocationData(in transcript: Transcript) -> MockLocationTool.LocationData? {
-        // Look through recent transcript entries for location tool calls
-        for entry in transcript.reversed() {
-            if case .toolOutput(let output) = entry,
-               output.toolName == "getUserLocation" {
-
-                // Try to extract location data from the tool output
-                // In a real implementation, you'd parse the structured output
-                if let locationData = extractLocationData(from: output) {
-                    return locationData
-                }
-            }
+    private func geocode(city: String, countryCode: String?) async throws -> GeocodingResult {
+        var components = URLComponents(string: "https://geocoding-api.open-meteo.com/v1/search")
+        components?.queryItems = [
+            URLQueryItem(name: "name", value: city),
+            URLQueryItem(name: "count", value: "1"),
+            URLQueryItem(name: "language", value: "en"),
+            URLQueryItem(name: "format", value: "json")
+        ]
+        if let countryCode = countryCode?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !countryCode.isEmpty {
+            components?.queryItems?.append(
+                URLQueryItem(name: "countryCode", value: countryCode.uppercased())
+            )
         }
-        return nil
+
+        let response: GeocodingResponse = try await fetch(components?.url)
+        guard let result = response.results?.first else {
+            throw WeatherError.cityNotFound(city)
+        }
+        return result
     }
 
-    @available(iOS 26.1, macOS 26.1, *)
-    private func extractLocationData(from output: Transcript.ToolOutput) -> MockLocationTool.LocationData? {
-        // In a real implementation, you'd properly parse the tool output
-        // For demo purposes, return mock recent location data
-        return MockLocationTool.LocationData(
-            latitude: 37.7749,
-            longitude: -122.4194,
-            city: "San Francisco",
-            country: "US",
-            timestamp: ISO8601DateFormatter().string(from: Date())
-        )
-    }
-
-    @available(iOS 26.1, macOS 26.1, *)
-    private func getWeatherByCoordinates(latitude: Double, longitude: Double, city: String?) async -> WeatherData {
-        // In real implementation, use coordinates for precise weather API call
-        let displayCity = city ?? "Current Location"
-
-        let baseTemperature = Double.random(in: 18...25) // Slightly different range for coord-based queries
-        let humidity = Int.random(in: 45...75)
-        let windSpeed = Double.random(in: 8...20)
-
-        let conditions = ["Clear", "Partly Cloudy", "Cloudy", "Sunny"].randomElement()!
-        let descriptions = [
-            "Clear": "Clear sky with excellent visibility",
-            "Partly Cloudy": "Partly cloudy with good weather",
-            "Cloudy": "Overcast conditions",
-            "Sunny": "Bright and sunny"
+    private func currentConditions(latitude: Double, longitude: Double) async throws -> CurrentWeather {
+        var components = URLComponents(string: "https://api.open-meteo.com/v1/forecast")
+        components?.queryItems = [
+            URLQueryItem(name: "latitude", value: String(latitude)),
+            URLQueryItem(name: "longitude", value: String(longitude)),
+            URLQueryItem(
+                name: "current",
+                value: "temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m"
+            ),
+            URLQueryItem(name: "temperature_unit", value: "celsius"),
+            URLQueryItem(name: "wind_speed_unit", value: "kmh"),
+            URLQueryItem(name: "timezone", value: "auto")
         ]
 
-        return WeatherData(
-            city: displayCity,
-            country: "Coordinates-based",
-            temperature: round(baseTemperature * 10) / 10,
-            feelsLike: round((baseTemperature + Double.random(in: -2...2)) * 10) / 10,
-            humidity: humidity,
-            conditions: conditions,
-            description: descriptions[conditions] ?? "Weather conditions available",
-            windSpeed: round(windSpeed * 10) / 10
-        )
+        let response: WeatherResponse = try await fetch(components?.url)
+        return response.current
     }
 
-    private func generateMockWeatherData(for city: String, countryCode: String?) -> WeatherData {
-        // Generate realistic but mock weather data
-        let baseTemperature = Double.random(in: 15...30)
-        let humidity = Int.random(in: 40...80)
-        let windSpeed = Double.random(in: 5...25)
-
-        let conditions = ["Clear", "Partly Cloudy", "Cloudy", "Light Rain", "Sunny"].randomElement()!
-        let descriptions = [
-            "Clear": "Clear sky with plenty of sunshine",
-            "Partly Cloudy": "Partly cloudy with some sunshine",
-            "Cloudy": "Overcast with cloudy skies",
-            "Light Rain": "Light rain showers expected",
-            "Sunny": "Bright and sunny weather"
-        ]
-
-        return WeatherData(
-            city: city.capitalized,
-            country: countryCode?.uppercased() ?? "Unknown",
-            temperature: round(baseTemperature * 10) / 10,
-            feelsLike: round((baseTemperature + Double.random(in: -3...3)) * 10) / 10,
-            humidity: humidity,
-            conditions: conditions,
-            description: descriptions[conditions] ?? "Weather conditions available",
-            windSpeed: round(windSpeed * 10) / 10
-        )
+    private func fetch<Response: Decodable & Sendable>(_ url: URL?) async throws -> Response {
+        guard let url else {
+            throw WeatherError.invalidURL
+        }
+        let (data, response) = try await URLSession.shared.data(from: url)
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw WeatherError.invalidResponse
+        }
+        return try JSONDecoder().decode(Response.self, from: data)
     }
 
-    enum WeatherError: Error, LocalizedError {
-        case emptyCity
-        case networkError
-        case invalidResponse
+    private func weatherDescription(for code: Int) -> (title: String, detail: String) {
+        switch code {
+        case 0:
+            return ("Clear", "Clear sky")
+        case 1...3:
+            return ("Cloudy", "Mainly clear to overcast")
+        case 45, 48:
+            return ("Fog", "Foggy conditions")
+        case 51...67, 80...82:
+            return ("Rain", "Drizzle or rain showers")
+        case 71...77, 85, 86:
+            return ("Snow", "Snowfall or snow showers")
+        case 95...99:
+            return ("Thunderstorm", "Thunderstorms are reported")
+        default:
+            return ("Unknown", "Open-Meteo weather code \(code)")
+        }
+    }
+}
 
-        var errorDescription: String? {
-            switch self {
-            case .emptyCity:
-                return "City name cannot be empty"
-            case .networkError:
-                return "Network connection failed"
-            case .invalidResponse:
-                return "Invalid weather service response"
-            }
+nonisolated private struct GeocodingResponse: Decodable, Sendable {
+    let results: [GeocodingResult]?
+}
+
+nonisolated private struct GeocodingResult: Decodable, Sendable {
+    let name: String
+    let latitude: Double
+    let longitude: Double
+    let country: String?
+    let countryCode: String?
+
+    enum CodingKeys: String, CodingKey {
+        case name, latitude, longitude, country
+        case countryCode = "country_code"
+    }
+}
+
+nonisolated private struct WeatherResponse: Decodable, Sendable {
+    let current: CurrentWeather
+}
+
+nonisolated private struct CurrentWeather: Decodable, Sendable {
+    let temperature: Double
+    let relativeHumidity: Int
+    let apparentTemperature: Double
+    let weatherCode: Int
+    let windSpeed: Double
+
+    enum CodingKeys: String, CodingKey {
+        case temperature = "temperature_2m"
+        case relativeHumidity = "relative_humidity_2m"
+        case apparentTemperature = "apparent_temperature"
+        case weatherCode = "weather_code"
+        case windSpeed = "wind_speed_10m"
+    }
+}
+
+private enum WeatherError: LocalizedError {
+    case emptyCity
+    case cityNotFound(String)
+    case invalidURL
+    case invalidResponse
+
+    var errorDescription: String? {
+        switch self {
+        case .emptyCity:
+            return "City name cannot be empty."
+        case .cityNotFound(let city):
+            return "Open-Meteo could not find \(city)."
+        case .invalidURL:
+            return "The Open-Meteo URL could not be created."
+        case .invalidResponse:
+            return "Open-Meteo returned an invalid response."
         }
     }
 }
 
 #Playground {
-    let weatherTool = MockWeatherTool()
-
-    let arguments = MockWeatherTool.Arguments(
-        city: "San Francisco",
-        countryCode: "US"
-    )
-
+    let weatherTool = WeatherTool()
+    let arguments = WeatherTool.Arguments(city: "San Francisco", countryCode: "US")
     let result = try await weatherTool.call(arguments: arguments)
     debugPrint("Weather result: \(result)")
 }

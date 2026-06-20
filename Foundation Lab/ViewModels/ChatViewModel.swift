@@ -22,11 +22,11 @@ final class ChatViewModel {
     // MARK: - Voice State
 
     var voiceState: VoiceState = .idle
-    private(set) var speechRecognizer: SpeechRecognizer?
-    private var speechObservationTask: Task<Void, Never>?
-    private let permissionManager: PermissionManager
-    private let speechSynthesizer: SpeechSynthesisService
-    private let conversationEngine: FoundationLabConversationEngine
+    @ObservationIgnored var speechRecognizer: SpeechRecognizer?
+    @ObservationIgnored var speechObservationTask: Task<Void, Never>?
+    @ObservationIgnored let permissionManager: PermissionManager
+    @ObservationIgnored let speechSynthesizer: SpeechSynthesisService
+    @ObservationIgnored let conversationEngine: FoundationLabConversationEngine
     var isSummarizing: Bool = false
     var isApplyingWindow: Bool = false
     var sessionCount: Int = 1
@@ -36,8 +36,14 @@ final class ChatViewModel {
     var showsReasoningTrace: Bool = true
     var samplingStrategy: SamplingStrategy = .default
     var topKSamplingValue: Int = 50
+    var probabilityThresholdSamplingValue: Double = 0.9
     var useFixedSeed: Bool = false
     var usePermissiveGuardrails: Bool = false
+    var temperature: Double?
+    var maximumResponseTokens: Int?
+    private(set) var selectedTools: [FoundationLabBuiltInTool] = []
+    private(set) var appliedExperimentConfiguration: FoundationLabExperimentConfiguration?
+    private(set) var activeExperimentLoadRevision: Int?
     private var samplingSeed: UInt64?
     var errorMessage: String?
     var showError: Bool = false
@@ -50,6 +56,27 @@ final class ChatViewModel {
     var tokenUsageFraction: Double {
         guard maxContextSize > 0 else { return 0 }
         return min(1.0, Double(currentTokenCount) / Double(maxContextSize))
+    }
+
+    var canStartTextGeneration: Bool {
+        !isLoading && !session.isResponding && !voiceState.isActive
+    }
+
+    private var onDeviceAvailabilityMessage: String? {
+        guard selectedModelRuntime == .onDevice else { return nil }
+
+        switch SystemLanguageModel.default.availability {
+        case .available:
+            return nil
+        case .unavailable(.deviceNotEligible):
+            return String(localized: "This device does not support Apple Intelligence.")
+        case .unavailable(.appleIntelligenceNotEnabled):
+            return String(localized: "Turn on Apple Intelligence in Settings, then try again.")
+        case .unavailable(.modelNotReady):
+            return String(localized: "The on-device model is still preparing. Try again when Apple Intelligence is ready.")
+        @unknown default:
+            return String(localized: "The on-device model is currently unavailable.")
+        }
     }
 
     var modelRuntimeStatus: String {
@@ -87,17 +114,26 @@ final class ChatViewModel {
     // MARK: - Generation Options
 
     var generationOptions: FoundationLabGenerationOptions {
+        let sampling: FoundationLabGenerationOptions.SamplingMode?
+
         switch samplingStrategy {
         case .default:
-            return FoundationLabGenerationOptions()
+            sampling = nil
         case .greedy:
-            return FoundationLabGenerationOptions(sampling: .greedy)
+            sampling = .greedy
         case .sampling:
             let seed: UInt64? = useFixedSeed ? (samplingSeed ?? generateAndStoreSeed()) : nil
-            return FoundationLabGenerationOptions(
-                sampling: .randomTop(topKSamplingValue, seed: seed)
-            )
+            sampling = .randomTop(topKSamplingValue, seed: seed)
+        case .probabilityThreshold:
+            let seed: UInt64? = useFixedSeed ? (samplingSeed ?? generateAndStoreSeed()) : nil
+            sampling = .randomProbabilityThreshold(probabilityThresholdSamplingValue, seed: seed)
         }
+
+        return FoundationLabGenerationOptions(
+            sampling: sampling,
+            temperature: temperature,
+            maximumResponseTokens: maximumResponseTokens
+        )
     }
 
     // MARK: - Initialization
@@ -147,25 +183,104 @@ final class ChatViewModel {
             await fetchContextSize()
         }
     }
+}
 
-    // MARK: - Public Methods
+// MARK: - Public Methods
 
-    func sendMessage(_ content: String) async {
+extension ChatViewModel {
+    @discardableResult
+    func sendMessage(_ content: String) async -> String? {
+        guard !isLoading, !session.isResponding, !voiceState.isActive else { return nil }
+        if let availabilityMessage = onDeviceAvailabilityMessage {
+            errorMessage = availabilityMessage
+            showError = true
+            return nil
+        }
         isLoading = true
-        defer { isLoading = session.isResponding }
+        defer { isLoading = false }
 
         do {
-            _ = try await conversationEngine.sendStreamingMessage(
+            let response = try await conversationEngine.sendStreamingMessage(
                 content,
                 generationOptions: generationOptions
             )
             syncConversationState()
+            return response
         } catch is CancellationError {
-            return
+            return nil
         } catch {
             errorMessage = message(for: error)
             showError = true
+            return nil
         }
+    }
+
+    @discardableResult
+    func applyExperiment(
+        _ configuration: FoundationLabExperimentConfiguration,
+        loadRevision: Int? = nil
+    ) -> FoundationLabExperimentConfiguration {
+        var effectiveConfiguration = configuration.normalized
+        if effectiveConfiguration.modelRuntime == .privateCloudCompute,
+           !canSelectPrivateCloudCompute {
+            effectiveConfiguration.modelRuntime = .onDevice
+            effectiveConfiguration.reasoningLevel = .none
+            errorMessage = privateCloudComputeStatus
+            showError = true
+        } else if effectiveConfiguration.modelRuntime == .onDevice {
+            effectiveConfiguration.reasoningLevel = .none
+        }
+
+        instructions = effectiveConfiguration.instructions
+        selectedModelRuntime = effectiveConfiguration.modelRuntime
+        selectedReasoningLevel = effectiveConfiguration.reasoningLevel
+        temperature = effectiveConfiguration.generationOptions.temperature
+        maximumResponseTokens = effectiveConfiguration.generationOptions.maximumResponseTokens
+        selectedTools = effectiveConfiguration.selectedTools
+        applySamplingMode(effectiveConfiguration.generationOptions.sampling)
+
+        conversationEngine.rebuild(
+            baseInstructions: effectiveConfiguration.instructions,
+            modelRuntime: effectiveConfiguration.modelRuntime,
+            reasoningLevel: effectiveConfiguration.reasoningLevel,
+            guardrails: currentGuardrails(),
+            tools: selectedTools.map { $0.makeTool() }
+        )
+        conversationEngine.setMaxContextSize(provisionalContextSize(for: effectiveConfiguration.modelRuntime))
+        feedbackState.removeAll()
+        if effectiveConfiguration.modelRuntime == configuration.modelRuntime {
+            errorMessage = nil
+            showError = false
+        }
+        syncConversationState()
+
+        Task {
+            await fetchContextSize(for: effectiveConfiguration.modelRuntime)
+        }
+
+        appliedExperimentConfiguration = effectiveConfiguration
+        if let loadRevision {
+            activeExperimentLoadRevision = loadRevision
+        }
+        return effectiveConfiguration
+    }
+
+    func applyGenerationOptions(_ options: FoundationLabGenerationOptions) {
+        temperature = options.temperature
+        maximumResponseTokens = options.maximumResponseTokens
+        applySamplingMode(options.sampling)
+    }
+
+    func toggleTool(_ tool: FoundationLabBuiltInTool) {
+        if let index = selectedTools.firstIndex(of: tool) {
+            selectedTools.remove(at: index)
+        } else {
+            selectedTools.append(tool)
+        }
+
+        conversationEngine.rebuild(tools: selectedTools.map { $0.makeTool() })
+        feedbackState.removeAll()
+        syncConversationState()
     }
 
     func submitFeedback(for entryID: Transcript.Entry.ID, sentiment: LanguageModelFeedback.Sentiment) {
@@ -186,13 +301,18 @@ final class ChatViewModel {
         syncConversationState()
     }
 
-    func selectModelRuntime(_ runtime: FoundationLabModelRuntime) {
-        guard runtime != selectedModelRuntime else { return }
+    func cancelGeneration() {
+        conversationEngine.cancelActiveResponse()
+    }
+
+    @discardableResult
+    func selectModelRuntime(_ runtime: FoundationLabModelRuntime) -> Bool {
+        guard runtime != selectedModelRuntime else { return true }
 
         if runtime == .privateCloudCompute, !canSelectPrivateCloudCompute {
             errorMessage = privateCloudComputeStatus
             showError = true
-            return
+            return false
         }
 
         selectedModelRuntime = runtime
@@ -202,7 +322,8 @@ final class ChatViewModel {
         conversationEngine.rebuild(
             modelRuntime: runtime,
             reasoningLevel: selectedReasoningLevel,
-            guardrails: currentGuardrails()
+            guardrails: currentGuardrails(),
+            tools: selectedTools.map { $0.makeTool() }
         )
         conversationEngine.setMaxContextSize(provisionalContextSize(for: runtime))
         feedbackState.removeAll()
@@ -212,27 +333,32 @@ final class ChatViewModel {
         Task {
             await fetchContextSize(for: runtime)
         }
+
+        return true
     }
 
-    func selectReasoningLevel(_ level: FoundationLabReasoningLevel) {
-        guard level != selectedReasoningLevel else { return }
+    @discardableResult
+    func selectReasoningLevel(_ level: FoundationLabReasoningLevel) -> Bool {
+        guard level != selectedReasoningLevel else { return true }
 
         if level != .none, !canUseReasoning {
             errorMessage = "Reasoning levels require PCC on Xcode 27 and an eligible OS 27 runtime."
             showError = true
-            return
+            return false
         }
 
         selectedReasoningLevel = level
         conversationEngine.setReasoningLevel(level)
         syncConversationState()
+        return true
     }
 
     func updateInstructions(_ newInstructions: String) {
         instructions = newInstructions
         conversationEngine.rebuild(
             baseInstructions: newInstructions,
-            guardrails: currentGuardrails()
+            guardrails: currentGuardrails(),
+            tools: selectedTools.map { $0.makeTool() }
         )
         syncConversationState()
     }
@@ -245,112 +371,9 @@ final class ChatViewModel {
         }
     }
 
-    func tearDown() {
-        conversationEngine.cancelActiveResponse()
-        stopSpeechObservation()
-        speechRecognizer?.stopRecognition()
-        speechRecognizer = nil
-    }
-
-    // MARK: - Voice Methods
-
-    func startVoiceMode() async {
-        if case .error = voiceState {
-            errorMessage = nil
-            showError = false
-            voiceState = .idle
-        } else if voiceState.isActive {
-            return
-        }
-
-        if !permissionManager.allPermissionsGranted {
-            let granted = await permissionManager.requestAllPermissions()
-            if !granted {
-                errorMessage = permissionManager.permissionAlertMessage
-                showError = true
-                return
-            }
-        }
-
-        isLoading = false
-        voiceState = .preparing
-
-        conversationEngine.prewarm()
-
-        stopSpeechObservation()
-        speechRecognizer?.stopRecognition()
-        speechRecognizer = nil
-
-        let didStart = await initializeSpeechRecognizer()
-        guard didStart else { return }
-
-        if case .preparing = voiceState {
-            voiceState = .listening(partialText: "")
-        }
-
-        startSpeechObservation()
-    }
-
-    func cancelVoiceMode() {
-        stopSpeechObservation()
-        voiceState = .idle
-        errorMessage = nil
-        showError = false
-        speechRecognizer?.stopRecognition()
-        speechRecognizer = nil
-    }
-
-    func stopSpeaking() {
-        guard case .speaking = voiceState else { return }
-        speechSynthesizer.cancelSpeaking()
-        restartListening()
-    }
-
-    func stopVoiceModeAndSend() async {
-        guard case .listening(let text) = voiceState else { return }
-
-        let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedText.isEmpty else {
-            cancelVoiceMode()
-            return
-        }
-
-        guard let recognizer = speechRecognizer else {
-            handleVoiceError("Speech recognizer not initialized")
-            return
-        }
-        recognizer.stopRecognition()
-        voiceState = .processing
-
-        do {
-            let response = try await conversationEngine.sendMessage(
-                trimmedText,
-                generationOptions: generationOptions
-            )
-            syncConversationState()
-            voiceState = .speaking(response: response)
-
-            do {
-                try await speechSynthesizer.synthesizeAndSpeak(text: response)
-            } catch let synthError as SpeechSynthesizerError {
-                if case .cancelled = synthError {
-                    return
-                }
-                handleVoiceError(synthError.localizedDescription)
-                return
-            } catch {
-                handleVoiceError(error.localizedDescription)
-                return
-            }
-
-            restartListening()
-        } catch {
-            handleVoiceError(message(for: error))
-        }
-    }
 }
 
-private extension ChatViewModel {
+extension ChatViewModel {
     static let defaultInstructions = """
     You are a helpful, friendly AI assistant. Engage in natural conversation and provide
     thoughtful, detailed responses.
@@ -398,102 +421,6 @@ private extension ChatViewModel {
         }
     }
 
-    // MARK: - Voice Helpers
-
-    func initializeSpeechRecognizer() async -> Bool {
-        let recognizer = SpeechRecognizer()
-        speechRecognizer = recognizer
-
-        do {
-            try recognizer.startRecognition()
-            return true
-        } catch {
-            handleVoiceError(error.localizedDescription)
-            return false
-        }
-    }
-
-    func startSpeechObservation() {
-        stopSpeechObservation()
-        speechObservationTask = Task { @MainActor [weak self] in
-            await self?.observeSpeechState()
-        }
-    }
-
-    func stopSpeechObservation() {
-        speechObservationTask?.cancel()
-        speechObservationTask = nil
-    }
-
-    func restartListening() {
-        guard let recognizer = speechRecognizer else {
-            handleVoiceError("Speech recognizer not initialized")
-            return
-        }
-
-        do {
-            try recognizer.startRecognition()
-            voiceState = .listening(partialText: "")
-        } catch {
-            handleVoiceError(error.localizedDescription)
-        }
-    }
-
-    func handleVoiceError(_ message: String) {
-        stopSpeechObservation()
-        speechRecognizer?.stopRecognition()
-        speechRecognizer = nil
-        errorMessage = message
-        showError = true
-        voiceState = .error(message: message)
-    }
-
-    func message(for error: Error) -> String {
-        let handledMessage = FoundationModelsErrorHandler.handleError(error)
-
-        guard selectedModelRuntime == .privateCloudCompute else {
-            return handledMessage
-        }
-
-        if handledMessage.hasPrefix("PCC ") {
-            return handledMessage
-        }
-
-        let opaqueLanguageModelFailure = handledMessage.contains("LanguageModel-Error error -1")
-            || error.localizedDescription.contains("LanguageModel-Error error -1")
-
-        if opaqueLanguageModelFailure {
-            return """
-            PCC request failed. Private Cloud Compute is available on this device, but this signed app may be missing the PCC entitlement or a matching provisioning profile.
-
-            Confirm com.apple.developer.private-cloud-compute is present, then try again. Details: \(handledMessage)
-            """
-        }
-
-        return "PCC request failed. \(handledMessage)"
-    }
-
-    func observeSpeechState() async {
-        guard let recognizer = speechRecognizer else { return }
-
-        for await state in recognizer.stateValues {
-            switch state {
-            case .listening(let partialText):
-                if case .listening = voiceState {
-                    voiceState = .listening(partialText: partialText)
-                }
-            case .completed(let finalText):
-                if case .listening = voiceState {
-                    voiceState = .listening(partialText: finalText)
-                }
-            case .error(let speechError):
-                handleVoiceError(speechError.localizedDescription)
-            case .idle:
-                break
-            }
-        }
-    }
-
     // MARK: - Language Model
 
     func currentGuardrails() -> FoundationLabGuardrails {
@@ -504,6 +431,27 @@ private extension ChatViewModel {
         let seed = UInt64.random(in: UInt64.min...UInt64.max)
         samplingSeed = seed
         return seed
+    }
+
+    func applySamplingMode(_ mode: FoundationLabGenerationOptions.SamplingMode?) {
+        switch mode {
+        case .none:
+            samplingStrategy = .default
+            useFixedSeed = false
+        case .greedy:
+            samplingStrategy = .greedy
+            useFixedSeed = false
+        case .randomTop(let top, let seed):
+            samplingStrategy = .sampling
+            topKSamplingValue = top
+            samplingSeed = seed
+            useFixedSeed = seed != nil
+        case .randomProbabilityThreshold(let threshold, let seed):
+            samplingStrategy = .probabilityThreshold
+            probabilityThresholdSamplingValue = threshold
+            samplingSeed = seed
+            useFixedSeed = seed != nil
+        }
     }
 
     var privateCloudComputeStatus: String {

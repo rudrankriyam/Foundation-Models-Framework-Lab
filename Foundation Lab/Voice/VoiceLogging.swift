@@ -9,19 +9,19 @@ import Foundation
 import OSLog
 
 enum VoiceLogging {
-    private static let subsystem = Bundle.main.bundleIdentifier ?? "FoundationLab"
+    nonisolated private static let subsystem = Bundle.main.bundleIdentifier ?? "FoundationLab"
 
-    static let state = Logger(subsystem: subsystem, category: "voice.state")
-    static let recognition = Logger(subsystem: subsystem, category: "voice.recognition")
-    static let synthesis = Logger(subsystem: subsystem, category: "voice.synthesis")
-    static let permissions = Logger(subsystem: subsystem, category: "voice.permissions")
-    static let health = Logger(subsystem: subsystem, category: "health")
+    nonisolated static let state = Logger(subsystem: subsystem, category: "voice.state")
+    nonisolated static let recognition = Logger(subsystem: subsystem, category: "voice.recognition")
+    nonisolated static let synthesis = Logger(subsystem: subsystem, category: "voice.synthesis")
+    nonisolated static let permissions = Logger(subsystem: subsystem, category: "voice.permissions")
+    nonisolated static let health = Logger(subsystem: subsystem, category: "health")
 
 #if DEBUG
-    private static let verboseFlag = ProcessInfo.processInfo.environment["VOICE_VERBOSE_LOGS"] == "1"
+    nonisolated private static let verboseFlag = ProcessInfo.processInfo.environment["VOICE_VERBOSE_LOGS"] == "1"
 #endif
 
-    static var isVerboseEnabled: Bool {
+    nonisolated static var isVerboseEnabled: Bool {
 #if DEBUG
         verboseFlag
 #else

@@ -8,8 +8,8 @@
 import Foundation
 import FoundationLabCore
 import FoundationModels
-import LumoKit
-import VecturaKit
+@preconcurrency import LumoKit
+@preconcurrency import VecturaKit
 
 // MARK: - Sample Documents
 
@@ -90,7 +90,9 @@ final class RAGChatViewModel {
             showError = true
         }
     }
+}
 
+extension RAGChatViewModel {
     func loadFromDatabase() async {
         guard !isInitialized else { return }
         guard let config = config else {

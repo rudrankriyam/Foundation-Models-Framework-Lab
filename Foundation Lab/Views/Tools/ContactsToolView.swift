@@ -50,18 +50,19 @@ struct ContactsToolView: View {
     Task {
       await executor.executeCapability(
         successMessage: "Contact search completed successfully!",
-        clearForm: { searchQuery = "" }
-      ) {
-        try await SearchContactsUseCase().execute(
-          SearchContactsRequest(
-            query: searchQuery,
-            context: CapabilityInvocationContext(
-              source: .app,
-              localeIdentifier: Locale.current.identifier
+        clearForm: { searchQuery = "" },
+        operation: {
+          try await SearchContactsUseCase().execute(
+            SearchContactsRequest(
+              query: searchQuery,
+              context: CapabilityInvocationContext(
+                source: .app,
+                localeIdentifier: Locale.current.identifier
+              )
             )
           )
-        )
-      }
+        }
+      )
     }
   }
 }

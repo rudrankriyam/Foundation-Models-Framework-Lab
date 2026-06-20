@@ -5,7 +5,6 @@ import FoundationModelsKit
 @MainActor
 public final class FoundationLabConversationEngine {
     public var onStateChange: (@MainActor () -> Void)?
-
     public private(set) var session: LanguageModelSession
     public private(set) var sessionCount: Int = 1
     public private(set) var currentTokenCount: Int = 0
@@ -21,11 +20,11 @@ public final class FoundationLabConversationEngine {
     public var guardrails: FoundationLabGuardrails {
         configuration.guardrails
     }
-
     private var configuration: FoundationLabConversationConfiguration
     private var model: SystemLanguageModel
     private let adapterURL: URL?
     private var activeStreamingTask: Task<String, Error>?
+    private var activeResponseID: UUID?
 
     public convenience init(configuration: FoundationLabConversationConfiguration) {
         self.init(
@@ -84,7 +83,6 @@ public final class FoundationLabConversationEngine {
         maxContextSize = value
         notifyStateChange()
     }
-
     public func setReasoningLevel(_ level: FoundationLabReasoningLevel) {
         guard configuration.reasoningLevel != level else { return }
         configuration.reasoningLevel = level
@@ -95,7 +93,8 @@ public final class FoundationLabConversationEngine {
         baseInstructions: String? = nil,
         modelRuntime: FoundationLabModelRuntime? = nil,
         reasoningLevel: FoundationLabReasoningLevel? = nil,
-        guardrails: FoundationLabGuardrails? = nil
+        guardrails: FoundationLabGuardrails? = nil,
+        tools: [any Tool]? = nil
     ) {
         if let baseInstructions {
             configuration.baseInstructions = baseInstructions
@@ -108,6 +107,9 @@ public final class FoundationLabConversationEngine {
         }
         if let guardrails, adapterURL == nil {
             configuration.guardrails = guardrails
+        }
+        if let tools {
+            configuration.tools = tools
         }
         if adapterURL != nil {
             configuration.modelRuntime = .onDevice
@@ -127,10 +129,10 @@ public final class FoundationLabConversationEngine {
     public func clear() {
         resetSession()
     }
-
     public func cancelActiveResponse() {
         activeStreamingTask?.cancel()
         activeStreamingTask = nil
+        activeResponseID = nil
     }
 
     public func prewarm(promptPrefix: Prompt? = nil) {
@@ -140,7 +142,6 @@ public final class FoundationLabConversationEngine {
             session.prewarm()
         }
     }
-
     public func prewarm(withPromptPrefix promptPrefix: String?) {
         let trimmedPrefix = promptPrefix?.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -157,7 +158,6 @@ public final class FoundationLabConversationEngine {
         onPartialResponse: (@MainActor @Sendable (String) -> Void)? = nil
     ) async throws -> String {
         let prompt = try validatedPrompt(from: content)
-
         do {
             if await shouldApplyWindow() {
                 await applySlidingWindow()
@@ -185,13 +185,15 @@ public final class FoundationLabConversationEngine {
         generationOptions: FoundationLabGenerationOptions? = nil
     ) async throws -> String {
         let prompt = try validatedPrompt(from: content)
-
         do {
             if await shouldApplyWindow() {
                 await applySlidingWindow()
             }
 
-            let response = try await respond(to: prompt, generationOptions: generationOptions)
+            let response = try await oneShotResponse(
+                to: prompt,
+                generationOptions: generationOptions
+            )
             await updateTokenCount()
             return response
         } catch LanguageModelSession.GenerationError.exceededContextWindowSize {
@@ -218,7 +220,6 @@ private extension FoundationLabConversationEngine {
         }
         return trimmed
     }
-
     func resetSession() {
         cancelActiveResponse()
         sessionCount = 1
@@ -297,8 +298,15 @@ private extension FoundationLabConversationEngine {
             return latest.isEmpty ? self.latestResponseText() : latest
         }
 
+        let responseID = UUID()
         activeStreamingTask = task
-        defer { activeStreamingTask = nil }
+        activeResponseID = responseID
+        defer {
+            if activeResponseID == responseID {
+                activeStreamingTask = nil
+                activeResponseID = nil
+            }
+        }
         return try await task.value
     }
 
@@ -319,6 +327,30 @@ private extension FoundationLabConversationEngine {
             prompt: prompt,
             onPartialResponse: onPartialResponse
         )
+    }
+
+    func oneShotResponse(
+        to prompt: String,
+        generationOptions: FoundationLabGenerationOptions?
+    ) async throws -> String {
+        activeStreamingTask?.cancel()
+        let task = Task<String, Error> { @MainActor [weak self] in
+            guard let self else {
+                throw CancellationError()
+            }
+            return try await self.respond(to: prompt, generationOptions: generationOptions)
+        }
+
+        let responseID = UUID()
+        activeStreamingTask = task
+        activeResponseID = responseID
+        defer {
+            if activeResponseID == responseID {
+                activeStreamingTask = nil
+                activeResponseID = nil
+            }
+        }
+        return try await task.value
     }
 
     func streamWithGenerationOptions(

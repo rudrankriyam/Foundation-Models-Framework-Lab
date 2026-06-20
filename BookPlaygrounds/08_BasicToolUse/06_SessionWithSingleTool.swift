@@ -36,7 +36,7 @@ import Playgrounds
     """
 
     let weatherSession = LanguageModelSession(
-        tools: [MockWeatherTool()],
+        tools: [WeatherTool()],
         instructions: weatherInstructions
     )
 

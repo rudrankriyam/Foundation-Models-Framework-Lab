@@ -280,7 +280,7 @@ private extension GeminiDeveloperVideoLanguageModelExecutor {
     }
 }
 
-struct GeminiDeveloperAPIClient: Sendable {
+nonisolated struct GeminiDeveloperAPIClient: Sendable {
     struct Content: Codable, Sendable {
         let role: String?
         let parts: [Part]
@@ -407,7 +407,7 @@ struct GeminiDeveloperAPIClient: Sendable {
     }
 }
 
-enum GeminiDeveloperAPIError: LocalizedError, Sendable {
+nonisolated enum GeminiDeveloperAPIError: LocalizedError, Sendable {
     case apiKeyMissing
     case emptyPrompt
     case invalidModelName(String)

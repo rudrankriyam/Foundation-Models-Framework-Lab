@@ -14,8 +14,8 @@ import Playgrounds
     print()
 
     // Create tools
-    let locationTool = MockLocationTool()
-    let weatherTool = MockWeatherTool()
+    let locationTool = LocationTool()
+    let weatherTool = WeatherTool()
 
     do {
         // Scenario 1: User asks for location first, then weather for "here"
@@ -75,6 +75,10 @@ import Playgrounds
                     return nil
                 }.joined(separator: " ")
                 print("\(index): Model response: \(responseText.prefix(100))...")
+            #if compiler(>=6.4)
+            case .reasoning:
+                print("\(index): Reasoning trace")
+            #endif
             @unknown default:
                 print("\(index): Unknown transcript entry type")
             }

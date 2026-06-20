@@ -11,7 +11,7 @@ import Playgrounds
 
 struct SearchTool: Tool {
     let name = "searchWeb"
-    let description = "Search the web for information on any topic using Tavily API"
+    let description = "Search the web using Search1API's free keyless endpoint"
 
     @Generable
     struct Arguments {
@@ -19,11 +19,11 @@ struct SearchTool: Tool {
         var query: String
     }
 
-    struct SearchResult: Encodable {
+    nonisolated struct SearchResult: Decodable, Sendable {
         let title: String
-        let content: String
-        let url: String
-        let score: Double
+        let link: String
+        let snippet: String?
+        let content: String?
     }
 
     func call(arguments: Arguments) async throws -> some PromptRepresentable {
@@ -33,31 +33,51 @@ struct SearchTool: Tool {
             return createErrorOutput(for: searchQuery, error: SearchError.emptyQuery)
         }
 
-        // In a real implementation, you would:
-        // 1. Make API call to Tavily
-        // 2. Parse the response
-        // 3. Return structured results
-
-        // Simulated search results for demo
-        let mockResults = [
-            SearchResult(
-                title: "Sample Search Result",
-                content: "This is a mock search result for query: \(searchQuery)",
-                url: "https://example.com/search",
-                score: 0.95
-            )
-        ]
-
-        return createSuccessOutput(from: mockResults)
+        do {
+            let results = try await search(query: searchQuery)
+            return createSuccessOutput(query: searchQuery, results: results)
+        } catch {
+            return createErrorOutput(for: searchQuery, error: error)
+        }
     }
 
-    private func createSuccessOutput(from results: [SearchResult]) -> GeneratedContent {
+    private func search(query: String) async throws -> [SearchResult] {
+        guard let url = URL(string: "https://api.search1api.com/search") else {
+            throw SearchError.invalidURL
+        }
+
+        let payload = SearchRequest(
+            query: query,
+            searchService: "google",
+            maxResults: 5,
+            crawlResults: 0,
+            image: false,
+            includeSites: [],
+            excludeSites: [],
+            language: "en",
+            timeRange: "year"
+        )
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(payload)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw SearchError.apiError
+        }
+        return try JSONDecoder().decode(SearchResponse.self, from: data).results
+    }
+
+    private func createSuccessOutput(query: String, results: [SearchResult]) -> GeneratedContent {
         let summary = results.map {
-            "\($0.title)\n\($0.content)\nSource: \($0.url)"
+            "\($0.title)\n\($0.snippet ?? $0.content ?? "No summary available.")\nSource: \($0.link)"
         }.joined(separator: "\n\n")
 
         return GeneratedContent(properties: [
-            "query": results.first?.title ?? "",
+            "query": query,
             "resultCount": results.count,
             "summary": summary,
             "status": "success"
@@ -79,7 +99,6 @@ enum SearchError: Error, LocalizedError {
     case emptyQuery
     case invalidURL
     case apiError
-    case missingAPIKey
 
     var errorDescription: String? {
         switch self {
@@ -89,8 +108,34 @@ enum SearchError: Error, LocalizedError {
             return "Invalid search URL"
         case .apiError:
             return "Search API request failed"
-        case .missingAPIKey:
-            return "Tavily API key is required. Please configure it in Settings."
         }
     }
+}
+
+nonisolated private struct SearchRequest: Encodable, Sendable {
+    let query: String
+    let searchService: String
+    let maxResults: Int
+    let crawlResults: Int
+    let image: Bool
+    let includeSites: [String]
+    let excludeSites: [String]
+    let language: String
+    let timeRange: String
+
+    enum CodingKeys: String, CodingKey {
+        case query
+        case searchService = "search_service"
+        case maxResults = "max_results"
+        case crawlResults = "crawl_results"
+        case image
+        case includeSites = "include_sites"
+        case excludeSites = "exclude_sites"
+        case language
+        case timeRange = "time_range"
+    }
+}
+
+nonisolated private struct SearchResponse: Decodable, Sendable {
+    let results: [SearchTool.SearchResult]
 }

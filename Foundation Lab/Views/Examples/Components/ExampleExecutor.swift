@@ -73,7 +73,7 @@ final class ExampleExecutor {
     }
 
     /// Executes a structured data generation operation
-    func executeStructured<T: Generable>(
+    func executeStructured<T: Generable & Sendable>(
         prompt: String,
         type: T.Type,
         instructions: String? = nil,
@@ -165,7 +165,7 @@ final class ExampleExecutor {
     func executeStreaming(
         prompt: String,
         instructions: String? = nil,
-        onPartialResult: @escaping (String) -> Void
+        onPartialResult: @escaping @MainActor @Sendable (String) -> Void
     ) async {
         guard !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             errorMessage = "Please enter a valid prompt"
@@ -208,7 +208,7 @@ final class ExampleExecutor {
     @MainActor
     private func applyStreamingUpdate(
         _ partialText: String,
-        onPartialResult: (String) -> Void
+        onPartialResult: @MainActor @Sendable (String) -> Void
     ) {
         result = partialText
         onPartialResult(partialText)

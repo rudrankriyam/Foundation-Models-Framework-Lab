@@ -13,7 +13,7 @@ final class ModelCompareEngine {
         case cancelled
     }
 
-    private struct StreamRequest {
+    private struct StreamRequest: Sendable {
         let prompt: String
         let options: GenerationOptions
         let continuation: AsyncStream<ModelCompareEvent>.Continuation
@@ -92,7 +92,7 @@ final class ModelCompareEngine {
                 continuation: continuation
             )
 
-            continuation.onTermination = { @Sendable _ in
+            continuation.onTermination = { @Sendable [weak self, runTask, runID] _ in
                 runTask.cancel()
                 Task { @MainActor [weak self] in
                     self?.clearCurrentRun(ifMatching: runID)
@@ -176,11 +176,11 @@ private extension ModelCompareEngine {
         to group: inout TaskGroup<(ModelCompareSource, RunOutcome)>,
         request: StreamRequest
     ) {
-        group.addTask { @MainActor [weak self] in
-            guard let self else { return (.base, .cancelled) }
+        let baseModel = baseModel
+        group.addTask { [self, baseModel, request] in
             let outcome = await self.streamModel(
                 source: .base,
-                model: self.baseModel,
+                model: baseModel,
                 request: request
             )
             return (.base, outcome)
@@ -188,8 +188,7 @@ private extension ModelCompareEngine {
 
         guard let adapterModel else { return }
 
-        group.addTask { @MainActor [weak self] in
-            guard let self else { return (.adapter, .cancelled) }
+        group.addTask { [self, adapterModel, request] in
             let outcome = await self.streamModel(
                 source: .adapter,
                 model: adapterModel,

@@ -32,7 +32,10 @@ struct FoundationLabApp: App {
                 }
         }
 #if os(macOS)
-        .defaultSize(width: 1000, height: 700)
+        Settings {
+            SettingsView()
+                .frame(minWidth: 520, minHeight: 420)
+        }
 #endif
     }
 

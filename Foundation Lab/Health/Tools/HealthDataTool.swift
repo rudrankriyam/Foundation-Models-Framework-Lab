@@ -186,7 +186,7 @@ struct HealthDataTool: Tool {
         ])
     }
 
-    private func formatValue(_ value: Double, for type: MetricType) -> String {
+    nonisolated private func formatValue(_ value: Double, for type: MetricType) -> String {
         switch type {
         case .steps, .activeEnergy:
             return "\(Int(value))"

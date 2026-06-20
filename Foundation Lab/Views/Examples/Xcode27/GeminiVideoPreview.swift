@@ -148,22 +148,19 @@ private final class GeminiPlayerView: UIView {
         AVPlayerLayer.self
     }
 
-    private var playerLayer: AVPlayerLayer {
-        guard let layer = layer as? AVPlayerLayer else {
-            fatalError("GeminiPlayerView requires AVPlayerLayer.")
-        }
-        return layer
+    private var playerLayer: AVPlayerLayer? {
+        layer as? AVPlayerLayer
     }
 
     var player: AVPlayer? {
-        get { playerLayer.player }
-        set { playerLayer.player = newValue }
+        get { playerLayer?.player }
+        set { playerLayer?.player = newValue }
     }
 
     init(player: AVPlayer) {
         super.init(frame: .zero)
         self.player = player
-        playerLayer.videoGravity = .resizeAspect
+        playerLayer?.videoGravity = .resizeAspect
     }
 
     required init?(coder: NSCoder) {
