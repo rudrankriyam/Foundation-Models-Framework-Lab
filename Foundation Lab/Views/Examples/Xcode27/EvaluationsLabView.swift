@@ -177,7 +177,7 @@ private enum EvaluationLayer: String, CaseIterable, Identifiable {
             """
         case .judge:
             """
-            let evaluator = ModelJudgeEvaluator(
+            let evaluator = ModelJudgeEvaluator<ModelSample<String>>(
                 "TagQuality",
                 scale: .numeric([
                     4: "Relevant and helpful",

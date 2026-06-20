@@ -119,6 +119,9 @@ private enum ToolModeExample: String, CaseIterable, Identifiable {
 
     var code: String {
         """
+        import FoundationModels
+        import FoundationModelsTools
+
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) {
             let options = GenerationOptions(
                 samplingMode: nil,
@@ -127,7 +130,7 @@ private enum ToolModeExample: String, CaseIterable, Identifiable {
                 toolCallingMode: .\(rawValue)
             )
 
-            let session = LanguageModelSession(tools: [weatherTool])
+            let session = LanguageModelSession(tools: [WeatherTool()])
             let response = try await session.respond(
                 to: Prompt("What is the weather in Cupertino?"),
                 options: options

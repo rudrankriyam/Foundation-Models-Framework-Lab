@@ -229,31 +229,31 @@ private enum ModelRequirement: String, CaseIterable, Identifiable {
         case .offline:
             """
             let model = SystemLanguageModel.default
-            guard model.isAvailable else {
+            if model.isAvailable {
+                let session = LanguageModelSession(model: model)
+            } else {
                 // Present the app's unavailable state.
-                return
             }
-
-            let session = LanguageModelSession(model: model)
             """
         case .reasoning:
             """
-            let model = PrivateCloudComputeLanguageModel()
-            guard model.isAvailable else {
-                // Apply the fallback your feature documents.
-                return
+            if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) {
+                let model = PrivateCloudComputeLanguageModel()
+                if model.isAvailable {
+                    let session = LanguageModelSession(model: model)
+                } else {
+                    // Apply the fallback your feature documents.
+                }
             }
-
-            let session = LanguageModelSession(model: model)
             """
         case .provider:
             """
-            // A custom provider adopts LanguageModel and supplies a
-            // LanguageModelExecutor that translates requests and streams
-            // updates through LanguageModelExecutorGenerationChannel.
-            let session = LanguageModelSession(
-                model: MyCustomServerLanguageModel()
-            )
+            @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+            func makeProviderSession<Model: LanguageModel>(
+                model: Model
+            ) -> LanguageModelSession {
+                LanguageModelSession(model: model)
+            }
             """
         }
     }

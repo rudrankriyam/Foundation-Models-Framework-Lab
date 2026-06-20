@@ -9,35 +9,40 @@ import FoundationModels
 import SwiftUI
 
 struct ContextWindowInspectorView: View {
-    @State private var currentPrompt = """
+    private static let defaultPrompt = """
     You are a helpful assistant. Explain Foundation Models, then call tools if needed.
     """
+
+    @State private var currentPrompt = defaultPrompt
     @State private var instructionsTokens = 180.0
-    @State private var promptTokens = 120.0
+    @State private var promptTokens = 0.0
     @State private var schemaTokens = 520.0
     @State private var toolTokens = 740.0
     @State private var historyTokens = 1_240.0
     @State private var responseReserveTokens = 600.0
+    @State private var measuredPromptTokens: Double?
+    @State private var isMeasuring = false
+    @State private var errorMessage: String?
+    @State private var measurementID = UUID()
 
-    private var maxContextSize: Int {
-        SystemLanguageModel.default.contextSize
-    }
+    private var maxContextSize: Int { SystemLanguageModel.default.contextSize }
 
     private var totalTokens: Int {
         Int(instructionsTokens + promptTokens + schemaTokens + toolTokens + historyTokens + responseReserveTokens)
     }
 
-    private var usageFraction: Double {
-        min(Double(totalTokens) / Double(maxContextSize), 1)
-    }
+    private var usageFraction: Double { min(Double(totalTokens) / Double(maxContextSize), 1) }
 
     var body: some View {
         ExampleViewBase(
             title: String(localized: "Context Window"),
             description: String(localized: "Inspect the pieces that consume a session budget"),
             currentPrompt: $currentPrompt,
+            isRunning: isMeasuring,
+            errorMessage: errorMessage,
             codeExample: codeExample,
-            onRun: rebalance,
+            runLabel: String(localized: "Measure"),
+            onRun: measurePrompt,
             onReset: reset
         ) {
             VStack(spacing: Spacing.medium) {
@@ -54,6 +59,13 @@ struct ContextWindowInspectorView: View {
                     tokenUsageFraction: usageFraction
                 )
 
+                Xcode27StatusRow(
+                    title: String(localized: "Prompt"),
+                    value: promptTokenSource,
+                    systemImage: measuredPromptTokens == promptTokens ? "checkmark.seal" : "slider.horizontal.3",
+                    tint: measuredPromptTokens == promptTokens ? .green : .blue
+                )
+
                 Xcode27Section(String(localized: "Token Sources")) {
                     VStack(spacing: Spacing.large) {
                         Xcode27ValueSlider(
@@ -66,10 +78,12 @@ struct ContextWindowInspectorView: View {
                         )
                         Xcode27ValueSlider(
                             title: String(localized: "Prompt"),
-                            valueText: String(localized: "\(Int(promptTokens)) tokens"),
+                            valueText: promptTokens == 0
+                                ? String(localized: "Not measured")
+                                : String(localized: "\(Int(promptTokens)) tokens"),
                             systemImage: "text.cursor",
                             value: $promptTokens,
-                            range: 0...2_000,
+                            range: 0...max(2_000, promptTokens),
                             step: 20
                         )
                         Xcode27ValueSlider(
@@ -112,11 +126,30 @@ struct ContextWindowInspectorView: View {
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
+
+                Xcode27Section(String(localized: "Scope")) {
+                    Text(
+                        String(
+                            localized: """
+                            Context size comes from the system model. Measure uses the model tokenizer; the other sliders are local \
+                            planning estimates that you can adjust to explore a session budget.
+                            """
+                        )
+                    )
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                }
             }
         }
+        .onChange(of: currentPrompt) {
+            measuredPromptTokens = nil
+            promptTokens = 0
+        }
     }
+}
 
-    private var compactionAdvice: String {
+private extension ContextWindowInspectorView {
+    var compactionAdvice: String {
         switch usageFraction {
         case ..<0.65:
             return String(localized: "The session has plenty of room. Keep the transcript intact.")
@@ -135,19 +168,57 @@ struct ContextWindowInspectorView: View {
         }
     }
 
-    private func rebalance() {
-        let promptEstimate = max(40, currentPrompt.split(separator: " ").count * 2)
-        promptTokens = Double(promptEstimate)
+    private var promptTokenSource: String {
+        measuredPromptTokens == promptTokens
+            ? String(localized: "Measured with SystemLanguageModel.tokenCount(for:).")
+            : String(localized: "Not measured")
+    }
+
+    private func measurePrompt() async {
+        let id = UUID()
+        let prompt = currentPrompt
+        measurementID = id
+        isMeasuring = true
+        errorMessage = nil
+
+        defer {
+            if measurementID == id {
+                isMeasuring = false
+            }
+        }
+
+        guard #available(iOS 26.4, macOS 26.4, visionOS 26.4, *) else {
+            guard measurementID == id else { return }
+            errorMessage = String(localized: "Model token counting requires version 26.4 or later; no estimates are shown.")
+            return
+        }
+
+        do {
+            let count = try await SystemLanguageModel.default.tokenCount(for: prompt)
+            try Task.checkCancellation()
+            guard measurementID == id, currentPrompt == prompt else { return }
+            promptTokens = Double(count)
+            measuredPromptTokens = Double(count)
+        } catch is CancellationError {
+            return
+        } catch {
+            guard measurementID == id, currentPrompt == prompt else { return }
+            errorMessage = error.localizedDescription
+        }
     }
 
     private func reset() {
-        currentPrompt = ""
+        measurementID = UUID()
+        isMeasuring = false
+        currentPrompt = Self.defaultPrompt
         instructionsTokens = 180
-        promptTokens = 120
+        promptTokens = 0
         schemaTokens = 520
         toolTokens = 740
         historyTokens = 1_240
         responseReserveTokens = 600
+        measuredPromptTokens = nil
+        errorMessage = nil
     }
 
     private var codeExample: String {

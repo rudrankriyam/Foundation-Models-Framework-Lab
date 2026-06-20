@@ -10,7 +10,9 @@ import FoundationModels
 import SwiftUI
 
 struct ModelRuntimeView: View {
-    @State private var currentPrompt = "Inspect the current Foundation Models runtime."
+    private static let defaultPrompt = "Inspect the current Foundation Models runtime."
+
+    @State private var currentPrompt = defaultPrompt
     @State private var report: ModelRuntimeReport?
     @State private var isInspecting = false
     @State private var errorMessage: String?
@@ -100,6 +102,7 @@ struct ModelRuntimeView: View {
 
     private func inspectRuntime() async {
         let id = UUID()
+        let prompt = currentPrompt
         inspectionID = id
         isInspecting = true
         errorMessage = nil
@@ -117,13 +120,13 @@ struct ModelRuntimeView: View {
 
         if #available(iOS 26.4, macOS 26.4, visionOS 26.4, *) {
             do {
-                let promptTokens = try await model.tokenCount(for: currentPrompt)
+                let promptTokens = try await model.tokenCount(for: prompt)
                 try Task.checkCancellation()
                 promptTokenDescription = tokenLabel(promptTokens)
             } catch is CancellationError {
                 return
             } catch {
-                guard inspectionID == id else { return }
+                guard inspectionID == id, currentPrompt == prompt else { return }
                 promptTokenDescription = String(localized: "Tokenization failed")
                 errorMessage = String(
                     localized: "The runtime was inspected, but the prompt could not be tokenized: \(error.localizedDescription)"
@@ -133,7 +136,7 @@ struct ModelRuntimeView: View {
             promptTokenDescription = String(localized: "Requires OS 26.4")
         }
 
-        guard inspectionID == id else { return }
+        guard inspectionID == id, currentPrompt == prompt else { return }
         report = ModelRuntimeReport(
             contextSize: model.contextSize,
             availability: availability.text,
@@ -146,7 +149,7 @@ struct ModelRuntimeView: View {
     private func reset() {
         inspectionID = UUID()
         isInspecting = false
-        currentPrompt = ""
+        currentPrompt = Self.defaultPrompt
         report = nil
         errorMessage = nil
     }
@@ -207,7 +210,10 @@ struct ModelRuntimeView: View {
         let model = SystemLanguageModel.default
         let availability = model.availability
         let contextSize = model.contextSize
-        let promptTokens = try await model.tokenCount(for: prompt)
+
+        if #available(iOS 26.4, macOS 26.4, visionOS 26.4, *) {
+            let promptTokens = try await model.tokenCount(for: prompt)
+        }
 
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) {
             let capabilities = model.capabilities

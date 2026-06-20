@@ -182,6 +182,7 @@ struct ContextBudgetVisualizerView: View {
         } catch is CancellationError {
             return
         } catch {
+            guard activeMeasurementID == measurementID, currentPrompt == prompt else { return }
             measurementNote = String(localized: "The model tokenizer is unavailable; no estimates are shown.")
         }
     }
@@ -189,12 +190,12 @@ struct ContextBudgetVisualizerView: View {
     private func reset() {
         activeMeasurementID = nil
         isRunning = false
-        currentPrompt = ""
+        currentPrompt = Self.defaultPrompt
         policy = .keepRecent
         responseReserve = 640
         measuredPromptTokens = nil
         measuredHistoryTokens = nil
-        measurementNote = String(localized: "Enter a prompt, then measure it with the sample transcript.")
+        measurementNote = String(localized: "Measure the prompt and sample transcript with the model tokenizer.")
     }
 
     private func invalidatePromptMeasurement() {
@@ -202,31 +203,76 @@ struct ContextBudgetVisualizerView: View {
         isRunning = false
         measuredPromptTokens = nil
         measuredHistoryTokens = nil
-        measurementNote = currentPrompt.isEmpty
-            ? String(localized: "Enter a prompt, then measure it with the sample transcript.")
-            : String(localized: "Prompt changed. Measure again to update the budget.")
+        if currentPrompt == Self.defaultPrompt {
+            measurementNote = String(localized: "Measure the prompt and sample transcript with the model tokenizer.")
+        } else if currentPrompt.isEmpty {
+            measurementNote = String(localized: "Enter a prompt, then measure it with the sample transcript.")
+        } else {
+            measurementNote = String(localized: "Prompt changed. Measure again to update the budget.")
+        }
     }
 
-    private var codeExample: String {
+}
+
+private extension ContextBudgetVisualizerView {
+    var historyPreparationCode: String {
+        switch policy {
+        case .preserveAll:
+            """
+            let preparedEntries = Array(session.transcript)
+            """
+        case .keepRecent:
+            """
+            let recentEntries = Array(session.transcript.suffix(5))
+            let recentIDs = Set(recentEntries.map(\\.id))
+            let instructions = session.transcript.filter { entry in
+                guard case .instructions = entry else { return false }
+                return !recentIDs.contains(entry.id)
+            }
+            let preparedEntries = instructions + recentEntries
+            """
+        case .summarizeEarlier:
+            """
+            let summary = Transcript.Entry.prompt(
+                Transcript.Prompt(segments: [
+                    .text(Transcript.TextSegment(
+                        content: "Earlier conversation summary supplied by the app."
+                    ))
+                ])
+            )
+            let recentEntries = Array(session.transcript.suffix(2))
+            let recentIDs = Set(recentEntries.map(\\.id))
+            let instructions = session.transcript.filter { entry in
+                guard case .instructions = entry else { return false }
+                return !recentIDs.contains(entry.id)
+            }
+            let preparedEntries = instructions + [summary] + recentEntries
+            """
+        }
+    }
+
+    var codeExample: String {
         """
+        \(historyPreparationCode)
+
         let model = SystemLanguageModel.default
         let contextSize = model.contextSize
-        let historyTokens = try await model.tokenCount(for: session.transcript)
+        let historyTokens = try await model.tokenCount(for: preparedEntries)
         let promptTokens = try await model.tokenCount(for: Prompt(prompt))
 
         let options = GenerationOptions(maximumResponseTokens: \(Int(responseReserve)))
         let requiredTokens = historyTokens + promptTokens + \(Int(responseReserve))
 
-        if requiredTokens > contextSize {
-            // App policy: rebuild a smaller Transcript before creating the next session.
-            let compactedEntries = preparedEntries(from: session.transcript)
-            session = LanguageModelSession(transcript: Transcript(entries: compactedEntries))
-        }
+        if requiredTokens <= contextSize {
+            let nextSession = LanguageModelSession(
+                transcript: Transcript(entries: preparedEntries)
+            )
 
-        do {
-            try await session.respond(to: prompt, options: options)
-        } catch LanguageModelSession.GenerationError.exceededContextWindowSize {
-            // Reduce history or start a fresh session, then retry intentionally.
+            do {
+                _ = try await nextSession.respond(to: prompt, options: options)
+            } catch LanguageModelError.contextSizeExceeded {
+                // Reduce history or start a fresh session, then retry intentionally.
+            }
         }
         """
     }

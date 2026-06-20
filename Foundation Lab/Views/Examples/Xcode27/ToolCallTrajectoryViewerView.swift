@@ -75,15 +75,15 @@ struct ToolCallTrajectoryViewerView: View {
 
     private var codeExample: String {
         """
-        let toolCallEntries = session.transcript.compactMap { entry in
+        let observedCalls = session.transcript.flatMap { entry -> [Transcript.ToolCall] in
             if case .toolCalls(let calls) = entry {
-                calls
+                Array(calls)
             } else {
-                nil
+                []
             }
         }
 
-        // Pass the observed calls and your declared expectation to an
+        // Pass observedCalls and your declared expectation to an
         // evaluation in the test target. Keep the full arguments when
         // correctness depends on more than tool names and order.
         """

@@ -74,14 +74,19 @@ struct DynamicProfileBuilderView: View {
         maximumResponseTokens: \(Int(maxTokens))
         reasoningLevel: .\(reasoningLevel.rawValue)
         toolCallingMode: .\(toolMode.rawValue)
+        tools: WeatherTool
         """
     }
 
     private var codeExample: String {
         """
+        import FoundationModels
+        import FoundationModelsTools
+
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) {
             let profile = LanguageModelSession.Profile {
-                DynamicInstructions("Be concise and developer-focused.")
+                Instructions("Be concise and developer-focused.")
+                WeatherTool()
             }
             .temperature(\(temperature.formatted(.number.precision(.fractionLength(2)))))
             .maximumResponseTokens(\(Int(maxTokens)))

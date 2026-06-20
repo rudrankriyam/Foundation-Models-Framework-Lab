@@ -179,6 +179,7 @@ private enum ProviderBridgeLayer: String, CaseIterable, Identifiable {
         switch self {
         case .protocols:
             return """
+            @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
             struct MyLanguageModel: LanguageModel {
                 typealias Executor = MyLanguageModelExecutor
 
@@ -190,6 +191,7 @@ private enum ProviderBridgeLayer: String, CaseIterable, Identifiable {
             """
         case .prewarm:
             return """
+            @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
             func prewarm(
                 model: MyLanguageModel,
                 transcript: Transcript
@@ -199,22 +201,28 @@ private enum ProviderBridgeLayer: String, CaseIterable, Identifiable {
             """
         case .transcript, .request:
             return """
+            @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
             func respond(
                 to request: LanguageModelExecutorGenerationRequest,
                 model: MyLanguageModel,
                 streamingInto channel: LanguageModelExecutorGenerationChannel
             ) async throws {
-                // Map request.transcript and the requested options.
+                let transcript = request.transcript
+                let options = request.generationOptions
+                // Translate transcript and options for the provider here.
             }
             """
         case .streaming:
             return """
+            @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
             func respond(
                 to request: LanguageModelExecutorGenerationRequest,
                 model: MyLanguageModel,
                 streamingInto channel: LanguageModelExecutorGenerationChannel
             ) async throws {
-                // Send incremental generation events to channel.
+                await channel.send(.response(
+                    action: .appendText("Hello", tokenCount: 1)
+                ))
                 // Returning or throwing finishes the channel.
             }
             """

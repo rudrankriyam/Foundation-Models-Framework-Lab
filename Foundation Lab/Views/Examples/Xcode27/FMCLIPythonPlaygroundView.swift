@@ -155,22 +155,31 @@ private enum ScriptingSurface: String, CaseIterable, Identifiable {
             return """
             fm --help
             fm chat
-            fm respond "Summarize this document." < notes.md
+            fm respond "Summarize this document."
             """
         case .python:
             return """
+            # Install first: python3 -m pip install apple_fm_sdk
+            import asyncio
             import apple_fm_sdk as fm
 
-            model = fm.SystemLanguageModel()
-            is_available, reason = model.is_available()
+            async def main() -> None:
+                model = fm.SystemLanguageModel()
+                is_available, reason = model.is_available()
 
-            if is_available:
+                if not is_available:
+                    print(f"Model unavailable: {reason}")
+                    return
+
                 session = fm.LanguageModelSession(model=model)
                 response = await session.respond(prompt="Hello!")
                 print(response)
+
+            asyncio.run(main())
             """
         case .evaluation:
             return """
+            # Install first: python3 -m pip install apple_fm_sdk
             import apple_fm_sdk as fm
 
             async def collect_results(prompts: list[str]) -> list[dict[str, str]]:

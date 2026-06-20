@@ -229,14 +229,20 @@ private enum AgentTurnPhase: String, CaseIterable, Identifiable {
         switch self {
         case .profile:
             """
-            let profile = LanguageModelSession.Profile {
-                DynamicInstructions("Help with the current task.")
-                SearchTool()
-            }
-            .model(SystemLanguageModel.default)
-            .toolCallingMode(.allowed)
+            import FoundationLabCore
+            import FoundationModels
 
-            let session = LanguageModelSession(profile: profile)
+            @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+            func makeSession() -> LanguageModelSession {
+                let profile = LanguageModelSession.Profile {
+                    Instructions("Help with the current task.")
+                    Search1WebSearchTool()
+                }
+                .model(SystemLanguageModel.default)
+                .toolCallingMode(.allowed)
+
+                return LanguageModelSession(profile: profile)
+            }
             """
         case .generation:
             """
@@ -249,15 +255,21 @@ private enum AgentTurnPhase: String, CaseIterable, Identifiable {
             """
         case .tools:
             """
-            LanguageModelSession.Profile {
-                SearchTool()
-            }
-            .toolCallingMode(.allowed)
-            .onToolCall { call in
-                // Log or apply app-owned authorization policy.
-            }
-            .onToolOutput { call, output in
-                // Record the observed output.
+            import FoundationLabCore
+            import FoundationModels
+
+            @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+            func makeProfile() -> some LanguageModelSession.DynamicProfile {
+                LanguageModelSession.Profile {
+                    Search1WebSearchTool()
+                }
+                .toolCallingMode(.allowed)
+                .onToolCall { call in
+                    // Log or apply app-owned authorization policy.
+                }
+                .onToolOutput { call, output in
+                    // Record the observed output.
+                }
             }
             """
         case .transcript:

@@ -106,7 +106,7 @@ private enum ReasoningComparisonLevel: String, CaseIterable, Identifiable {
             let session = LanguageModelSession()
             let response = try await session.respond(
                 to: Prompt("Plan the migration."),
-                context: context
+                contextOptions: context
             )
         }
         """

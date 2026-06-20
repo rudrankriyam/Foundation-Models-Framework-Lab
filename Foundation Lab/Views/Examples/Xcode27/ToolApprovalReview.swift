@@ -32,14 +32,26 @@ struct ToolApprovalReview: View {
                     .foregroundStyle(.secondary)
 
                 if decision.awaitsDecision {
-                    HStack(spacing: Spacing.small) {
-                        Button("Deny", systemImage: "xmark", action: deny)
-                            .buttonStyle(.bordered)
-                            .frame(maxWidth: .infinity)
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: Spacing.small) {
+                            Button("Deny", systemImage: "xmark", action: deny)
+                                .buttonStyle(.bordered)
+                                .frame(maxWidth: .infinity)
 
-                        Button("Approve demo", systemImage: "checkmark", action: approve)
-                            .buttonStyle(.borderedProminent)
-                            .frame(maxWidth: .infinity)
+                            Button("Approve demo", systemImage: "checkmark", action: approve)
+                                .buttonStyle(.borderedProminent)
+                                .frame(maxWidth: .infinity)
+                        }
+
+                        VStack(spacing: Spacing.small) {
+                            Button("Deny", systemImage: "xmark", action: deny)
+                                .buttonStyle(.bordered)
+                                .frame(maxWidth: .infinity)
+
+                            Button("Approve demo", systemImage: "checkmark", action: approve)
+                                .buttonStyle(.borderedProminent)
+                                .frame(maxWidth: .infinity)
+                        }
                     }
                 }
             }

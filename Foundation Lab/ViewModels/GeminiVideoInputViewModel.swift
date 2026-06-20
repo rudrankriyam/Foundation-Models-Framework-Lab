@@ -8,7 +8,6 @@
 import Foundation
 import FoundationModels
 import Observation
-import UniformTypeIdentifiers
 
 #if compiler(>=6.4)
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
@@ -18,6 +17,7 @@ import UniformTypeIdentifiers
 @Observable
 final class GeminiVideoInputViewModel {
     static let modelName = "gemini-3.5-flash"
+    nonisolated static let maximumInlineVideoByteCount = 14_000_000
     static let defaultPrompt = """
     Return exactly three concise bullets: (1) describe the cracked terrain and distant horizon, (2) describe how \
     the storm clouds and rain shafts move and how the light changes, and (3) summarize the color palette and mood \
@@ -96,6 +96,7 @@ extension GeminiVideoInputViewModel {
         cancelAnalysis()
         videoURL = url
         result = ""
+        resultIsSuccess = false
         errorMessage = nil
     }
 
@@ -221,6 +222,11 @@ private extension GeminiVideoInputViewModel {
         }
 
         let mimeType = try mimeType(for: url)
+        let fileSize = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize
+        if let fileSize, fileSize > maximumInlineVideoByteCount {
+            throw GeminiVideoInputError.videoTooLarge(fileSize)
+        }
+
         let file = try FileHandle(forReadingFrom: url)
         defer {
             try? file.close()
@@ -230,6 +236,9 @@ private extension GeminiVideoInputViewModel {
         while let chunk = try file.read(upToCount: 1_048_576), !chunk.isEmpty {
             try Task.checkCancellation()
             data.append(chunk)
+            if data.count > maximumInlineVideoByteCount {
+                throw GeminiVideoInputError.videoTooLarge(data.count)
+            }
         }
         try Task.checkCancellation()
 
@@ -237,12 +246,21 @@ private extension GeminiVideoInputViewModel {
     }
 
     nonisolated static func mimeType(for url: URL) throws -> String {
-        let resourceType = try? url.resourceValues(forKeys: [.contentTypeKey]).contentType
-        let fileType = resourceType ?? UTType(filenameExtension: url.pathExtension)
+        let supportedTypes = [
+            "mp4": "video/mp4",
+            "mpeg": "video/mpeg",
+            "mpe": "video/mpeg",
+            "mov": "video/quicktime",
+            "avi": "video/avi",
+            "flv": "video/x-flv",
+            "mpg": "video/mpg",
+            "webm": "video/webm",
+            "wmv": "video/wmv",
+            "3gp": "video/3gpp"
+        ]
+        let mimeType = supportedTypes[url.pathExtension.lowercased()]
 
-        guard let fileType,
-              fileType.conforms(to: .movie),
-              let mimeType = fileType.preferredMIMEType else {
+        guard let mimeType else {
             throw GeminiVideoInputError.unsupportedVideoFormat(url.pathExtension)
         }
 
@@ -263,12 +281,16 @@ private struct LoadedVideo: Sendable {
 
 private enum GeminiVideoInputError: LocalizedError {
     case unsupportedVideoFormat(String)
+    case videoTooLarge(Int)
 
     var errorDescription: String? {
         switch self {
         case let .unsupportedVideoFormat(pathExtension):
             let format = pathExtension.isEmpty ? String(localized: "unknown") : pathExtension.uppercased()
             return String(localized: "The selected \(format) file does not have a recognized video MIME type.")
+        case let .videoTooLarge(byteCount):
+            let size = ByteCountFormatter.string(fromByteCount: Int64(byteCount), countStyle: .file)
+            return String(localized: "The selected video is \(size). Choose a video under 14 MB.")
         }
     }
 }

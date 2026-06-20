@@ -107,7 +107,7 @@ struct GeminiVideoInputView: View {
                 ContentUnavailableView(
                     "Sample Video Missing",
                     systemImage: "video.slash",
-                    description: Text("Choose an MP4, MOV, or M4V file to continue.")
+                    description: Text("This inline demo accepts supported movie files under 14 MB.")
                 )
 
                 Button("Choose Video", action: chooseVideo)
@@ -130,18 +130,28 @@ struct GeminiVideoInputView: View {
             }
 
             if viewModel.isRunning {
-                Button(role: .cancel, action: viewModel.cancelAnalysis) {
-                    Label("Stop", systemImage: "stop.fill")
-                        .frame(maxWidth: .infinity)
+                HStack {
+                    Button("Reset", action: viewModel.reset)
+                        .buttonStyle(.glass)
+
+                    Button(role: .cancel, action: viewModel.cancelAnalysis) {
+                        Label("Stop", systemImage: "stop.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.glassProminent)
                 }
-                .buttonStyle(.glassProminent)
                 .controlSize(.large)
             } else {
-                Button("Analyze Video", systemImage: "play.fill", action: viewModel.startAnalysis)
-                    .buttonStyle(.glassProminent)
-                    .controlSize(.large)
-                    .frame(maxWidth: .infinity)
-                    .disabled(viewModel.prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                HStack {
+                    Button("Reset", action: viewModel.reset)
+                        .buttonStyle(.glass)
+
+                    Button("Analyze Video", systemImage: "play.fill", action: viewModel.startAnalysis)
+                        .buttonStyle(.glassProminent)
+                        .frame(maxWidth: .infinity)
+                        .disabled(viewModel.prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+                .controlSize(.large)
             }
         }
     }

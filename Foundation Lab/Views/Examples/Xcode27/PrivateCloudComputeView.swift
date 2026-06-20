@@ -10,31 +10,53 @@ import FoundationModels
 import SwiftUI
 
 struct PrivateCloudComputeView: View {
-    @State private var currentPrompt = "Inspect Private Cloud Compute availability."
     @State private var report = PrivateCloudComputeReport.pending
     @State private var isInspecting = false
     @State private var inspectionID = UUID()
     @State private var errorMessage: String?
+    @State private var inspectionTask: Task<Void, Never>?
 
     var body: some View {
-        ExampleViewBase(
-            title: String(localized: "Private Cloud"),
-            description: String(localized: "Probe PCC availability, quota, and context size"),
-            currentPrompt: $currentPrompt,
-            isRunning: isInspecting,
-            errorMessage: errorMessage,
-            codeExample: codeExample,
-            onRun: inspect,
-            onReset: reset
-        ) {
-            VStack(spacing: Spacing.medium) {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Spacing.large) {
+                Text("Probe PCC availability, quota, and context size")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                HStack(spacing: Spacing.small) {
+                    Button(action: reset) {
+                        Text("Reset")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.glass)
+
+                    Button(action: toggleInspection) {
+                        Label(
+                            isExecuting ? String(localized: "Stop") : String(localized: "Inspect"),
+                            systemImage: isExecuting ? "stop.fill" : "magnifyingglass"
+                        )
+                        .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.glassProminent)
+                }
+                .controlSize(.large)
+
+                if let errorMessage {
+                    Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
+                        .font(.callout)
+                        .foregroundStyle(.red)
+                        .padding(Spacing.medium)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(.red.opacity(0.08), in: .rect(cornerRadius: CornerRadius.medium))
+                }
+
                 Xcode27Section(String(localized: "Runtime Status")) {
                     VStack(spacing: 0) {
                         Xcode27StatusRow(
                             title: String(localized: "Availability"),
                             value: report.availability,
-                            systemImage: report.isAvailable ? "checkmark.icloud.fill" : "icloud.slash",
-                            tint: report.isAvailable ? .green : .orange
+                            systemImage: report.availabilitySystemImage,
+                            tint: report.availabilityTint
                         )
 
                         Divider()
@@ -62,11 +84,48 @@ struct PrivateCloudComputeView: View {
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
+
+                CodeDisclosure(code: codeExample)
             }
+            .frame(maxWidth: 900, alignment: .leading)
+            .padding(.horizontal, Spacing.medium)
+            .padding(.vertical, Spacing.large)
+            .frame(maxWidth: .infinity)
+        }
+        .navigationTitle("Private Cloud")
+#if os(iOS)
+        .navigationBarTitleDisplayMode(.large)
+#endif
+        .onDisappear(perform: cancelInspection)
+    }
+}
+
+private extension PrivateCloudComputeView {
+    var isExecuting: Bool {
+        isInspecting || inspectionTask != nil
+    }
+
+    func toggleInspection() {
+        if isExecuting {
+            cancelInspection()
+            return
+        }
+
+        inspectionTask = Task {
+            await inspect()
+            guard !Task.isCancelled else { return }
+            inspectionTask = nil
         }
     }
 
-    private func inspect() async {
+    func cancelInspection() {
+        inspectionID = UUID()
+        inspectionTask?.cancel()
+        inspectionTask = nil
+        isInspecting = false
+    }
+
+    func inspect() async {
         let id = UUID()
         inspectionID = id
         isInspecting = true
@@ -135,17 +194,15 @@ struct PrivateCloudComputeView: View {
         #endif
     }
 
-    private func reset() {
-        inspectionID = UUID()
-        isInspecting = false
-        currentPrompt = ""
+    func reset() {
+        cancelInspection()
         report = .pending
         errorMessage = nil
     }
 
     #if compiler(>=6.4)
     @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
-    private func unavailableReasonDescription(
+    func unavailableReasonDescription(
         _ reason: PrivateCloudComputeLanguageModel.Availability.UnavailableReason
     ) -> String {
         switch reason {
@@ -159,7 +216,7 @@ struct PrivateCloudComputeView: View {
     }
 
     @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
-    private func quotaDescription(
+    func quotaDescription(
         _ quotaUsage: PrivateCloudComputeLanguageModel.QuotaUsage
     ) -> String {
         switch quotaUsage.status {
@@ -178,7 +235,7 @@ struct PrivateCloudComputeView: View {
     }
     #endif
 
-    private var codeExample: String {
+    var codeExample: String {
         """
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) {
             let model = PrivateCloudComputeLanguageModel()
@@ -195,18 +252,38 @@ struct PrivateCloudComputeView: View {
 private struct PrivateCloudComputeReport {
     var availability: String
     var isAvailable: Bool
+    var hasBeenInspected = true
     var contextSize: Int?
     var quota: String
     var quotaLimitReached: Bool
     var supportedLanguages: String
 
+    var availabilitySystemImage: String {
+        if !hasBeenInspected {
+            "questionmark.circle"
+        } else if isAvailable {
+            "checkmark.icloud.fill"
+        } else {
+            "icloud.slash"
+        }
+    }
+
+    var availabilityTint: Color {
+        if !hasBeenInspected {
+            .secondary
+        } else {
+            isAvailable ? .green : .orange
+        }
+    }
+
     static let pending = PrivateCloudComputeReport(
         availability: String(localized: "Not inspected yet"),
         isAvailable: false,
+        hasBeenInspected: false,
         contextSize: nil,
         quota: String(localized: "Not inspected yet"),
         quotaLimitReached: false,
-        supportedLanguages: String(localized: "Tap Run to inspect PCC language support.")
+        supportedLanguages: String(localized: "Not inspected yet")
     )
 
     static let unsupported = PrivateCloudComputeReport(

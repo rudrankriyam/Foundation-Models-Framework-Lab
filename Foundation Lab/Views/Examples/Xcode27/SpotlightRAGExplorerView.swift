@@ -200,11 +200,13 @@ private enum SpotlightRAGStage: String, CaseIterable, Identifiable {
             import CoreSpotlight
             import FoundationModels
 
-            let tool = SpotlightSearchTool()
-            let session = LanguageModelSession(tools: [tool])
-            let response = try await session.respond(
-                to: "What did I decide about the Kyoto itinerary?"
-            )
+            if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) {
+                let tool = SpotlightSearchTool()
+                let session = LanguageModelSession(tools: [tool])
+                let response = try await session.respond(
+                    to: "What did I decide about the Kyoto itinerary?"
+                )
+            }
             """
         case .evaluate:
             return """
