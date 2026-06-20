@@ -11,7 +11,6 @@ import SwiftUI
 
 struct ContextBudgetVisualizerView: View {
     private static let defaultPrompt = "Use the latest research and our earlier decisions to propose the next three implementation steps."
-    private static let initialContextSize = SystemLanguageModel.default.contextSize
 
     @State private var currentPrompt = defaultPrompt
     @State private var policy = ContextBudgetPolicy.keepRecent
@@ -28,7 +27,7 @@ struct ContextBudgetVisualizerView: View {
 
     private var simulation: ContextBudgetSimulation {
         ContextBudgetSimulation(
-            contextSize: measuredContextSize ?? Self.initialContextSize,
+            contextSize: measuredContextSize ?? 0,
             promptTokens: measuredPromptTokens,
             historyTokenCounts: measuredHistoryTokens,
             responseReserve: Int(responseReserve),
@@ -144,7 +143,9 @@ struct ContextBudgetVisualizerView: View {
             }
         }
     }
+}
 
+private extension ContextBudgetVisualizerView {
     private func runSimulation() async {
         let prompt = currentPrompt
         let measurementID = UUID()
@@ -165,7 +166,6 @@ struct ContextBudgetVisualizerView: View {
         do {
             if #available(iOS 26.4, macOS 26.4, visionOS 26.4, *) {
                 let model = SystemLanguageModel.default
-                let contextSize = model.contextSize
                 let promptTokens = try await model.tokenCount(for: Prompt(prompt))
                 var historyTokens: [String: Int] = [:]
 
@@ -174,12 +174,20 @@ struct ContextBudgetVisualizerView: View {
                     historyTokens[sample.id] = try await model.tokenCount(for: sample.transcriptEntries)
                 }
 
+                guard let contextSize = try await readyContextSize(for: model) else {
+                    guard activeMeasurementID == measurementID, currentPrompt == prompt else { return }
+                    let message = String(
+                        localized: "The on-device model is still preparing. Try again when Apple Intelligence is ready."
+                    )
+                    errorMessage = message
+                    measurementNote = message
+                    return
+                }
+
                 try Task.checkCancellation()
                 guard activeMeasurementID == measurementID, currentPrompt == prompt else { return }
 
-                if contextSize > 0 {
-                    measuredContextSize = contextSize
-                }
+                measuredContextSize = contextSize
                 measuredPromptTokens = promptTokens
                 measuredHistoryTokens = historyTokens
                 measurementNote = String(localized: "Measured with SystemLanguageModel.tokenCount(for:).")
@@ -195,6 +203,20 @@ struct ContextBudgetVisualizerView: View {
             errorMessage = error.localizedDescription
             measurementNote = error.localizedDescription
         }
+    }
+
+    private func readyContextSize(for model: SystemLanguageModel) async throws -> Int? {
+        for attempt in 0..<5 {
+            try Task.checkCancellation()
+            let contextSize = model.contextSize
+            if contextSize > 0 {
+                return contextSize
+            }
+            if attempt < 4 {
+                try await Task.sleep(for: .milliseconds(250))
+            }
+        }
+        return nil
     }
 
     private func reset() {
