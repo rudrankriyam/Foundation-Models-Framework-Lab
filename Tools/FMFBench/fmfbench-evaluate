@@ -1,0 +1,37 @@
+#!/bin/zsh
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "$0")" && pwd)"
+package_path="$script_dir/Evaluations"
+framework_suffix="Platforms/MacOSX.platform/Developer/Library/Frameworks/Evaluations.framework/Evaluations"
+
+if [[ -n "${DEVELOPER_DIR:-}" ]]; then
+  candidates=("$DEVELOPER_DIR")
+else
+  candidates=(
+    "/Applications/Xcode-beta.app/Contents/Developer"
+    "/Applications/Xcode.app/Contents/Developer"
+    /Applications/Xcode*.app/Contents/Developer(N)
+    "$HOME"/Applications/Xcode*.app/Contents/Developer(N)
+    "$HOME"/Downloads/Xcode*.app/Contents/Developer(N)
+  )
+fi
+
+selected_developer_dir=""
+for candidate in "${candidates[@]}"; do
+  if [[ -e "$candidate/$framework_suffix" ]]; then
+    selected_developer_dir="$candidate"
+    break
+  fi
+done
+
+if [[ -z "$selected_developer_dir" ]]; then
+  print -u2 "Xcode 27 with Evaluations.framework was not found."
+  print -u2 "Set DEVELOPER_DIR to Xcode 27's Contents/Developer directory."
+  exit 1
+fi
+
+exec env DEVELOPER_DIR="$selected_developer_dir" \
+  /usr/bin/xcrun swift run --quiet \
+  --package-path "$package_path" \
+  fmfbench-evaluate "$@"

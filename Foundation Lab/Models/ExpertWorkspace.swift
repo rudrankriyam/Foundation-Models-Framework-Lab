@@ -7,7 +7,7 @@ import Foundation
 
 enum ExpertWorkspace: String, Hashable, Identifiable {
     case adapterComparison
-    case fmBench
+    case fmfBench
 
     var id: Self { self }
 
@@ -15,8 +15,8 @@ enum ExpertWorkspace: String, Hashable, Identifiable {
         switch self {
         case .adapterComparison:
             String(localized: "Adapter Comparison")
-        case .fmBench:
-            String(localized: "FMBench")
+        case .fmfBench:
+            String(localized: "FMFBench")
         }
     }
 
@@ -24,7 +24,7 @@ enum ExpertWorkspace: String, Hashable, Identifiable {
         switch self {
         case .adapterComparison:
             String(localized: "Compare a custom .fmadapter package with the base system model.")
-        case .fmBench:
+        case .fmfBench:
             String(localized: "Run repeatable app-shaped quality and performance evaluations.")
         }
     }
@@ -33,7 +33,7 @@ enum ExpertWorkspace: String, Hashable, Identifiable {
         switch self {
         case .adapterComparison:
             "square.split.2x1"
-        case .fmBench:
+        case .fmfBench:
             "gauge.with.dots.needle.67percent"
         }
     }
