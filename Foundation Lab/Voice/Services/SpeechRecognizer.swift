@@ -261,7 +261,17 @@ class SpeechRecognizer: NSObject, SpeechRecognitionService {
 #if os(iOS)
     @concurrent
     nonisolated private static func deactivateAudioSession() async throws {
-        try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        let audioSession = AVAudioSession.sharedInstance()
+        #if compiler(>=6.4)
+        if #available(iOS 27.0, *) {
+            let didDeactivate = try await audioSession.deactivate(options: .notifyOthersOnDeactivation)
+            guard didDeactivate else {
+                throw SpeechRecognitionError.audioSessionFailed
+            }
+            return
+        }
+        #endif
+        try audioSession.setActive(false, options: .notifyOthersOnDeactivation)
     }
 #endif
 
