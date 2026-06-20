@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AppBenchStudioContent: View {
-    let stage: StudioPipelineStage
+    let stage: ExpertWorkspaceStage
 
     var body: some View {
         switch stage {

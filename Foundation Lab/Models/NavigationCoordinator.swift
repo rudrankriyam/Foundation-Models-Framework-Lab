@@ -5,8 +5,9 @@
 //  Created by Rudrank Riyam on 6/25/25.
 //
 
-import SwiftUI
+import FoundationLabCore
 import Observation
+import SwiftUI
 
 @Observable
 @MainActor
@@ -36,7 +37,9 @@ final class NavigationCoordinator {
     }
 
     public func navigateToExample(_ example: ExampleType) {
-        if example == .chat {
+        if let configuration = ExperimentTemplate.recipeConfiguration(for: example) {
+            openRecipe(configuration)
+        } else if example == .chat {
             openPlayground()
         } else {
             tabSelection = .library
@@ -46,11 +49,8 @@ final class NavigationCoordinator {
         }
     }
 
-    public func navigateToTool(_ tool: ToolExample) {
-        tabSelection = .library
-        splitViewSelection = .library
-        libraryPath = NavigationPath()
-        libraryPath.append(tool)
+    public func navigateToTool(_ tool: FoundationLabBuiltInTool) {
+        openRecipe(ExperimentTemplate.recipeConfiguration(for: tool))
     }
 
     public func navigateToSchema(_ schema: DynamicSchemaExampleType) {
@@ -84,5 +84,10 @@ final class NavigationCoordinator {
     public func openRuns() {
         tabSelection = .runs
         splitViewSelection = .runs
+    }
+
+    private func openRecipe(_ configuration: FoundationLabExperimentConfiguration) {
+        ExperimentStore.shared.load(configuration.asNewExperiment())
+        openPlayground()
     }
 }

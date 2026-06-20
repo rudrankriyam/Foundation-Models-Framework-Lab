@@ -35,7 +35,10 @@ struct AdaptiveNavigationView: View {
         .environment(languageService)
         .environment(navigationCoordinator)
         .environment(experimentStore)
-        .onAppear(perform: navigationCoordinator.activate)
+        .onAppear {
+            navigationCoordinator.activate()
+            experimentStore.activate()
+        }
         .onChange(of: navigationCoordinator.tabSelection) { oldValue, newValue in
             if oldValue == .playground, newValue != .playground {
                 playgroundViewModel.tearDown()

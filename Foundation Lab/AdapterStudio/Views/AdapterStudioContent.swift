@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AdapterStudioContent: View {
-    let stage: StudioPipelineStage
+    let stage: ExpertWorkspaceStage
 
 #if os(macOS)
     let viewModel: AdapterStudioViewModel

@@ -77,7 +77,7 @@ struct StudioView: View {
         if selectedWorkspace == .adapterComparison {
             adapterStudioContent
         } else if selectedWorkspace == .benchmarkRuns {
-            AppBenchStudioContent(stage: selectedStage)
+            AppBenchStudioContent(stage: expertWorkspaceStage)
         } else {
             StudioPromptStageView(
                 stage: $selectedStage,
@@ -94,12 +94,16 @@ struct StudioView: View {
     private var adapterStudioContent: some View {
 #if os(macOS)
         AdapterStudioContent(
-            stage: selectedStage,
+            stage: expertWorkspaceStage,
             viewModel: adapterStudioViewModel
         )
 #else
-        AdapterStudioContent(stage: selectedStage)
+        AdapterStudioContent(stage: expertWorkspaceStage)
 #endif
+    }
+
+    private var expertWorkspaceStage: ExpertWorkspaceStage {
+        ExpertWorkspaceStage(rawValue: selectedStage.rawValue) ?? .settings
     }
 
     private var studioInspector: some View {

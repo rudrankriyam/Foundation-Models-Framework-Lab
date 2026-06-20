@@ -10,7 +10,12 @@ import Observation
 @MainActor
 @Observable
 final class ExperimentStore {
-    static let shared = ExperimentStore()
+    private static let fallback = ExperimentStore()
+    private static weak var activeStore: ExperimentStore?
+
+    static var shared: ExperimentStore {
+        activeStore ?? fallback
+    }
 
     var activeExperiment: FoundationLabExperimentConfiguration {
         didSet {
@@ -94,6 +99,10 @@ final class ExperimentStore {
 }
 
 extension ExperimentStore {
+    func activate() {
+        Self.activeStore = self
+    }
+
     func load(_ configuration: FoundationLabExperimentConfiguration) {
         activeExperiment = configuration.normalized
         activeExperimentLoadRevision += 1

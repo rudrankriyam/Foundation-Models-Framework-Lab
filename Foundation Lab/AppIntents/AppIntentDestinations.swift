@@ -6,6 +6,7 @@
 //
 
 import AppIntents
+import FoundationLabCore
 
 enum ExampleDestination: String, AppEnum, CaseIterable {
     case basicChat
@@ -85,7 +86,7 @@ enum ToolDestination: String, AppEnum, CaseIterable {
         .webMetadata: DisplayRepresentation(title: "Web Metadata")
     ]
 
-    var tool: ToolExample {
+    var tool: FoundationLabBuiltInTool {
         switch self {
         case .weather:
             return .weather

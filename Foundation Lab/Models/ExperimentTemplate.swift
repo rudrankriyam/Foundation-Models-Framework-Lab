@@ -68,10 +68,36 @@ enum ExperimentLibraryCatalog: String, Hashable, Identifiable {
 }
 
 enum ExperimentLaunch: Hashable {
-    case playground(FoundationLabExperimentConfiguration)
-    case example(ExampleType)
-    case tool(ToolExample)
-    case catalog(ExperimentLibraryCatalog)
+    case recipe(FoundationLabExperimentConfiguration)
+    case guidedLab(ExampleType)
+    case workshop(ExperimentLibraryCatalog)
+    case workspace(ExpertWorkspace)
+
+    var displayName: String {
+        switch self {
+        case .recipe:
+            String(localized: "Recipe")
+        case .guidedLab:
+            String(localized: "Guided Lab")
+        case .workshop:
+            String(localized: "Workshop")
+        case .workspace:
+            String(localized: "Workspace")
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .recipe:
+            "slider.horizontal.3"
+        case .guidedLab:
+            "book.pages"
+        case .workshop:
+            "square.grid.2x2"
+        case .workspace:
+            "macwindow.and.cursorarrow"
+        }
+    }
 }
 
 struct ExperimentTemplate: Identifiable, Hashable {
@@ -126,7 +152,7 @@ extension ExperimentTemplate {
             systemImage: "plus.square",
             level: .beginner,
             track: .startHere,
-            launch: .playground(
+            launch: .recipe(
                 localizedConfiguration(FoundationLabExperimentConfiguration(
                     name: ""
                 ))
@@ -140,7 +166,7 @@ extension ExperimentTemplate {
             systemImage: "ellipsis.message",
             level: .beginner,
             track: .startHere,
-            launch: .playground(
+            launch: .recipe(
                 localizedConfiguration(FoundationLabExperimentConfiguration(
                     name: "One-shot Prompt",
                     summary: "The shortest path from a prompt to a model response",
@@ -152,12 +178,25 @@ extension ExperimentTemplate {
             ),
             keywords: ["basic", "prompt", "first response"]
         ),
-        template(
-            .streamingResponse,
+        ExperimentTemplate(
             id: "streaming",
+            title: "Streaming Response",
+            summary: "Watch a response arrive incrementally in real time.",
+            systemImage: "text.line.first.and.arrowtriangle.forward",
             level: .beginner,
             track: .startHere,
-            summary: "Watch a response arrive incrementally in real time."
+            launch: .recipe(
+                localizedConfiguration(FoundationLabExperimentConfiguration(
+                    name: "Streaming Response",
+                    summary: "See the model response appear as it is generated",
+                    prompt: "Write a short field guide for observing the night sky from a city balcony.",
+                    instructions: "Use a brief introduction followed by five practical tips.",
+                    level: .beginner,
+                    kind: .generation,
+                    generationOptions: FoundationLabGenerationOptions(maximumResponseTokens: 320)
+                ))
+            ),
+            keywords: ["stream", "incremental", "live response"]
         ),
         ExperimentTemplate(
             id: "guided-conversation",
@@ -166,7 +205,7 @@ extension ExperimentTemplate {
             systemImage: "bubble.left.and.text.bubble.right",
             level: .beginner,
             track: .startHere,
-            launch: .playground(
+            launch: .recipe(
                 localizedConfiguration(FoundationLabExperimentConfiguration(
                     name: "Guided Conversation",
                     summary: "Learn how instructions shape a response",
@@ -188,7 +227,7 @@ extension ExperimentTemplate {
             systemImage: "wrench.and.screwdriver",
             level: .advanced,
             track: .buildWithTools,
-            launch: .playground(
+            launch: .recipe(
                 localizedConfiguration(FoundationLabExperimentConfiguration(
                     name: "Tool-Enabled Assistant",
                     summary: "A customizable assistant grounded by live tools",
@@ -201,16 +240,16 @@ extension ExperimentTemplate {
             ),
             keywords: ["agent", "custom", "composer", "multiple tools"]
         )
-    ] + ToolExample.allCases.map { tool in
+    ] + FoundationLabBuiltInTool.allCases.map { tool in
         ExperimentTemplate(
             id: "tool-\(tool.rawValue)",
             title: tool.displayName,
             summary: toolLibrarySummary(tool),
-            systemImage: tool.icon,
+            systemImage: tool.systemImage,
             level: toolLibraryLevel(tool),
             track: .buildWithTools,
-            launch: .tool(tool),
-            keywords: ["tool calling", "system integration", tool.shortDescription]
+            launch: .recipe(toolRecipeConfiguration(tool)),
+            keywords: ["tool calling", "system integration", tool.summary]
         )
     }
 
@@ -236,7 +275,7 @@ extension ExperimentTemplate {
             systemImage: "curlybraces.square",
             level: .advanced,
             track: .structuredOutput,
-            launch: .catalog(.schemas),
+            launch: .workshop(.schemas),
             keywords: ["schema", "generable", "json", "invoice", "form"]
         )
     ]
@@ -249,12 +288,29 @@ extension ExperimentTemplate {
             track: .contextAndRuntime,
             summary: "Check whether the system model is ready before starting work."
         ),
-        template(
-            .generationOptions,
+        ExperimentTemplate(
             id: "generation-options",
+            title: "Generation Options",
+            summary: "Tune sampling and response limits, then compare the output.",
+            systemImage: "slider.horizontal.3",
             level: .intermediate,
             track: .contextAndRuntime,
-            summary: "Tune sampling and response limits, then compare the output."
+            launch: .recipe(
+                localizedConfiguration(FoundationLabExperimentConfiguration(
+                    name: "Generation Options",
+                    summary: "Compare a deliberate sampling setup with the defaults",
+                    prompt: "Propose three names for a privacy-first journaling app and explain the strongest choice.",
+                    instructions: "Keep each name distinctive and make the comparison concrete.",
+                    level: .intermediate,
+                    kind: .generation,
+                    generationOptions: FoundationLabGenerationOptions(
+                        sampling: .randomTop(40, seed: 42),
+                        temperature: 0.7,
+                        maximumResponseTokens: 320
+                    )
+                ))
+            ),
+            keywords: ["sampling", "temperature", "tokens", "seed"]
         ),
         template(
             .modelRuntime,
@@ -280,19 +336,48 @@ extension ExperimentTemplate {
     ]
 
     private static let appliedTemplates: [ExperimentTemplate] = [
-        template(
-            .journaling,
+        ExperimentTemplate(
             id: "journaling",
+            title: "Journaling",
+            summary: "Turn free-form reflections into thoughtful prompts and summaries.",
+            systemImage: "book.closed",
             level: .beginner,
             track: .appliedProjects,
-            summary: "Turn free-form reflections into thoughtful prompts and summaries."
+            launch: .recipe(
+                localizedConfiguration(FoundationLabExperimentConfiguration(
+                    name: "Journaling",
+                    summary: "Transform a reflection into a useful, compassionate summary",
+                    prompt: "I felt scattered this morning, but a quiet walk helped me focus on the work that matters.",
+                    instructions: "Summarize the reflection without diagnosing. Then offer one gentle follow-up question.",
+                    level: .beginner,
+                    kind: .applied,
+                    generationOptions: FoundationLabGenerationOptions(maximumResponseTokens: 220)
+                ))
+            ),
+            keywords: ["reflection", "summary", "writing"]
         ),
-        template(
-            .creativeWriting,
+        ExperimentTemplate(
             id: "creative-writing",
+            title: "Creative Writing",
+            summary: "Explore how prompt changes shape creative output.",
+            systemImage: "pencil.and.outline",
             level: .beginner,
             track: .appliedProjects,
-            summary: "Explore how prompt changes shape creative output."
+            launch: .recipe(
+                localizedConfiguration(FoundationLabExperimentConfiguration(
+                    name: "Creative Writing",
+                    summary: "Experiment with voice, constraints, and revision",
+                    prompt: "Write a scene about a lighthouse keeper receiving an impossible weather report.",
+                    instructions: "Use vivid but economical prose, no more than 350 words, and end on an unresolved image.",
+                    level: .beginner,
+                    kind: .generation,
+                    generationOptions: FoundationLabGenerationOptions(
+                        temperature: 0.9,
+                        maximumResponseTokens: 520
+                    )
+                ))
+            ),
+            keywords: ["story", "creative", "revision", "constraints"]
         ),
         template(
             .rag,
@@ -315,7 +400,7 @@ extension ExperimentTemplate {
             systemImage: "character.book.closed",
             level: .intermediate,
             track: .appliedProjects,
-            launch: .catalog(.languages),
+            launch: .workshop(.languages),
             keywords: ["languages", "localization", "translation", "multilingual"]
         )
     ]
@@ -328,7 +413,7 @@ extension ExperimentTemplate {
             systemImage: "point.topleft.down.curvedto.point.bottomright.up",
             level: .expert,
             track: .advancedWorkflows,
-            launch: .playground(
+            launch: .recipe(
                 localizedConfiguration(FoundationLabExperimentConfiguration(
                     name: "Agent Workbench",
                     summary: "An expert workspace for composing a multi-tool agent",
@@ -382,6 +467,26 @@ extension ExperimentTemplate {
             level: .expert,
             track: .advancedWorkflows,
             summary: "Bridge a custom video-capable model into LanguageModelSession."
+        ),
+        ExperimentTemplate(
+            id: "adapter-comparison",
+            title: "Adapter Comparison",
+            summary: "Compare a custom .fmadapter package against the base model in fresh sessions.",
+            systemImage: "square.split.2x1",
+            level: .expert,
+            track: .advancedWorkflows,
+            launch: .workspace(.adapterComparison),
+            keywords: ["adapter", "fmadapter", "fine tuning", "comparison", "fmas"]
+        ),
+        ExperimentTemplate(
+            id: "appbench",
+            title: "AppBench",
+            summary: "Run repeatable app-shaped quality and performance evaluations.",
+            systemImage: "gauge.with.dots.needle.67percent",
+            level: .expert,
+            track: .advancedWorkflows,
+            launch: .workspace(.appBench),
+            keywords: ["benchmark", "evaluation", "latency", "quality", "device runner"]
         )
     ]
 
@@ -399,51 +504,9 @@ extension ExperimentTemplate {
             systemImage: example.icon,
             level: level,
             track: track,
-            launch: .example(example),
+            launch: .guidedLab(example),
             keywords: [example.subtitle]
         )
     }
 
-    private static func localizedConfiguration(
-        _ configuration: FoundationLabExperimentConfiguration
-    ) -> FoundationLabExperimentConfiguration {
-        var localized = configuration
-        localized.name = String(localized: String.LocalizationValue(configuration.name))
-        localized.summary = String(localized: String.LocalizationValue(configuration.summary))
-        localized.prompt = String(localized: String.LocalizationValue(configuration.prompt))
-        localized.instructions = String(localized: String.LocalizationValue(configuration.instructions))
-        return localized
-    }
-
-    private static func toolLibrarySummary(_ tool: ToolExample) -> String {
-        switch tool {
-        case .weather:
-            return "Ground an answer in live conditions from Open-Meteo."
-        case .web:
-            return "Search the web and return current, attributable results."
-        case .contacts:
-            return "Find people with permission-aware Contacts access."
-        case .calendar:
-            return "Read and manage events through EventKit."
-        case .reminders:
-            return "Turn natural-language requests into real reminders."
-        case .location:
-            return "Resolve the current location for grounded responses."
-        case .health:
-            return "Query authorized HealthKit data with a focused tool."
-        case .music:
-            return "Search the Apple Music catalog from a model request."
-        case .webMetadata:
-            return "Extract useful metadata from a URL for model context."
-        }
-    }
-
-    private static func toolLibraryLevel(_ tool: ToolExample) -> FoundationLabExperimentLevel {
-        switch tool {
-        case .weather, .web, .webMetadata:
-            return .intermediate
-        case .contacts, .calendar, .reminders, .location, .health, .music:
-            return .advanced
-        }
-    }
 }
