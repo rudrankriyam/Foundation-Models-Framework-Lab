@@ -20,7 +20,6 @@ struct PrivateCloudComputeView: View {
         ExampleViewBase(
             title: "Private Cloud",
             description: "Probe PCC availability, quota, and context size",
-            defaultPrompt: "Inspect Private Cloud Compute availability.",
             currentPrompt: $currentPrompt,
             isRunning: isInspecting,
             errorMessage: errorMessage,

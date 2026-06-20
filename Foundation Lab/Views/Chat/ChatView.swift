@@ -19,6 +19,7 @@ struct ChatView: View {
     @State private var messageText = ""
     @State private var showInstructionsSheet = false
     @FocusState private var isTextFieldFocused: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dismiss) private var dismiss
 
     init(title: String = "Chat", showsDoneButton: Bool = true, tearsDownOnDisappear: Bool = true) {
@@ -36,10 +37,6 @@ struct ChatView: View {
             )
 
             messagesView
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    isTextFieldFocused = false
-                }
 
             ChatInputView(
                 messageText: $messageText,
@@ -79,11 +76,10 @@ struct ChatView: View {
             actions: { Button("OK") { viewModel.dismissError() } },
             message: { Text(viewModel.errorMessage ?? "An unknown error occurred") }
         )
-        .onAppear {
-            // Auto-focus when chat appears
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                isTextFieldFocused = true
-            }
+        .task {
+            try? await Task.sleep(for: .milliseconds(500))
+            guard !Task.isCancelled else { return }
+            isTextFieldFocused = true
         }
         .onDisappear {
             if tearsDownOnDisappear {
@@ -165,23 +161,17 @@ struct ChatView: View {
             .scrollPosition(id: $scrollID, anchor: .bottom)
             .onChange(of: viewModel.session.transcript.count) { _, _ in
                 if let lastEntryID = transcriptDisplayEntries.last?.id {
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        proxy.scrollTo(lastEntryID, anchor: .bottom)
-                    }
+                    scroll(to: lastEntryID, using: proxy)
                 }
             }
             .onChange(of: viewModel.isSummarizing) { _, isSummarizing in
                 if isSummarizing {
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        proxy.scrollTo("summarizing", anchor: .bottom)
-                    }
+                    scroll(to: "summarizing", using: proxy)
                 }
             }
             .onChange(of: viewModel.isApplyingWindow) { _, isApplyingWindow in
                 if isApplyingWindow {
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        proxy.scrollTo("windowing", anchor: .bottom)
-                    }
+                    scroll(to: "windowing", using: proxy)
                 }
             }
         }
@@ -201,6 +191,16 @@ struct ChatView: View {
                 return false
             default:
                 return true
+            }
+        }
+    }
+
+    private func scroll(to id: String, using proxy: ScrollViewProxy) {
+        if reduceMotion {
+            proxy.scrollTo(id, anchor: .bottom)
+        } else {
+            withAnimation(.easeOut(duration: 0.3)) {
+                proxy.scrollTo(id, anchor: .bottom)
             }
         }
     }

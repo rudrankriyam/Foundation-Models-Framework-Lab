@@ -38,7 +38,6 @@ struct ReferencedSchemaView: View {
         ExampleViewBase(
             title: "Schema References",
             description: "Use schema references to avoid duplication and create reusable components",
-            defaultPrompt: blogInput,
             currentPrompt: .constant(currentInput),
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
@@ -73,7 +72,7 @@ struct ReferencedSchemaView: View {
                             .padding(8)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(Color.blue.opacity(0.1))
-                            .cornerRadius(8)
+                            .clipShape(.rect(cornerRadius: 8))
                     }
                 }
 
@@ -87,7 +86,7 @@ struct ReferencedSchemaView: View {
                         .frame(minHeight: 100)
                         .padding(8)
                         .background(Color.gray.opacity(0.1))
-                        .cornerRadius(8)
+                        .clipShape(.rect(cornerRadius: 8))
                 }
 
                 HStack {
@@ -117,7 +116,7 @@ struct ReferencedSchemaView: View {
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color.gray.opacity(0.1))
-                                .cornerRadius(8)
+                                .clipShape(.rect(cornerRadius: 8))
                         }
                         .frame(maxHeight: 250)
                     }

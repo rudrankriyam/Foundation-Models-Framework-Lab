@@ -9,6 +9,7 @@ struct ExpertWorkspaceView: View {
     let workspace: ExpertWorkspace
 
     @State private var selectedStage = ExpertWorkspaceStage.settings
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
 #if os(macOS)
@@ -41,7 +42,7 @@ struct ExpertWorkspaceView: View {
 
     @ViewBuilder
     private var stagePicker: some View {
-        if horizontalSizeClass == .compact {
+        if horizontalSizeClass == .compact || dynamicTypeSize.isAccessibilitySize {
             Picker("Stage", selection: $selectedStage) {
                 stages
             }

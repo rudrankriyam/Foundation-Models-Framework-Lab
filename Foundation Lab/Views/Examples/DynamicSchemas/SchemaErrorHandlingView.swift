@@ -25,7 +25,6 @@ struct SchemaErrorHandlingView: View {
         ExampleViewBase(
             title: "Error Handling",
             description: "Handle schema validation errors and edge cases gracefully",
-            defaultPrompt: testInput,
             currentPrompt: $testInput,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
@@ -58,14 +57,14 @@ struct SchemaErrorHandlingView: View {
                 VStack(alignment: .leading, spacing: Spacing.small) {
                     Label("Scenario Details", systemImage: "exclamationmark.triangle")
                         .font(.headline)
-                        .foregroundColor(.orange)
+                        .foregroundStyle(.orange)
 
                     Text(scenarioDescription(for: selectedScenario))
                         .font(.caption)
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.orange.opacity(0.1))
-                        .cornerRadius(8)
+                        .clipShape(.rect(cornerRadius: 8))
                 }
 
                 // Results
@@ -82,7 +81,7 @@ struct SchemaErrorHandlingView: View {
                                 .background(executor.errorMessage != nil ?
                                     Color.red.opacity(0.1) :
                                     Color.green.opacity(0.1))
-                                .cornerRadius(8)
+                                .clipShape(.rect(cornerRadius: 8))
                         }
                         .frame(maxHeight: 250)
                     }

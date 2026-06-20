@@ -40,7 +40,6 @@ struct NestedDynamicSchemaView: View {
         ExampleViewBase(
             title: "Nested Objects",
             description: "Create complex nested object structures with multiple levels",
-            defaultPrompt: companyInput,
             currentPrompt: bindingForSelectedExample,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
@@ -67,7 +66,7 @@ struct NestedDynamicSchemaView: View {
                         .padding(8)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.gray.opacity(0.1))
-                        .cornerRadius(8)
+                        .clipShape(.rect(cornerRadius: 8))
                 }
 
                 HStack {
@@ -97,7 +96,7 @@ struct NestedDynamicSchemaView: View {
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color.gray.opacity(0.1))
-                                .cornerRadius(8)
+                                .clipShape(.rect(cornerRadius: 8))
                         }
                         .frame(maxHeight: 250)
                     }

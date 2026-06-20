@@ -21,7 +21,6 @@ struct UnionTypesSchemaView: View {
         ExampleViewBase(
             title: "Union Types (anyOf)",
             description: "Create schemas that can be one of several different types",
-            defaultPrompt: contactInput,
             currentPrompt: bindingForSelectedExample,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
@@ -49,7 +48,7 @@ struct UnionTypesSchemaView: View {
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.blue.opacity(0.1))
-                        .cornerRadius(8)
+                        .clipShape(.rect(cornerRadius: 8))
                 }
 
                 // Results
@@ -64,7 +63,7 @@ struct UnionTypesSchemaView: View {
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color.gray.opacity(0.1))
-                                .cornerRadius(8)
+                                .clipShape(.rect(cornerRadius: 8))
                         }
                         .frame(maxHeight: 200)
                     }

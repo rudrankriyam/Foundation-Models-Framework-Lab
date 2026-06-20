@@ -35,7 +35,6 @@ struct ContextWindowInspectorView: View {
         ExampleViewBase(
             title: "Context Window",
             description: "Inspect the pieces that consume a session budget",
-            defaultPrompt: "Inspect the context window.",
             currentPrompt: $currentPrompt,
             codeExample: codeExample,
             onRun: rebalance,

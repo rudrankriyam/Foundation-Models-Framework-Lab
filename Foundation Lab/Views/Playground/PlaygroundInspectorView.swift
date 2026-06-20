@@ -64,6 +64,12 @@ struct PlaygroundInspectorView: View {
                         in: 0.05...1,
                         step: 0.05
                     )
+                    .accessibilityLabel("Top-P")
+                    .accessibilityValue(
+                        topPBinding.wrappedValue.formatted(
+                            .number.precision(.fractionLength(2))
+                        )
+                    )
                     Toggle("Use Fixed Seed", isOn: fixedSeedBinding)
                 }
 

@@ -108,7 +108,6 @@ struct GenerablePatternView: View {
         ExampleViewBase(
             title: "@Generable Pattern",
             description: "Use the @Generable macro with @Guide constraints for type-safe generation",
-            defaultPrompt: currentPrompt,
             currentPrompt: .constant(currentPrompt),
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
@@ -145,11 +144,11 @@ struct GenerablePatternView: View {
 
                     Text(generableInfo(for: selectedExample))
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.blue.opacity(0.1))
-                        .cornerRadius(8)
+                        .clipShape(.rect(cornerRadius: 8))
                 }
 
                 HStack {
@@ -179,7 +178,7 @@ struct GenerablePatternView: View {
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color.gray.opacity(0.1))
-                                .cornerRadius(8)
+                                .clipShape(.rect(cornerRadius: 8))
                         }
                         .frame(maxHeight: 300)
                     }

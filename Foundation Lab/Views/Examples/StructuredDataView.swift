@@ -16,7 +16,6 @@ struct StructuredDataView: View {
     ExampleViewBase(
       title: "Structured Data",
       description: "Generate and parse structured information",
-      defaultPrompt: FoundationLabExampleDemo.structuredData.defaultPrompt,
       currentPrompt: $currentPrompt,
       isRunning: executor.isRunning,
       errorMessage: executor.errorMessage,
@@ -31,12 +30,12 @@ struct StructuredDataView: View {
             .foregroundStyle(.tint)
           Text("Generates structured book recommendations with title, author, genre, and description")
             .font(.caption)
-            .foregroundColor(.secondary)
+            .foregroundStyle(.secondary)
           Spacer()
         }
         .padding()
         .background(Color.main.opacity(0.1))
-        .cornerRadius(8)
+        .clipShape(.rect(cornerRadius: 8))
 
         // Prompt Suggestions
         PromptSuggestions(

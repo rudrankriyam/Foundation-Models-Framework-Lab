@@ -18,7 +18,6 @@ struct FoundationModelsSecurityPlaygroundView: View {
         ExampleViewBase(
             title: "Agent Security",
             description: "Inspect the boundary between Foundation Models and your app",
-            defaultPrompt: Self.defaultPrompt,
             currentPrompt: $currentPrompt,
             codeExample: SecurityCodeExample.make(
                 for: toolAccess,

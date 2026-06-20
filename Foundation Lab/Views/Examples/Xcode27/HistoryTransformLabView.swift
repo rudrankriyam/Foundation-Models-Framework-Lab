@@ -15,7 +15,6 @@ struct HistoryTransformLabView: View {
         ExampleViewBase(
             title: "History Lab",
             description: "Compare transcript transforms before a model call",
-            defaultPrompt: "Show how this transcript changes before the model sees it.",
             currentPrompt: $currentPrompt,
             codeExample: transform.code,
             onRun: nextTransform,

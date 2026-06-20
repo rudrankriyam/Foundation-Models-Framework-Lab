@@ -8,6 +8,7 @@ import SwiftUI
 
 struct RunRowView: View {
     let run: FoundationLabExperimentRun
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.small) {
@@ -29,17 +30,16 @@ struct RunRowView: View {
             Text(promptSummary)
                 .font(.body)
                 .foregroundStyle(run.prompt.isEmpty ? .secondary : .primary)
-                .lineLimit(2)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
 
-            HStack(spacing: Spacing.small) {
-                Text(run.startedAt, style: .time)
-                Text("•")
-                    .accessibilityHidden(true)
-                Text(durationText)
-                Text("•")
-                    .accessibilityHidden(true)
-                Text(run.configuration.modelRuntime.shortName)
-                    .lineLimit(1)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: Spacing.small) {
+                    metadata
+                }
+
+                VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                    metadata
+                }
             }
             .font(.subheadline)
             .foregroundStyle(.secondary)
@@ -51,7 +51,7 @@ struct RunRowView: View {
     private var experimentLabel: some View {
         Label(experimentName, systemImage: run.configuration.kind.systemImage)
             .font(.headline)
-            .lineLimit(1)
+            .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 1)
     }
 
     private var statusLabel: some View {
@@ -70,5 +70,17 @@ struct RunRowView: View {
     private var durationText: String {
         let value = run.duration.formatted(.number.precision(.fractionLength(2)))
         return "\(value) seconds"
+    }
+
+    @ViewBuilder
+    private var metadata: some View {
+        Text(run.startedAt, style: .time)
+        Text("•")
+            .accessibilityHidden(true)
+        Text(durationText)
+        Text("•")
+            .accessibilityHidden(true)
+        Text(run.configuration.modelRuntime.shortName)
+            .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 1)
     }
 }

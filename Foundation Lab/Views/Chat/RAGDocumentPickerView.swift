@@ -55,11 +55,9 @@ struct RAGDocumentPickerView: View {
                 }
 
                 ToolbarItem(placement: .primaryAction) {
-                    Menu {
+                    Menu("Add Document", systemImage: "plus") {
                         Button("Import File", action: { showFilePicker = true })
                         Button("Add Text", action: { showAddTextSheet = true })
-                    } label: {
-                        Image(systemName: "plus")
                     }
                 }
             }

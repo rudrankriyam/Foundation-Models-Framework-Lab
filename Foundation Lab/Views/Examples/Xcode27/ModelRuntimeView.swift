@@ -20,7 +20,6 @@ struct ModelRuntimeView: View {
         ExampleViewBase(
             title: "System Model",
             description: "Inspect this device's model and tokenize the prompt",
-            defaultPrompt: "Inspect the current Foundation Models runtime.",
             currentPrompt: $currentPrompt,
             isRunning: isInspecting,
             errorMessage: errorMessage,

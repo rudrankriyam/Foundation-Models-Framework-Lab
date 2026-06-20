@@ -35,7 +35,6 @@ struct ContextBudgetVisualizerView: View {
         ExampleViewBase(
             title: "Transcript Budget Lab",
             description: "Decide what your app keeps before a session runs out of context",
-            defaultPrompt: Self.defaultPrompt,
             currentPrompt: $currentPrompt,
             isRunning: isRunning,
             codeExample: codeExample,

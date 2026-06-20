@@ -10,36 +10,34 @@ import SwiftUI
 import SwiftData
 
 struct HealthDashboardView: View {
-    @Query(sort: \HealthMetric.timestamp, order: .reverse) private var metrics: [HealthMetric]
-    @Query(sort: \HealthInsight.generatedAt, order: .reverse) private var insights: [HealthInsight]
-    @State private var selectedMetricType: MetricType?
     @State private var showingBuddyChat = false
     @State private var isLoading = true
+    @State private var loadErrorMessage: String?
     @State private var healthDataManager = HealthDataManager.shared
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.modelContext) private var modelContext
-    @Namespace private var animationNamespace
 
     @State private var todayMetrics: [MetricType: Double] = [:]
-    @State private var encouragementMessage = "Loading your health insights..."
+    @State private var encouragementMessage = "Loading today's summary..."
     @State private var isGeneratingMessage = false
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(alignment: .leading, spacing: Spacing.large) {
                 if isLoading {
                     ProgressView("Loading health data...")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding()
+                } else if let loadErrorMessage {
+                    healthDataUnavailableView(message: loadErrorMessage)
                 } else {
                     headerSection
-
                     dailyProgressSection
-
-                    metricsGridSection
-
-                    insightsSection
+                    metricsSection
                 }
             }
+            .frame(maxWidth: 760)
+            .frame(maxWidth: .infinity)
             .padding()
         }
         .navigationTitle("Health Dashboard")
@@ -47,8 +45,7 @@ struct HealthDashboardView: View {
         .navigationBarTitleDisplayMode(.large)
         #endif
         .toolbar {
-            #if os(iOS)
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .primaryAction) {
                 Button {
                     showingBuddyChat = true
                 } label: {
@@ -57,17 +54,6 @@ struct HealthDashboardView: View {
                 }
                 .accessibilityLabel("Open Health AI chat")
             }
-            #else
-            ToolbarItem(placement: .automatic) {
-                Button {
-                    showingBuddyChat = true
-                } label: {
-                    Image(systemName: "bubble.left.and.bubble.right.fill")
-                        .foregroundStyle(.primary)
-                }
-                .accessibilityLabel("Open Health AI chat")
-            }
-            #endif
         }
         .sheet(isPresented: $showingBuddyChat) {
             HealthChatView()
@@ -78,131 +64,98 @@ struct HealthDashboardView: View {
         .refreshable {
             await loadHealthData()
         }
-        .onChange(of: todayMetrics) { _, _ in
-            Task {
-                await generateEncouragementMessage()
-            }
-        }
     }
 
 }
 
 private extension HealthDashboardView {
     var headerSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Good \(timeOfDay)!")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                    Text("Your health score today")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+        GroupBox {
+            VStack(alignment: .leading, spacing: Spacing.medium) {
+                if dynamicTypeSize.isAccessibilitySize {
+                    VStack(alignment: .leading, spacing: Spacing.medium) {
+                        healthSummary
+                        healthScore
+                    }
+                } else {
+                    HStack {
+                        healthSummary
+                        Spacer()
+                        healthScore
+                    }
                 }
 
-                Spacer()
-
-                HealthScoreRing(score: calculateHealthScore())
-                    .frame(width: 80, height: 80)
-                    .accessibilityElement(children: .combine)
-                    .accessibilityLabel("Health score")
-                    .accessibilityValue("\(Int(calculateHealthScore())) out of 100")
+                Text(encouragementMessage)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
             }
+        }
+    }
 
-            Text(encouragementMessage)
-                .font(.callout)
+    var healthSummary: some View {
+        VStack(alignment: .leading, spacing: Spacing.xSmall) {
+            Text("Good \(timeOfDay)!")
+                .font(.title2)
+                .fontWeight(.semibold)
+            Text("Today's progress across steps, sleep, and active energy")
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
-        .padding()
-        .background(Color.tertiaryBackgroundColor, in: .rect(cornerRadius: CornerRadius.large))
-        .overlay {
-            RoundedRectangle(cornerRadius: CornerRadius.large)
-                .stroke(.quaternary, lineWidth: 1)
-        }
+    }
+
+    var healthScore: some View {
+        HealthScoreRing(score: calculateHealthScore())
+            .frame(width: 80, height: 80)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Daily progress score")
+            .accessibilityValue("\(Int(calculateHealthScore())) out of 100")
     }
 
     var dailyProgressSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Daily Progress")
-                .font(.headline)
-                .padding(.horizontal, 4)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach([MetricType.steps, .activeEnergy, .sleep], id: \.self) { type in
-                        DailyProgressCard(
-                            metricType: type,
-                            currentValue: todayMetrics[type] ?? 0,
-                            goalValue: type.defaultGoal,
-                            animationNamespace: animationNamespace
-                        )
-                        .background(Color.tertiaryBackgroundColor, in: .rect(cornerRadius: CornerRadius.large))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: CornerRadius.large)
-                                .stroke(.quaternary, lineWidth: 1)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    var metricsGridSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Health Metrics")
-                .font(.headline)
-                .padding(.horizontal, 4)
-
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 150))], spacing: 12) {
-                ForEach(MetricType.allCases, id: \.self) { type in
-                    MetricCardView(
+        GroupBox {
+            VStack(spacing: Spacing.medium) {
+                ForEach(Array(dailyMetricTypes.enumerated()), id: \.element) { index, type in
+                    DailyProgressRow(
                         metricType: type,
-                        value: todayMetrics[type] ?? 0,
-                        isSelected: selectedMetricType == type
+                        currentValue: todayMetrics[type] ?? 0,
+                        goalValue: type.defaultGoal
                     )
-                    .accessibilityAddTraits(.isButton)
-                    .accessibilityHint(selectedMetricType == type ? "Double-tap to deselect" : "Double-tap to select")
-                    .onTapGesture {
-                        withAnimation(.spring()) {
-                            selectedMetricType = selectedMetricType == type ? nil : type
-                        }
+
+                    if index < dailyMetricTypes.count - 1 {
+                        Divider()
                     }
                 }
             }
+        } label: {
+            Label("Daily Progress", systemImage: "chart.bar.fill")
         }
     }
 
-    var insightsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("AI Insights")
-                    .font(.headline)
+    var metricsSection: some View {
+        GroupBox {
+            VStack(spacing: 0) {
+                ForEach(Array(displayedMetricTypes.enumerated()), id: \.element) { index, type in
+                    HealthMetricRow(
+                        metricType: type,
+                        value: todayMetrics[type] ?? 0
+                    )
 
-                Spacer()
-
-                if !insights.isEmpty {
-                    let unreadCount = insights.filter { !$0.isRead }.count
-                    if unreadCount > 0 {
-                        Text("\(unreadCount) new")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.primary.opacity(0.08))
-                            .clipShape(Capsule())
+                    if index < displayedMetricTypes.count - 1 {
+                        Divider()
                     }
                 }
             }
-            .padding(.horizontal, 4)
-
-            if insights.isEmpty {
-                NoHealthInsightsView()
-            } else {
-                ForEach(insights.prefix(3)) { insight in
-                    InsightCardView(insight: insight)
-                }
-            }
+        } label: {
+            Label("Health Metrics", systemImage: "heart.text.square.fill")
         }
+    }
+
+    var dailyMetricTypes: [MetricType] {
+        [.steps, .activeEnergy, .sleep]
+    }
+
+    var displayedMetricTypes: [MetricType] {
+        [.steps, .heartRate, .sleep, .activeEnergy, .distance]
     }
 
     var timeOfDay: String {
@@ -221,6 +174,22 @@ private extension HealthDashboardView {
 
         return (stepsScore + sleepScore + activityScore) / 3.0 * 100
     }
+
+    func healthDataUnavailableView(message: String) -> some View {
+        ContentUnavailableView {
+            Label("Health Data Unavailable", systemImage: "heart.slash")
+        } description: {
+            Text(message)
+        } actions: {
+            Button("Try Again") {
+                Task {
+                    await loadHealthData()
+                }
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .frame(maxWidth: .infinity, minHeight: 320)
+    }
 }
 
 @MainActor
@@ -228,6 +197,7 @@ private extension HealthDashboardView {
     func generateEncouragementMessage() async {
         guard !isGeneratingMessage else { return }
         isGeneratingMessage = true
+        defer { isGeneratingMessage = false }
 
         let score = calculateHealthScore()
         let stepsProgress = (todayMetrics[.steps] ?? 0) / MetricType.steps.defaultGoal * 100
@@ -257,16 +227,18 @@ private extension HealthDashboardView {
             encouragementMessage = score >= 75 ? "Great progress today!" : "Keep working towards your goals!"
         }
 
-        isGeneratingMessage = false
     }
 
     func loadHealthData() async {
+        isLoading = true
+        loadErrorMessage = nil
         healthDataManager.configureModelContext(modelContext)
 
         if !healthDataManager.isAuthorized {
             do {
                 try await healthDataManager.requestAuthorization()
             } catch {
+                loadErrorMessage = "Allow Health access in Settings, then try again. \(error.localizedDescription)"
                 isLoading = false
                 return
             }
@@ -275,6 +247,7 @@ private extension HealthDashboardView {
         do {
             try await healthDataManager.fetchTodayHealthData()
         } catch {
+            loadErrorMessage = "Foundation Lab couldn't load Health data. \(error.localizedDescription)"
             isLoading = false
             return
         }
@@ -296,7 +269,6 @@ private extension HealthDashboardView {
 // MARK: - Health Score Ring
 struct HealthScoreRing: View {
     let score: Double
-    @State private var animatedScore: Double = 0
 
     var body: some View {
         ZStack {
@@ -304,16 +276,15 @@ struct HealthScoreRing: View {
                 .stroke(Color.primary.opacity(0.1), lineWidth: 6)
 
             Circle()
-                .trim(from: 0, to: animatedScore / 100)
+                .trim(from: 0, to: score / 100)
                 .stroke(
                     Color.primary,
                     style: StrokeStyle(lineWidth: 6, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
-                .animation(.easeOut(duration: 1.5), value: animatedScore)
 
             VStack(spacing: 2) {
-                Text("\(Int(animatedScore))")
+                Text("\(Int(score))")
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundStyle(.primary)
@@ -322,36 +293,6 @@ struct HealthScoreRing: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-        }
-        .onAppear {
-            animatedScore = score
-        }
-    }
-}
-
-// MARK: - Empty State
-struct NoHealthInsightsView: View {
-    var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "lightbulb.fill")
-                .font(.title2)
-                .foregroundStyle(.secondary)
-
-            Text("No insights yet")
-                .font(.subheadline)
-                .fontWeight(.medium)
-
-            Text("Start tracking your health metrics to receive personalized AI insights")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color.tertiaryBackgroundColor, in: .rect(cornerRadius: CornerRadius.large))
-        .overlay {
-            RoundedRectangle(cornerRadius: CornerRadius.large)
-                .stroke(.quaternary, lineWidth: 1)
         }
     }
 }
@@ -375,6 +316,6 @@ extension MetricType {
 #Preview {
     NavigationStack {
         HealthDashboardView()
-            .modelContainer(for: [HealthMetric.self, HealthInsight.self])
+            .modelContainer(for: HealthMetric.self)
     }
 }

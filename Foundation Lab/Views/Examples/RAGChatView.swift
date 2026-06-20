@@ -43,18 +43,16 @@ struct RAGChatView: View {
             .padding(.vertical, Spacing.large)
         }
         .navigationTitle("Doc Q&A")
-        .onAppear {
-            Task {
-                await viewModel.loadFromDatabase()
-            }
+        .task {
+            await viewModel.loadFromDatabase()
+        }
+        .onDisappear {
+            viewModel.tearDown()
         }
 #if os(iOS)
         .navigationBarTitleDisplayMode(.large)
         .scrollDismissesKeyboard(.interactively)
 #endif
-        .onTapGesture {
-            isTextFieldFocused = false
-        }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
@@ -77,9 +75,8 @@ struct RAGChatView: View {
 
     private var documentsSection: some View {
         VStack(alignment: .leading, spacing: Spacing.small) {
-            Text("DOCUMENTS")
-                .font(.footnote)
-                .fontWeight(.medium)
+            Text("Documents")
+                .font(.headline)
                 .foregroundStyle(.secondary)
 
             HStack(spacing: Spacing.medium) {
@@ -103,25 +100,22 @@ struct RAGChatView: View {
                 .buttonStyle(.glassProminent)
             }
             .padding(Spacing.medium)
-            .background(Color.gray.opacity(0.1))
-            .cornerRadius(12)
+            .background(.quaternary, in: .rect(cornerRadius: CornerRadius.medium))
         }
     }
 
     private var questionSection: some View {
         VStack(alignment: .leading, spacing: Spacing.medium) {
             VStack(alignment: .leading, spacing: Spacing.small) {
-                Text("QUESTION")
-                    .font(.footnote)
-                    .fontWeight(.medium)
+                Text("Question")
+                    .font(.headline)
                     .foregroundStyle(.secondary)
 
                 TextField("Ask a question about your documents...", text: $question, axis: .vertical)
                     .textFieldStyle(.plain)
                     .focused($isTextFieldFocused)
                     .padding(Spacing.medium)
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(12)
+                    .background(.quaternary, in: .rect(cornerRadius: CornerRadius.medium))
                     .onSubmit {
                         askQuestion()
                     }
@@ -151,9 +145,8 @@ struct RAGChatView: View {
 
     private var sourcesSection: some View {
         VStack(alignment: .leading, spacing: Spacing.small) {
-            Text("SOURCES")
-                .font(.footnote)
-                .fontWeight(.medium)
+            Text("Sources")
+                .font(.headline)
                 .foregroundStyle(.secondary)
 
             ForEach(Array(sources.enumerated()), id: \.offset) { index, source in

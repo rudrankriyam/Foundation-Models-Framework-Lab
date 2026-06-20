@@ -15,7 +15,6 @@ struct RiskyToolConfirmationDemoView: View {
         ExampleViewBase(
             title: "Tool Authorization",
             description: "Keep side-effect authorization inside app-owned tool code",
-            defaultPrompt: Self.defaultPrompt,
             currentPrompt: $currentPrompt,
             codeExample: ToolApprovalCodeExample.source,
             onRun: prepareReview,

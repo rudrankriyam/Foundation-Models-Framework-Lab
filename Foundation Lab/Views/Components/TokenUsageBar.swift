@@ -11,6 +11,7 @@ struct TokenUsageBar: View {
     let currentTokenCount: Int
     let maxContextSize: Int
     let tokenUsageFraction: Double
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         if currentTokenCount > 0 {
@@ -31,7 +32,7 @@ struct TokenUsageBar: View {
             .padding(.horizontal)
             .padding(.vertical, 4)
             .transition(.move(edge: .top).combined(with: .opacity))
-            .animation(.easeInOut(duration: 0.3), value: currentTokenCount)
+            .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: currentTokenCount)
         }
     }
 

@@ -14,6 +14,7 @@ struct HealthChatView: View {
     @State private var scrollID: String?
     @State private var messageText = ""
     @FocusState private var isTextFieldFocused: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
@@ -39,45 +40,33 @@ struct HealthChatView: View {
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .toolbar {
-                #if os(iOS)
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Done") {
                         dismiss()
                     }
                 }
 
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .primaryAction) {
                     Button("Clear") {
                         viewModel.clearChat()
                     }
-                    .disabled(viewModel.session.transcript.isEmpty)
+                    .disabled(viewModel.session.transcript.isEmpty || viewModel.isLoading)
                 }
-                #else
-                ToolbarItem(placement: .navigation) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-
-                ToolbarItem(placement: .automatic) {
-                    Button("Clear") {
-                        viewModel.clearChat()
-                    }
-                    .disabled(viewModel.session.transcript.isEmpty)
-                }
-                #endif
             }
         }
         .onAppear {
             viewModel.setModelContext(modelContext)
-            Task {
-                await viewModel.loadInitialHealthData()
-            }
-
-            // Auto-focus when chat appears
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                isTextFieldFocused = true
-            }
+        }
+        .task {
+            await viewModel.loadInitialHealthData()
+        }
+        .task {
+            try? await Task.sleep(for: .milliseconds(500))
+            guard !Task.isCancelled else { return }
+            isTextFieldFocused = true
+        }
+        .onDisappear {
+            viewModel.tearDown()
         }
     }
 
@@ -125,16 +114,12 @@ struct HealthChatView: View {
             .scrollPosition(id: $scrollID, anchor: .bottom)
             .onChange(of: viewModel.session.transcript.count) { _, _ in
                 if let lastEntryID = transcriptDisplayEntries.last?.id {
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        proxy.scrollTo(lastEntryID, anchor: .bottom)
-                    }
+                    scroll(to: lastEntryID, using: proxy)
                 }
             }
             .onChange(of: viewModel.isSummarizing) { _, isSummarizing in
                 if isSummarizing {
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        proxy.scrollTo("summarizing", anchor: .bottom)
-                    }
+                    scroll(to: "summarizing", using: proxy)
                 }
             }
         }
@@ -144,6 +129,16 @@ struct HealthChatView: View {
     private var transcriptDisplayEntries: [(id: String, entry: Transcript.Entry)] {
         viewModel.session.transcript.enumerated().map { index, entry in
             ("\(index)-\(entry.id)", entry)
+        }
+    }
+
+    private func scroll(to id: String, using proxy: ScrollViewProxy) {
+        if reduceMotion {
+            proxy.scrollTo(id, anchor: .bottom)
+        } else {
+            withAnimation(.easeOut(duration: 0.3)) {
+                proxy.scrollTo(id, anchor: .bottom)
+            }
         }
     }
 }
@@ -219,10 +214,7 @@ struct WelcomeMessageView: View {
                     .fontWeight(.semibold)
             }
 
-            Text("""
-            I'm your personal health coach, here to help you achieve your wellness goals.
-            I can see you've been active today:
-            """)
+            Text("Ask about health data available on this device. Answers are informational and are not medical advice.")
                 .font(.body)
                 .foregroundStyle(.secondary)
 
@@ -242,10 +234,7 @@ struct WelcomeMessageView: View {
                 }
             }
 
-            Text("""
-            How can I help you today? Ask me about your health data, get personalized tips,
-            or set new wellness goals!
-            """)
+            Text("What would you like to understand about today's data?")
                 .font(.body)
                 .foregroundStyle(.secondary)
         }
@@ -258,7 +247,6 @@ struct WelcomeMessageView: View {
         }
         .padding(.horizontal)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Welcome to Health AI. I'm your personal health coach.")
     }
 }
 
@@ -271,7 +259,7 @@ struct ToolCallView: View {
                 .font(.caption)
                 .foregroundStyle(Color.healthPrimary)
 
-            Text("Analyzing your \(formatToolName(toolName))...")
+            Text("Reading your \(formatToolName(toolName))...")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -286,7 +274,7 @@ struct ToolCallView: View {
         }
         .padding(.horizontal)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Analyzing your \(formatToolName(toolName))")
+        .accessibilityLabel("Reading your \(formatToolName(toolName))")
         .accessibilityAddTraits(.updatesFrequently)
     }
 
@@ -294,8 +282,6 @@ struct ToolCallView: View {
         switch name {
         case "fetchHealthData":
             return "health data"
-        case "analyzeHealthMetrics":
-            return "health metrics"
         default:
             return "data"
         }
@@ -304,5 +290,5 @@ struct ToolCallView: View {
 
 #Preview {
     HealthChatView()
-        .modelContainer(for: [HealthSession.self, HealthMetric.self, HealthInsight.self])
+        .modelContainer(for: [HealthSession.self, HealthMetric.self])
 }

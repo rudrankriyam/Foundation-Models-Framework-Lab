@@ -20,7 +20,6 @@ struct UsagePerformanceTraceView: View {
         ExampleViewBase(
             title: "Response Usage",
             description: "Run a real streamed response and inspect its reported usage",
-            defaultPrompt: "Explain how Foundation Models reports token usage in two short paragraphs.",
             currentPrompt: $currentPrompt,
             isRunning: isRunning,
             errorMessage: errorMessage,

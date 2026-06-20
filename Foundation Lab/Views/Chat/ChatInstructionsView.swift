@@ -39,7 +39,7 @@ struct ChatInstructionsView: View {
                         Text("Provide specific instructions to guide how the AI should respond. These instructions will " +
                              "apply to all new conversations.")
                             .font(.body)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
 
                     samplingStrategySection
@@ -52,7 +52,7 @@ struct ChatInstructionsView: View {
                         .scrollContentBackground(.hidden)
                         .padding(Spacing.medium)
                         .background(Color.gray.opacity(0.1))
-                        .cornerRadius(12)
+                        .clipShape(.rect(cornerRadius: 12))
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
                                 .stroke(Color.gray.opacity(0.3), lineWidth: 1)
@@ -63,13 +63,13 @@ struct ChatInstructionsView: View {
                     // Navigation Link Section
                     VStack(spacing: 0) {
                         Rectangle()
-                            .foregroundColor(.clear)
+                            .foregroundStyle(.clear)
                             .frame(height: 1)
                             .padding(.bottom, Spacing.medium)
 
                         Text("More Options")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                             .padding(.bottom, Spacing.small)
 
                         // Feedback Link
@@ -86,7 +86,7 @@ struct ChatInstructionsView: View {
                             }
                             .padding(Spacing.medium)
                             .background(Color.gray.opacity(0.05))
-                            .cornerRadius(12)
+                            .clipShape(.rect(cornerRadius: 12))
                         }
                     }
                 }
@@ -136,7 +136,7 @@ struct ChatInstructionsView: View {
                 Top-P: Samples from the smallest set that reaches a probability threshold.
                 """)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, Spacing.medium)
 
@@ -183,23 +183,23 @@ struct ChatInstructionsView: View {
 
             Text(samplingHelpText)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
             if viewModel.useFixedSeed {
                 HStack {
                     Image(systemName: "dice")
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                     Text("Using fixed seed for reproducible variations")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
                 .padding(.top, Spacing.small)
             }
         }
         .padding(Spacing.medium)
         .background(Constants.samplingConfigBackgroundColor)
-        .cornerRadius(12)
+        .clipShape(.rect(cornerRadius: 12))
     }
 
     private var samplingHelpText: String {

@@ -21,7 +21,6 @@ struct BasicDynamicSchemaView: View {
         ExampleViewBase(
             title: schemaExample.title,
             description: schemaExample.summary,
-            defaultPrompt: schemaExample.defaultInput,
             currentPrompt: bindingForSelectedExample,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
@@ -54,7 +53,7 @@ struct BasicDynamicSchemaView: View {
                             .padding(8)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(Color.gray.opacity(0.1))
-                            .cornerRadius(8)
+                            .clipShape(.rect(cornerRadius: 8))
                     }
 
                     HStack {
@@ -84,7 +83,7 @@ struct BasicDynamicSchemaView: View {
                                     .padding()
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .background(Color.gray.opacity(0.1))
-                                    .cornerRadius(8)
+                                    .clipShape(.rect(cornerRadius: 8))
                             }
                             .frame(maxHeight: 250)
                         }

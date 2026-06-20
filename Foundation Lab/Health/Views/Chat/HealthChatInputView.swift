@@ -27,7 +27,7 @@ struct HealthChatInputView: View {
         VStack(spacing: 12) {
             // Quick action suggestions
             if messageText.isEmpty && !chatViewModel.isLoading {
-                ScrollView(.horizontal, showsIndicators: false) {
+                ScrollView(.horizontal) {
                     HStack(spacing: 8) {
                         QuickActionChip(text: "How am I doing today?") {
                             messageText = "How am I doing today?"
@@ -51,6 +51,7 @@ struct HealthChatInputView: View {
                     }
                     .padding(.horizontal)
                 }
+                .scrollIndicators(.hidden)
                 .padding(.vertical, 8)
             }
 
@@ -58,17 +59,11 @@ struct HealthChatInputView: View {
             HStack(spacing: 12) {
                 TextField("Ask Health AI anything...", text: $messageText, axis: .vertical)
                     .textFieldStyle(.plain)
+                    .lineLimit(1...5)
                     .focused($isTextFieldFocused)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 24)
-                            .fill(Color.gray.opacity(0.1))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 24)
-                            .stroke(Color.healthPrimary.opacity(0.3), lineWidth: 1)
-                    )
+                    .background(.quaternary, in: .rect(cornerRadius: 24))
                     .onSubmit {
                         sendMessage()
                     }
@@ -80,7 +75,7 @@ struct HealthChatInputView: View {
                     ZStack {
                         Circle()
                             .fill(messageText.isEmpty ? Color.primary.opacity(0.06) : Color.primary.opacity(0.1))
-                            .frame(width: 36, height: 36)
+                            .frame(width: 44, height: 44)
 
                         Image(systemName: "arrow.up")
                             .font(.callout.weight(.medium))
@@ -93,8 +88,6 @@ struct HealthChatInputView: View {
                     chatViewModel.isLoading ||
                     chatViewModel.isSummarizing
                 )
-                .scaleEffect(messageText.isEmpty ? 1.0 : 1.1)
-                .animation(.spring(response: 0.3, dampingFraction: 0.6), value: messageText.isEmpty)
             }
             .padding(.horizontal)
             .padding(.bottom, 8)
@@ -126,13 +119,9 @@ struct QuickActionChip: View {
         Button(action: action) {
             Text(text)
                 .font(.caption)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(Color.primary.opacity(0.06))
-                .foregroundStyle(.primary)
-                .clipShape(Capsule())
         }
-        .buttonStyle(.plain)
-        .accessibilityHint("Double-tap to send this message")
+        .buttonStyle(.bordered)
+        .buttonBorderShape(.capsule)
+        .accessibilityHint("Sends this suggested message")
     }
 }

@@ -31,7 +31,6 @@ struct FormBuilderSchemaView: View {
         ExampleViewBase(
             title: "Dynamic Form Builder",
             description: "Generate form schemas from natural language descriptions",
-            defaultPrompt: formDescription,
             currentPrompt: $formDescription,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
@@ -67,7 +66,7 @@ struct FormBuilderSchemaView: View {
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.gray.opacity(0.1))
-                        .cornerRadius(8)
+                        .clipShape(.rect(cornerRadius: 8))
                 }
 
                 // Results
@@ -82,7 +81,7 @@ struct FormBuilderSchemaView: View {
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color.gray.opacity(0.1))
-                                .cornerRadius(8)
+                                .clipShape(.rect(cornerRadius: 8))
                         }
                         .frame(maxHeight: 300)
                     }

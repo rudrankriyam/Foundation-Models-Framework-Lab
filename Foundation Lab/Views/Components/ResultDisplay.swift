@@ -20,10 +20,9 @@ struct ResultDisplay: View {
   var body: some View {
     VStack(alignment: .leading, spacing: Spacing.small) {
       HStack {
-        Text("RESULT")
-          .font(.footnote)
-          .fontWeight(.medium)
-          .foregroundColor(.secondary)
+        Label(statusTitle, systemImage: statusImage)
+          .font(.headline)
+          .foregroundStyle(statusColor)
 
         if let tokenCount {
           Text("\(tokenCount) tokens")
@@ -47,16 +46,31 @@ struct ResultDisplay: View {
       }
 
       ScrollView {
-        Text(LocalizedStringKey(result))
+        Text(formattedResult)
           .font(.body)
           .textSelection(.enabled)
           .padding(Spacing.medium)
           .frame(maxWidth: .infinity, alignment: .leading)
-          .background(Color.gray.opacity(0.1))
-          .cornerRadius(12)
+          .background(.quaternary, in: .rect(cornerRadius: CornerRadius.medium))
       }
       .frame(maxHeight: 300)
     }
+  }
+
+  private var statusTitle: String {
+    isSuccess ? "Result" : "Error"
+  }
+
+  private var statusImage: String {
+    isSuccess ? "checkmark.circle" : "exclamationmark.triangle"
+  }
+
+  private var statusColor: Color {
+    isSuccess ? .secondary : .red
+  }
+
+  private var formattedResult: AttributedString {
+    (try? AttributedString(markdown: result)) ?? AttributedString(result)
   }
 
   private func copyToClipboard() {
@@ -69,7 +83,9 @@ struct ResultDisplay: View {
     #endif
 
     isCopied = true
-    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+    Task {
+      try? await Task.sleep(for: .seconds(2))
+      guard !Task.isCancelled else { return }
       isCopied = false
     }
   }

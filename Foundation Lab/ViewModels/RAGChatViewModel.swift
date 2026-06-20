@@ -44,7 +44,6 @@ private enum SampleDocuments {
 @MainActor
 @Observable
 final class RAGChatViewModel {
-    var conversation: [RAGChatEntry] = []
     var isSearching = false
     var isGenerating = false
     var showDocumentPicker = false
@@ -282,35 +281,6 @@ extension RAGChatViewModel {
         await generateAnswer(query: trimmedContent, chunks: topChunks, onUpdate: onUpdate)
     }
 
-    func sendMessage(_ content: String) async -> Bool {
-        await loadFromDatabase()
-        guard let service = service else {
-            showServiceUnavailableError()
-            return false
-        }
-
-        let trimmedContent = content.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedContent.isEmpty else { return false }
-
-        guard hasIndexedContent || indexedDocumentCount > 0 else {
-            errorMessage = "Index documents before starting a RAG chat."
-            showError = true
-            return false
-        }
-
-        guard !isSearching && !isGenerating else { return false }
-
-        let userEntry = RAGChatEntry(role: .user, content: trimmedContent, sources: [])
-        conversation.append(userEntry)
-
-        let chunks = await searchDocuments(service: service, query: trimmedContent)
-        let assistantEntry = RAGChatEntry(role: .assistant, content: "", sources: chunks)
-        conversation.append(assistantEntry)
-
-        await generateResponse(for: assistantEntry, query: trimmedContent, chunks: chunks)
-        return true
-    }
-
     func dismissError() {
         showError = false
         errorMessage = nil
@@ -406,44 +376,4 @@ private extension RAGChatViewModel {
         }
     }
 
-    func generateResponse(for entry: RAGChatEntry, query: String, chunks: [RAGChunk]) async {
-        isGenerating = true
-        defer { isGenerating = false }
-        lastTokenCount = nil
-
-        let systemPrompt = "You are a helpful assistant. Answer based on context. Cite content when possible."
-        let contextText = chunks.isEmpty ? "No relevant documents found." :
-            chunks.enumerated().map { index, chunk in "[Document \(index + 1)]: \(chunk.content)" }.joined(separator: "\n\n")
-        let prompt = "CONTEXT:\n\(contextText)\n\nQUESTION:\n\(query)"
-
-        do {
-            streamingTask?.cancel()
-            let request = StreamingTextGenerationRequest(
-                prompt: prompt,
-                systemPrompt: systemPrompt,
-                modelUseCase: .general,
-                context: CapabilityInvocationContext(source: .app)
-            )
-            let task = Task { @MainActor [streamingTextUseCase] in
-                let result = try await streamingTextUseCase.execute(request) { partialResponse in
-                    await self.updateStreamingEntry(entry, with: partialResponse)
-                }
-                self.lastTokenCount = result.metadata.tokenCount
-            }
-            streamingTask = task
-            defer { streamingTask = nil }
-            do {
-                try await task.value
-            } catch is CancellationError {
-                return
-            }
-        } catch {
-            if entry.content.isEmpty { entry.content = "Failed: \(error.localizedDescription)" }
-        }
-    }
-
-    @MainActor
-    private func updateStreamingEntry(_ entry: RAGChatEntry, with partialResponse: String) {
-        entry.content = partialResponse
-    }
 }

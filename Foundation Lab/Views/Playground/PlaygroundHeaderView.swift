@@ -4,6 +4,7 @@ import SwiftUI
 struct PlaygroundHeaderView: View {
     let configuration: FoundationLabExperimentConfiguration
     let toolCount: Int
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         ViewThatFits(in: .horizontal) {
@@ -33,7 +34,7 @@ struct PlaygroundHeaderView: View {
                 Text(configuration.summary)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                    .lineLimit(2)
+                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
             }
         }
     }

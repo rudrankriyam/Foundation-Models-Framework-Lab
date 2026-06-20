@@ -103,6 +103,7 @@ final class HealthChatViewModel {
     // MARK: - Public Methods
 
     func sendMessage(_ content: String) async {
+        guard !isLoading else { return }
         isLoading = true
         defer { isLoading = false }
 
@@ -116,9 +117,6 @@ final class HealthChatViewModel {
                 await saveMessageToSession(responseText, isFromUser: false)
             }
 
-            if shouldGenerateInsight(from: responseText) {
-                await generateHealthInsight(from: responseText)
-            }
         } catch is CancellationError {
             return
         } catch {
@@ -177,10 +175,6 @@ private extension HealthChatViewModel {
         sessionCount = conversationEngine.sessionCount
     }
 
-    func shouldGenerateInsight(from response: String) -> Bool {
-        let insightKeywords = ["goal", "achieve", "progress", "improve", "recommend", "suggest", "tip", "advice"]
-        return insightKeywords.contains { response.lowercased().contains($0) }
-    }
 }
 
 @MainActor
@@ -213,23 +207,4 @@ private extension HealthChatViewModel {
         }
     }
 
-    func generateHealthInsight(from response: String) async {
-        guard let modelContext else { return }
-
-        let insight = HealthInsight(
-            title: "AI Health Tip",
-            content: response,
-            category: .recommendation,
-            priority: .medium,
-            relatedMetrics: []
-        )
-
-        modelContext.insert(insight)
-
-        do {
-            try modelContext.save()
-        } catch {
-            logger.error("Failed to save health insight: \(error.localizedDescription, privacy: .public)")
-        }
-    }
 }

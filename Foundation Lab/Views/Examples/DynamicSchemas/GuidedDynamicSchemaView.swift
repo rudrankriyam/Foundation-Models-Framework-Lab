@@ -27,7 +27,6 @@ struct GuidedDynamicSchemaView: View {
         ExampleViewBase(
             title: "Generation Guides",
             description: "Apply constraints to generated values using schema properties",
-            defaultPrompt: patternInput,
             currentPrompt: bindingForSelectedGuide,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
@@ -53,14 +52,14 @@ struct GuidedDynamicSchemaView: View {
                 VStack(alignment: .leading, spacing: Spacing.small) {
                     Label("How it works", systemImage: "info.circle")
                         .font(.headline)
-                        .foregroundColor(.blue)
+                        .foregroundStyle(.blue)
 
                     Text(guideExplanation)
                         .font(.caption)
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.blue.opacity(0.1))
-                        .cornerRadius(8)
+                        .clipShape(.rect(cornerRadius: 8))
                 }
 
                 // Results
@@ -75,7 +74,7 @@ struct GuidedDynamicSchemaView: View {
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color.gray.opacity(0.1))
-                                .cornerRadius(8)
+                                .clipShape(.rect(cornerRadius: 8))
                         }
                         .frame(maxHeight: 250)
                     }

@@ -23,7 +23,6 @@ struct ArrayDynamicSchemaView: View {
         ExampleViewBase(
             title: schemaExample.title,
             description: schemaExample.summary,
-            defaultPrompt: schemaExample.defaultInput,
             currentPrompt: bindingForSelectedExample,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
@@ -71,7 +70,7 @@ struct ArrayDynamicSchemaView: View {
                         }
                         .padding()
                         .background(Color.gray.opacity(0.1))
-                        .cornerRadius(8)
+                        .clipShape(.rect(cornerRadius: 8))
                     }
 
                     // Schema info
@@ -81,11 +80,11 @@ struct ArrayDynamicSchemaView: View {
 
                         Text(schemaInfo(for: selectedExample, minItems: minItems, maxItems: maxItems))
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                             .padding(8)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(Color.orange.opacity(0.1))
-                            .cornerRadius(8)
+                            .clipShape(.rect(cornerRadius: 8))
                     }
 
                     HStack {
@@ -115,7 +114,7 @@ struct ArrayDynamicSchemaView: View {
                                     .padding()
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .background(Color.gray.opacity(0.1))
-                                    .cornerRadius(8)
+                                    .clipShape(.rect(cornerRadius: 8))
                             }
                             .frame(maxHeight: 250)
                         }

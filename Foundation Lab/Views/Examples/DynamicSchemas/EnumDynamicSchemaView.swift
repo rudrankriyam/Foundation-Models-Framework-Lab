@@ -23,7 +23,6 @@ struct EnumDynamicSchemaView: View {
         ExampleViewBase(
             title: schemaExample.title,
             description: schemaExample.summary,
-            defaultPrompt: schemaExample.defaultInput,
             currentPrompt: bindingForSelectedExample,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
@@ -57,7 +56,7 @@ struct EnumDynamicSchemaView: View {
                             .padding(8)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(Color.blue.opacity(0.1))
-                            .cornerRadius(8)
+                            .clipShape(.rect(cornerRadius: 8))
                     }
 
                     // Custom choices option
@@ -73,7 +72,7 @@ struct EnumDynamicSchemaView: View {
                     }
                     .padding()
                     .background(Color.gray.opacity(0.1))
-                    .cornerRadius(8)
+                    .clipShape(.rect(cornerRadius: 8))
 
                     HStack {
                         Button("Classify") {
@@ -102,7 +101,7 @@ struct EnumDynamicSchemaView: View {
                                     .padding()
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .background(Color.gray.opacity(0.1))
-                                    .cornerRadius(8)
+                                    .clipShape(.rect(cornerRadius: 8))
                             }
                             .frame(maxHeight: 250)
                         }

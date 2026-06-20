@@ -71,7 +71,7 @@ struct InvoiceProcessingSchemaView: View {
         }
         .padding()
         .background(Color.gray.opacity(0.05))
-        .cornerRadius(8)
+        .clipShape(.rect(cornerRadius: 8))
     }
 
     private var sampleInvoiceLoaderSection: some View {
@@ -89,7 +89,6 @@ struct InvoiceProcessingSchemaView: View {
         ExampleViewBase(
             title: "Invoice Processing",
             description: "Extract structured data from real-world invoices using complex schemas",
-            defaultPrompt: invoiceText,
             currentPrompt: $invoiceText,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
@@ -114,7 +113,7 @@ struct InvoiceProcessingSchemaView: View {
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color.gray.opacity(0.1))
-                                .cornerRadius(8)
+                                .clipShape(.rect(cornerRadius: 8))
                         }
                         .frame(maxHeight: 300)
                     }
