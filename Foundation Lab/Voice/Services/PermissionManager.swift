@@ -16,6 +16,16 @@ import AppKit
 import AVFoundation
 #endif
 
+enum SpeechAuthorizationRequester {
+    nonisolated static func request() async -> SFSpeechRecognizerAuthorizationStatus {
+        await withCheckedContinuation { continuation in
+            SFSpeechRecognizer.requestAuthorization { status in
+                continuation.resume(returning: status)
+            }
+        }
+    }
+}
+
 // MARK: - Microphone Permission Type
 
 #if os(iOS)
@@ -201,14 +211,9 @@ class PermissionManager: PermissionServiceProtocol {
             return true
         }
 
-        return await withCheckedContinuation { continuation in
-            SFSpeechRecognizer.requestAuthorization { status in
-                Task { @MainActor in
-                    self.speechPermissionStatus = status
-                    continuation.resume(returning: status == .authorized)
-                }
-            }
-        }
+        let status = await SpeechAuthorizationRequester.request()
+        speechPermissionStatus = status
+        return status == .authorized
     }
 
     // MARK: - Helpers
