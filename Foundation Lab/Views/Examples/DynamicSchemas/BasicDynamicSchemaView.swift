@@ -27,6 +27,7 @@ struct BasicDynamicSchemaView: View {
             codeExample: exampleCode,
             onRun: { await runExample() },
             onReset: {
+                executor.reset()
                 selectedExample = 0
                 personInput = schemaExample.preset(at: 0).defaultInput
                 productInput = schemaExample.preset(at: 1).defaultInput

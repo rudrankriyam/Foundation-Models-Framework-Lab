@@ -100,7 +100,9 @@ struct HealthChatInputView: View {
 
     private func sendMessage() {
         let trimmedMessage = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedMessage.isEmpty else { return }
+        guard !trimmedMessage.isEmpty,
+              !chatViewModel.isLoading,
+              !chatViewModel.isSummarizing else { return }
 
         messageText = ""
         isTextFieldFocused = true // Keep focus for continuous conversation

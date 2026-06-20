@@ -9,17 +9,17 @@ import SwiftUI
 
 struct DailyProgressRow: View {
     let metricType: MetricType
-    let currentValue: Double
+    let currentValue: Double?
     let goalValue: Double
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
-    private var progress: Double {
-        guard goalValue > 0 else { return 0 }
+    private var progress: Double? {
+        guard let currentValue, goalValue > 0 else { return nil }
         return min(max(currentValue / goalValue, 0), 1)
     }
 
-    private var progressPercentage: Int {
-        Int(progress * 100)
+    private var progressPercentage: Int? {
+        progress.map { Int($0 * 100) }
     }
 
     var body: some View {
@@ -37,17 +37,15 @@ struct DailyProgressRow: View {
                 }
             }
 
-            ProgressView(value: progress)
-                .accessibilityHidden(true)
+            if let progress {
+                ProgressView(value: progress)
+                    .accessibilityHidden(true)
+            }
         }
         .padding(.vertical, Spacing.xSmall)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(metricType.localizedName)
-        .accessibilityValue(
-            String(
-                localized: "\(formattedValue) of \(formattedGoal), \(progressPercentage) percent"
-            )
-        )
+        .accessibilityValue(accessibilityValue)
     }
 
     private var metricLabel: some View {
@@ -56,17 +54,30 @@ struct DailyProgressRow: View {
     }
 
     private var progressLabel: some View {
-        Text("\(formattedValue) of \(formattedGoal)")
-            .font(.callout)
-            .foregroundStyle(.secondary)
+        Group {
+            if currentValue == nil {
+                Text("Unavailable")
+            } else {
+                Text("\(formattedValue) of \(formattedGoal)")
+            }
+        }
+        .font(.callout)
+        .foregroundStyle(.secondary)
     }
 
     private var formattedValue: String {
-        metricType.formattedValue(currentValue)
+        currentValue.map(metricType.formattedValue) ?? String(localized: "Unavailable")
     }
 
     private var formattedGoal: String {
         metricType.formattedValue(goalValue)
+    }
+
+    private var accessibilityValue: String {
+        guard let progressPercentage else { return String(localized: "Unavailable") }
+        return String(
+            localized: "\(formattedValue) of \(formattedGoal), \(progressPercentage) percent"
+        )
     }
 }
 

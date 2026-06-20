@@ -26,7 +26,13 @@ struct UnionTypesSchemaView: View {
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
             onRun: { await runExample() },
-            onReset: { executor.reset() },
+            onReset: {
+                executor.reset()
+                selectedExample = 0
+                contactInput = "Contact John Smith at john@example.com, works as a software engineer at Apple Inc."
+                paymentInput = "Payment of $150.00 was made via credit card ending in 4242 on December 15, 2024"
+                notificationInput = "System alert: Server maintenance scheduled for tonight at 11PM PST"
+            },
             content: {
                 VStack(alignment: .leading, spacing: Spacing.medium) {
                 // Example selector

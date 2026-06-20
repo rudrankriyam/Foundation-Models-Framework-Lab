@@ -149,18 +149,19 @@ extension RAGChatViewModel {
         isSearching = false
     }
 
-    func indexText(_ text: String, title: String) async {
+    @discardableResult
+    func indexText(_ text: String, title: String) async -> Bool {
         await loadFromDatabase()
         guard let service = service else {
             showServiceUnavailableError()
-            return
+            return false
         }
 
         let urlKey = "text://\(title)"
         guard !indexedURLs.contains(urlKey) else {
             errorMessage = String(localized: "A document with this title already exists")
             showError = true
-            return
+            return false
         }
 
         isSearching = true
@@ -172,11 +173,14 @@ extension RAGChatViewModel {
             saveState()
             indexedDocumentCount += 1
             hasIndexedContent = true
+            isSearching = false
+            return true
         } catch {
             errorMessage = String(localized: "Failed to index text: \(error.localizedDescription)")
             showError = true
+            isSearching = false
+            return false
         }
-        isSearching = false
     }
 
     func resetDatabase() async {

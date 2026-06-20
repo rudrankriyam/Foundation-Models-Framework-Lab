@@ -244,6 +244,17 @@ struct AddTextSheet: View {
                     TextEditor(text: $content)
                         .frame(minHeight: 200)
                 }
+
+                if let errorMessage = viewModel.errorMessage {
+                    Section {
+                        Label {
+                            Text(errorMessage)
+                        } icon: {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.red)
+                        }
+                    }
+                }
             }
             .navigationTitle("Add Text")
 #if os(iOS)
@@ -260,7 +271,7 @@ struct AddTextSheet: View {
                     Button("Add") {
                         addDocument()
                     }
-                    .disabled(title.isEmpty || content.isEmpty || isIndexing)
+                    .disabled(trimmedTitle.isEmpty || trimmedContent.isEmpty || isIndexing)
                 }
             }
             .overlay {
@@ -278,9 +289,22 @@ struct AddTextSheet: View {
     private func addDocument() {
         isIndexing = true
         Task {
-            await viewModel.indexText(content, title: title)
+            let didIndex = await viewModel.indexText(
+                trimmedContent,
+                title: trimmedTitle
+            )
             isIndexing = false
-            dismiss()
+            if didIndex {
+                dismiss()
+            }
         }
+    }
+
+    private var trimmedTitle: String {
+        title.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var trimmedContent: String {
+        content.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

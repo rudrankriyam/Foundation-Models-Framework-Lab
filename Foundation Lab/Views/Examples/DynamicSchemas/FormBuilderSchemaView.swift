@@ -36,7 +36,12 @@ struct FormBuilderSchemaView: View {
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
             onRun: { await runExample() },
-            onReset: { executor.reset() },
+            onReset: {
+                executor.reset()
+                formDescription = "Create a job application form with fields for personal info, experience, and skills"
+                generationMode = 0
+                includeValidation = true
+            },
             content: {
             VStack(alignment: .leading, spacing: Spacing.medium) {
                 // Mode selector

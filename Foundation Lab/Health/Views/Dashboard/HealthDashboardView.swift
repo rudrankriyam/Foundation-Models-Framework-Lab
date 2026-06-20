@@ -104,11 +104,24 @@ private extension HealthDashboardView {
     }
 
     var healthScore: some View {
-        HealthScoreRing(score: calculateHealthScore())
-            .frame(width: 80, height: 80)
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel("Daily progress score")
-            .accessibilityValue("\(Int(calculateHealthScore())) out of 100")
+        Group {
+            if let score = calculateHealthScore() {
+                HealthScoreRing(score: score)
+                    .accessibilityValue("\(Int(score)) out of 100")
+            } else {
+                VStack(spacing: Spacing.xSmall) {
+                    Image(systemName: "heart.slash")
+                        .font(.title2)
+                    Text("Unavailable")
+                        .font(.caption)
+                }
+                .foregroundStyle(.secondary)
+                .accessibilityValue("Unavailable")
+            }
+        }
+        .frame(width: 80, height: 80)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Daily progress score")
     }
 
     var dailyProgressSection: some View {
@@ -117,7 +130,7 @@ private extension HealthDashboardView {
                 ForEach(Array(dailyMetricTypes.enumerated()), id: \.element) { index, type in
                     DailyProgressRow(
                         metricType: type,
-                        currentValue: todayMetrics[type] ?? 0,
+                        currentValue: todayMetrics[type],
                         goalValue: type.defaultGoal
                     )
 
@@ -137,7 +150,7 @@ private extension HealthDashboardView {
                 ForEach(Array(displayedMetricTypes.enumerated()), id: \.element) { index, type in
                     HealthMetricRow(
                         metricType: type,
-                        value: todayMetrics[type] ?? 0
+                        value: todayMetrics[type]
                     )
 
                     if index < displayedMetricTypes.count - 1 {
@@ -167,10 +180,16 @@ private extension HealthDashboardView {
         }
     }
 
-    func calculateHealthScore() -> Double {
-        let stepsScore = min((todayMetrics[.steps] ?? 0) / MetricType.steps.defaultGoal, 1.0)
-        let sleepScore = min((todayMetrics[.sleep] ?? 0) / MetricType.sleep.defaultGoal, 1.0)
-        let activityScore = min((todayMetrics[.activeEnergy] ?? 0) / MetricType.activeEnergy.defaultGoal, 1.0)
+    func calculateHealthScore() -> Double? {
+        guard let steps = todayMetrics[.steps],
+              let sleep = todayMetrics[.sleep],
+              let activeEnergy = todayMetrics[.activeEnergy] else {
+            return nil
+        }
+
+        let stepsScore = min(steps / MetricType.steps.defaultGoal, 1.0)
+        let sleepScore = min(sleep / MetricType.sleep.defaultGoal, 1.0)
+        let activityScore = min(activeEnergy / MetricType.activeEnergy.defaultGoal, 1.0)
 
         return (stepsScore + sleepScore + activityScore) / 3.0 * 100
     }
@@ -199,7 +218,10 @@ private extension HealthDashboardView {
         isGeneratingMessage = true
         defer { isGeneratingMessage = false }
 
-        let score = calculateHealthScore()
+        guard let score = calculateHealthScore() else {
+            encouragementMessage = String(localized: "Health Data Unavailable")
+            return
+        }
         let stepsProgress = (todayMetrics[.steps] ?? 0) / MetricType.steps.defaultGoal * 100
         let sleepHours = todayMetrics[.sleep] ?? 0
         let activeEnergy = Int(todayMetrics[.activeEnergy] ?? 0)
@@ -258,13 +280,7 @@ private extension HealthDashboardView {
             return
         }
 
-        todayMetrics = [
-            .steps: healthDataManager.todaySteps,
-            .heartRate: healthDataManager.currentHeartRate,
-            .sleep: healthDataManager.lastNightSleep,
-            .activeEnergy: healthDataManager.todayActiveEnergy,
-            .distance: healthDataManager.todayDistance
-        ]
+        todayMetrics = healthDataManager.currentMetrics
 
         isLoading = false
 

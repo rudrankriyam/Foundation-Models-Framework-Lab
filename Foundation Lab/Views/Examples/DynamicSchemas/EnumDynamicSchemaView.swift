@@ -29,6 +29,7 @@ struct EnumDynamicSchemaView: View {
             codeExample: exampleCode,
             onRun: { await runExample() },
             onReset: {
+                executor.reset()
                 selectedExample = 0
                 customerInput = schemaExample.preset(at: 0).defaultInput
                 taskInput = schemaExample.preset(at: 1).defaultInput

@@ -73,8 +73,8 @@ struct StructuredDataView: View {
   }
 
   private func resetToDefaults() {
-    currentPrompt = "" // Clear the prompt completely
-    executor.clearAll() // Clear all results, errors, and history
+    currentPrompt = FoundationLabExampleDemo.structuredData.defaultPrompt
+    executor.clearAll()
   }
 }
 

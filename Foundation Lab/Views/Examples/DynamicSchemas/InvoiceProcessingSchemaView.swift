@@ -94,7 +94,13 @@ struct InvoiceProcessingSchemaView: View {
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
             onRun: { await runExample() },
-            onReset: { executor.reset() },
+            onReset: {
+                executor.reset()
+                extractionMode = 0
+                includeLineItems = true
+                calculateTotals = true
+                loadSampleInvoice()
+            },
             content: {
             VStack(alignment: .leading, spacing: Spacing.medium) {
                 modeSelectorSection
@@ -125,6 +131,7 @@ struct InvoiceProcessingSchemaView: View {
 }
 
     private func loadSampleInvoice() {
+        executor.reset()
         invoiceText = """
         INVOICE
         Invoice Number: INV-2025-0042

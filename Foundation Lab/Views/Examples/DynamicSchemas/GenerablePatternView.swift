@@ -113,7 +113,12 @@ struct GenerablePatternView: View {
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
             onRun: { await runExample() },
-            onReset: { selectedExample = 0 },
+            onReset: {
+                executor.reset()
+                selectedExample = 0
+                cuisineInput = "Italian"
+                movieGenreInput = "sci-fi"
+            },
             content: {
                 VStack(alignment: .leading, spacing: Spacing.medium) {
                 // Example selector

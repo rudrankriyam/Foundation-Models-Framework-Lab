@@ -28,6 +28,8 @@ final class HealthChatViewModel {
     var isSummarizing: Bool = false
     var sessionCount: Int = 1
     var currentHealthMetrics: [MetricType: Double] = [:]
+    var errorMessage: String?
+    var showError = false
 
     // MARK: - Token Usage Tracking
 
@@ -135,6 +137,8 @@ final class HealthChatViewModel {
         } catch {
             logger.error("Failed to generate response: \(error.localizedDescription, privacy: .public)")
             let errorText = FoundationModelsErrorHandler.handleError(error)
+            errorMessage = errorText
+            showError = true
             await saveMessageToSession(errorText, isFromUser: false)
         }
     }
@@ -143,6 +147,8 @@ final class HealthChatViewModel {
         responseTask?.cancel()
         responseTask = nil
         conversationEngine.clear()
+        errorMessage = nil
+        showError = false
         syncConversationState()
     }
 
@@ -159,19 +165,16 @@ final class HealthChatViewModel {
             try await healthDataManager.fetchTodayHealthData()
         } catch {
             logger.error("Failed to load health data: \(error.localizedDescription, privacy: .public)")
+            let errorText = FoundationModelsErrorHandler.handleError(error)
+            errorMessage = errorText
+            showError = true
             await saveMessageToSession(
-                FoundationModelsErrorHandler.handleError(error),
+                errorText,
                 isFromUser: false
             )
         }
 
-        currentHealthMetrics = [
-            .steps: healthDataManager.todaySteps,
-            .heartRate: healthDataManager.currentHeartRate,
-            .sleep: healthDataManager.lastNightSleep,
-            .activeEnergy: healthDataManager.todayActiveEnergy,
-            .distance: healthDataManager.todayDistance
-        ]
+        currentHealthMetrics = healthDataManager.currentMetrics
     }
 }
 

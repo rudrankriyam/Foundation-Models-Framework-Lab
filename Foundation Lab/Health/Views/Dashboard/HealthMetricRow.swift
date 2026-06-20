@@ -7,11 +7,11 @@ import SwiftUI
 
 struct HealthMetricRow: View {
     let metricType: MetricType
-    let value: Double
+    let value: Double?
 
     var body: some View {
         LabeledContent {
-            Text(metricType.formattedValue(value))
+            Text(valueText)
                 .foregroundStyle(.secondary)
         } label: {
             Label(metricType.localizedName, systemImage: metricType.icon)
@@ -19,7 +19,11 @@ struct HealthMetricRow: View {
         .padding(.vertical, Spacing.small)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(metricType.localizedName)
-        .accessibilityValue(metricType.formattedValue(value))
+        .accessibilityValue(valueText)
+    }
+
+    private var valueText: String {
+        value.map(metricType.formattedValue) ?? String(localized: "Unavailable")
     }
 }
 

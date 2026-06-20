@@ -68,6 +68,9 @@ struct HealthChatView: View {
         .onDisappear {
             viewModel.tearDown()
         }
+        .alert("Error", isPresented: $viewModel.showError) { } message: {
+            Text(viewModel.errorMessage ?? String(localized: "An unknown error occurred"))
+        }
     }
 
     // MARK: - View Components

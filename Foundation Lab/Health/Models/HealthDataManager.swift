@@ -20,11 +20,21 @@ final class HealthDataManager {
     // MARK: - Observable State
 
     var isAuthorized: Bool = false
-    var todaySteps: Double = 0
-    var todayActiveEnergy: Double = 0
-    var todayDistance: Double = 0
-    var currentHeartRate: Double = 0
-    var lastNightSleep: Double = 0
+    private(set) var todaySteps: Double?
+    private(set) var todayActiveEnergy: Double?
+    private(set) var todayDistance: Double?
+    private(set) var currentHeartRate: Double?
+    private(set) var lastNightSleep: Double?
+
+    var currentMetrics: [MetricType: Double] {
+        var metrics: [MetricType: Double] = [:]
+        metrics[.steps] = todaySteps
+        metrics[.activeEnergy] = todayActiveEnergy
+        metrics[.distance] = todayDistance
+        metrics[.heartRate] = currentHeartRate
+        metrics[.sleep] = lastNightSleep
+        return metrics
+    }
 
     // MARK: - Initialization
 
@@ -55,19 +65,8 @@ final class HealthDataManager {
         currentHeartRate = metrics.heartRate
         lastNightSleep = metrics.sleep
 
-        // Only save metrics with positive values to avoid polluting historical data
-        var metricsToSave: [MetricType: Double] = [
-            .steps: metrics.steps,
-            .activeEnergy: metrics.activeEnergy,
-            .distance: metrics.distance,
-            .heartRate: metrics.heartRate
-        ]
-
-        // Only save sleep if we have a valid reading
-        if metrics.sleep > 0 {
-            metricsToSave[.sleep] = metrics.sleep
-        }
-
+        // Persist only actual positive samples; absence stays distinct from zero.
+        let metricsToSave = currentMetrics.filter { $0.value > 0 }
         healthRepository.saveMetrics(metricsToSave)
     }
 

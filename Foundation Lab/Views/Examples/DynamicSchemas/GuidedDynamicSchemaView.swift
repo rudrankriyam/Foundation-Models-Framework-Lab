@@ -32,7 +32,14 @@ struct GuidedDynamicSchemaView: View {
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
             onRun: { await runExample() },
-            onReset: { executor.reset() },
+            onReset: {
+                executor.reset()
+                selectedGuideType = 0
+                patternInput = "Generate 5 US phone numbers with extensions"
+                rangeInput = "Generate prices between $10 and $100 for electronics"
+                arrayInput = "Create a shopping list with 3-5 items each having 2-4 attributes"
+                validationInput = "Generate valid email addresses for 5 employees at techcorp.com"
+            },
             content: {
             VStack(alignment: .leading, spacing: Spacing.medium) {
                 // Guide Type Selector
