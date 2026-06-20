@@ -36004,70 +36004,6 @@
         }
       }
     },
-    "Choose an MP4, MOV, or M4V file to continue." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose an MP4, MOV, or M4V file to continue."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wählen Sie eine MP4, MOV, oder M4V Datei zum Weiterfahren."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elija un MP4, MOVo M4V archivo para continuar."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choisir un MP4, MOVou M4V fichier pour continuer."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scegli una MP4♪ MOVo M4V file per continuare."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "選択する MP4, MOVまたは M4V 続行するファイル。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "더 보기 MP4· MOV, 또는 M4V 계속하려면 파일."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Escolha um. MP4, MOV, ou M4V Arquivo para continuar."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "选择一个 MP4, (中文). MOV,或 M4V 要继续的文件。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "選擇一個 MP4, MOV,或 M4V 檔案要繼續 。"
-          }
-        }
-      }
-    },
     "Choose the on-device system model when the feature must work without a network connection." : {
       "localizations" : {
         "en" : {
@@ -59312,70 +59248,6 @@
         }
       }
     },
-    "Reasoning levels require PCC on Xcode 27 and an eligible OS 27 runtime." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reasoning levels require PCC on Xcode 27 and an eligible OS 27 runtime."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Argumentationsniveaus erfordern PCC am Xcode 27 und eine berechtigte OS 27 Laufzeit."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los niveles de racionalización requieren PCC on Xcode 27 y un sistema operativo 27 elegible tiempo de ejecución."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les niveaux de motivation requis PCC le Xcode 27 et un OS 27 éligible."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "I livelli di motivazione richiedono PCC su Xcode 27 e un OS 27 runtime ammissibili."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "レベルを調整する PCC お問い合わせ Xcode 27 対象となるOS 27ランタイム。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reasoning 수준은 요구합니다 PCC 으로 Xcode 27 그리고 자격이 된 OS 27 실행 시간."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Os níveis de raciocinação exigem PCC Vamos. Xcode 27 E um OS 27 elegível."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "所需数额 PCC 打开 Xcode 27 和合格的OS 27运行时间."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "理由要求 PCC 於 Xcode 27 以及符合條件的OS 27运行時間。"
-          }
-        }
-      }
-    },
     "Reasoning output" : {
       "localizations" : {
         "en" : {
@@ -68143,70 +68015,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "TTFT,解碼期限,以及端到端期限。"
-          }
-        }
-      }
-    },
-    "Tap Run to inspect PCC language support." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tap Run to inspect PCC language support."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tap Run zur Inspektion PCC Sprachunterstützung."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pulsa Correr para inspeccionar PCC apoyo lingüístico."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Appuyez sur Exécuter pour inspecter PCC soutien linguistique."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tocca Run per ispezionare PCC supporto linguistico."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "タップランで検査 PCC 言語サポート"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "탭 실행 PCC 언어 지원"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toque em Correr para inspecionar PCC Suporte linguístico."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "磁盘运行检查 PCC 语言支持。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "踢踏執行檢查 PCC 語言支持。"
           }
         }
       }
@@ -77302,70 +77110,6 @@
         }
       }
     },
-    "Context size comes from SystemLanguageModel.default.contextWindowSize." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Context size comes from SystemLanguageModel.default.contextWindowSize."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Kontextgröße stammt von SystemLanguageModel.default.contextWindowSize."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El tamaño del contexto proviene de SystemLanguageModel.default.contextWindowSize."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La taille du contexte provient de SystemLanguageModel.default.contextWindowSize."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La dimensione del contesto proviene da SystemLanguageModel.default.contextWindowSize."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "コンテキストサイズは SystemLanguageModel.default.contextWindowSize から取得されます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "컨텍스트 크기는 SystemLanguageModel.default.contextWindowSize에서 가져옵니다."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O tamanho do contexto vem de SystemLanguageModel.default.contextWindowSize."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上下文大小来自 SystemLanguageModel.default.contextWindowSize。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上下文大小來自 SystemLanguageModel.default.contextWindowSize。"
-          }
-        }
-      }
-    },
     "Inspect" : {
       "localizations" : {
         "en" : {
@@ -77554,134 +77298,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "所選影片大小為 %@。請選擇小於 14 MB 的影片。"
-          }
-        }
-      }
-    },
-    "This is a deterministic reference trajectory. Run live agent experiments from the Agent Flow lab." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This is a deterministic reference trajectory. Run live agent experiments from the Agent Flow lab."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dies ist ein deterministischer Referenzverlauf. Führe Live-Agentenexperimente im Agent-Flow-Labor aus."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esta es una trayectoria de referencia determinista. Ejecuta experimentos de agentes en vivo desde el laboratorio Flujo de agentes."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il s’agit d’une trajectoire de référence déterministe. Exécutez des expériences d’agent en direct depuis le labo Flux d’agent."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Questa è una traiettoria di riferimento deterministica. Esegui esperimenti con agenti dal vivo nel laboratorio Flusso agente."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "これは決定論的な参照軌跡です。エージェントフローラボからライブエージェント実験を実行してください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이는 결정론적 참조 궤적입니다. 에이전트 흐름 실습에서 라이브 에이전트 실험을 실행하세요."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esta é uma trajetória de referência determinística. Execute experimentos de agente ao vivo no laboratório Fluxo do agente."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "这是确定性的参考轨迹。请在“智能体流程”实验室中运行实时智能体实验。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "這是確定性的參考軌跡。請在「代理流程」實驗室中執行即時代理實驗。"
-          }
-        }
-      }
-    },
-    "This inline demo accepts source videos under 14 MB so the encoded request stays below Gemini’s 20 MB inline-request limit." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This inline demo accepts source videos under 14 MB so the encoded request stays below Gemini’s 20 MB inline-request limit."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Diese Inline-Demo akzeptiert Quellvideos unter 14 MB, damit die codierte Anfrage unter Geminis 20-MB-Limit bleibt."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esta demostración integrada acepta videos de menos de 14 MB para que la solicitud codificada no supere el límite de 20 MB de Gemini."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cette démo intégrée accepte les vidéos source de moins de 14 Mo afin que la requête encodée reste sous la limite de 20 Mo de Gemini."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Questa demo incorporata accetta video sorgente inferiori a 14 MB, così la richiesta codificata resta sotto il limite di 20 MB di Gemini."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "このインラインデモは、エンコード後のリクエストを Gemini の 20 MB 上限未満に保つため、14 MB 未満のソースビデオを受け付けます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 인라인 데모는 인코딩된 요청이 Gemini의 20MB 한도 미만이 되도록 14MB 미만의 원본 비디오를 허용합니다."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esta demonstração incorporada aceita vídeos de origem com menos de 14 MB para manter a solicitação codificada abaixo do limite de 20 MB do Gemini."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "此内联演示接受小于 14 MB 的源视频，以确保编码后的请求低于 Gemini 的 20 MB 内联请求限制。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "此內嵌示範接受小於 14 MB 的來源影片，以確保編碼後的請求低於 Gemini 的 20 MB 內嵌請求限制。"
           }
         }
       }
@@ -78066,6 +77682,838 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "使用 ${language} 回答 ${prompt}"
+          }
+        }
+      }
+    },
+    "\"%@\" is not an .fmadapter package." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"%@\" is not an .fmadapter package."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ ist kein .fmadapter-Paket."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» no es un paquete .fmadapter."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » n’est pas un paquet .fmadapter."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” non è un pacchetto .fmadapter."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」は .fmadapter パッケージではありません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"%@\"은(는) .fmadapter 패키지가 아닙니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” não é um pacote .fmadapter."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”不是 .fmadapter 软件包。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」不是 .fmadapter 套件。"
+          }
+        }
+      }
+    },
+    "Comparing \"%@\"" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comparing \"%@\""
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ wird verglichen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comparando «%@»"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comparaison de « %@ »"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confronto di “%@”"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」を比較中"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"%@\" 비교 중"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comparando “%@”"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在比较“%@”"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在比較「%@」"
+          }
+        }
+      }
+    },
+    "Comparison failed: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comparison failed: %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vergleich fehlgeschlagen: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error en la comparación: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec de la comparaison : %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confronto non riuscito: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "比較に失敗しました: %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "비교 실패: %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Falha na comparação: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "比较失败：%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "比較失敗：%@"
+          }
+        }
+      }
+    },
+    "Could not import the adapter: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not import the adapter: %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Adapter konnte nicht importiert werden: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo importar el adaptador: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible d’importer l’adaptateur : %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile importare l’adattatore: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アダプタを読み込めませんでした: %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "어댑터를 가져올 수 없습니다: %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível importar o adaptador: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法导入适配器：%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法匯入轉接器：%@"
+          }
+        }
+      }
+    },
+    "Could not load the adapter: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not load the adapter: %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Adapter konnte nicht geladen werden: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo cargar el adaptador: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de charger l’adaptateur : %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile caricare l’adattatore: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アダプタを読み込めませんでした: %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "어댑터를 불러올 수 없습니다: %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível carregar o adaptador: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法加载适配器：%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法載入轉接器：%@"
+          }
+        }
+      }
+    },
+    "Could not measure \"%@\": %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not measure \"%@\": %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ konnte nicht gemessen werden: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo medir «%@»: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de mesurer « %@ » : %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile misurare “%@”: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」を測定できませんでした: %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"%@\"을(를) 측정할 수 없습니다: %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível medir “%@”: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法测量“%@”：%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法測量「%@」：%@"
+          }
+        }
+      }
+    },
+    "Failed to prepare the adapter directory: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to prepare the adapter directory: %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Adapterverzeichnis konnte nicht vorbereitet werden: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo preparar el directorio del adaptador: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de préparer le dossier de l’adaptateur : %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile preparare la cartella dell’adattatore: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アダプタディレクトリを準備できませんでした: %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "어댑터 디렉터리를 준비하지 못했습니다: %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível preparar o diretório do adaptador: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法准备适配器目录：%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法準備轉接器目錄：%@"
+          }
+        }
+      }
+    },
+    "Ready with %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ready with %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereit mit %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listo con %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prêt avec %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pronto con %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ の準備ができました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 준비 완료"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pronto com %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 已就绪"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 已就緒"
+          }
+        }
+      }
+    },
+    "The adapter directory is not writable: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The adapter directory is not writable: %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Adapterverzeichnis ist nicht beschreibbar: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede escribir en el directorio del adaptador: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le dossier de l’adaptateur n’est pas accessible en écriture : %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La cartella dell’adattatore non è scrivibile: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アダプタディレクトリに書き込めません: %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "어댑터 디렉터리에 쓸 수 없습니다: %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O diretório do adaptador não permite gravação: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "适配器目录不可写入：%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "轉接器目錄無法寫入：%@"
+          }
+        }
+      }
+    },
+    "The adapter is too large (%@)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The adapter is too large (%@)."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Adapter ist zu groß (%@)."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El adaptador es demasiado grande (%@)."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’adaptateur est trop volumineux (%@)."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’adattatore è troppo grande (%@)."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アダプタが大きすぎます（%@）。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "어댑터가 너무 큽니다(%@)."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O adaptador é muito grande (%@)."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "适配器过大（%@）。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "轉接器過大（%@）。"
+          }
+        }
+      }
+    },
+    "Context size comes from the system model. Measure uses the model tokenizer; the other sliders are local planning estimates that you can adjust to explore a session budget." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Context size comes from the system model. Measure uses the model tokenizer; the other sliders are local planning estimates that you can adjust to explore a session budget."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Kontextgröße stammt vom Systemmodell. „Messen“ verwendet den Modell-Tokenizer; die anderen Regler sind lokale Planungsschätzungen, mit denen du das Sitzungsbudget erkunden kannst."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El tamaño del contexto proviene del modelo del sistema. Medir usa el tokenizador del modelo; los demás controles son estimaciones locales que puedes ajustar para explorar el presupuesto de una sesión."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La taille du contexte provient du modèle système. Mesurer utilise le segmenteur du modèle ; les autres curseurs sont des estimations locales que vous pouvez ajuster pour explorer le budget d’une session."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La dimensione del contesto proviene dal modello di sistema. Misura usa il tokenizzatore del modello; gli altri cursori sono stime locali che puoi regolare per esplorare il budget di una sessione."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コンテキストサイズはシステムモデルから取得されます。「測定」はモデルのトークナイザを使用します。その他のスライダは、セッション予算を確認するために調整できるローカルの計画見積もりです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컨텍스트 크기는 시스템 모델에서 가져옵니다. 측정은 모델 토크나이저를 사용하며, 다른 슬라이더는 세션 예산을 살펴보기 위해 조정할 수 있는 로컬 계획 추정치입니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O tamanho do contexto vem do modelo do sistema. Medir usa o tokenizador do modelo; os outros controles são estimativas locais que você pode ajustar para explorar o orçamento de uma sessão."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上下文大小来自系统模型。“测量”使用模型分词器；其他滑块是本地规划估算值，可通过调整来探索会话预算。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上下文大小來自系統模型。「測量」使用模型分詞器；其他滑桿是本機規劃估算值，可透過調整來探索工作階段預算。"
+          }
+        }
+      }
+    },
+    "These authored transcript and token fixtures compare app-owned transforms. This page does not call a model or tokenizer." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These authored transcript and token fixtures compare app-owned transforms. This page does not call a model or tokenizer."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese erstellten Transkript- und Token-Fixtures vergleichen app-eigene Transformationen. Diese Seite ruft weder ein Modell noch einen Tokenizer auf."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estas muestras de transcripción y tokens comparan transformaciones propias de la app. Esta página no llama a ningún modelo ni tokenizador."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ces jeux de données de transcription et de jetons comparent des transformations propres à l’app. Cette page n’appelle ni modèle ni segmenteur."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questi esempi di trascrizione e token confrontano trasformazioni gestite dall’app. Questa pagina non richiama un modello né un tokenizzatore."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これらの作成済みトランスクリプトとトークンのフィクスチャは、アプリが管理する変換を比較します。このページはモデルやトークナイザを呼び出しません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 작성된 트랜스크립트 및 토큰 픽스처는 앱이 소유한 변환을 비교합니다. 이 페이지는 모델이나 토크나이저를 호출하지 않습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esses exemplos de transcrição e tokens comparam transformações controladas pelo app. Esta página não chama um modelo nem um tokenizador."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这些编写好的转录和令牌样例用于比较应用自有的转换。此页面不会调用模型或分词器。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這些編寫好的逐字稿和權杖樣例用於比較 App 自有的轉換。此頁面不會呼叫模型或分詞器。"
+          }
+        }
+      }
+    },
+    "This inline demo accepts supported movie files under 14 MB." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This inline demo accepts supported movie files under 14 MB."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Inline-Demo akzeptiert unterstützte Filmdateien unter 14 MB."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta demostración integrada acepta archivos de video compatibles de menos de 14 MB."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette démo intégrée accepte les fichiers vidéo compatibles de moins de 14 Mo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa demo incorporata accetta file video supportati inferiori a 14 MB."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このインラインデモでは、14 MB 未満の対応動画ファイルを使用できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 인라인 데모는 14MB 미만의 지원되는 동영상 파일을 허용합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta demonstração incorporada aceita arquivos de vídeo compatíveis com menos de 14 MB."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此内联演示接受小于 14 MB 的受支持影片文件。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此內嵌示範接受小於 14 MB 的支援影片檔案。"
           }
         }
       }

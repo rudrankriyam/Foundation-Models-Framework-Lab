@@ -250,7 +250,7 @@ private extension GeminiVideoInputViewModel {
             "mp4": "video/mp4",
             "mpeg": "video/mpeg",
             "mpe": "video/mpeg",
-            "mov": "video/quicktime",
+            "mov": "video/mov",
             "avi": "video/avi",
             "flv": "video/x-flv",
             "mpg": "video/mpg",
