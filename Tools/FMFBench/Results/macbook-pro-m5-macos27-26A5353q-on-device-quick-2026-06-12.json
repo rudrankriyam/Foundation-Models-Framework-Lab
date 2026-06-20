@@ -1,0 +1,2756 @@
+{
+  "endedAt" : "2026-06-12T08:37:59Z",
+  "environment" : {
+    "fmfBenchCommit" : "1d8d492",
+    "cpuCores" : 10,
+    "cpuModel" : "Apple M5",
+    "deviceName" : "MacBook Pro M5",
+    "gpuModel" : "Apple M5",
+    "hardwareModel" : "Mac17,2",
+    "localeIdentifier" : "en_US",
+    "lowPowerModeEnabled" : false,
+    "systemBuild" : "26A5353q",
+    "systemName" : "macOS",
+    "systemVersion" : "27.0.0",
+    "thermalState" : "nominal",
+    "timestamp" : "2026-06-12T08:37:34Z",
+    "totalMemory" : 34359738368
+  },
+  "failures" : [
+
+  ],
+  "model" : "onDevice",
+  "repetitions" : 5,
+  "startedAt" : "2026-06-12T08:37:34Z",
+  "suite" : "quick",
+  "summaries" : [
+    {
+      "category" : "taskParsing",
+      "duration" : {
+        "count" : 5,
+        "maximum" : 0.9711530208587646,
+        "mean" : 0.9435373783111572,
+        "median" : 0.9333059787750244,
+        "minimum" : 0.9292769432067871,
+        "p90" : 0.9711530208587646,
+        "standardDeviation" : 0.01668733059469372
+      },
+      "failureCount" : 0,
+      "id" : "task-capture",
+      "meanConstraintScore" : 1,
+      "outputTokensPerSecond" : {
+        "count" : 5,
+        "maximum" : 76.09176625408276,
+        "mean" : 74.35119147941336,
+        "median" : 74.54598425982701,
+        "minimum" : 72.21071785669353,
+        "p90" : 76.09176625408276,
+        "standardDeviation" : 1.4395527071624648
+      },
+      "promptPassRate" : 1,
+      "timeToFirstToken" : {
+        "count" : 5,
+        "maximum" : 0.44798600673675537,
+        "mean" : 0.42153077125549315,
+        "median" : 0.4167379140853882,
+        "minimum" : 0.41092801094055176,
+        "p90" : 0.44798600673675537,
+        "standardDeviation" : 0.013424488117813124
+      },
+      "title" : "Natural-language task capture",
+      "trialCount" : 5
+    },
+    {
+      "category" : "summarization",
+      "duration" : {
+        "count" : 5,
+        "maximum" : 0.7083430290222168,
+        "mean" : 0.6690155744552613,
+        "median" : 0.6594710350036621,
+        "minimum" : 0.6581519842147827,
+        "p90" : 0.7083430290222168,
+        "standardDeviation" : 0.019684293280524182
+      },
+      "failureCount" : 0,
+      "id" : "notification-summary",
+      "meanConstraintScore" : 1,
+      "outputTokensPerSecond" : {
+        "count" : 5,
+        "maximum" : 94.55669834526499,
+        "mean" : 92.15299850754323,
+        "median" : 94.31360135116566,
+        "minimum" : 86.59840623009413,
+        "p90" : 94.55669834526499,
+        "standardDeviation" : 3.1293517319944915
+      },
+      "promptPassRate" : 1,
+      "timeToFirstToken" : {
+        "count" : 5,
+        "maximum" : 0.41083598136901855,
+        "mean" : 0.3756755828857422,
+        "median" : 0.37256503105163574,
+        "minimum" : 0.3476870059967041,
+        "p90" : 0.41083598136901855,
+        "standardDeviation" : 0.0202094775319056
+      },
+      "title" : "Stacked notification summary",
+      "trialCount" : 5
+    },
+    {
+      "category" : "classification",
+      "duration" : {
+        "count" : 5,
+        "maximum" : 0.7553240060806274,
+        "mean" : 0.5069375991821289,
+        "median" : 0.503227949142456,
+        "minimum" : 0.3667140007019043,
+        "p90" : 0.7553240060806274,
+        "standardDeviation" : 0.13930743450137253
+      },
+      "failureCount" : 0,
+      "id" : "habit-classification",
+      "meanConstraintScore" : 1,
+      "outputTokensPerSecond" : {
+        "count" : 5,
+        "maximum" : 108.96560324223215,
+        "mean" : 81.68552644349954,
+        "median" : 71.10954382312401,
+        "minimum" : 54.46978276001787,
+        "p90" : 108.96560324223215,
+        "standardDeviation" : 22.082117461007094
+      },
+      "promptPassRate" : 1,
+      "timeToFirstToken" : {
+        "count" : 5,
+        "maximum" : 0.6635299921035767,
+        "mean" : 0.44107296466827395,
+        "median" : 0.4329138994216919,
+        "minimum" : 0.31988298892974854,
+        "p90" : 0.6635299921035767,
+        "standardDeviation" : 0.1225579423765852
+      },
+      "title" : "Habit category classification",
+      "trialCount" : 5
+    },
+    {
+      "category" : "structuredRecommendation",
+      "duration" : {
+        "count" : 5,
+        "maximum" : 0.85086989402771,
+        "mean" : 0.830385160446167,
+        "median" : 0.8211969137191772,
+        "minimum" : 0.8199989795684814,
+        "p90" : 0.85086989402771,
+        "standardDeviation" : 0.012420338023619335
+      },
+      "failureCount" : 0,
+      "id" : "workout-plan",
+      "meanConstraintScore" : 1,
+      "outputTokensPerSecond" : {
+        "count" : 5,
+        "maximum" : 88.10994488650942,
+        "mean" : 83.15525476847918,
+        "median" : 82.21463302079215,
+        "minimum" : 80.99296081894671,
+        "p90" : 88.10994488650942,
+        "standardDeviation" : 2.523467448079235
+      },
+      "promptPassRate" : 1,
+      "timeToFirstToken" : {
+        "count" : 5,
+        "maximum" : 0.43796098232269287,
+        "mean" : 0.42624998092651367,
+        "median" : 0.42490291595458984,
+        "minimum" : 0.41944801807403564,
+        "p90" : 0.43796098232269287,
+        "standardDeviation" : 0.006205057048421559
+      },
+      "title" : "Constraint-aware workout plan",
+      "trialCount" : 5
+    },
+    {
+      "category" : "groundedQuestionAnswering",
+      "duration" : {
+        "count" : 5,
+        "maximum" : 0.7086828947067261,
+        "mean" : 0.6704846143722534,
+        "median" : 0.6602940559387207,
+        "minimum" : 0.6505630016326904,
+        "p90" : 0.7086828947067261,
+        "standardDeviation" : 0.02069369660788453
+      },
+      "failureCount" : 0,
+      "id" : "grounded-document-answer",
+      "meanConstraintScore" : 1,
+      "outputTokensPerSecond" : {
+        "count" : 5,
+        "maximum" : 82.72956423388618,
+        "mean" : 74.12639703232472,
+        "median" : 75.49247173393104,
+        "minimum" : 62.43871273382281,
+        "p90" : 82.72956423388618,
+        "standardDeviation" : 6.886520384213787
+      },
+      "promptPassRate" : 1,
+      "timeToFirstToken" : {
+        "count" : 5,
+        "maximum" : 0.4434260129928589,
+        "mean" : 0.4341896057128906,
+        "median" : 0.4364159107208252,
+        "minimum" : 0.42537498474121094,
+        "p90" : 0.4434260129928589,
+        "standardDeviation" : 0.006569790698987599
+      },
+      "title" : "Grounded document question answering",
+      "trialCount" : 5
+    }
+  ],
+  "trials" : [
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "title equals Call Dr. Lee",
+            "passed" : true
+          },
+          {
+            "label" : "list equals Personal",
+            "passed" : true
+          },
+          {
+            "label" : "dueDate equals 2026-06-16 09:00",
+            "passed" : true
+          },
+          {
+            "label" : "tags contains health, calls",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "DE0A593A-DEB4-415B-A9FC-1D016364E070",
+      "iteration" : 1,
+      "metrics" : {
+        "decodeDuration" : 0.5157790184020996,
+        "duration" : 0.9333059787750244,
+        "endedAt" : "2026-06-12T08:37:36Z",
+        "firstStreamUpdateTokenCount" : 15,
+        "inputTokenCount" : 297,
+        "maximumStreamUpdateGap" : 0.16577494144439697,
+        "outputCharactersPerSecond" : 203.5755551385038,
+        "outputTokenCount" : 54,
+        "outputTokensPerSecond" : 75.61377762287285,
+        "startedAt" : "2026-06-12T08:37:35Z",
+        "streamUpdateCount" : 24,
+        "timeToFirstToken" : 0.4175269603729248,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"list\": \"Personal\", \"dueDate\": \"2026-06-16 09:00\", \"tags\": [\"health\", \"calls\"], \"title\": \"Call Dr. Lee\"}",
+      "scenario" : {
+        "category" : "taskParsing",
+        "checks" : [
+          {
+            "jsonEquals" : {
+              "path" : "title",
+              "value" : {
+                "string" : {
+                  "_0" : "Call Dr. Lee"
+                }
+              }
+            }
+          },
+          {
+            "jsonEquals" : {
+              "path" : "list",
+              "value" : {
+                "string" : {
+                  "_0" : "Personal"
+                }
+              }
+            }
+          },
+          {
+            "jsonEquals" : {
+              "path" : "dueDate",
+              "value" : {
+                "string" : {
+                  "_0" : "2026-06-16 09:00"
+                }
+              }
+            }
+          },
+          {
+            "jsonContains" : {
+              "path" : "tags",
+              "values" : [
+                "health",
+                "calls"
+              ]
+            }
+          }
+        ],
+        "id" : "task-capture",
+        "inspiredBy" : [
+          "Stuff",
+          "OmniFocus"
+        ],
+        "instructions" : "Extract task information exactly from the request. Never invent missing details.\nUse the supplied reference date and the requested date format.",
+        "maximumResponseTokens" : 120,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "task"
+          }
+        },
+        "prompt" : "Reference date: 2026-06-12.\nRequest: Add “Call Dr. Lee” to my Personal list for June 16, 2026 at 9:00 AM.\nTag it with health and calls.\nReturn dueDate in the exact format YYYY-MM-DD HH:mm.",
+        "summary" : "Extracts a task, list, date, and tags from conversational input.",
+        "title" : "Natural-language task capture"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "title equals Call Dr. Lee",
+            "passed" : true
+          },
+          {
+            "label" : "list equals Personal",
+            "passed" : true
+          },
+          {
+            "label" : "dueDate equals 2026-06-16 09:00",
+            "passed" : true
+          },
+          {
+            "label" : "tags contains health, calls",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "A9E1E194-09B0-48DC-A35B-F92320667D8B",
+      "iteration" : 2,
+      "metrics" : {
+        "decodeDuration" : 0.5184619426727295,
+        "duration" : 0.9293899536132812,
+        "endedAt" : "2026-06-12T08:37:37Z",
+        "firstStreamUpdateTokenCount" : 16,
+        "inputTokenCount" : 297,
+        "maximumStreamUpdateGap" : 0.1605689525604248,
+        "outputCharactersPerSecond" : 202.52209729939523,
+        "outputTokenCount" : 54,
+        "outputTokensPerSecond" : 73.29371140359066,
+        "startedAt" : "2026-06-12T08:37:36Z",
+        "streamUpdateCount" : 23,
+        "timeToFirstToken" : 0.41092801094055176,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"title\": \"Call Dr. Lee\", \"tags\": [\"health\", \"calls\"], \"list\": \"Personal\", \"dueDate\": \"2026-06-16 09:00\"}",
+      "scenario" : {
+        "category" : "taskParsing",
+        "checks" : [
+          {
+            "jsonEquals" : {
+              "path" : "title",
+              "value" : {
+                "string" : {
+                  "_0" : "Call Dr. Lee"
+                }
+              }
+            }
+          },
+          {
+            "jsonEquals" : {
+              "path" : "list",
+              "value" : {
+                "string" : {
+                  "_0" : "Personal"
+                }
+              }
+            }
+          },
+          {
+            "jsonEquals" : {
+              "path" : "dueDate",
+              "value" : {
+                "string" : {
+                  "_0" : "2026-06-16 09:00"
+                }
+              }
+            }
+          },
+          {
+            "jsonContains" : {
+              "path" : "tags",
+              "values" : [
+                "health",
+                "calls"
+              ]
+            }
+          }
+        ],
+        "id" : "task-capture",
+        "inspiredBy" : [
+          "Stuff",
+          "OmniFocus"
+        ],
+        "instructions" : "Extract task information exactly from the request. Never invent missing details.\nUse the supplied reference date and the requested date format.",
+        "maximumResponseTokens" : 120,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "task"
+          }
+        },
+        "prompt" : "Reference date: 2026-06-12.\nRequest: Add “Call Dr. Lee” to my Personal list for June 16, 2026 at 9:00 AM.\nTag it with health and calls.\nReturn dueDate in the exact format YYYY-MM-DD HH:mm.",
+        "summary" : "Extracts a task, list, date, and tags from conversational input.",
+        "title" : "Natural-language task capture"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "title equals Call Dr. Lee",
+            "passed" : true
+          },
+          {
+            "label" : "list equals Personal",
+            "passed" : true
+          },
+          {
+            "label" : "dueDate equals 2026-06-16 09:00",
+            "passed" : true
+          },
+          {
+            "label" : "tags contains health, calls",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "30850D2C-CE36-470A-9AF0-9270C2D6A7AB",
+      "iteration" : 3,
+      "metrics" : {
+        "decodeDuration" : 0.540086030960083,
+        "duration" : 0.9545609951019287,
+        "endedAt" : "2026-06-12T08:37:38Z",
+        "firstStreamUpdateTokenCount" : 15,
+        "inputTokenCount" : 297,
+        "maximumStreamUpdateGap" : 0.1630079746246338,
+        "outputCharactersPerSecond" : 194.41347115263642,
+        "outputTokenCount" : 54,
+        "outputTokensPerSecond" : 72.21071785669353,
+        "startedAt" : "2026-06-12T08:37:38Z",
+        "streamUpdateCount" : 26,
+        "timeToFirstToken" : 0.4144749641418457,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"list\": \"Personal\", \"dueDate\": \"2026-06-16 09:00\", \"title\": \"Call Dr. Lee\", \"tags\": [\"health\", \"calls\"]}",
+      "scenario" : {
+        "category" : "taskParsing",
+        "checks" : [
+          {
+            "jsonEquals" : {
+              "path" : "title",
+              "value" : {
+                "string" : {
+                  "_0" : "Call Dr. Lee"
+                }
+              }
+            }
+          },
+          {
+            "jsonEquals" : {
+              "path" : "list",
+              "value" : {
+                "string" : {
+                  "_0" : "Personal"
+                }
+              }
+            }
+          },
+          {
+            "jsonEquals" : {
+              "path" : "dueDate",
+              "value" : {
+                "string" : {
+                  "_0" : "2026-06-16 09:00"
+                }
+              }
+            }
+          },
+          {
+            "jsonContains" : {
+              "path" : "tags",
+              "values" : [
+                "health",
+                "calls"
+              ]
+            }
+          }
+        ],
+        "id" : "task-capture",
+        "inspiredBy" : [
+          "Stuff",
+          "OmniFocus"
+        ],
+        "instructions" : "Extract task information exactly from the request. Never invent missing details.\nUse the supplied reference date and the requested date format.",
+        "maximumResponseTokens" : 120,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "task"
+          }
+        },
+        "prompt" : "Reference date: 2026-06-12.\nRequest: Add “Call Dr. Lee” to my Personal list for June 16, 2026 at 9:00 AM.\nTag it with health and calls.\nReturn dueDate in the exact format YYYY-MM-DD HH:mm.",
+        "summary" : "Extracts a task, list, date, and tags from conversational input.",
+        "title" : "Natural-language task capture"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "title equals Call Dr. Lee",
+            "passed" : true
+          },
+          {
+            "label" : "list equals Personal",
+            "passed" : true
+          },
+          {
+            "label" : "dueDate equals 2026-06-16 09:00",
+            "passed" : true
+          },
+          {
+            "label" : "tags contains health, calls",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "44D14BC9-2FD6-4A20-9928-426385EE4869",
+      "iteration" : 4,
+      "metrics" : {
+        "decodeDuration" : 0.5231670141220093,
+        "duration" : 0.9711530208587646,
+        "endedAt" : "2026-06-12T08:37:40Z",
+        "firstStreamUpdateTokenCount" : 15,
+        "inputTokenCount" : 297,
+        "maximumStreamUpdateGap" : 0.16945302486419678,
+        "outputCharactersPerSecond" : 200.70072685338042,
+        "outputTokenCount" : 54,
+        "outputTokensPerSecond" : 74.54598425982701,
+        "startedAt" : "2026-06-12T08:37:39Z",
+        "streamUpdateCount" : 29,
+        "timeToFirstToken" : 0.44798600673675537,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"title\": \"Call Dr. Lee\", \"tags\": [\"health\", \"calls\"], \"list\": \"Personal\", \"dueDate\": \"2026-06-16 09:00\"}",
+      "scenario" : {
+        "category" : "taskParsing",
+        "checks" : [
+          {
+            "jsonEquals" : {
+              "path" : "title",
+              "value" : {
+                "string" : {
+                  "_0" : "Call Dr. Lee"
+                }
+              }
+            }
+          },
+          {
+            "jsonEquals" : {
+              "path" : "list",
+              "value" : {
+                "string" : {
+                  "_0" : "Personal"
+                }
+              }
+            }
+          },
+          {
+            "jsonEquals" : {
+              "path" : "dueDate",
+              "value" : {
+                "string" : {
+                  "_0" : "2026-06-16 09:00"
+                }
+              }
+            }
+          },
+          {
+            "jsonContains" : {
+              "path" : "tags",
+              "values" : [
+                "health",
+                "calls"
+              ]
+            }
+          }
+        ],
+        "id" : "task-capture",
+        "inspiredBy" : [
+          "Stuff",
+          "OmniFocus"
+        ],
+        "instructions" : "Extract task information exactly from the request. Never invent missing details.\nUse the supplied reference date and the requested date format.",
+        "maximumResponseTokens" : 120,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "task"
+          }
+        },
+        "prompt" : "Reference date: 2026-06-12.\nRequest: Add “Call Dr. Lee” to my Personal list for June 16, 2026 at 9:00 AM.\nTag it with health and calls.\nReturn dueDate in the exact format YYYY-MM-DD HH:mm.",
+        "summary" : "Extracts a task, list, date, and tags from conversational input.",
+        "title" : "Natural-language task capture"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "title equals Call Dr. Lee",
+            "passed" : true
+          },
+          {
+            "label" : "list equals Personal",
+            "passed" : true
+          },
+          {
+            "label" : "dueDate equals 2026-06-16 09:00",
+            "passed" : true
+          },
+          {
+            "label" : "tags contains health, calls",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "A8A6BEA3-4C20-45F6-A53A-DC37A2B43432",
+      "iteration" : 5,
+      "metrics" : {
+        "decodeDuration" : 0.5125390291213989,
+        "duration" : 0.9292769432067871,
+        "endedAt" : "2026-06-12T08:37:41Z",
+        "firstStreamUpdateTokenCount" : 15,
+        "inputTokenCount" : 297,
+        "maximumStreamUpdateGap" : 0.1319119930267334,
+        "outputCharactersPerSecond" : 204.86244760714587,
+        "outputTokenCount" : 54,
+        "outputTokensPerSecond" : 76.09176625408276,
+        "startedAt" : "2026-06-12T08:37:40Z",
+        "streamUpdateCount" : 20,
+        "timeToFirstToken" : 0.4167379140853882,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"list\": \"Personal\", \"dueDate\": \"2026-06-16 09:00\", \"tags\": [\"health\", \"calls\"], \"title\": \"Call Dr. Lee\"}",
+      "scenario" : {
+        "category" : "taskParsing",
+        "checks" : [
+          {
+            "jsonEquals" : {
+              "path" : "title",
+              "value" : {
+                "string" : {
+                  "_0" : "Call Dr. Lee"
+                }
+              }
+            }
+          },
+          {
+            "jsonEquals" : {
+              "path" : "list",
+              "value" : {
+                "string" : {
+                  "_0" : "Personal"
+                }
+              }
+            }
+          },
+          {
+            "jsonEquals" : {
+              "path" : "dueDate",
+              "value" : {
+                "string" : {
+                  "_0" : "2026-06-16 09:00"
+                }
+              }
+            }
+          },
+          {
+            "jsonContains" : {
+              "path" : "tags",
+              "values" : [
+                "health",
+                "calls"
+              ]
+            }
+          }
+        ],
+        "id" : "task-capture",
+        "inspiredBy" : [
+          "Stuff",
+          "OmniFocus"
+        ],
+        "instructions" : "Extract task information exactly from the request. Never invent missing details.\nUse the supplied reference date and the requested date format.",
+        "maximumResponseTokens" : 120,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "task"
+          }
+        },
+        "prompt" : "Reference date: 2026-06-12.\nRequest: Add “Call Dr. Lee” to my Personal list for June 16, 2026 at 9:00 AM.\nTag it with health and calls.\nReturn dueDate in the exact format YYYY-MM-DD HH:mm.",
+        "summary" : "Extracts a task, list, date, and tags from conversational input.",
+        "title" : "Natural-language task capture"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "Contains “Friday”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “2 PM”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “Room 4B”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “8”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “11”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “budget”",
+            "passed" : true
+          },
+          {
+            "label" : "At most 45 words",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "997995CE-5D7B-4ABD-8D27-F333E2956743",
+      "iteration" : 1,
+      "metrics" : {
+        "decodeDuration" : 0.311784029006958,
+        "duration" : 0.6594710350036621,
+        "endedAt" : "2026-06-12T08:37:42Z",
+        "firstStreamUpdateTokenCount" : 11,
+        "inputTokenCount" : 140,
+        "maximumStreamUpdateGap" : 0.13251197338104248,
+        "outputCharactersPerSecond" : 301.49074761588327,
+        "outputTokenCount" : 38,
+        "outputTokensPerSecond" : 86.59840623009413,
+        "startedAt" : "2026-06-12T08:37:41Z",
+        "streamUpdateCount" : 30,
+        "timeToFirstToken" : 0.3476870059967041,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "The launch review is Friday at 2 PM in Room 4B. Check slides 8 and 11. The budget is approved.",
+      "scenario" : {
+        "category" : "summarization",
+        "checks" : [
+          {
+            "contains" : {
+              "_0" : "Friday"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "2 PM"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "Room 4B"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "8"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "11"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "budget"
+            }
+          },
+          {
+            "maximumWords" : {
+              "_0" : 45
+            }
+          }
+        ],
+        "id" : "notification-summary",
+        "inspiredBy" : [
+          "Stoic",
+          "Gratitude"
+        ],
+        "instructions" : "Summarize only the supplied messages. Preserve decisions, times, locations, and\nrequired actions. Do not add facts. Use no more than 45 words.",
+        "maximumResponseTokens" : 96,
+        "outputMode" : {
+          "text" : {
+
+          }
+        },
+        "prompt" : "Maya: The launch review moved to Friday at 2 PM in Room 4B.\nTheo: I uploaded the final deck. Please check slides 8 and 11 before the meeting.\nMaya: Finance approved the budget, so no approval is blocking launch.",
+        "summary" : "Compresses a message stack while preserving decisions and actions.",
+        "title" : "Stacked notification summary"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "Contains “Friday”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “2 PM”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “Room 4B”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “8”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “11”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “budget”",
+            "passed" : true
+          },
+          {
+            "label" : "At most 45 words",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "32E2A77E-0AF7-4143-8B2B-286F1AABF348",
+      "iteration" : 2,
+      "metrics" : {
+        "decodeDuration" : 0.28627896308898926,
+        "duration" : 0.658410906791687,
+        "endedAt" : "2026-06-12T08:37:42Z",
+        "firstStreamUpdateTokenCount" : 11,
+        "inputTokenCount" : 140,
+        "maximumStreamUpdateGap" : 0.12847602367401123,
+        "outputCharactersPerSecond" : 328.3510565559101,
+        "outputTokenCount" : 38,
+        "outputTokensPerSecond" : 94.31360135116566,
+        "startedAt" : "2026-06-12T08:37:42Z",
+        "streamUpdateCount" : 30,
+        "timeToFirstToken" : 0.37213194370269775,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "The launch review is Friday at 2 PM in Room 4B. Check slides 8 and 11. The budget is approved.",
+      "scenario" : {
+        "category" : "summarization",
+        "checks" : [
+          {
+            "contains" : {
+              "_0" : "Friday"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "2 PM"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "Room 4B"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "8"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "11"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "budget"
+            }
+          },
+          {
+            "maximumWords" : {
+              "_0" : 45
+            }
+          }
+        ],
+        "id" : "notification-summary",
+        "inspiredBy" : [
+          "Stoic",
+          "Gratitude"
+        ],
+        "instructions" : "Summarize only the supplied messages. Preserve decisions, times, locations, and\nrequired actions. Do not add facts. Use no more than 45 words.",
+        "maximumResponseTokens" : 96,
+        "outputMode" : {
+          "text" : {
+
+          }
+        },
+        "prompt" : "Maya: The launch review moved to Friday at 2 PM in Room 4B.\nTheo: I uploaded the final deck. Please check slides 8 and 11 before the meeting.\nMaya: Finance approved the budget, so no approval is blocking launch.",
+        "summary" : "Compresses a message stack while preserving decisions and actions.",
+        "title" : "Stacked notification summary"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "Contains “Friday”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “2 PM”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “Room 4B”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “8”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “11”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “budget”",
+            "passed" : true
+          },
+          {
+            "label" : "At most 45 words",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "8E316503-AD3F-4A6C-890A-222C267DA8A8",
+      "iteration" : 3,
+      "metrics" : {
+        "decodeDuration" : 0.29750704765319824,
+        "duration" : 0.7083430290222168,
+        "endedAt" : "2026-06-12T08:37:43Z",
+        "firstStreamUpdateTokenCount" : 11,
+        "inputTokenCount" : 140,
+        "maximumStreamUpdateGap" : 0.13493704795837402,
+        "outputCharactersPerSecond" : 315.95890161760167,
+        "outputTokenCount" : 38,
+        "outputTokensPerSecond" : 90.75415259228984,
+        "startedAt" : "2026-06-12T08:37:43Z",
+        "streamUpdateCount" : 30,
+        "timeToFirstToken" : 0.41083598136901855,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "The launch review is Friday at 2 PM in Room 4B. Check slides 8 and 11. The budget is approved.",
+      "scenario" : {
+        "category" : "summarization",
+        "checks" : [
+          {
+            "contains" : {
+              "_0" : "Friday"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "2 PM"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "Room 4B"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "8"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "11"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "budget"
+            }
+          },
+          {
+            "maximumWords" : {
+              "_0" : 45
+            }
+          }
+        ],
+        "id" : "notification-summary",
+        "inspiredBy" : [
+          "Stoic",
+          "Gratitude"
+        ],
+        "instructions" : "Summarize only the supplied messages. Preserve decisions, times, locations, and\nrequired actions. Do not add facts. Use no more than 45 words.",
+        "maximumResponseTokens" : 96,
+        "outputMode" : {
+          "text" : {
+
+          }
+        },
+        "prompt" : "Maya: The launch review moved to Friday at 2 PM in Room 4B.\nTheo: I uploaded the final deck. Please check slides 8 and 11 before the meeting.\nMaya: Finance approved the budget, so no approval is blocking launch.",
+        "summary" : "Compresses a message stack while preserving decisions and actions.",
+        "title" : "Stacked notification summary"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "Contains “Friday”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “2 PM”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “Room 4B”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “8”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “11”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “budget”",
+            "passed" : true
+          },
+          {
+            "label" : "At most 45 words",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "9A53F71C-945D-40D4-AC49-41B84701D20D",
+      "iteration" : 4,
+      "metrics" : {
+        "decodeDuration" : 0.28554296493530273,
+        "duration" : 0.6607009172439575,
+        "endedAt" : "2026-06-12T08:37:44Z",
+        "firstStreamUpdateTokenCount" : 11,
+        "inputTokenCount" : 140,
+        "maximumStreamUpdateGap" : 0.13156604766845703,
+        "outputCharactersPerSecond" : 329.1973942390707,
+        "outputTokenCount" : 38,
+        "outputTokensPerSecond" : 94.55669834526499,
+        "startedAt" : "2026-06-12T08:37:43Z",
+        "streamUpdateCount" : 29,
+        "timeToFirstToken" : 0.3751579523086548,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "The launch review is Friday at 2 PM in Room 4B. Check slides 8 and 11. The budget is approved.",
+      "scenario" : {
+        "category" : "summarization",
+        "checks" : [
+          {
+            "contains" : {
+              "_0" : "Friday"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "2 PM"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "Room 4B"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "8"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "11"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "budget"
+            }
+          },
+          {
+            "maximumWords" : {
+              "_0" : 45
+            }
+          }
+        ],
+        "id" : "notification-summary",
+        "inspiredBy" : [
+          "Stoic",
+          "Gratitude"
+        ],
+        "instructions" : "Summarize only the supplied messages. Preserve decisions, times, locations, and\nrequired actions. Do not add facts. Use no more than 45 words.",
+        "maximumResponseTokens" : 96,
+        "outputMode" : {
+          "text" : {
+
+          }
+        },
+        "prompt" : "Maya: The launch review moved to Friday at 2 PM in Room 4B.\nTheo: I uploaded the final deck. Please check slides 8 and 11 before the meeting.\nMaya: Finance approved the budget, so no approval is blocking launch.",
+        "summary" : "Compresses a message stack while preserving decisions and actions.",
+        "title" : "Stacked notification summary"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "Contains “Friday”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “2 PM”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “Room 4B”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “8”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “11”",
+            "passed" : true
+          },
+          {
+            "label" : "Contains “budget”",
+            "passed" : true
+          },
+          {
+            "label" : "At most 45 words",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "B8B2E12E-65A9-4B40-83DF-608396A006E9",
+      "iteration" : 5,
+      "metrics" : {
+        "decodeDuration" : 0.285586953163147,
+        "duration" : 0.6581519842147827,
+        "endedAt" : "2026-06-12T08:37:45Z",
+        "firstStreamUpdateTokenCount" : 11,
+        "inputTokenCount" : 140,
+        "maximumStreamUpdateGap" : 0.12860405445098877,
+        "outputCharactersPerSecond" : 329.14668880654614,
+        "outputTokenCount" : 38,
+        "outputTokensPerSecond" : 94.54213401890155,
+        "startedAt" : "2026-06-12T08:37:44Z",
+        "streamUpdateCount" : 29,
+        "timeToFirstToken" : 0.37256503105163574,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "The launch review is Friday at 2 PM in Room 4B. Check slides 8 and 11. The budget is approved.",
+      "scenario" : {
+        "category" : "summarization",
+        "checks" : [
+          {
+            "contains" : {
+              "_0" : "Friday"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "2 PM"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "Room 4B"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "8"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "11"
+            }
+          },
+          {
+            "contains" : {
+              "_0" : "budget"
+            }
+          },
+          {
+            "maximumWords" : {
+              "_0" : 45
+            }
+          }
+        ],
+        "id" : "notification-summary",
+        "inspiredBy" : [
+          "Stoic",
+          "Gratitude"
+        ],
+        "instructions" : "Summarize only the supplied messages. Preserve decisions, times, locations, and\nrequired actions. Do not add facts. Use no more than 45 words.",
+        "maximumResponseTokens" : 96,
+        "outputMode" : {
+          "text" : {
+
+          }
+        },
+        "prompt" : "Maya: The launch review moved to Friday at 2 PM in Room 4B.\nTheo: I uploaded the final deck. Please check slides 8 and 11 before the meeting.\nMaya: Finance approved the budget, so no approval is blocking launch.",
+        "summary" : "Compresses a message stack while preserving decisions and actions.",
+        "title" : "Stacked notification summary"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "category equals health",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "073E56A6-0346-4AA1-891F-E2CCA8535E37",
+      "iteration" : 1,
+      "metrics" : {
+        "decodeDuration" : 0.09179401397705078,
+        "duration" : 0.7553240060806274,
+        "endedAt" : "2026-06-12T08:37:46Z",
+        "firstStreamUpdateTokenCount" : 10,
+        "inputTokenCount" : 158,
+        "maximumStreamUpdateGap" : 0.09170997142791748,
+        "outputCharactersPerSecond" : 239.66704414407863,
+        "outputTokenCount" : 15,
+        "outputTokensPerSecond" : 54.46978276001787,
+        "startedAt" : "2026-06-12T08:37:45Z",
+        "streamUpdateCount" : 6,
+        "timeToFirstToken" : 0.6635299921035767,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"category\": \"health\"}",
+      "scenario" : {
+        "category" : "classification",
+        "checks" : [
+          {
+            "jsonEquals" : {
+              "path" : "category",
+              "value" : {
+                "string" : {
+                  "_0" : "health"
+                }
+              }
+            }
+          }
+        ],
+        "id" : "habit-classification",
+        "inspiredBy" : [
+          "Motivation",
+          "Streaks",
+          "Vocabulary"
+        ],
+        "instructions" : "Choose exactly one available category based on the primary user intent.",
+        "maximumResponseTokens" : 32,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "classification"
+          }
+        },
+        "prompt" : "Activity: Meditate for ten minutes before breakfast.\nAvailable categories: health, learning, productivity, relationships.",
+        "summary" : "Classifies an activity into one constrained application category.",
+        "title" : "Habit category classification"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "category equals health",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "12F4F3D5-0867-4DD7-98D4-75CA56328A0C",
+      "iteration" : 2,
+      "metrics" : {
+        "decodeDuration" : 0.07031404972076416,
+        "duration" : 0.503227949142456,
+        "endedAt" : "2026-06-12T08:37:47Z",
+        "firstStreamUpdateTokenCount" : 10,
+        "inputTokenCount" : 158,
+        "maximumStreamUpdateGap" : 0.07023096084594727,
+        "outputCharactersPerSecond" : 312.88199282174565,
+        "outputTokenCount" : 15,
+        "outputTokensPerSecond" : 71.10954382312401,
+        "startedAt" : "2026-06-12T08:37:46Z",
+        "streamUpdateCount" : 6,
+        "timeToFirstToken" : 0.4329138994216919,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"category\": \"health\"}",
+      "scenario" : {
+        "category" : "classification",
+        "checks" : [
+          {
+            "jsonEquals" : {
+              "path" : "category",
+              "value" : {
+                "string" : {
+                  "_0" : "health"
+                }
+              }
+            }
+          }
+        ],
+        "id" : "habit-classification",
+        "inspiredBy" : [
+          "Motivation",
+          "Streaks",
+          "Vocabulary"
+        ],
+        "instructions" : "Choose exactly one available category based on the primary user intent.",
+        "maximumResponseTokens" : 32,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "classification"
+          }
+        },
+        "prompt" : "Activity: Meditate for ten minutes before breakfast.\nAvailable categories: health, learning, productivity, relationships.",
+        "summary" : "Classifies an activity into one constrained application category.",
+        "title" : "Habit category classification"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "category equals health",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "FC188520-1433-4BF0-B14B-527CD5F29367",
+      "iteration" : 3,
+      "metrics" : {
+        "decodeDuration" : 0.07449805736541748,
+        "duration" : 0.5261440277099609,
+        "endedAt" : "2026-06-12T08:37:48Z",
+        "firstStreamUpdateTokenCount" : 10,
+        "inputTokenCount" : 158,
+        "maximumStreamUpdateGap" : 0.07432198524475098,
+        "outputCharactersPerSecond" : 295.30971381023625,
+        "outputTokenCount" : 15,
+        "outputTokensPerSecond" : 67.11584404778097,
+        "startedAt" : "2026-06-12T08:37:47Z",
+        "streamUpdateCount" : 6,
+        "timeToFirstToken" : 0.45164597034454346,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"category\": \"health\"}",
+      "scenario" : {
+        "category" : "classification",
+        "checks" : [
+          {
+            "jsonEquals" : {
+              "path" : "category",
+              "value" : {
+                "string" : {
+                  "_0" : "health"
+                }
+              }
+            }
+          }
+        ],
+        "id" : "habit-classification",
+        "inspiredBy" : [
+          "Motivation",
+          "Streaks",
+          "Vocabulary"
+        ],
+        "instructions" : "Choose exactly one available category based on the primary user intent.",
+        "maximumResponseTokens" : 32,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "classification"
+          }
+        },
+        "prompt" : "Activity: Meditate for ten minutes before breakfast.\nAvailable categories: health, learning, productivity, relationships.",
+        "summary" : "Classifies an activity into one constrained application category.",
+        "title" : "Habit category classification"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "category equals health",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "739866BC-2DAA-4D22-B9A2-4AF131332B77",
+      "iteration" : 4,
+      "metrics" : {
+        "decodeDuration" : 0.04588603973388672,
+        "duration" : 0.3832780122756958,
+        "endedAt" : "2026-06-12T08:37:48Z",
+        "firstStreamUpdateTokenCount" : 10,
+        "inputTokenCount" : 158,
+        "maximumStreamUpdateGap" : 0.04584503173828125,
+        "outputCharactersPerSecond" : 479.44865426582146,
+        "outputTokenCount" : 15,
+        "outputTokensPerSecond" : 108.96560324223215,
+        "startedAt" : "2026-06-12T08:37:48Z",
+        "streamUpdateCount" : 6,
+        "timeToFirstToken" : 0.3373919725418091,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"category\": \"health\"}",
+      "scenario" : {
+        "category" : "classification",
+        "checks" : [
+          {
+            "jsonEquals" : {
+              "path" : "category",
+              "value" : {
+                "string" : {
+                  "_0" : "health"
+                }
+              }
+            }
+          }
+        ],
+        "id" : "habit-classification",
+        "inspiredBy" : [
+          "Motivation",
+          "Streaks",
+          "Vocabulary"
+        ],
+        "instructions" : "Choose exactly one available category based on the primary user intent.",
+        "maximumResponseTokens" : 32,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "classification"
+          }
+        },
+        "prompt" : "Activity: Meditate for ten minutes before breakfast.\nAvailable categories: health, learning, productivity, relationships.",
+        "summary" : "Classifies an activity into one constrained application category.",
+        "title" : "Habit category classification"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "category equals health",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "628C72ED-F39F-4679-B174-95B9EA373D44",
+      "iteration" : 5,
+      "metrics" : {
+        "decodeDuration" : 0.04683101177215576,
+        "duration" : 0.3667140007019043,
+        "endedAt" : "2026-06-12T08:37:49Z",
+        "firstStreamUpdateTokenCount" : 10,
+        "inputTokenCount" : 158,
+        "maximumStreamUpdateGap" : 0.04678308963775635,
+        "outputCharactersPerSecond" : 469.7741767151079,
+        "outputTokenCount" : 15,
+        "outputTokensPerSecond" : 106.76685834434271,
+        "startedAt" : "2026-06-12T08:37:49Z",
+        "streamUpdateCount" : 6,
+        "timeToFirstToken" : 0.31988298892974854,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"category\": \"health\"}",
+      "scenario" : {
+        "category" : "classification",
+        "checks" : [
+          {
+            "jsonEquals" : {
+              "path" : "category",
+              "value" : {
+                "string" : {
+                  "_0" : "health"
+                }
+              }
+            }
+          }
+        ],
+        "id" : "habit-classification",
+        "inspiredBy" : [
+          "Motivation",
+          "Streaks",
+          "Vocabulary"
+        ],
+        "instructions" : "Choose exactly one available category based on the primary user intent.",
+        "maximumResponseTokens" : 32,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "classification"
+          }
+        },
+        "prompt" : "Activity: Meditate for ten minutes before breakfast.\nAvailable categories: health, learning, productivity, relationships.",
+        "summary" : "Classifies an activity into one constrained application category.",
+        "title" : "Habit category classification"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "focus contains lower-body",
+            "passed" : true
+          },
+          {
+            "label" : "durationMinutes equals 20",
+            "passed" : true
+          },
+          {
+            "label" : "exercises contains bodyweight squat, reverse lunge, glute bridge, calf raise",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "2A3F21DE-72E5-4A68-8A65-19740B2A46BA",
+      "iteration" : 1,
+      "metrics" : {
+        "decodeDuration" : 0.4017488956451416,
+        "duration" : 0.8211969137191772,
+        "endedAt" : "2026-06-12T08:37:50Z",
+        "firstStreamUpdateTokenCount" : 15,
+        "inputTokenCount" : 220,
+        "maximumStreamUpdateGap" : 0.13805699348449707,
+        "outputCharactersPerSecond" : 341.0090269943391,
+        "outputTokenCount" : 48,
+        "outputTokensPerSecond" : 82.14086051688459,
+        "startedAt" : "2026-06-12T08:37:49Z",
+        "streamUpdateCount" : 16,
+        "timeToFirstToken" : 0.41944801807403564,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"exercises\": [\"bodyweight squat\", \"reverse lunge\", \"glute bridge\", \"calf raise\"], \"focus\": \"Lower-body strength\", \"durationMinutes\": 20}",
+      "scenario" : {
+        "category" : "structuredRecommendation",
+        "checks" : [
+          {
+            "jsonContains" : {
+              "path" : "focus",
+              "values" : [
+                "lower-body"
+              ]
+            }
+          },
+          {
+            "jsonEquals" : {
+              "path" : "durationMinutes",
+              "value" : {
+                "integer" : {
+                  "_0" : 20
+                }
+              }
+            }
+          },
+          {
+            "jsonContains" : {
+              "path" : "exercises",
+              "values" : [
+                "bodyweight squat",
+                "reverse lunge",
+                "glute bridge",
+                "calf raise"
+              ]
+            }
+          }
+        ],
+        "id" : "workout-plan",
+        "inspiredBy" : [
+          "SmartGym",
+          "7 Minute Workout",
+          "Train Fitness"
+        ],
+        "instructions" : "Follow every explicit constraint. Return concise exercise names and integer durations.",
+        "maximumResponseTokens" : 220,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "workout"
+          }
+        },
+        "prompt" : "Create a 20-minute lower-body workout with no equipment.\nUse exactly four exercises: bodyweight squat, reverse lunge, glute bridge, and calf raise.",
+        "summary" : "Builds a structured plan that obeys time, equipment, and exercise constraints.",
+        "title" : "Constraint-aware workout plan"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "focus contains lower-body",
+            "passed" : true
+          },
+          {
+            "label" : "durationMinutes equals 20",
+            "passed" : true
+          },
+          {
+            "label" : "exercises contains bodyweight squat, reverse lunge, glute bridge, calf raise",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "6D7A0523-5DDB-488C-953E-2DD260C0E1E5",
+      "iteration" : 2,
+      "metrics" : {
+        "decodeDuration" : 0.42571496963500977,
+        "duration" : 0.85086989402771,
+        "endedAt" : "2026-06-12T08:37:51Z",
+        "firstStreamUpdateTokenCount" : 13,
+        "inputTokenCount" : 220,
+        "maximumStreamUpdateGap" : 0.13640904426574707,
+        "outputCharactersPerSecond" : 321.81156353852924,
+        "outputTokenCount" : 48,
+        "outputTokensPerSecond" : 82.21463302079215,
+        "startedAt" : "2026-06-12T08:37:50Z",
+        "streamUpdateCount" : 19,
+        "timeToFirstToken" : 0.4251549243927002,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"exercises\": [\"bodyweight squat\", \"reverse lunge\", \"glute bridge\", \"calf raise\"], \"focus\": \"Lower-body strength\", \"durationMinutes\": 20}",
+      "scenario" : {
+        "category" : "structuredRecommendation",
+        "checks" : [
+          {
+            "jsonContains" : {
+              "path" : "focus",
+              "values" : [
+                "lower-body"
+              ]
+            }
+          },
+          {
+            "jsonEquals" : {
+              "path" : "durationMinutes",
+              "value" : {
+                "integer" : {
+                  "_0" : 20
+                }
+              }
+            }
+          },
+          {
+            "jsonContains" : {
+              "path" : "exercises",
+              "values" : [
+                "bodyweight squat",
+                "reverse lunge",
+                "glute bridge",
+                "calf raise"
+              ]
+            }
+          }
+        ],
+        "id" : "workout-plan",
+        "inspiredBy" : [
+          "SmartGym",
+          "7 Minute Workout",
+          "Train Fitness"
+        ],
+        "instructions" : "Follow every explicit constraint. Return concise exercise names and integer durations.",
+        "maximumResponseTokens" : 220,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "workout"
+          }
+        },
+        "prompt" : "Create a 20-minute lower-body workout with no equipment.\nUse exactly four exercises: bodyweight squat, reverse lunge, glute bridge, and calf raise.",
+        "summary" : "Builds a structured plan that obeys time, equipment, and exercise constraints.",
+        "title" : "Constraint-aware workout plan"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "focus contains lower-body",
+            "passed" : true
+          },
+          {
+            "label" : "durationMinutes equals 20",
+            "passed" : true
+          },
+          {
+            "label" : "exercises contains bodyweight squat, reverse lunge, glute bridge, calf raise",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "6925ECCE-22DF-4087-8F22-8CE91E974B1F",
+      "iteration" : 3,
+      "metrics" : {
+        "decodeDuration" : 0.39723098278045654,
+        "duration" : 0.8210140466690063,
+        "endedAt" : "2026-06-12T08:37:52Z",
+        "firstStreamUpdateTokenCount" : 13,
+        "inputTokenCount" : 220,
+        "maximumStreamUpdateGap" : 0.1316319704055786,
+        "outputCharactersPerSecond" : 344.88749855576543,
+        "outputTokenCount" : 48,
+        "outputTokensPerSecond" : 88.10994488650942,
+        "startedAt" : "2026-06-12T08:37:51Z",
+        "streamUpdateCount" : 16,
+        "timeToFirstToken" : 0.4237830638885498,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"exercises\": [\"bodyweight squat\", \"reverse lunge\", \"glute bridge\", \"calf raise\"], \"focus\": \"Lower-body strength\", \"durationMinutes\": 20}",
+      "scenario" : {
+        "category" : "structuredRecommendation",
+        "checks" : [
+          {
+            "jsonContains" : {
+              "path" : "focus",
+              "values" : [
+                "lower-body"
+              ]
+            }
+          },
+          {
+            "jsonEquals" : {
+              "path" : "durationMinutes",
+              "value" : {
+                "integer" : {
+                  "_0" : 20
+                }
+              }
+            }
+          },
+          {
+            "jsonContains" : {
+              "path" : "exercises",
+              "values" : [
+                "bodyweight squat",
+                "reverse lunge",
+                "glute bridge",
+                "calf raise"
+              ]
+            }
+          }
+        ],
+        "id" : "workout-plan",
+        "inspiredBy" : [
+          "SmartGym",
+          "7 Minute Workout",
+          "Train Fitness"
+        ],
+        "instructions" : "Follow every explicit constraint. Return concise exercise names and integer durations.",
+        "maximumResponseTokens" : 220,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "workout"
+          }
+        },
+        "prompt" : "Create a 20-minute lower-body workout with no equipment.\nUse exactly four exercises: bodyweight squat, reverse lunge, glute bridge, and calf raise.",
+        "summary" : "Builds a structured plan that obeys time, equipment, and exercise constraints.",
+        "title" : "Constraint-aware workout plan"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "focus contains lower-body",
+            "passed" : true
+          },
+          {
+            "label" : "durationMinutes equals 20",
+            "passed" : true
+          },
+          {
+            "label" : "exercises contains bodyweight squat, reverse lunge, glute bridge, calf raise",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "2002F6BA-2DEE-457C-9780-8081D742DB5F",
+      "iteration" : 4,
+      "metrics" : {
+        "decodeDuration" : 0.3950960636138916,
+        "duration" : 0.8199989795684814,
+        "endedAt" : "2026-06-12T08:37:53Z",
+        "firstStreamUpdateTokenCount" : 16,
+        "inputTokenCount" : 220,
+        "maximumStreamUpdateGap" : 0.16560804843902588,
+        "outputCharactersPerSecond" : 346.7511135061156,
+        "outputTokenCount" : 48,
+        "outputTokensPerSecond" : 80.99296081894671,
+        "startedAt" : "2026-06-12T08:37:52Z",
+        "streamUpdateCount" : 15,
+        "timeToFirstToken" : 0.42490291595458984,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"durationMinutes\": 20, \"focus\": \"Lower-body strength\", \"exercises\": [\"bodyweight squat\", \"reverse lunge\", \"glute bridge\", \"calf raise\"]}",
+      "scenario" : {
+        "category" : "structuredRecommendation",
+        "checks" : [
+          {
+            "jsonContains" : {
+              "path" : "focus",
+              "values" : [
+                "lower-body"
+              ]
+            }
+          },
+          {
+            "jsonEquals" : {
+              "path" : "durationMinutes",
+              "value" : {
+                "integer" : {
+                  "_0" : 20
+                }
+              }
+            }
+          },
+          {
+            "jsonContains" : {
+              "path" : "exercises",
+              "values" : [
+                "bodyweight squat",
+                "reverse lunge",
+                "glute bridge",
+                "calf raise"
+              ]
+            }
+          }
+        ],
+        "id" : "workout-plan",
+        "inspiredBy" : [
+          "SmartGym",
+          "7 Minute Workout",
+          "Train Fitness"
+        ],
+        "instructions" : "Follow every explicit constraint. Return concise exercise names and integer durations.",
+        "maximumResponseTokens" : 220,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "workout"
+          }
+        },
+        "prompt" : "Create a 20-minute lower-body workout with no equipment.\nUse exactly four exercises: bodyweight squat, reverse lunge, glute bridge, and calf raise.",
+        "summary" : "Builds a structured plan that obeys time, equipment, and exercise constraints.",
+        "title" : "Constraint-aware workout plan"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "focus contains lower-body",
+            "passed" : true
+          },
+          {
+            "label" : "durationMinutes equals 20",
+            "passed" : true
+          },
+          {
+            "label" : "exercises contains bodyweight squat, reverse lunge, glute bridge, calf raise",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "5037E3B1-C232-4A50-BD3C-F24332FA6008",
+      "iteration" : 5,
+      "metrics" : {
+        "decodeDuration" : 0.4008849859237671,
+        "duration" : 0.83884596824646,
+        "endedAt" : "2026-06-12T08:37:54Z",
+        "firstStreamUpdateTokenCount" : 15,
+        "inputTokenCount" : 220,
+        "maximumStreamUpdateGap" : 0.1636650562286377,
+        "outputCharactersPerSecond" : 341.7439036393649,
+        "outputTokenCount" : 48,
+        "outputTokensPerSecond" : 82.31787459926306,
+        "startedAt" : "2026-06-12T08:37:53Z",
+        "streamUpdateCount" : 19,
+        "timeToFirstToken" : 0.43796098232269287,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"durationMinutes\": 20, \"focus\": \"Lower-body strength\", \"exercises\": [\"bodyweight squat\", \"reverse lunge\", \"glute bridge\", \"calf raise\"]}",
+      "scenario" : {
+        "category" : "structuredRecommendation",
+        "checks" : [
+          {
+            "jsonContains" : {
+              "path" : "focus",
+              "values" : [
+                "lower-body"
+              ]
+            }
+          },
+          {
+            "jsonEquals" : {
+              "path" : "durationMinutes",
+              "value" : {
+                "integer" : {
+                  "_0" : 20
+                }
+              }
+            }
+          },
+          {
+            "jsonContains" : {
+              "path" : "exercises",
+              "values" : [
+                "bodyweight squat",
+                "reverse lunge",
+                "glute bridge",
+                "calf raise"
+              ]
+            }
+          }
+        ],
+        "id" : "workout-plan",
+        "inspiredBy" : [
+          "SmartGym",
+          "7 Minute Workout",
+          "Train Fitness"
+        ],
+        "instructions" : "Follow every explicit constraint. Return concise exercise names and integer durations.",
+        "maximumResponseTokens" : 220,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "workout"
+          }
+        },
+        "prompt" : "Create a 20-minute lower-body workout with no equipment.\nUse exactly four exercises: bodyweight squat, reverse lunge, glute bridge, and calf raise.",
+        "summary" : "Builds a structured plan that obeys time, equipment, and exercise constraints.",
+        "title" : "Constraint-aware workout plan"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "answer contains October 18, Priya, release communications",
+            "passed" : true
+          },
+          {
+            "label" : "citations contains note-2",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "F17F2C6A-D8C7-4F3A-A174-95CDA44E1FC0",
+      "iteration" : 1,
+      "metrics" : {
+        "decodeDuration" : 0.2722669839859009,
+        "duration" : 0.7086828947067261,
+        "endedAt" : "2026-06-12T08:37:55Z",
+        "firstStreamUpdateTokenCount" : 15,
+        "inputTokenCount" : 251,
+        "maximumStreamUpdateGap" : 0.1326059103012085,
+        "outputCharactersPerSecond" : 315.86642912404477,
+        "outputTokenCount" : 32,
+        "outputTokensPerSecond" : 62.43871273382281,
+        "startedAt" : "2026-06-12T08:37:54Z",
+        "streamUpdateCount" : 18,
+        "timeToFirstToken" : 0.4364159107208252,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"answer\": \"October 18, Priya owns release communications\", \"citations\": [\"[note-2]\"]}",
+      "scenario" : {
+        "category" : "groundedQuestionAnswering",
+        "checks" : [
+          {
+            "jsonContains" : {
+              "path" : "answer",
+              "values" : [
+                "October 18",
+                "Priya",
+                "release communications"
+              ]
+            }
+          },
+          {
+            "jsonContains" : {
+              "path" : "citations",
+              "values" : [
+                "note-2"
+              ]
+            }
+          }
+        ],
+        "id" : "grounded-document-answer",
+        "inspiredBy" : [
+          "Signeasy",
+          "Agenda",
+          "Essayist",
+          "CellWalk",
+          "Platzi"
+        ],
+        "instructions" : "Answer only from the supplied documents. If the answer is absent, say so.\nCite only document IDs that directly support the answer.",
+        "maximumResponseTokens" : 140,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "groundedAnswer"
+          }
+        },
+        "prompt" : "[note-1] The beta begins October 4. Design review is September 28.\n[note-2] Public launch is scheduled for October 18. Priya owns release communications.\n[note-3] The support rotation starts after launch on October 21.\n\nQuestion: When is the public launch, and who owns release communications?",
+        "summary" : "Answers from supplied documents and returns only supporting citations.",
+        "title" : "Grounded document question answering"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "answer contains October 18, Priya, release communications",
+            "passed" : true
+          },
+          {
+            "label" : "citations contains note-2",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "487EF619-DCA9-42D3-9A8A-C77B9667541F",
+      "iteration" : 2,
+      "metrics" : {
+        "decodeDuration" : 0.21686804294586182,
+        "duration" : 0.6602940559387207,
+        "endedAt" : "2026-06-12T08:37:56Z",
+        "firstStreamUpdateTokenCount" : 15,
+        "inputTokenCount" : 251,
+        "maximumStreamUpdateGap" : 0.10226595401763916,
+        "outputCharactersPerSecond" : 396.5545076711406,
+        "outputTokenCount" : 32,
+        "outputTokensPerSecond" : 78.3886817489464,
+        "startedAt" : "2026-06-12T08:37:55Z",
+        "streamUpdateCount" : 13,
+        "timeToFirstToken" : 0.4434260129928589,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"answer\": \"October 18, Priya owns release communications\", \"citations\": [\"[note-2]\"]}",
+      "scenario" : {
+        "category" : "groundedQuestionAnswering",
+        "checks" : [
+          {
+            "jsonContains" : {
+              "path" : "answer",
+              "values" : [
+                "October 18",
+                "Priya",
+                "release communications"
+              ]
+            }
+          },
+          {
+            "jsonContains" : {
+              "path" : "citations",
+              "values" : [
+                "note-2"
+              ]
+            }
+          }
+        ],
+        "id" : "grounded-document-answer",
+        "inspiredBy" : [
+          "Signeasy",
+          "Agenda",
+          "Essayist",
+          "CellWalk",
+          "Platzi"
+        ],
+        "instructions" : "Answer only from the supplied documents. If the answer is absent, say so.\nCite only document IDs that directly support the answer.",
+        "maximumResponseTokens" : 140,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "groundedAnswer"
+          }
+        },
+        "prompt" : "[note-1] The beta begins October 4. Design review is September 28.\n[note-2] Public launch is scheduled for October 18. Priya owns release communications.\n[note-3] The support rotation starts after launch on October 21.\n\nQuestion: When is the public launch, and who owns release communications?",
+        "summary" : "Answers from supplied documents and returns only supporting citations.",
+        "title" : "Grounded document question answering"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "answer contains October 18, Priya, release communications",
+            "passed" : true
+          },
+          {
+            "label" : "citations contains note-2",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "7EFBC988-C057-4B88-9D3A-9DE94E713644",
+      "iteration" : 3,
+      "metrics" : {
+        "decodeDuration" : 0.2251880168914795,
+        "duration" : 0.6505630016326904,
+        "endedAt" : "2026-06-12T08:37:57Z",
+        "firstStreamUpdateTokenCount" : 15,
+        "inputTokenCount" : 251,
+        "maximumStreamUpdateGap" : 0.12714195251464844,
+        "outputCharactersPerSecond" : 381.9030923010629,
+        "outputTokenCount" : 32,
+        "outputTokensPerSecond" : 75.49247173393104,
+        "startedAt" : "2026-06-12T08:37:56Z",
+        "streamUpdateCount" : 14,
+        "timeToFirstToken" : 0.42537498474121094,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"answer\": \"October 18, Priya owns release communications\", \"citations\": [\"[note-2]\"]}",
+      "scenario" : {
+        "category" : "groundedQuestionAnswering",
+        "checks" : [
+          {
+            "jsonContains" : {
+              "path" : "answer",
+              "values" : [
+                "October 18",
+                "Priya",
+                "release communications"
+              ]
+            }
+          },
+          {
+            "jsonContains" : {
+              "path" : "citations",
+              "values" : [
+                "note-2"
+              ]
+            }
+          }
+        ],
+        "id" : "grounded-document-answer",
+        "inspiredBy" : [
+          "Signeasy",
+          "Agenda",
+          "Essayist",
+          "CellWalk",
+          "Platzi"
+        ],
+        "instructions" : "Answer only from the supplied documents. If the answer is absent, say so.\nCite only document IDs that directly support the answer.",
+        "maximumResponseTokens" : 140,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "groundedAnswer"
+          }
+        },
+        "prompt" : "[note-1] The beta begins October 4. Design review is September 28.\n[note-2] Public launch is scheduled for October 18. Priya owns release communications.\n[note-3] The support rotation starts after launch on October 21.\n\nQuestion: When is the public launch, and who owns release communications?",
+        "summary" : "Answers from supplied documents and returns only supporting citations.",
+        "title" : "Grounded document question answering"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "answer contains October 18, Priya, release communications",
+            "passed" : true
+          },
+          {
+            "label" : "citations contains note-2",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "767F14D7-CEFB-4847-A723-A94B8189E703",
+      "iteration" : 4,
+      "metrics" : {
+        "decodeDuration" : 0.22966396808624268,
+        "duration" : 0.6578210592269897,
+        "endedAt" : "2026-06-12T08:37:58Z",
+        "firstStreamUpdateTokenCount" : 13,
+        "inputTokenCount" : 251,
+        "maximumStreamUpdateGap" : 0.1019819974899292,
+        "outputCharactersPerSecond" : 374.4601328481164,
+        "outputTokenCount" : 32,
+        "outputTokensPerSecond" : 82.72956423388618,
+        "startedAt" : "2026-06-12T08:37:57Z",
+        "streamUpdateCount" : 15,
+        "timeToFirstToken" : 0.42815709114074707,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"answer\": \"October 18, Priya owns release communications\", \"citations\": [\"[note-2]\"]}",
+      "scenario" : {
+        "category" : "groundedQuestionAnswering",
+        "checks" : [
+          {
+            "jsonContains" : {
+              "path" : "answer",
+              "values" : [
+                "October 18",
+                "Priya",
+                "release communications"
+              ]
+            }
+          },
+          {
+            "jsonContains" : {
+              "path" : "citations",
+              "values" : [
+                "note-2"
+              ]
+            }
+          }
+        ],
+        "id" : "grounded-document-answer",
+        "inspiredBy" : [
+          "Signeasy",
+          "Agenda",
+          "Essayist",
+          "CellWalk",
+          "Platzi"
+        ],
+        "instructions" : "Answer only from the supplied documents. If the answer is absent, say so.\nCite only document IDs that directly support the answer.",
+        "maximumResponseTokens" : 140,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "groundedAnswer"
+          }
+        },
+        "prompt" : "[note-1] The beta begins October 4. Design review is September 28.\n[note-2] Public launch is scheduled for October 18. Priya owns release communications.\n[note-3] The support rotation starts after launch on October 21.\n\nQuestion: When is the public launch, and who owns release communications?",
+        "summary" : "Answers from supplied documents and returns only supporting citations.",
+        "title" : "Grounded document question answering"
+      }
+    },
+    {
+      "environment" : {
+        "fmfBenchCommit" : "1d8d492",
+        "cpuCores" : 10,
+        "cpuModel" : "Apple M5",
+        "deviceName" : "MacBook Pro M5",
+        "gpuModel" : "Apple M5",
+        "hardwareModel" : "Mac17,2",
+        "localeIdentifier" : "en_US",
+        "lowPowerModeEnabled" : false,
+        "systemBuild" : "26A5353q",
+        "systemName" : "macOS",
+        "systemVersion" : "27.0.0",
+        "thermalState" : "nominal",
+        "timestamp" : "2026-06-12T08:37:34Z",
+        "totalMemory" : 34359738368
+      },
+      "grade" : {
+        "checks" : [
+          {
+            "label" : "answer contains October 18, Priya, release communications",
+            "passed" : true
+          },
+          {
+            "label" : "citations contains note-2",
+            "passed" : true
+          }
+        ]
+      },
+      "id" : "8548E673-94F4-4B17-8129-A411D937D196",
+      "iteration" : 5,
+      "metrics" : {
+        "decodeDuration" : 0.2374880313873291,
+        "duration" : 0.6750620603561401,
+        "endedAt" : "2026-06-12T08:37:58Z",
+        "firstStreamUpdateTokenCount" : 15,
+        "inputTokenCount" : 251,
+        "maximumStreamUpdateGap" : 0.13135099411010742,
+        "outputCharactersPerSecond" : 362.12351206759985,
+        "outputTokenCount" : 32,
+        "outputTokensPerSecond" : 71.58255471103718,
+        "startedAt" : "2026-06-12T08:37:58Z",
+        "streamUpdateCount" : 15,
+        "timeToFirstToken" : 0.43757402896881104,
+        "tokenCountSource" : "systemTokenizer"
+      },
+      "model" : "onDevice",
+      "response" : "{\"answer\": \"October 18, Priya owns release communications\", \"citations\": [\"[note-2]\"]}",
+      "scenario" : {
+        "category" : "groundedQuestionAnswering",
+        "checks" : [
+          {
+            "jsonContains" : {
+              "path" : "answer",
+              "values" : [
+                "October 18",
+                "Priya",
+                "release communications"
+              ]
+            }
+          },
+          {
+            "jsonContains" : {
+              "path" : "citations",
+              "values" : [
+                "note-2"
+              ]
+            }
+          }
+        ],
+        "id" : "grounded-document-answer",
+        "inspiredBy" : [
+          "Signeasy",
+          "Agenda",
+          "Essayist",
+          "CellWalk",
+          "Platzi"
+        ],
+        "instructions" : "Answer only from the supplied documents. If the answer is absent, say so.\nCite only document IDs that directly support the answer.",
+        "maximumResponseTokens" : 140,
+        "outputMode" : {
+          "guided" : {
+            "_0" : "groundedAnswer"
+          }
+        },
+        "prompt" : "[note-1] The beta begins October 4. Design review is September 28.\n[note-2] Public launch is scheduled for October 18. Priya owns release communications.\n[note-3] The support rotation starts after launch on October 21.\n\nQuestion: When is the public launch, and who owns release communications?",
+        "summary" : "Answers from supplied documents and returns only supporting citations.",
+        "title" : "Grounded document question answering"
+      }
+    }
+  ],
+  "warmupCount" : 1
+}

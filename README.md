@@ -48,7 +48,7 @@ Library entries identify how they open:
 - **Recipe** opens in Playground and can be edited, run, and saved.
 - **Guided Lab** uses a focused interface for a specific Foundation Models API.
 - **Workshop** groups related schema, language, or Xcode 27 examples without adding another top-level destination.
-- **Workspace** opens an expert tool such as Adapter Comparison or AppBench.
+- **Workspace** opens an expert tool such as Adapter Comparison or FMFBench.
 
 ## Requirements
 
@@ -163,21 +163,21 @@ fmas export --help
 
 See [`Tools/AdapterStudio`](Tools/AdapterStudio) for the full workflow.
 
-### AppBench
+### FMFBench
 
-AppBench is the repository's repeatable quality, safety, and performance suite.
+FMFBench is the repository's repeatable quality, safety, and performance suite.
 The in-app workspace explains the protocol and artifacts; canonical results come
 from the CLI on Mac or the signed device runner on physical iPhone and iPad hardware.
 
 ```bash
-swift run appbench list
-swift run appbench --suite quick --model on-device
-swift run appbench --suite full --warmups 5 --repetitions 20 \
-  --json Tools/AppBench/Results/run.json \
-  --markdown Tools/AppBench/Results/run.md
+swift run fmfbench list
+swift run fmfbench --suite quick --model on-device
+swift run fmfbench --suite full --warmups 5 --repetitions 20 \
+  --json Tools/FMFBench/Results/run.json \
+  --markdown Tools/FMFBench/Results/run.md
 ```
 
-See [`Tools/AppBench`](Tools/AppBench) for workloads, methodology, graders, and
+See [`Tools/FMFBench`](Tools/FMFBench) for workloads, methodology, graders, and
 the device runner.
 
 ## Command-Line Interface
@@ -205,11 +205,11 @@ AFM releases use `afm-vx.y.z` tags so CLI releases remain independent from app r
 | FoundationLabCore | [`FoundationLabCore`](FoundationLabCore) | UI-independent requests, results, use cases, providers, and experiment models |
 | FoundationModelsKit | [`Packages/FoundationModelsKit`](Packages/FoundationModelsKit) | Transcript, context, history, and system-tool packages |
 | AFM CLI | [`Tools/AFMCLI`](Tools/AFMCLI) | Scriptable Foundation Models workflows |
-| AppBench | [`Tools/AppBench`](Tools/AppBench) | Quality, safety, and performance evaluation |
+| FMFBench | [`Tools/FMFBench`](Tools/FMFBench) | Quality, safety, and performance evaluation |
 | Adapter tooling | [`Tools/AdapterStudio`](Tools/AdapterStudio) | Adapter training and export with `fmas` |
 | Book playgrounds | [`BookPlaygrounds`](BookPlaygrounds) | Chapter-oriented `#Playground` examples |
 
-The former standalone CLI, AppBench, and Adapter Studio repositories are
+The former standalone CLI, FMFBench, and Adapter Studio repositories are
 archived in favor of this shared implementation.
 
 ## Swift Package Products
@@ -219,9 +219,9 @@ archived in favor of this shared implementation.
 - `FoundationModelsTools` provides calendar, contacts, health, location, music,
   reminders, weather, web search, and web metadata tools.
 - `FoundationLabCore` provides the shared capability and experiment runtime.
-- `AppBenchCore` provides the evaluation corpus, graders, runner, metrics, and reports.
-- `BenchmarkCore` remains as an AppBench compatibility alias.
-- `appbench` is the canonical benchmark executable.
+- `FMFBenchCore` provides the evaluation corpus, graders, runner, metrics, and reports.
+- `BenchmarkCore` remains as an FMFBench compatibility alias.
+- `fmfbench` is the canonical benchmark executable.
 
 ## Localization and Permissions
 
@@ -240,7 +240,7 @@ swift test
 ```
 
 CI additionally builds Foundation Lab for macOS and iOS Simulator and validates
-the AFM, AppBench, Adapter Studio, and TestFlight workflows.
+the AFM, FMFBench, Adapter Studio, and TestFlight workflows.
 
 ## TestFlight
 

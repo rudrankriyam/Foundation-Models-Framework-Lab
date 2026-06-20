@@ -117,8 +117,8 @@ struct ExperimentLibraryCatalogView: View {
             ]
         )
         exampleSection(
-            ExperimentLaunch.workspace(ExpertWorkspace.appBench).displayName,
-            systemImage: ExperimentLaunch.workspace(ExpertWorkspace.appBench).systemImage,
+            ExperimentLaunch.workspace(ExpertWorkspace.fmfBench).displayName,
+            systemImage: ExperimentLaunch.workspace(ExpertWorkspace.fmfBench).systemImage,
             examples: [.evaluationsLab, .fmCLIPythonPlayground]
         )
     }
