@@ -1,4 +1,6 @@
 #if os(macOS)
+import Foundation
+
 enum ModelCompareSource: String, Sendable {
     case base
     case adapter
@@ -6,9 +8,9 @@ enum ModelCompareSource: String, Sendable {
     var displayName: String {
         switch self {
         case .base:
-            "Base"
+            String(localized: "Base")
         case .adapter:
-            "Adapter"
+            String(localized: "Adapter")
         }
     }
 }

@@ -20,23 +20,23 @@ struct SecurityBoundaryReport {
     ) -> SecurityBoundaryReport {
         let requestCount = request.trimmingCharacters(in: .whitespacesAndNewlines).count
         let context = untrustedContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            ? "No retrieved content is included."
-            : "Retrieved text is labeled as untrusted data and kept separate from the user request."
+            ? String(localized: "No retrieved content is included.")
+            : String(localized: "Retrieved text is labeled as untrusted data and kept separate from the user request.")
 
         let action: String
         let isProtected: Bool
         if toolAccess.hasSideEffect {
             isProtected = requiresApproval
             action = requiresApproval
-                ? "The tool must stop for app-owned user approval before sending."
-                : "No approval gate is configured; the tool implementation could perform the side effect."
+                ? String(localized: "The tool must stop for app-owned user approval before sending.")
+                : String(localized: "No approval gate is configured; the tool implementation could perform the side effect.")
         } else {
             isProtected = true
-            action = "No side-effecting tool is available in this request."
+            action = String(localized: "No side-effecting tool is available in this request.")
         }
 
         return SecurityBoundaryReport(
-            requestBoundary: "The app sends a \(requestCount)-character user request as prompt content.",
+            requestBoundary: String(localized: "The app sends a \(requestCount)-character user request as prompt content."),
             contextBoundary: context,
             toolBoundary: toolAccess.detail,
             actionBoundary: action,

@@ -66,13 +66,18 @@ struct HealthMessageBubbleView: View {
         .padding(.horizontal)
         .frame(maxWidth: .infinity, alignment: isFromUser ? .trailing : .leading)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(isFromUser ? "You said" : "Health AI replied")
+        .accessibilityLabel(
+            isFromUser ? String(localized: "You said") : String(localized: "Health AI replied")
+        )
         .accessibilityValue(content)
         .accessibilityActions {
             Button("Copy message") {
                 #if os(iOS)
                 UIPasteboard.general.string = content
-                UIAccessibility.post(notification: .announcement, argument: "Message copied to clipboard")
+                UIAccessibility.post(
+                    notification: .announcement,
+                    argument: String(localized: "Message copied to clipboard")
+                )
                 #elseif os(macOS)
                 NSPasteboard.general.clearContents()
                 NSPasteboard.general.setString(content, forType: .string)
@@ -85,7 +90,7 @@ struct HealthMessageBubbleView: View {
 #Preview {
     VStack(spacing: 16) {
         HealthMessageBubbleView(
-            content: "Hi! I'm your personal health coach AI. How can I help you today?",
+            content: "Ask me about health data available on this device.",
             isFromUser: false
         )
 

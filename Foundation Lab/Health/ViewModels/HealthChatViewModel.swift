@@ -28,6 +28,8 @@ final class HealthChatViewModel {
     var isSummarizing: Bool = false
     var sessionCount: Int = 1
     var currentHealthMetrics: [MetricType: Double] = [:]
+    var errorMessage: String?
+    var showError = false
 
     // MARK: - Token Usage Tracking
 
@@ -42,17 +44,16 @@ final class HealthChatViewModel {
     // MARK: - Public Properties
 
     private(set) var session: LanguageModelSession
+    private var configurationTask: Task<Void, Never>?
     private var modelContext: ModelContext?
+    private var responseTask: Task<Void, Never>?
     private let healthDataManager: HealthDataManager
     private let languageModel = SystemLanguageModel.default
     private let conversationEngine: FoundationLabConversationEngine
 
     // MARK: - Tools
 
-    private let tools: [any Tool] = [
-        HealthDataTool(),
-        HealthAnalysisTool()
-    ]
+    private let tools: [any Tool] = [HealthDataTool()]
 
     // MARK: - Initialization
 
@@ -92,8 +93,10 @@ final class HealthChatViewModel {
         }
         syncConversationState()
 
-        Task {
-            let contextSize = await AppConfiguration.TokenManagement.contextSize(for: languageModel)
+        let configuredLanguageModel = languageModel
+        configurationTask = Task { [weak self, configuredLanguageModel] in
+            let contextSize = await AppConfiguration.TokenManagement.contextSize(for: configuredLanguageModel)
+            guard !Task.isCancelled, let self else { return }
             conversationEngine.setMaxContextSize(contextSize)
             syncConversationState()
         }
@@ -105,9 +108,19 @@ final class HealthChatViewModel {
 
     // MARK: - Public Methods
 
-    func sendMessage(_ content: String) async {
+    func sendMessage(_ content: String) {
+        guard !isLoading else { return }
         isLoading = true
-        defer { isLoading = false }
+        responseTask = Task { [weak self] in
+            await self?.performSendMessage(content)
+        }
+    }
+
+    private func performSendMessage(_ content: String) async {
+        defer {
+            isLoading = false
+            responseTask = nil
+        }
 
         do {
             await saveMessageToSession(content, isFromUser: true)
@@ -119,52 +132,66 @@ final class HealthChatViewModel {
                 await saveMessageToSession(responseText, isFromUser: false)
             }
 
-            if shouldGenerateInsight(from: responseText) {
-                await generateHealthInsight(from: responseText)
-            }
         } catch is CancellationError {
             return
         } catch {
             logger.error("Failed to generate response: \(error.localizedDescription, privacy: .public)")
             let errorText = FoundationModelsErrorHandler.handleError(error)
+            errorMessage = errorText
+            showError = true
             await saveMessageToSession(errorText, isFromUser: false)
         }
     }
 
     func clearChat() {
+        responseTask?.cancel()
+        responseTask = nil
         conversationEngine.clear()
+        errorMessage = nil
+        showError = false
         syncConversationState()
     }
 
     func tearDown() {
+        configurationTask?.cancel()
+        configurationTask = nil
+        responseTask?.cancel()
+        responseTask = nil
         conversationEngine.cancelActiveResponse()
     }
 
     func loadInitialHealthData() async {
+        errorMessage = nil
+        showError = false
+
         do {
+            if !healthDataManager.isAuthorized {
+                try await healthDataManager.requestAuthorization()
+            }
+
+            guard !Task.isCancelled else { return }
             try await healthDataManager.fetchTodayHealthData()
+        } catch is CancellationError {
+            return
         } catch {
             logger.error("Failed to load health data: \(error.localizedDescription, privacy: .public)")
-            await saveMessageToSession(
-                FoundationModelsErrorHandler.handleError(error),
-                isFromUser: false
-            )
+            let errorText = FoundationModelsErrorHandler.handleError(error)
+            errorMessage = errorText
+            showError = true
         }
 
-        currentHealthMetrics = [
-            .steps: healthDataManager.todaySteps,
-            .heartRate: healthDataManager.currentHeartRate,
-            .sleep: healthDataManager.lastNightSleep,
-            .activeEnergy: healthDataManager.todayActiveEnergy,
-            .distance: healthDataManager.todayDistance
-        ]
+        currentHealthMetrics = healthDataManager.currentMetrics
     }
 }
 
 private extension HealthChatViewModel {
     static let baseInstructions = """
     You are a friendly and knowledgeable health coach AI assistant.
-    Based on the user's health data, provide personalized, encouraging responses.
+    Use the HealthDataTool whenever a response depends on the user's measurements.
+    Never invent measurements, trends, correlations, diagnoses, or predictions.
+    If the requested data is unavailable, say so plainly and suggest what the user can check next.
+    Explain that health information is educational and not a substitute for professional medical advice when appropriate.
+    Based only on available health data, provide personalized, encouraging responses.
     Be supportive and celebrate small wins. Use emojis occasionally.
     """
 
@@ -176,10 +203,6 @@ private extension HealthChatViewModel {
         sessionCount = conversationEngine.sessionCount
     }
 
-    func shouldGenerateInsight(from response: String) -> Bool {
-        let insightKeywords = ["goal", "achieve", "progress", "improve", "recommend", "suggest", "tip", "advice"]
-        return insightKeywords.contains { response.lowercased().contains($0) }
-    }
 }
 
 @MainActor
@@ -212,23 +235,4 @@ private extension HealthChatViewModel {
         }
     }
 
-    func generateHealthInsight(from response: String) async {
-        guard let modelContext else { return }
-
-        let insight = HealthInsight(
-            title: "AI Health Tip",
-            content: response,
-            category: .recommendation,
-            priority: .medium,
-            relatedMetrics: []
-        )
-
-        modelContext.insert(insight)
-
-        do {
-            try modelContext.save()
-        } catch {
-            logger.error("Failed to save health insight: \(error.localizedDescription, privacy: .public)")
-        }
-    }
 }

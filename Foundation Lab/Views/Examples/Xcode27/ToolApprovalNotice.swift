@@ -12,8 +12,12 @@ struct ToolApprovalNotice: View {
                 Text("Local authorization demo")
                     .bold()
                 Text(
-                    "Run does not call the model and this example has no message transport. "
-                    + "It demonstrates the app boundary around Tool.call."
+                    String(
+                        localized: """
+                        Run does not call the model and this example has no message transport. It demonstrates the app boundary \
+                        around Tool.call.
+                        """
+                    )
                 )
                     .foregroundStyle(.secondary)
             }

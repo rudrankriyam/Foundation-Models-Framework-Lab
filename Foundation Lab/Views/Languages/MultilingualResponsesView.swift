@@ -44,7 +44,7 @@ struct MultilingualResponsesView: View {
 
                 if let errorMessage {
                     Text(errorMessage)
-                        .foregroundColor(.red)
+                        .foregroundStyle(.red)
                         .padding(.horizontal)
                 }
 
@@ -145,7 +145,7 @@ struct LanguageResponseCard: View {
 
                 if result.isError {
                     Image(systemName: "exclamationmark.triangle")
-                        .foregroundColor(.red)
+                        .foregroundStyle(.red)
                 }
             }
 
@@ -167,12 +167,12 @@ struct LanguageResponseCard: View {
                 Text(result.response)
                     .font(.body)
                     .fontWeight(.medium)
-                    .foregroundColor(result.isError ? .red : .primary)
+                    .foregroundStyle(result.isError ? .red : .primary)
             }
         }
         .padding()
         .background(Color.gray.opacity(0.1))
-        .cornerRadius(12)
+        .clipShape(.rect(cornerRadius: 12))
     }
 }
 

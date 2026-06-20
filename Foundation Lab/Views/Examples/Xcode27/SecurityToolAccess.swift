@@ -14,17 +14,17 @@ enum SecurityToolAccess: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .none: "No tools"
-        case .readOnly: "Read-only search"
-        case .sideEffect: "External message"
+        case .none: String(localized: "No tools")
+        case .readOnly: String(localized: "Read-only search")
+        case .sideEffect: String(localized: "External message")
         }
     }
 
     var detail: String {
         switch self {
-        case .none: "The session receives no tool definitions."
-        case .readOnly: "The model may request data, but the tool does not change external state."
-        case .sideEffect: "The model may propose a message; app code owns validation and authorization."
+        case .none: String(localized: "The session receives no tool definitions.")
+        case .readOnly: String(localized: "The model may request data, but the tool does not change external state.")
+        case .sideEffect: String(localized: "The model may propose a message; app code owns validation and authorization.")
         }
     }
 

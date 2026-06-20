@@ -1,228 +1,243 @@
-# Agents.md
+# AGENTS.md
 
-This file provides guidance to AI agents when working with code in this repository.
+Guidance for agents working in the Foundation Models Framework Lab repository.
 
-## Project Overview
+## Product
 
-Foundation Lab is an iOS/macOS app demonstrating Apple's Foundation Models framework (iOS 26.0+/macOS 26.0+). Xcode 27 adds new Foundation Models APIs for Private Cloud Compute, image attachments, shared `LanguageModel` execution, and explicit tool-calling control. It accompanies the "Exploring Foundation Models" book and showcases:
-- Multi-turn chat with streaming responses using `LanguageModelSession`
-- 9 system integration tools (Weather, Web Search, Contacts, Calendar, Reminders, Location, Health, Music, Web Metadata)
-- Voice interface with speech-to-text (`SpeechRecognitionStateMachine`) and text-to-speech
-- RAG chat with document indexing and semantic search (LumoKit/VecturaKit)
-- AI-powered Health Dashboard with HealthKit integration via `HealthDataManager`
-- Dynamic schema examples for structured data generation using `@Generable` and `DynamicSchemaBuilder`
-- Multilingual support (10 languages) via `LanguageService` and `Localizable.xcstrings`
+Foundation Lab is a native iOS and macOS developer tool for learning, testing,
+and validating Apple's Foundation Models framework. The interface should feel
+quiet, precise, and familiar to users of Apple developer tools.
 
-## Build Commands
+The product serves two audiences without splitting into two apps:
+
+- Beginners start from complete, editable recipes.
+- Experienced developers compose custom prompts and tools, inspect runs, compare
+  adapters, and use the repository's CLI and evaluation surfaces.
+
+## Toolchain
+
+- Deployment targets: iOS 26.0+ and macOS 26.0+
+- Supported compilers: Xcode 26.6 and Xcode 27
+- Swift 6 with strict concurrency and Main Actor default isolation
+- Live on-device execution requires Apple Silicon and Apple Intelligence
+
+Xcode 27-only APIs must remain behind compiler and runtime availability checks.
+Do not break Xcode 26 compatibility when adding an OS 27 example.
+
+## Build and Validation
 
 ```bash
-# Open in Xcode
-open FoundationLab.xcodeproj
+swiftlint lint --strict --config .swiftlint.yml
+swift test
 
-# Build from command line
-xcodebuild -project FoundationLab.xcodeproj -scheme "Foundation Lab" -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build
+xcodebuild \
+  -project FoundationLab.xcodeproj \
+  -scheme 'Foundation Lab' \
+  -destination 'generic/platform=macOS' \
+  CODE_SIGNING_ALLOWED=NO \
+  build
 
-# Run on specific simulator
-xcodebuild -project FoundationLab.xcodeproj -scheme "Foundation Lab" -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -derivedDataPath ./build test
+xcodebuild \
+  -project FoundationLab.xcodeproj \
+  -scheme 'Foundation Lab' \
+  -destination 'generic/platform=iOS Simulator' \
+  CODE_SIGNING_ALLOWED=NO \
+  build
 ```
 
-**Requirements:** Xcode 27 beta, iOS 26.0+/macOS 26.0+, Apple Silicon device with Apple Intelligence. Xcode 27 is required for `PrivateCloudComputeLanguageModel`, image attachments, `GenerationOptions.toolCallingMode`, and the `samplingMode` spelling.
+For toolchain-specific checks, set `DEVELOPER_DIR` to the requested Xcode app.
+Use separate Derived Data directories when running Xcode 26 and 27 concurrently.
 
-**Dependencies (SPM):**
-- `HighlightSwift` - Syntax highlighting
-- `FoundationModelsTools` - Foundation Models utilities
-- `LiquidGlasKit` - UI styling
-- `LumoKit` - RAG document indexing and retrieval
-- `VecturaKit` - Vector search backend
+## App Architecture
 
-## Architecture
+The app uses SwiftUI, Observation, and a feature-oriented MVVM structure.
 
-**Pattern:** MVVM with SwiftUI using modern Swift 6 concurrency (`@MainActor`, `Sendable`).
+```text
+FoundationLabApp
+└── AdaptiveNavigationView
+    ├── Library
+    ├── Playground
+    └── Runs
+```
 
-### Core Components
+- iPhone uses the modern `Tab` API.
+- iPad and Mac use `NavigationSplitView` with the same three destinations.
+- `NavigationCoordinator` owns scene navigation and supports App Intent routing.
+- `ExperimentStore` owns the active experiment, saved experiments, persistence,
+  and run history.
 
-#### LanguageModelSession
-The main entry point for Foundation Models interactions:
+### Library
+
+`ExperimentTemplate` is the canonical catalog. Every entry has one launch type:
+
+- `recipe`: loads a `FoundationLabExperimentConfiguration` into Playground.
+- `guidedLab`: opens a focused API demonstration.
+- `workshop`: opens a schema or language progression.
+- `workspace`: opens Adapter Comparison or AppBench.
+
+Do not add a second top-level destination for a feature that belongs in Library.
+Runnable prompt/tool examples should be recipes unless they genuinely need a
+specialized interface.
+
+### Playground
+
+`PlaygroundView` and `ChatViewModel` provide:
+
+- Editable prompt and instructions
+- Model runtime and reasoning controls
+- Sampling and response-token controls
+- Built-in tool composition
+- Streaming transcript and tool events
+- Voice input and speech synthesis
+- Save, duplicate, Swift export, and run recording
+
+Playground executions must create `FoundationLabExperimentRun` records with
+truthful status, configuration, transcript events, timing, and token metadata.
+
+### Runs
+
+`RunsView` and `RunDetailView` are the evidence surface for recorded experiments.
+Keep run data backward-compatible through the resilience behavior in
+`FoundationLabCore`.
+
+## Foundation Models Runtime
+
+The reusable runtime lives in `FoundationLabCore` and
+`Packages/FoundationModelsKit`.
+
 ```swift
 let session = LanguageModelSession()
 let response = try await session.respond(to: "Hello")
 let stream = session.streamResponse(to: "Write a story")
-let structured = try await session.respond(to: "Suggest a book", generating: BookRecommendation.self)
+let structured = try await session.respond(
+    to: "Suggest a book",
+    generating: BookRecommendation.self
+)
 ```
 
-#### ViewModels (`ViewModels/`)
+Prefer shared requests, results, provider protocols, and use cases over placing
+Foundation Models execution directly in a view.
 
-| ViewModel | Purpose |
-|-----------|---------|
-| `ChatViewModel.swift` | Multi-turn chat with sliding window context management, streaming responses |
-| `VoiceViewModel.swift` | Voice input/output state machine, permission handling |
-| `HealthChatViewModel.swift` | Health-specific chat with HealthKit tool integration |
-| `DynamicSchemaViewModel.swift` | Dynamic schema builder state management |
-| `RAGChatViewModel.swift` | RAG chat with document indexing and retrieval |
+## Built-in Tools
 
-All ViewModels use `@Observable` macro and `@MainActor` annotation.
+The canonical tool implementations live in
+`Packages/FoundationModelsKit/Sources/FoundationModelsTools` and are exposed
+through `FoundationLabBuiltInTool`:
 
-#### Tools (`Views/Tools/` and `Health/Tools/`)
+- Weather
+- Web Search
+- Contacts
+- Calendar
+- Reminders
+- Location
+- Health
+- Music
+- Web Metadata
 
-Tools implement a custom `Tool` protocol. Files follow `*Tool.swift` naming:
-- `WeatherTool.swift` - OpenMeteo API, no API key required
-- `Search1WebSearchTool.swift` - Search1API keyless web search
-- `ContactsTool.swift` - System contacts search
-- `CalendarTool.swift` - Event creation/management with `EventKit`
-- `RemindersTool.swift` - AI-assisted reminder creation
-- `LocationTool.swift` - Core Location with geocoding
-- `HealthDataTool.swift` - HealthKit queries
-- `MusicTool.swift` - Apple Music catalog search
-- `WebMetadataTool.swift` - URL metadata extraction
+Tool recipes load these implementations into Playground. Do not recreate
+standalone tool screens. Preserve permission checks and require app-owned
+confirmation before side effects.
 
-#### Voice Module (`Voice/`)
+## Expert Workspaces
 
-```
-Voice/
-├── VoiceView.swift              # Main voice interface UI
-├── VoiceViewModel.swift         # State machine for voice interactions
-├── Services/
-│   ├── InferenceService.swift   # Speech recognition and synthesis
-│   └── PermissionManager.swift  # Handles microphone/speech permissions
-└── State/
-    └── SpeechRecognitionStateMachine.swift  # Recognition state transitions
-```
+### Adapter Comparison
 
-#### Health Module (`Health/`)
+`Foundation Lab/AdapterStudio` contains the macOS adapter comparison engine and
+views. It is routed through `ExpertWorkspaceView` from Library. Adapter training
+and export live in `Tools/AdapterStudio` through the `fmas` CLI.
 
-```
-Health/
-├── Models/                      # Health-specific @Generable models
-├── Tools/
-│   └── HealthDataTool.swift     # HealthKit integration tool
-├── ViewModels/
-│   └── HealthChatViewModel.swift # Health chat with predictive analytics
-└── Views/
-    ├── HealthDashboardView.swift     # AI-powered health insights
-    ├── HealthChatView.swift          # Health-focused chat interface
-    └── Components/                    # Health-specific UI components
+### AppBench
+
+`AppBenchStudioContent` explains AppBench stages inside the app. The canonical
+runner, datasets, graders, reports, and device harness live in `Tools/AppBench`.
+Never present Simulator benchmark output as publishable device evidence.
+
+## Voice
+
+Voice is part of Playground, not a standalone flow.
+
+```text
+Voice/Services/
+├── PermissionManager.swift
+├── SpeechRecognizer.swift
+├── SpeechRecognizerAudioHelpers.swift
+├── SpeechSynthesizer.swift
+└── SpeechSynthesizerVoiceHelpers.swift
 ```
 
-#### Dynamic Schemas (`Views/Examples/DynamicSchemas/`)
+`ChatViewModel+Voice.swift` coordinates recognition and synthesis. Keep audio
+state cancellation-safe and surface permission failures to the user.
 
-```
-DynamicSchemas/
-├── SchemaExamplesView.swift      # Schema example selection
-├── BasicSchemaView.swift         # Simple @Generable examples
-├── ArraySchemaView.swift         # Collection handling
-├── EnumSchemaView.swift          # Union types and enums
-├── NestedSchemaView.swift        # Nested object structures
-├── ReferencedSchemaView.swift    # Schema references
-├── FormBuilderView.swift         # Multi-step form generation
-├── InvoiceProcessingView.swift   # Complex document parsing
-└── ErrorHandlingSchemaView.swift # Schema error patterns
-```
+## Health
 
-#### Examples (`Views/Examples/`)
+The Health dashboard and chat live under `Foundation Lab/Health`.
 
-Examples demonstrate framework capabilities with `ExampleViewBase`:
-- `BasicChatView.swift` - One-shot prompts
-- `JournalingView.swift` - Prompts and reflective summaries
-- `CreativeWritingView.swift` - Creative generation
-- `StructuredGenerationView.swift` - Type-safe generation
-- `StreamingView.swift` - Real-time streaming
-- `GenerationGuidesView.swift` - Constrained outputs with `@Guide`
-- `GenerationOptionsView.swift` - Temperature, tokens, fitness
-- `HealthExampleView.swift` - Health dashboard example
-- `RAGChatView.swift` - Retrieval-augmented chat with documents
+- `HealthDataManager` and `HealthKitService` read authorized HealthKit data.
+- `HealthDataTool` is the only Health tool registered with Health chat.
+- Never ship synthetic measurements, diagnoses, correlations, or predictions as
+  if they came from the user.
+- If data is unavailable, say so plainly.
 
-### Navigation Architecture
+## Dynamic Schemas and Languages
 
-```
-FoundationLabApp.swift
-  └── AdaptiveNavigationView
-        ├── SidebarView (iPad/Mac)
-        │     └── TabSelection enum: examples, tools, schemas, languages, settings
-        └── ContentView
-              ├── ChatView (tab)
-              ├── ToolsView (tab)
-              ├── ExamplesView (tab)
-              └── SettingsView (tab)
-```
+- Dynamic schema examples live under `Views/Examples/DynamicSchemas` and are
+  grouped by `ExperimentLibraryCatalog.schemas`.
+- Language examples live under `Views/Languages` and are grouped by
+  `ExperimentLibraryCatalog.languages`.
+- Structured output uses `@Generable`, `@Guide`, and dynamic schemas through
+  shared `FoundationLabCore` capabilities where practical.
 
-- `NavigationCoordinator.shared` - Singleton for cross-tab navigation sync
-- `TabSelection` enum defines navigation destinations
-- `AdaptiveNavigationView` switches between TabView (iPhone) and NavigationSplitView (iPad/Mac)
+## Persistence
 
-### Key Patterns
+- Active experiments are persisted through `ExperimentPersistenceRepository`.
+- Saved configurations and runs are managed by `ExperimentLibraryRepository`.
+- Normalize experiment configurations at execution and persistence boundaries.
+- Preserve decoding defaults for older persisted documents.
 
-#### Data Models (`Models/`)
+## Dependencies
 
-```swift
-// @Generable for structured generation
-@Generable
-struct BookRecommendation {
-    @Guide(description: "The title of the book")
-    let title: String
-    let author: String
-}
+- `HighlightSwift`: syntax highlighting
+- `FoundationModelsKit` and `FoundationModelsTools`: local runtime and tools
+- `FoundationLabCore`: local shared capability layer
+- `LumoKit`: RAG indexing and retrieval
+- `VecturaKit`: vector search, transitively used by LumoKit
 
-// @Observable for state management
-@Observable
-final class ChatViewModel {
-    var messages: [Message] = []
-    var isStreaming: Bool = false
-}
-```
+Do not add a third-party dependency unless the feature clearly requires it.
 
-#### Error Handling (`Models/FoundationModelsError.swift`)
+## Swift and SwiftUI Conventions
 
-- Custom `FoundationModelsError` enum with `LocalizedError`
-- `FoundationModelsErrorHandler` for framework-specific errors
-- User-facing errors via `@State showError` in views
+- Use `@Observable` and mark shared UI state `@MainActor`.
+- Use `@State` only for state owned by the view and keep it `private`.
+- Prefer structured concurrency; do not introduce `DispatchQueue` for async work.
+- Use `NavigationStack`, `NavigationSplitView`, typed destinations, and the modern
+  `Tab` API.
+- Use `foregroundStyle`, shape-based clipping, `ContentUnavailableView`, and
+  semantic system styles.
+- Use `Button` instead of `onTapGesture` for ordinary actions.
+- Preserve Dynamic Type, VoiceOver, Voice Control, keyboard navigation, Reduce
+  Motion, and 44-point minimum touch targets.
+- Keep one primary type per file and name the file after that type.
+- Do not add placeholders, sample values presented as real data, TODO stubs, or
+  silently swallowed user-facing errors.
 
-#### Services (`Services/`)
+## Localization
 
-- `LanguageService.swift` - `@MainActor @Observable` for language detection/management
-- `HealthDataManager.swift` - Shared instance pattern for health data
+`Foundation Lab/Localizable.xcstrings` contains ten languages. Remove stale
+entries when deleting UI and add user-facing strings through localizable APIs.
+Do not leave references to retired providers, screens, or navigation labels.
 
-### Localization (`Localizable.xcstrings`)
+## Repository Surfaces
 
-- 10 languages: English, German, Spanish, French, Italian, Japanese, Korean, Portuguese (Brazil), Chinese (Simplified), Chinese (Traditional)
-- ~450KB file with all translations
-
-### Playground Examples (`BookPlaygrounds/`)
-
-Run directly in Xcode using the `#Playground` directive:
-- Chapter 2: 16 examples (Getting Started with Sessions)
-- Chapter 3: 5 examples (Generation Options)
-- Chapter 8: 9 examples (Basic Tool Use)
-- Chapter 13: 7 examples (Languages)
-
-## SwiftLint Configuration (`.swiftlint.yml`)
-
-```yaml
-line_length: 140/200
-type_body_length: 200/300
-file_length: 600/800
-identifier_name:
-  min_length: 2/1
-  max_length: 40/50
-type_name:
-  max_length: 50/60
-function_body_length: 60/100
-nesting:
-  type_level: 3/5
+```text
+Foundation Lab/                 Native app
+FoundationLabCore/              Shared capability and experiment runtime
+Packages/FoundationModelsKit/   Reusable model and tool packages
+Tools/AFMCLI/                   afm command-line interface
+Tools/AppBench/                 Evaluation suite and device runner
+Tools/AdapterStudio/            fmas adapter tooling
+BookPlaygrounds/                Chapter-oriented Xcode playgrounds
+skills/                         Reusable agent skills
 ```
 
-## Key Conventions
-
-- **ViewModels:** Use `@Observable` macro (not `@StateObject`), marked with `@MainActor`
-- **Tool files:** Named `*Tool.swift`
-- **ViewModel files:** Named `*ViewModel.swift`
-- **Navigation:** Use `NavigationStack` with `navigationDestination(for:)`
-- **Shared instances:** Singleton pattern with `shared` property
-- **Permissions:** Handled automatically via `PermissionManager`
-- **Error handling:** Use `FoundationModelsError` + `LocalizedError`
-- **State management:** `@State` for local, `@Binding` for parent-child, `@Observable` for ViewModels
-
-## Apple Intelligence Requirements
-
-- Device must support Apple Intelligence
-- Enable Apple Intelligence in Settings > Apple Intelligence
-- Model availability checked via `ModelAvailabilityChecker`
+Keep app, CLI, package, and documentation claims aligned with the same source of
+truth. A passing build does not make an unreachable feature real.

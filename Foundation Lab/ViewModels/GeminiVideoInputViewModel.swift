@@ -8,7 +8,6 @@
 import Foundation
 import FoundationModels
 import Observation
-import UniformTypeIdentifiers
 
 #if compiler(>=6.4)
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
@@ -18,6 +17,7 @@ import UniformTypeIdentifiers
 @Observable
 final class GeminiVideoInputViewModel {
     static let modelName = "gemini-3.5-flash"
+    nonisolated static let maximumInlineVideoByteCount = 14_000_000
     static let defaultPrompt = """
     Return exactly three concise bullets: (1) describe the cracked terrain and distant horizon, (2) describe how \
     the storm clouds and rain shafts move and how the light changes, and (3) summarize the color palette and mood \
@@ -31,6 +31,9 @@ final class GeminiVideoInputViewModel {
     var resultIsSuccess = false
     var errorMessage: String?
     var isRunning = false
+
+    private var analysisTask: Task<Void, Never>?
+    private var activeAnalysisID: UUID?
 
     init(
         bundle: Bundle = .main,
@@ -46,12 +49,12 @@ final class GeminiVideoInputViewModel {
     }
 
     var videoName: String {
-        videoURL?.lastPathComponent ?? "No video selected"
+        videoURL?.lastPathComponent ?? String(localized: "No video selected")
     }
 
     var videoSize: String {
         guard let videoURL else {
-            return "Unknown size"
+            return String(localized: "Unknown size")
         }
 
         let accessed = videoURL.startAccessingSecurityScopedResource()
@@ -63,7 +66,7 @@ final class GeminiVideoInputViewModel {
 
         guard let values = try? videoURL.resourceValues(forKeys: [.fileSizeKey]),
               let bytes = values.fileSize else {
-            return "Unknown size"
+            return String(localized: "Unknown size")
         }
 
         return ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
@@ -90,20 +93,22 @@ extension GeminiVideoInputViewModel {
     }
 
     func selectVideo(_ url: URL) {
+        cancelAnalysis()
         videoURL = url
         result = ""
+        resultIsSuccess = false
         errorMessage = nil
     }
 
-    func analyzeVideo() async {
+    func startAnalysis() {
         guard let videoURL else {
-            errorMessage = "Choose a video before running the analysis."
+            errorMessage = String(localized: "Choose a video before running the analysis.")
             return
         }
 
         let trimmedPrompt = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedPrompt.isEmpty else {
-            errorMessage = "Enter a prompt before running the experiment."
+            errorMessage = String(localized: "Enter a prompt before running the experiment.")
             return
         }
 
@@ -112,31 +117,36 @@ extension GeminiVideoInputViewModel {
             return
         }
 
+        cancelAnalysis()
+
+        let request = GeminiVideoAnalysisRequest(
+            videoURL: videoURL,
+            prompt: trimmedPrompt,
+            apiKey: apiKey
+        )
+        let analysisID = UUID()
+        activeAnalysisID = analysisID
         isRunning = true
         errorMessage = nil
         result = ""
         resultIsSuccess = false
 
-        defer {
-            isRunning = false
+        let task = Task { @MainActor [weak self] in
+            guard let self else { return }
+            await self.performAnalysis(request, id: analysisID)
         }
+        analysisTask = task
+    }
 
-        do {
-            let loadedVideo = try await Task.detached(priority: .userInitiated) {
-                try Self.loadVideo(from: videoURL)
-            }.value
-            let video = VideoSegment(
-                data: loadedVideo.data,
-                mimeType: loadedVideo.mimeType
-            )
-
-            try await runCustomWrapper(video: video, prompt: trimmedPrompt)
-        } catch {
-            errorMessage = error.localizedDescription
-        }
+    func cancelAnalysis() {
+        activeAnalysisID = nil
+        analysisTask?.cancel()
+        analysisTask = nil
+        isRunning = false
     }
 
     func reset() {
+        cancelAnalysis()
         prompt = Self.defaultPrompt
         result = ""
         errorMessage = nil
@@ -148,22 +158,62 @@ extension GeminiVideoInputViewModel {
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 private extension GeminiVideoInputViewModel {
-    func runCustomWrapper(video: VideoSegment, prompt: String) async throws {
+    func performAnalysis(_ request: GeminiVideoAnalysisRequest, id: UUID) async {
+        defer {
+            if activeAnalysisID == id {
+                activeAnalysisID = nil
+                analysisTask = nil
+                isRunning = false
+            }
+        }
+
+        do {
+            let loadedVideo = try await Self.loadVideo(from: request.videoURL)
+            try Task.checkCancellation()
+
+            let video = VideoSegment(
+                data: loadedVideo.data,
+                mimeType: loadedVideo.mimeType
+            )
+            let content = try await runCustomWrapper(
+                video: video,
+                prompt: request.prompt,
+                apiKey: request.apiKey
+            )
+            try Task.checkCancellation()
+
+            guard activeAnalysisID == id else { return }
+            result = content
+            resultIsSuccess = !content.isEmpty
+        } catch is CancellationError {
+            return
+        } catch {
+            guard activeAnalysisID == id else { return }
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func runCustomWrapper(video: VideoSegment, prompt: String, apiKey: String) async throws -> String {
+        try Task.checkCancellation()
         let model = GeminiDeveloperVideoLanguageModel(
             apiKey: apiKey,
             modelName: Self.modelName
         )
         let session = LanguageModelSession(model: model)
+        try Task.checkCancellation()
         let response = try await session.respond {
             video
             prompt
         }
+        try Task.checkCancellation()
 
-        result = response.content
-        resultIsSuccess = !response.content.isEmpty
+        return response.content
     }
 
-    nonisolated static func loadVideo(from url: URL) throws -> LoadedVideo {
+    @concurrent
+    nonisolated static func loadVideo(from url: URL) async throws -> LoadedVideo {
+        try Task.checkCancellation()
+
         let accessed = url.startAccessingSecurityScopedResource()
         defer {
             if accessed {
@@ -171,29 +221,57 @@ private extension GeminiVideoInputViewModel {
             }
         }
 
+        let mimeType = try mimeType(for: url)
+        let fileSize = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize
+        if let fileSize, fileSize > maximumInlineVideoByteCount {
+            throw GeminiVideoInputError.videoTooLarge(fileSize)
+        }
+
         let file = try FileHandle(forReadingFrom: url)
         defer {
             try? file.close()
         }
 
-        return LoadedVideo(
-            data: try file.readToEnd() ?? Data(),
-            mimeType: try mimeType(for: url)
-        )
+        var data = Data()
+        while let chunk = try file.read(upToCount: 1_048_576), !chunk.isEmpty {
+            try Task.checkCancellation()
+            data.append(chunk)
+            if data.count > maximumInlineVideoByteCount {
+                throw GeminiVideoInputError.videoTooLarge(data.count)
+            }
+        }
+        try Task.checkCancellation()
+
+        return LoadedVideo(data: data, mimeType: mimeType)
     }
 
     nonisolated static func mimeType(for url: URL) throws -> String {
-        let resourceType = try? url.resourceValues(forKeys: [.contentTypeKey]).contentType
-        let fileType = resourceType ?? UTType(filenameExtension: url.pathExtension)
+        let supportedTypes = [
+            "mp4": "video/mp4",
+            "mpeg": "video/mpeg",
+            "mpe": "video/mpeg",
+            "mov": "video/mov",
+            "avi": "video/avi",
+            "flv": "video/x-flv",
+            "mpg": "video/mpg",
+            "webm": "video/webm",
+            "wmv": "video/wmv",
+            "3gp": "video/3gpp"
+        ]
+        let mimeType = supportedTypes[url.pathExtension.lowercased()]
 
-        guard let fileType,
-              fileType.conforms(to: .movie),
-              let mimeType = fileType.preferredMIMEType else {
+        guard let mimeType else {
             throw GeminiVideoInputError.unsupportedVideoFormat(url.pathExtension)
         }
 
         return mimeType
     }
+}
+
+private struct GeminiVideoAnalysisRequest: Sendable {
+    let videoURL: URL
+    let prompt: String
+    let apiKey: String
 }
 
 private struct LoadedVideo: Sendable {
@@ -203,12 +281,16 @@ private struct LoadedVideo: Sendable {
 
 private enum GeminiVideoInputError: LocalizedError {
     case unsupportedVideoFormat(String)
+    case videoTooLarge(Int)
 
     var errorDescription: String? {
         switch self {
         case let .unsupportedVideoFormat(pathExtension):
-            let format = pathExtension.isEmpty ? "unknown" : pathExtension.uppercased()
-            return "The selected \(format) file does not have a recognized video MIME type."
+            let format = pathExtension.isEmpty ? String(localized: "unknown") : pathExtension.uppercased()
+            return String(localized: "The selected \(format) file does not have a recognized video MIME type.")
+        case let .videoTooLarge(byteCount):
+            let size = ByteCountFormatter.string(fromByteCount: Int64(byteCount), countStyle: .file)
+            return String(localized: "The selected video is \(size). Choose a video under 14 MB.")
         }
     }
 }

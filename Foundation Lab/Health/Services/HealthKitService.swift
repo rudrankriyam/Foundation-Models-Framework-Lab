@@ -54,8 +54,12 @@ actor HealthKitService {
         ]
 
         try await healthStore.requestAuthorization(toShare: [], read: readTypes)
-        let authorizationStatuses = readTypes.map { healthStore.authorizationStatus(for: $0) }
-        isAuthorized = authorizationStatuses.allSatisfy { $0 == .sharingAuthorized }
+
+        // HealthKit intentionally does not reveal read authorization. The
+        // sharing status APIs only describe permission to save samples, and
+        // this app requests read-only access. A successful request means
+        // queries may proceed; denied types simply return no matching data.
+        isAuthorized = true
     }
 
     func fetchAllTodayMetrics() async -> TodayHealthMetrics {
@@ -81,7 +85,7 @@ actor HealthKitService {
     func fetchWeeklyData() async -> [MetricType: [DailyMetricData]] {
         let calendar = Calendar.current
         let endDate = Date()
-        guard let startDate = calendar.date(byAdding: .day, value: -7, to: endDate) else {
+        guard let startDate = calendar.date(byAdding: .day, value: -6, to: endDate) else {
             logger.error("Failed to calculate start date for weekly data")
             return [:]
         }
@@ -95,7 +99,7 @@ actor HealthKitService {
         return weeklyData
     }
 
-    func fetchSteps(from startDate: Date, to endDate: Date) async -> Double {
+    func fetchSteps(from startDate: Date, to endDate: Date) async -> Double? {
         await fetchQuantityData(
             quantityTypeIdentifier: .stepCount,
             unit: HKUnit.count(),
@@ -104,7 +108,7 @@ actor HealthKitService {
         )
     }
 
-    func fetchActiveEnergy(from startDate: Date, to endDate: Date) async -> Double {
+    func fetchActiveEnergy(from startDate: Date, to endDate: Date) async -> Double? {
         await fetchQuantityData(
             quantityTypeIdentifier: .activeEnergyBurned,
             unit: .kilocalorie(),
@@ -113,20 +117,20 @@ actor HealthKitService {
         )
     }
 
-    func fetchDistance(from startDate: Date, to endDate: Date) async -> Double {
-        let meters = await fetchQuantityData(
+    func fetchDistance(from startDate: Date, to endDate: Date) async -> Double? {
+        await fetchQuantityData(
             quantityTypeIdentifier: .distanceWalkingRunning,
             unit: .meter(),
             from: startDate,
             to: endDate
         )
-        return meters / metersToKilometers
+        .map { $0 / metersToKilometers }
     }
 
-    func fetchLatestHeartRate() async -> Double {
+    func fetchLatestHeartRate() async -> Double? {
         guard let healthStore = healthStore,
               let heartRateType = HKObjectType.quantityType(forIdentifier: .heartRate) else {
-            return 0
+            return nil
         }
 
         let descriptor = HKSampleQueryDescriptor(
@@ -145,20 +149,20 @@ actor HealthKitService {
             logger.error("Failed to fetch heart rate data: \(error.localizedDescription)")
         }
 
-        return 0
+        return nil
     }
 
-    func fetchLastNightSleep() async -> Double {
+    func fetchLastNightSleep() async -> Double? {
         guard let healthStore = healthStore,
               let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else {
-            return 0
+            return nil
         }
 
         let calendar = Calendar.current
         let endDate = calendar.startOfDay(for: Date())
         guard let startDate = calendar.date(byAdding: .day, value: -1, to: endDate) else {
             logger.error("Failed to calculate start date for sleep data")
-            return 0
+            return nil
         }
 
         let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
@@ -171,19 +175,12 @@ actor HealthKitService {
 
         do {
             let sleepSamples = try await descriptor.result(for: healthStore)
-            var totalSleepTime: TimeInterval = 0
-
-            for sample in sleepSamples {
-                let duration = sample.endDate.timeIntervalSince(sample.startDate)
-                totalSleepTime += duration
-            }
-
-            return totalSleepTime / secondsToHours
+            return totalAsleepDuration(in: sleepSamples).map { $0 / secondsToHours }
         } catch {
             logger.error("Failed to fetch sleep data: \(error.localizedDescription)")
         }
 
-        return 0
+        return nil
     }
 
     private func fetchQuantityData(
@@ -191,10 +188,10 @@ actor HealthKitService {
         unit: HKUnit,
         from startDate: Date,
         to endDate: Date
-    ) async -> Double {
+    ) async -> Double? {
         guard let healthStore = healthStore,
               let quantityType = HKObjectType.quantityType(forIdentifier: quantityTypeIdentifier) else {
-            return 0
+            return nil
         }
 
         let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
@@ -214,7 +211,7 @@ actor HealthKitService {
             logger.error("Failed to fetch \(quantityTypeIdentifier.rawValue) data: \(error.localizedDescription)")
         }
 
-        return 0
+        return nil
     }
 
     private func fetchDailyData(
@@ -233,7 +230,7 @@ actor HealthKitService {
                 break
             }
 
-            let value: Double
+            let value: Double?
             switch metricType {
             case .steps:
                 value = await fetchQuantityData(
@@ -252,7 +249,7 @@ actor HealthKitService {
             case .sleep:
                 value = await fetchSleepValue(for: dayStart)
             default:
-                value = 0
+                value = nil
             }
 
             dailyData.append(DailyMetricData(date: currentDate, value: value))
@@ -266,17 +263,17 @@ actor HealthKitService {
         return dailyData
     }
 
-    private func fetchSleepValue(for date: Date) async -> Double {
+    private func fetchSleepValue(for date: Date) async -> Double? {
         guard let healthStore = healthStore,
               let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else {
-            return 0
+            return nil
         }
 
         let calendar = Calendar.current
         let endDate = calendar.startOfDay(for: date)
         guard let startDate = calendar.date(byAdding: .day, value: -1, to: endDate) else {
             logger.error("Failed to calculate start date for sleep value")
-            return 0
+            return nil
         }
 
         let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
@@ -289,19 +286,40 @@ actor HealthKitService {
 
         do {
             let sleepSamples = try await descriptor.result(for: healthStore)
-            var totalSleepTime: TimeInterval = 0
-
-            for sample in sleepSamples {
-                let duration = sample.endDate.timeIntervalSince(sample.startDate)
-                totalSleepTime += duration
-            }
-
-            return totalSleepTime / secondsToHours
+            return totalAsleepDuration(in: sleepSamples).map { $0 / secondsToHours }
         } catch {
             logger.error("Failed to fetch sleep value: \(error.localizedDescription)")
         }
 
-        return 0
+        return nil
+    }
+
+    private func totalAsleepDuration(in samples: [HKCategorySample]) -> TimeInterval? {
+        let intervals = samples.compactMap { sample -> DateInterval? in
+            guard let value = HKCategoryValueSleepAnalysis(rawValue: sample.value),
+                  HKCategoryValueSleepAnalysis.allAsleepValues.contains(value),
+                  sample.endDate > sample.startDate else {
+                return nil
+            }
+            return DateInterval(start: sample.startDate, end: sample.endDate)
+        }
+        .sorted { $0.start < $1.start }
+
+        guard var activeInterval = intervals.first else { return nil }
+
+        var duration: TimeInterval = 0
+        for interval in intervals.dropFirst() {
+            if interval.start <= activeInterval.end {
+                activeInterval = DateInterval(
+                    start: activeInterval.start,
+                    end: max(activeInterval.end, interval.end)
+                )
+            } else {
+                duration += activeInterval.duration
+                activeInterval = interval
+            }
+        }
+        return duration + activeInterval.duration
     }
 }
 // swiftlint:enable type_body_length
@@ -309,11 +327,11 @@ actor HealthKitService {
 // MARK: - Supporting Types
 
 struct TodayHealthMetrics {
-    let steps: Double
-    let activeEnergy: Double
-    let distance: Double
-    let heartRate: Double
-    let sleep: Double
+    let steps: Double?
+    let activeEnergy: Double?
+    let distance: Double?
+    let heartRate: Double?
+    let sleep: Double?
 }
 
 enum HealthKitError: LocalizedError {
@@ -323,14 +341,14 @@ enum HealthKitError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .unavailable:
-            return "HealthKit is not available on this device"
+            return String(localized: "HealthKit is not available on this device")
         case .typesUnavailable:
-            return "Required HealthKit types are not available"
+            return String(localized: "Required HealthKit types are not available")
         }
     }
 }
 
 struct DailyMetricData {
     let date: Date
-    let value: Double
+    let value: Double?
 }

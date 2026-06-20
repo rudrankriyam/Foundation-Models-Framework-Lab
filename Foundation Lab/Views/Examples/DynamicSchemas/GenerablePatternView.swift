@@ -108,13 +108,17 @@ struct GenerablePatternView: View {
         ExampleViewBase(
             title: "@Generable Pattern",
             description: "Use the @Generable macro with @Guide constraints for type-safe generation",
-            defaultPrompt: currentPrompt,
             currentPrompt: .constant(currentPrompt),
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
-            onRun: { Task { await runExample() } },
-            onReset: { selectedExample = 0 },
+            onRun: { await runExample() },
+            onReset: {
+                executor.reset()
+                selectedExample = 0
+                cuisineInput = "Italian"
+                movieGenreInput = "sci-fi"
+            },
             content: {
                 VStack(alignment: .leading, spacing: Spacing.medium) {
                 // Example selector
@@ -145,26 +149,11 @@ struct GenerablePatternView: View {
 
                     Text(generableInfo(for: selectedExample))
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.blue.opacity(0.1))
-                        .cornerRadius(8)
-                }
-
-                HStack {
-                    Button("Generate") {
-                        Task {
-                            await runExample()
-                        }
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(executor.isRunning || currentPrompt.isEmpty)
-
-                    if executor.isRunning {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                    }
+                        .clipShape(.rect(cornerRadius: 8))
                 }
 
                 // Results section
@@ -179,7 +168,7 @@ struct GenerablePatternView: View {
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color.gray.opacity(0.1))
-                                .cornerRadius(8)
+                                .clipShape(.rect(cornerRadius: 8))
                         }
                         .frame(maxHeight: 300)
                     }

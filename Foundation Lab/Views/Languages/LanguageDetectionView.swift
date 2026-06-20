@@ -106,7 +106,7 @@ struct LanguageCard: View {
         }
         .padding()
         .background(Color.gray.opacity(0.1))
-        .cornerRadius(12)
+        .clipShape(.rect(cornerRadius: 12))
     }
 
     private var displayName: String {

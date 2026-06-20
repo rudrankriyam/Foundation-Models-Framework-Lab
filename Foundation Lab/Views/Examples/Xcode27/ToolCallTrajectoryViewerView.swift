@@ -14,8 +14,12 @@ struct ToolCallTrajectoryViewerView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.large) {
                 Text(
-                    "A trajectory is the ordered path a model takes through tools. These are labeled teaching fixtures, not calls " +
-                    "captured from this device. In a real app, derive the path from the session transcript and score it in a test."
+                    String(
+                        localized: """
+                        A trajectory is the ordered path a model takes through tools. These are labeled teaching fixtures, not calls \
+                        captured from this device. In a real app, derive the path from the session transcript and score it in a test.
+                        """
+                    )
                 )
                     .font(.body)
                     .foregroundStyle(.secondary)
@@ -28,32 +32,32 @@ struct ToolCallTrajectoryViewerView: View {
                 .pickerStyle(.segmented)
 
                 Xcode27StatusRow(
-                    title: "Fixture comparison",
+                    title: String(localized: "Fixture comparison"),
                     value: fixture.result.title,
                     systemImage: fixture.result.icon,
                     tint: fixture.result.tint
                 )
 
-                Xcode27Section("Expected tool path") {
+                Xcode27Section(String(localized: "Expected tool path")) {
                     TrajectoryPathView(steps: TrajectoryFixture.expected)
                 }
 
-                Xcode27Section("Authored fixture") {
+                Xcode27Section(String(localized: "Authored fixture")) {
                     TrajectoryPathView(steps: fixture.steps)
                 }
 
-                Xcode27Section("Why the fixture is classified this way") {
+                Xcode27Section(String(localized: "Why the fixture is classified this way")) {
                     Text(fixture.explanation)
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
 
-                Xcode27Section("Production workflow") {
+                Xcode27Section(String(localized: "Production workflow")) {
                     Xcode27KeyValueList(items: [
-                        ("Observe", "session.transcript"),
-                        ("Extract", "Tool call names and arguments"),
-                        ("Compare", "Declared expectation"),
-                        ("Report", "Evaluations test result")
+                        (String(localized: "Observe"), "session.transcript"),
+                        (String(localized: "Extract"), String(localized: "Tool call names and arguments")),
+                        (String(localized: "Compare"), String(localized: "Declared expectation")),
+                        (String(localized: "Report"), String(localized: "Evaluations test result"))
                     ])
                 }
 
@@ -71,15 +75,15 @@ struct ToolCallTrajectoryViewerView: View {
 
     private var codeExample: String {
         """
-        let toolCallEntries = session.transcript.compactMap { entry in
+        let observedCalls = session.transcript.flatMap { entry -> [Transcript.ToolCall] in
             if case .toolCalls(let calls) = entry {
-                calls
+                Array(calls)
             } else {
-                nil
+                []
             }
         }
 
-        // Pass the observed calls and your declared expectation to an
+        // Pass observedCalls and your declared expectation to an
         // evaluation in the test target. Keep the full arguments when
         // correctness depends on more than tool names and order.
         """
@@ -142,9 +146,9 @@ private enum TrajectoryResult {
 
     var title: String {
         switch self {
-        case .match: "Exact match"
-        case .review: "Different path"
-        case .fail: "Forbidden call"
+        case .match: String(localized: "Exact match")
+        case .review: String(localized: "Different path")
+        case .fail: String(localized: "Forbidden call")
         }
     }
 
@@ -174,15 +178,15 @@ private enum TrajectoryFixture: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .match: "Match"
-        case .repeated: "Repeated"
-        case .forbidden: "Forbidden"
+        case .match: String(localized: "Match")
+        case .repeated: String(localized: "Repeated")
+        case .forbidden: String(localized: "Forbidden")
         }
     }
 
     static let expected = [
-        TrajectoryStep(name: "spotlightSearch", detail: "Search notes for hikes near water"),
-        TrajectoryStep(name: "fetchItem", detail: "Load the selected note")
+        TrajectoryStep(name: "spotlightSearch", detail: String(localized: "Search notes for hikes near water")),
+        TrajectoryStep(name: "fetchItem", detail: String(localized: "Load the selected note"))
     ]
 
     var steps: [TrajectoryStep] {
@@ -191,14 +195,18 @@ private enum TrajectoryFixture: String, CaseIterable, Identifiable {
             Self.expected
         case .repeated:
             [
-                TrajectoryStep(name: "spotlightSearch", detail: "Search notes for hikes near water"),
-                TrajectoryStep(name: "spotlightSearch", detail: "Repeat the same search", tint: .orange),
-                TrajectoryStep(name: "fetchItem", detail: "Load the selected note")
+                TrajectoryStep(name: "spotlightSearch", detail: String(localized: "Search notes for hikes near water")),
+                TrajectoryStep(name: "spotlightSearch", detail: String(localized: "Repeat the same search"), tint: .orange),
+                TrajectoryStep(name: "fetchItem", detail: String(localized: "Load the selected note"))
             ]
         case .forbidden:
             [
-                TrajectoryStep(name: "spotlightSearch", detail: "Search notes for hikes near water"),
-                TrajectoryStep(name: "deleteItem", detail: "Delete a note the user only asked to read", tint: .red)
+                TrajectoryStep(name: "spotlightSearch", detail: String(localized: "Search notes for hikes near water")),
+                TrajectoryStep(
+                    name: "deleteItem",
+                    detail: String(localized: "Delete a note the user only asked to read"),
+                    tint: .red
+                )
             ]
         }
     }
@@ -215,11 +223,18 @@ private enum TrajectoryFixture: String, CaseIterable, Identifiable {
 
     var explanation: String {
         switch result {
-        case .match: "The authored calls exactly match the declared names, arguments, and order in this fixture."
+        case .match:
+            String(
+                localized: "The authored calls exactly match the declared names, arguments, and order in this fixture."
+            )
         case .review:
-            "The fixture reaches the same read operation through an extra call. Your evaluation must declare if that fails."
+            String(
+                localized: "The fixture reaches the same read operation through an extra call. Your evaluation must declare if that fails."
+            )
         case .fail:
-            "The fixture contains a forbidden tool. A destructive call is a hard failure even if the answer looks useful."
+            String(
+                localized: "The fixture contains a forbidden tool. A destructive call is a hard failure even if the answer looks useful."
+            )
         }
     }
 }

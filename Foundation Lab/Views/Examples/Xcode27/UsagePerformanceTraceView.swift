@@ -10,7 +10,9 @@ import FoundationModels
 import SwiftUI
 
 struct UsagePerformanceTraceView: View {
-    @State private var currentPrompt = "Explain how Foundation Models reports token usage in two short paragraphs."
+    private static let defaultPrompt = "Explain how Foundation Models reports token usage in two short paragraphs."
+
+    @State private var currentPrompt = defaultPrompt
     @State private var report: UsagePerformanceReport?
     @State private var isRunning = false
     @State private var errorMessage: String?
@@ -18,9 +20,8 @@ struct UsagePerformanceTraceView: View {
 
     var body: some View {
         ExampleViewBase(
-            title: "Response Usage",
-            description: "Run a real streamed response and inspect its reported usage",
-            defaultPrompt: "Explain how Foundation Models reports token usage in two short paragraphs.",
+            title: String(localized: "Response Usage"),
+            description: String(localized: "Run a real streamed response and inspect its reported usage"),
             currentPrompt: $currentPrompt,
             isRunning: isRunning,
             errorMessage: errorMessage,
@@ -30,24 +31,24 @@ struct UsagePerformanceTraceView: View {
         ) {
             VStack(spacing: Spacing.large) {
                 if let report {
-                    Xcode27Section("Framework-Reported Usage") {
+                    Xcode27Section(String(localized: "Framework-Reported Usage")) {
                         Xcode27KeyValueList(items: [
-                            ("Input", tokenLabel(report.inputTokens)),
-                            ("Cached input", tokenLabel(report.cachedInputTokens)),
-                            ("Output", tokenLabel(report.outputTokens)),
-                            ("Reasoning output", tokenLabel(report.reasoningTokens)),
-                            ("Total", tokenLabel(report.totalTokens))
+                            (String(localized: "Input"), tokenLabel(report.inputTokens)),
+                            (String(localized: "Cached input"), tokenLabel(report.cachedInputTokens)),
+                            (String(localized: "Output"), tokenLabel(report.outputTokens)),
+                            (String(localized: "Reasoning output"), tokenLabel(report.reasoningTokens)),
+                            (String(localized: "Total"), tokenLabel(report.totalTokens))
                         ])
                     }
 
-                    Xcode27Section("App-Observed Timing") {
+                    Xcode27Section(String(localized: "App-Observed Timing")) {
                         Xcode27KeyValueList(items: [
-                            ("First stream update", durationLabel(report.timeToFirstUpdate)),
-                            ("End to end", durationLabel(report.totalDuration))
+                            (String(localized: "First stream update"), durationLabel(report.timeToFirstUpdate)),
+                            (String(localized: "End to end"), durationLabel(report.totalDuration))
                         ])
                     }
 
-                    Xcode27Section("Response") {
+                    Xcode27Section(String(localized: "Response")) {
                         Text(report.response)
                             .font(.body)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -61,10 +62,14 @@ struct UsagePerformanceTraceView: View {
                     }
                 }
 
-                Xcode27Section("What These Numbers Mean") {
+                Xcode27Section(String(localized: "What These Numbers Mean")) {
                     Text(
-                        "Token counts come from LanguageModelSession.Response.Usage. Timing is measured by this app with " +
-                        "ContinuousClock; Foundation Models does not attribute latency to prompts, tools, caching, or reasoning."
+                        String(
+                            localized: """
+                            Token counts come from LanguageModelSession.Response.Usage. Timing is measured by this app with \
+                            ContinuousClock; Foundation Models does not attribute latency to prompts, tools, caching, or reasoning.
+                            """
+                        )
                     )
                     .font(.callout)
                     .foregroundStyle(.secondary)
@@ -74,103 +79,142 @@ struct UsagePerformanceTraceView: View {
         }
     }
 
-    private func runTrace() {
+    private func runTrace() async {
         let id = UUID()
+        let prompt = currentPrompt
         runID = id
         isRunning = true
         errorMessage = nil
         report = nil
 
-        Task { @MainActor in
-            defer {
-                if runID == id {
-                    isRunning = false
-                }
+        defer {
+            if runID == id {
+                isRunning = false
             }
+        }
 
-            #if compiler(>=6.4)
-            guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else {
-                guard runID == id else { return }
-                errorMessage = "Response usage requires an OS 27 runtime."
-                return
-            }
+        #if compiler(>=6.4)
+        guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else {
+            guard runID == id else { return }
+            errorMessage = String(localized: "Response usage requires an OS 27 runtime.")
+            return
+        }
 
-            do {
-                let session = LanguageModelSession()
-                let clock = ContinuousClock()
-                let startedAt = clock.now
-                var firstUpdateAt: ContinuousClock.Instant?
-                let stream = session.streamResponse(
-                    to: currentPrompt,
-                    contextOptions: ContextOptions(reasoningLevel: .moderate),
-                    metadata: ["example": "response-usage"]
-                )
+        do {
+            let session = LanguageModelSession()
+            let clock = ContinuousClock()
+            let startedAt = clock.now
+            var firstUpdateAt: ContinuousClock.Instant?
+            let stream = session.streamResponse(
+                to: prompt,
+                contextOptions: traceContextOptions(),
+                metadata: ["example": "response-usage"]
+            )
+            var lastSnapshot: LanguageModelSession.ResponseStream<String>.Snapshot?
 
-                for try await _ in stream where firstUpdateAt == nil {
+            for try await snapshot in stream {
+                if firstUpdateAt == nil {
                     firstUpdateAt = clock.now
                 }
-
-                let response = try await stream.collect()
-                let finishedAt = clock.now
-                guard runID == id else { return }
-
-                report = UsagePerformanceReport(
-                    response: response.content,
-                    inputTokens: response.usage.input.totalTokenCount,
-                    cachedInputTokens: response.usage.input.cachedTokenCount,
-                    outputTokens: response.usage.output.totalTokenCount,
-                    reasoningTokens: response.usage.output.reasoningTokenCount,
-                    totalTokens: response.usage.totalTokenCount,
-                    timeToFirstUpdate: firstUpdateAt.map { startedAt.duration(to: $0) },
-                    totalDuration: startedAt.duration(to: finishedAt)
-                )
-            } catch {
-                guard runID == id else { return }
-                errorMessage = error.localizedDescription
+                lastSnapshot = snapshot
             }
-            #else
-            guard runID == id else { return }
-            errorMessage = "Response usage requires the Xcode 27 SDK."
-            #endif
+
+            try Task.checkCancellation()
+            let finishedAt = clock.now
+            guard runID == id, currentPrompt == prompt else { return }
+            finishTrace(
+                snapshot: lastSnapshot,
+                startedAt: startedAt,
+                firstUpdateAt: firstUpdateAt,
+                finishedAt: finishedAt
+            )
+        } catch is CancellationError {
+            return
+        } catch {
+            guard runID == id, currentPrompt == prompt else { return }
+            errorMessage = error.localizedDescription
         }
+        #else
+        guard runID == id else { return }
+        errorMessage = String(localized: "Response usage requires the Xcode 27 SDK.")
+        #endif
     }
 
     private func reset() {
         runID = UUID()
         isRunning = false
-        currentPrompt = ""
+        currentPrompt = Self.defaultPrompt
         report = nil
         errorMessage = nil
     }
 
+    #if compiler(>=6.4)
+    @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
+    private func traceContextOptions() -> ContextOptions {
+        let supportsReasoning = SystemLanguageModel.default.capabilities.contains(.reasoning)
+        return supportsReasoning
+            ? ContextOptions(reasoningLevel: .moderate)
+            : ContextOptions()
+    }
+
+    @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
+    private func finishTrace(
+        snapshot: LanguageModelSession.ResponseStream<String>.Snapshot?,
+        startedAt: ContinuousClock.Instant,
+        firstUpdateAt: ContinuousClock.Instant?,
+        finishedAt: ContinuousClock.Instant
+    ) {
+        guard let snapshot else {
+            errorMessage = String(localized: "No update received")
+            return
+        }
+
+        report = UsagePerformanceReport(
+            response: snapshot.content,
+            inputTokens: snapshot.usage.input.totalTokenCount,
+            cachedInputTokens: snapshot.usage.input.cachedTokenCount,
+            outputTokens: snapshot.usage.output.totalTokenCount,
+            reasoningTokens: snapshot.usage.output.reasoningTokenCount,
+            totalTokens: snapshot.usage.totalTokenCount,
+            timeToFirstUpdate: firstUpdateAt.map { startedAt.duration(to: $0) },
+            totalDuration: startedAt.duration(to: finishedAt)
+        )
+    }
+    #endif
+
     private func tokenLabel(_ count: Int) -> String {
-        count.formatted() + (count == 1 ? " token" : " tokens")
+        count == 1 ? String(localized: "\(count) token") : String(localized: "\(count) tokens")
     }
 
     private func durationLabel(_ duration: Duration?) -> String {
-        guard let duration else { return "No update received" }
+        guard let duration else { return String(localized: "No update received") }
         let components = duration.components
         let seconds = Double(components.seconds) + Double(components.attoseconds) / 1e18
-        return seconds.formatted(.number.precision(.fractionLength(2))) + " s"
+        return String(localized: "\(seconds.formatted(.number.precision(.fractionLength(2)))) s")
     }
 
     private var codeExample: String {
         """
-        let clock = ContinuousClock()
-        let startedAt = clock.now
-        var firstUpdateAt: ContinuousClock.Instant?
-        let stream = session.streamResponse(to: prompt)
+        if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) {
+            let clock = ContinuousClock()
+            let startedAt = clock.now
+            var firstUpdateAt: ContinuousClock.Instant?
+            let stream = session.streamResponse(to: prompt)
 
-        for try await _ in stream {
-            firstUpdateAt = firstUpdateAt ?? clock.now
+            var lastSnapshot: LanguageModelSession.ResponseStream<String>.Snapshot?
+            for try await snapshot in stream {
+                firstUpdateAt = firstUpdateAt ?? clock.now
+                lastSnapshot = snapshot
+            }
+
+            if let lastSnapshot {
+                print(lastSnapshot.usage.input.totalTokenCount)
+                print(lastSnapshot.usage.input.cachedTokenCount)
+                print(lastSnapshot.usage.output.totalTokenCount)
+                print(lastSnapshot.usage.output.reasoningTokenCount)
+            }
+            print(startedAt.duration(to: firstUpdateAt ?? clock.now))
         }
-
-        let response = try await stream.collect()
-        print(response.usage.input.totalTokenCount)
-        print(response.usage.input.cachedTokenCount)
-        print(response.usage.output.totalTokenCount)
-        print(response.usage.output.reasoningTokenCount)
-        print(startedAt.duration(to: firstUpdateAt ?? clock.now))
         """
     }
 }

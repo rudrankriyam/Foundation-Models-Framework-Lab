@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftUI
 
 enum DynamicSchemaExampleType: String, CaseIterable, Identifiable {
     case basicObject = "basic_object"
@@ -104,49 +103,4 @@ enum DynamicSchemaExampleType: String, CaseIterable, Identifiable {
         }
     }
 
-    var complexity: Complexity {
-        switch self {
-        case .basicObject, .arraySchema, .enumSchema:
-            return .beginner
-        case .nestedObjects, .generationGuides, .generablePattern:
-            return .intermediate
-        case .schemaReferences, .unionTypes, .errorHandling:
-            return .advanced
-        case .formBuilder, .invoiceProcessing:
-            return .expert
-        }
-    }
-
-    enum Complexity {
-        case beginner
-        case intermediate
-        case advanced
-        case expert
-
-        var color: Color {
-            switch self {
-            case .beginner:
-                return .green
-            case .intermediate:
-                return .orange
-            case .advanced:
-                return .red
-            case .expert:
-                return .blue
-            }
-        }
-
-        var label: String {
-            switch self {
-            case .beginner:
-                return "Beginner"
-            case .intermediate:
-                return "Intermediate"
-            case .advanced:
-                return "Advanced"
-            case .expert:
-                return "Expert"
-            }
-        }
-    }
 }

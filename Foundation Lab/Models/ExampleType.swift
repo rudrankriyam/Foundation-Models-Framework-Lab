@@ -40,11 +40,34 @@ enum ExampleType: String, CaseIterable, Identifiable {
     case fmCLIPythonPlayground = "fm_cli_python_playground"
     case health = "health"
     case rag = "rag"
-    case chat = "chat"
 }
 
 extension ExampleType {
     var id: String { rawValue }
+
+    static let xcode27Examples: [ExampleType] = [
+        .modelRuntime,
+        .contextWindowInspector,
+        .privateCloudCompute,
+        .imageInputPlayground,
+        .usagePerformanceTrace,
+        .toolCallingModeLab,
+        .riskyToolConfirmation,
+        .foundationModelsSecurityPlayground,
+        .toolCallTrajectoryViewer,
+        .dynamicProfileBuilder,
+        .reasoningLevelComparison,
+        .transcriptExplorer,
+        .agentFlowInspector,
+        .historyTransformLab,
+        .modelRouterDashboard,
+        .contextBudgetVisualizer,
+        .geminiVideoInput,
+        .spotlightRAGExplorer,
+        .providerBridgeWalkthrough,
+        .evaluationsLab,
+        .fmCLIPythonPlayground
+    ]
 
     var title: String {
         switch self {
@@ -110,8 +133,6 @@ extension ExampleType {
             return "Health Dashboard"
         case .rag:
             return "Doc Q&A"
-        case .chat:
-            return "Chat"
         }
     }
 
@@ -158,7 +179,7 @@ extension ExampleType {
         case .riskyToolConfirmation:
             return "Review app-owned authorization before side effects"
         case .modelRouterDashboard:
-            return "Explain system, PCC, Core AI, and provider choices"
+            return "Make routing an explicit app policy"
         case .contextBudgetVisualizer:
             return "Show kept, summarized, and dropped context"
         case .toolCallTrajectoryViewer:
@@ -179,8 +200,6 @@ extension ExampleType {
             return "AI-powered health insights and tracking"
         case .rag:
             return "Ask questions with source citations"
-        case .chat:
-            return "Multi-turn conversation with AI assistant"
         }
     }
 
@@ -248,72 +267,9 @@ extension ExampleType {
             return "heart.fill"
         case .rag:
             return "doc.text.magnifyingglass"
-        case .chat:
-            return "bubble.left.and.bubble.right.fill"
         }
     }
 
-    /// Static property for examples displayed in the grid (excludes chat)
-    static var gridExamples: [ExampleType] {
-        allCases.filter { $0 != .chat }
-    }
-
-}
-
-// MARK: - Tool Example Enum
-
-enum ToolExample: String, CaseIterable, Hashable {
-    case weather
-    case web
-    case contacts
-    case calendar
-    case reminders
-    case location
-    case health
-    case music
-    case webMetadata
-
-    var displayName: String {
-        switch self {
-        case .weather: return "Weather"
-        case .web: return "Web Search"
-        case .contacts: return "Contacts"
-        case .calendar: return "Calendar"
-        case .reminders: return "Reminders"
-        case .location: return "Location"
-        case .health: return "Health"
-        case .music: return "Music"
-        case .webMetadata: return "Web Metadata"
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .weather: return "cloud.sun"
-        case .web: return "magnifyingglass"
-        case .contacts: return "person.2"
-        case .calendar: return "calendar"
-        case .reminders: return "checklist"
-        case .location: return "location"
-        case .health: return "heart"
-        case .music: return "music.note"
-        case .webMetadata: return "link.circle"
-        }
-    }
-
-    var shortDescription: String {
-        switch self {
-        case .weather: return "Current conditions"
-        case .web: return "Search the web"
-        case .contacts: return "Find contacts"
-        case .calendar: return "Manage events"
-        case .reminders: return "Create reminders"
-        case .location: return "Get location"
-        case .health: return "Health data"
-        case .music: return "Search music"
-        case .webMetadata: return "Extract metadata"
-        }
-    }
 }
 
 // MARK: - Language Example Enum

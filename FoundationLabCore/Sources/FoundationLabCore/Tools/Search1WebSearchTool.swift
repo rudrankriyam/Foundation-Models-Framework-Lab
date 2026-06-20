@@ -152,17 +152,17 @@ private enum Search1WebSearchError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidURL:
-            return "Invalid Search1API URL."
+            return String(localized: "Invalid Search1API URL.")
         case .invalidResponse:
-            return "Invalid response from Search1API."
+            return String(localized: "Invalid response from Search1API.")
         case let .httpStatus(code, _):
             switch code {
             case 401, 403:
-                return "Search1API keyless access is unavailable right now. Please try again later."
+                return String(localized: "Search1API keyless access is unavailable right now. Please try again later.")
             case 429:
-                return "Search1API keyless access is rate-limited. Please wait and try again."
+                return String(localized: "Search1API keyless access is rate-limited. Please wait and try again.")
             default:
-                return "Search1API returned HTTP \(code)."
+                return String(localized: "Search1API returned HTTP \(code).")
             }
         }
     }

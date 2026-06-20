@@ -10,10 +10,7 @@ struct AdapterStudioOutputView: View {
                 Text("Latest Output")
                     .font(.headline)
 
-                Text(
-                    "Responses remain selectable for manual review. "
-                        + "Use AppBench when you need stored datasets and deterministic graders."
-                )
+                Text("Responses remain selectable for manual review. Use AppBench when you need stored datasets and deterministic graders.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
             }
@@ -29,8 +26,8 @@ struct AdapterStudioOutputView: View {
                 ViewThatFits(in: .horizontal) {
                     HStack(alignment: .top, spacing: Spacing.large) {
                         AdapterStudioResponseColumn(
-                            title: "Base Model",
-                            subtitle: "System language model",
+                            title: String(localized: "Base Model"),
+                            subtitle: String(localized: "System language model"),
                             column: viewModel.baseColumn,
                             isActive: false
                         )
@@ -38,9 +35,9 @@ struct AdapterStudioOutputView: View {
                         Divider()
 
                         AdapterStudioResponseColumn(
-                            title: "Custom Adapter",
+                            title: String(localized: "Custom Adapter"),
                             subtitle: viewModel.adapterContext?.metadata.fileName
-                                ?? "Adapter",
+                                ?? String(localized: "Adapter"),
                             column: viewModel.adapterColumn,
                             isActive: false
                         )
@@ -48,8 +45,8 @@ struct AdapterStudioOutputView: View {
 
                     VStack(spacing: Spacing.large) {
                         AdapterStudioResponseColumn(
-                            title: "Base Model",
-                            subtitle: "System language model",
+                            title: String(localized: "Base Model"),
+                            subtitle: String(localized: "System language model"),
                             column: viewModel.baseColumn,
                             isActive: false
                         )
@@ -57,9 +54,9 @@ struct AdapterStudioOutputView: View {
                         Divider()
 
                         AdapterStudioResponseColumn(
-                            title: "Custom Adapter",
+                            title: String(localized: "Custom Adapter"),
                             subtitle: viewModel.adapterContext?.metadata.fileName
-                                ?? "Adapter",
+                                ?? String(localized: "Adapter"),
                             column: viewModel.adapterColumn,
                             isActive: false
                         )

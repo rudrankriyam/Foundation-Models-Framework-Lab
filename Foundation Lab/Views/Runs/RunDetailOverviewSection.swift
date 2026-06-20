@@ -23,7 +23,14 @@ struct RunDetailOverviewSection: View {
             }
 
             LabeledContent("Duration") {
-                Text("\(run.duration, format: .number.precision(.fractionLength(2))) seconds")
+                Text(
+                    Measurement(value: run.duration, unit: UnitDuration.seconds),
+                    format: .measurement(
+                        width: .wide,
+                        usage: .asProvided,
+                        numberFormatStyle: .number.precision(.fractionLength(2))
+                    )
+                )
             }
 
             if let tokenCount = run.tokenCount {

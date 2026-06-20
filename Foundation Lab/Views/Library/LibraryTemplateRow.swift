@@ -27,15 +27,17 @@ struct LibraryTemplateRow: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Label(template.level.displayName, systemImage: template.level.systemImage)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                LibraryTemplateMetadataView(
+                    launch: template.launch,
+                    level: template.level
+                )
             }
         }
         .padding(.vertical, Spacing.xSmall)
         .contentShape(.rect)
         .accessibilityElement(children: .combine)
     }
+
 }
 
 #Preview {

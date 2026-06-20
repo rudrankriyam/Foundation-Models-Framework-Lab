@@ -115,7 +115,7 @@ private struct PlaygroundEmptyState: View {
 
     private var emptyDescription: String {
         if configuration.summary.isEmpty {
-            "Write a prompt below or choose a ready-made experiment from the Library."
+            String(localized: "Write a prompt below or choose a ready-made experiment from the Library.")
         } else {
             configuration.summary
         }

@@ -48,9 +48,15 @@ private extension ChatInputView {
             HStack(spacing: Spacing.medium) {
                 Group {
                     if case .listening(let partialText) = chatViewModel.voiceState {
-                        Text(partialText.isEmpty ? "Listening..." : partialText)
-                            .foregroundStyle(.secondary)
-                            .italic()
+                        Group {
+                            if partialText.isEmpty {
+                                Text("Listening...")
+                            } else {
+                                Text(partialText)
+                            }
+                        }
+                        .foregroundStyle(.secondary)
+                        .italic()
                     } else {
                         TextField("Type your message...", text: $messageText, axis: .vertical)
                             .textFieldStyle(.plain)
@@ -166,9 +172,15 @@ private extension ChatInputView {
         HStack(spacing: Spacing.medium) {
             Group {
                 if case .listening(let partialText) = chatViewModel.voiceState {
-                    Text(partialText.isEmpty ? "Listening..." : partialText)
-                        .foregroundStyle(.secondary)
-                        .italic()
+                    Group {
+                        if partialText.isEmpty {
+                            Text("Listening...")
+                        } else {
+                            Text(partialText)
+                        }
+                    }
+                    .foregroundStyle(.secondary)
+                    .italic()
                 } else {
                     TextField("Type your message...", text: $messageText, axis: .vertical)
                         .textFieldStyle(.plain)

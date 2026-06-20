@@ -27,13 +27,19 @@ struct GuidedDynamicSchemaView: View {
         ExampleViewBase(
             title: "Generation Guides",
             description: "Apply constraints to generated values using schema properties",
-            defaultPrompt: patternInput,
             currentPrompt: bindingForSelectedGuide,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
-            onRun: { Task { await runExample() } },
-            onReset: { executor.reset() },
+            onRun: { await runExample() },
+            onReset: {
+                executor.reset()
+                selectedGuideType = 0
+                patternInput = "Generate 5 US phone numbers with extensions"
+                rangeInput = "Generate prices between $10 and $100 for electronics"
+                arrayInput = "Create a shopping list with 3-5 items each having 2-4 attributes"
+                validationInput = "Generate valid email addresses for 5 employees at techcorp.com"
+            },
             content: {
             VStack(alignment: .leading, spacing: Spacing.medium) {
                 // Guide Type Selector
@@ -53,14 +59,14 @@ struct GuidedDynamicSchemaView: View {
                 VStack(alignment: .leading, spacing: Spacing.small) {
                     Label("How it works", systemImage: "info.circle")
                         .font(.headline)
-                        .foregroundColor(.blue)
+                        .foregroundStyle(.blue)
 
                     Text(guideExplanation)
                         .font(.caption)
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.blue.opacity(0.1))
-                        .cornerRadius(8)
+                        .clipShape(.rect(cornerRadius: 8))
                 }
 
                 // Results
@@ -75,7 +81,7 @@ struct GuidedDynamicSchemaView: View {
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color.gray.opacity(0.1))
-                                .cornerRadius(8)
+                                .clipShape(.rect(cornerRadius: 8))
                         }
                         .frame(maxHeight: 250)
                     }

@@ -42,7 +42,7 @@ struct SessionManagementView: View {
 
                 if let errorMessage {
                     Text(errorMessage)
-                        .foregroundColor(.red)
+                        .foregroundStyle(.red)
                         .padding(.horizontal)
                 }
 
@@ -139,7 +139,7 @@ struct ConversationStepCard: View {
                 Text("\(stepNumber)")
                     .font(.caption)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .frame(width: 24, height: 24)
                     .background(Circle().fill(.blue))
 
@@ -151,7 +151,7 @@ struct ConversationStepCard: View {
 
                 if step.isError {
                     Image(systemName: "exclamationmark.triangle")
-                        .foregroundColor(.red)
+                        .foregroundStyle(.red)
                 }
             }
 
@@ -170,8 +170,8 @@ struct ConversationStepCard: View {
                             .padding(.horizontal, Spacing.medium)
                             .padding(.vertical, Spacing.small)
                             .background(.blue.opacity(0.1))
-                            .foregroundColor(.blue)
-                            .cornerRadius(16)
+                            .foregroundStyle(.blue)
+                            .clipShape(.rect(cornerRadius: 16))
                     }
                 }
 
@@ -188,8 +188,8 @@ struct ConversationStepCard: View {
                             .padding(.horizontal, Spacing.medium)
                             .padding(.vertical, Spacing.small)
                             .background(step.isError ? .red.opacity(0.1) : .gray.opacity(0.1))
-                            .foregroundColor(step.isError ? .red : .primary)
-                            .cornerRadius(16)
+                            .foregroundStyle(step.isError ? .red : .primary)
+                            .clipShape(.rect(cornerRadius: 16))
                     }
                     Spacer()
                 }
@@ -197,7 +197,7 @@ struct ConversationStepCard: View {
         }
         .padding()
         .background(Color.gray.opacity(0.05))
-        .cornerRadius(16)
+        .clipShape(.rect(cornerRadius: 16))
     }
 }
 

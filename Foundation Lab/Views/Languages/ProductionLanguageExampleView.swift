@@ -47,7 +47,7 @@ struct ProductionLanguageExampleView: View {
 
                 if let errorMessage {
                     Text(errorMessage)
-                        .foregroundColor(.red)
+                        .foregroundStyle(.red)
                         .padding(.horizontal)
                 }
 
@@ -126,7 +126,7 @@ struct ProductionLanguageExampleView: View {
                     .padding()
                     .frame(height: 100)
                     .background(Color.gray.opacity(0.1))
-                    .cornerRadius(12)
+                    .clipShape(.rect(cornerRadius: 12))
 
                 Text("Example: \"I had a chicken salad with avocado and olive oil dressing\"")
                     .font(.caption)
@@ -223,7 +223,7 @@ struct ProductionLanguageExampleView: View {
             nutritionResult = response.analysis
 
         } catch {
-            errorMessage = "Analysis failed: \(error.localizedDescription)"
+            errorMessage = String(localized: "Analysis failed: \(error.localizedDescription)")
         }
 
         isRunning = false

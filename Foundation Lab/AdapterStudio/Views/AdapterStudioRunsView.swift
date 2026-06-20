@@ -59,8 +59,8 @@ struct AdapterStudioRunsView: View {
             ViewThatFits(in: .horizontal) {
                 HStack(alignment: .top, spacing: Spacing.large) {
                     AdapterStudioResponseColumn(
-                        title: "Base Model",
-                        subtitle: "Fresh system model session",
+                        title: String(localized: "Base Model"),
+                        subtitle: String(localized: "Fresh system model session"),
                         column: viewModel.baseColumn,
                         isActive: viewModel.isRunning
                     )
@@ -68,9 +68,9 @@ struct AdapterStudioRunsView: View {
                     Divider()
 
                     AdapterStudioResponseColumn(
-                        title: "Custom Adapter",
+                        title: String(localized: "Custom Adapter"),
                         subtitle: viewModel.adapterContext?.metadata.fileName
-                            ?? "No adapter loaded",
+                            ?? String(localized: "No adapter loaded"),
                         column: viewModel.adapterColumn,
                         isActive: viewModel.isRunning
                     )
@@ -78,8 +78,8 @@ struct AdapterStudioRunsView: View {
 
                 VStack(spacing: Spacing.large) {
                     AdapterStudioResponseColumn(
-                        title: "Base Model",
-                        subtitle: "Fresh system model session",
+                        title: String(localized: "Base Model"),
+                        subtitle: String(localized: "Fresh system model session"),
                         column: viewModel.baseColumn,
                         isActive: viewModel.isRunning
                     )
@@ -87,9 +87,9 @@ struct AdapterStudioRunsView: View {
                     Divider()
 
                     AdapterStudioResponseColumn(
-                        title: "Custom Adapter",
+                        title: String(localized: "Custom Adapter"),
                         subtitle: viewModel.adapterContext?.metadata.fileName
-                            ?? "No adapter loaded",
+                            ?? String(localized: "No adapter loaded"),
                         column: viewModel.adapterColumn,
                         isActive: viewModel.isRunning
                     )

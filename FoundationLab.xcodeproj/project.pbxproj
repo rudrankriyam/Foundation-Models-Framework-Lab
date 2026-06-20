@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0A21D7F12E518858004E8806 /* LiquidGlasKit in Frameworks */ = {isa = PBXBuildFile; productRef = 0A21D7F02E518858004E8806 /* LiquidGlasKit */; };
 		0A5454AB2E1148A8002C2152 /* Foundation Lab.icon in Resources */ = {isa = PBXBuildFile; fileRef = 0A5454A72E1148A8002C2152 /* Foundation Lab.icon */; };
 		0A979E842E1E5921008CFA37 /* FoundationModelsKit in Frameworks */ = {isa = PBXBuildFile; productRef = 0A979E832E1E5921008CFA37 /* FoundationModelsKit */; };
 		0B0A11132ECB100100000001 /* FoundationLabCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0B0A11122ECB100100000001 /* FoundationLabCore */; };
@@ -17,7 +16,6 @@
 
 /* Begin PBXFileReference section */
 		0A5454A72E1148A8002C2152 /* Foundation Lab.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = "Foundation Lab.icon"; sourceTree = "<group>"; };
-		0A9766662E1E562A008CFA37 /* Collections.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Collections.xcodeproj; sourceTree = "<group>"; };
 		0AAE4FFF2DF76E6600838F13 /* Foundation Lab.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Foundation Lab.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C9AECE22E728F6D00F4C37F /* SampleCode.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SampleCode.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -55,7 +53,6 @@
 			files = (
 				FA43F9412E13A16E00F24BCC /* HighlightSwift in Frameworks */,
 				0A979E842E1E5921008CFA37 /* FoundationModelsKit in Frameworks */,
-				0A21D7F12E518858004E8806 /* LiquidGlasKit in Frameworks */,
 				0B0A11132ECB100100000001 /* FoundationLabCore in Frameworks */,
 				F1B8C56E2E5B5A1C00XYZ123 /* LumoKit in Frameworks */,
 			);
@@ -64,13 +61,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0A9766772E1E562A008CFA37 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		0AAE4FF62DF76E6600838F13 = {
 			isa = PBXGroup;
 			children = (
@@ -120,7 +110,6 @@
 			packageProductDependencies = (
 				FA43F9402E13A16E00F24BCC /* HighlightSwift */,
 				0A979E832E1E5921008CFA37 /* FoundationModelsKit */,
-				0A21D7F02E518858004E8806 /* LiquidGlasKit */,
 				0B0A11122ECB100100000001 /* FoundationLabCore */,
 				F1B8C56D2E5B5A1C00XYZ123 /* LumoKit */,
 			);
@@ -155,19 +144,12 @@
 			packageReferences = (
 				0AC6037E2E1D5288002106F9 /* XCRemoteSwiftPackageReference "HighlightSwift" */,
 				0A979E822E1E5921008CFA37 /* XCLocalSwiftPackageReference "FoundationModelsKit" */,
-				0A21D7EF2E518858004E8806 /* XCRemoteSwiftPackageReference "LiquidGlasKit" */,
 				0B0A11112ECB100100000001 /* XCLocalSwiftPackageReference "FoundationLabCore" */,
 				F1B8C56C2E5B5A1C00XYZ123 /* XCRemoteSwiftPackageReference "LumoKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0AAE50002DF76E6600838F13 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 0A9766772E1E562A008CFA37 /* Products */;
-					ProjectRef = 0A9766662E1E562A008CFA37 /* Collections.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				0AAE4FFE2DF76E6600838F13 /* Foundation Lab */,
@@ -519,14 +501,6 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		0A21D7EF2E518858004E8806 /* XCRemoteSwiftPackageReference "LiquidGlasKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/rryam/LiquidGlasKit.git";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 		0AC6037E2E1D5288002106F9 /* XCRemoteSwiftPackageReference "HighlightSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/appstefan/HighlightSwift.git";
@@ -543,22 +517,9 @@
 				kind = branch;
 			};
 		};
-		FA43F93F2E13A16E00F24BCC /* XCRemoteSwiftPackageReference "HighlightSwift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/appstefan/HighlightSwift";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.6;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		0A21D7F02E518858004E8806 /* LiquidGlasKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0A21D7EF2E518858004E8806 /* XCRemoteSwiftPackageReference "LiquidGlasKit" */;
-			productName = LiquidGlasKit;
-		};
 		0A979E832E1E5921008CFA37 /* FoundationModelsKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0A979E822E1E5921008CFA37 /* XCLocalSwiftPackageReference "FoundationModelsKit" */;
@@ -576,7 +537,7 @@
 		};
 		FA43F9402E13A16E00F24BCC /* HighlightSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA43F93F2E13A16E00F24BCC /* XCRemoteSwiftPackageReference "HighlightSwift" */;
+			package = 0AC6037E2E1D5288002106F9 /* XCRemoteSwiftPackageReference "HighlightSwift" */;
 			productName = HighlightSwift;
 		};
 /* End XCSwiftPackageProductDependency section */

@@ -59,13 +59,13 @@ enum SpeechRecognitionError: LocalizedError, Equatable {
     var errorDescription: String? {
         switch self {
         case .notAuthorized:
-            return "Speech recognition is not authorized. Please enable it in Settings."
+            return String(localized: "Speech recognition is not authorized. Please enable it in Settings.")
         case .recognizerNotAvailable:
-            return "Speech recognition is not available on this device."
+            return String(localized: "Speech recognition is not available on this device.")
         case .audioSessionFailed:
-            return "Failed to configure audio session for speech recognition."
+            return String(localized: "Failed to configure audio session for speech recognition.")
         case .recognitionFailed(let message):
-            return "Speech recognition failed: \(message)"
+            return String(localized: "Speech recognition failed: \(message)")
         }
     }
 
@@ -112,7 +112,7 @@ protocol SpeechRecognitionService: AnyObject {
 
     /// Start speech recognition
     /// - Throws: SpeechRecognitionError if recognition cannot be started
-    func startRecognition() throws
+    func startRecognition() async throws
 
     /// Stop speech recognition and return to idle state
     func stopRecognition()
@@ -209,13 +209,14 @@ class SpeechRecognizer: NSObject, SpeechRecognitionService {
         }
     }
 
-    func startRecognition() throws {
+    func startRecognition() async throws {
         logger.info("START RECOGNITION CALLED")
 
         try validateAuthorization()
         try ensureRecognizerAvailable()
         cleanUpIfCurrentlyListening()
-        try configureAudioSessionIfNeeded()
+        try await configureAudioSessionIfNeeded()
+        try Task.checkCancellation()
 
         let request = prepareRecognitionRequest()
         recognitionRequest = request

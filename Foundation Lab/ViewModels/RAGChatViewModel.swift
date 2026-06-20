@@ -44,7 +44,6 @@ private enum SampleDocuments {
 @MainActor
 @Observable
 final class RAGChatViewModel {
-    var conversation: [RAGChatEntry] = []
     var isSearching = false
     var isGenerating = false
     var showDocumentPicker = false
@@ -57,6 +56,8 @@ final class RAGChatViewModel {
     private(set) var lastTokenCount: Int?
 
     private var streamingTask: Task<Void, Error>?
+    private var initializationTask: Task<Void, Never>?
+    private var initializationID: UUID?
     private var service: RAGService?
     private var isInitialized = false
     private var config: RAGConfig?
@@ -86,7 +87,7 @@ final class RAGChatViewModel {
             config = try RAGConfig.makeDefault()
         } catch {
             config = nil
-            errorMessage = "Failed to initialize RAG configuration: \(error.localizedDescription)"
+            errorMessage = String(localized: "Failed to initialize RAG configuration: \(error.localizedDescription)")
             showError = true
         }
     }
@@ -95,33 +96,27 @@ final class RAGChatViewModel {
 extension RAGChatViewModel {
     func loadFromDatabase() async {
         guard !isInitialized else { return }
+
+        if let initializationTask {
+            await initializationTask.value
+            return
+        }
+
         guard let config = config else {
-            errorMessage = errorMessage ?? "RAG configuration is not available"
+            errorMessage = errorMessage ?? String(localized: "RAG configuration is not available")
             showError = true
             return
         }
 
-        do {
-            let lumoKit = try await LumoKit(
-                config: VecturaConfig(name: "foundation-lab-rag", searchOptions: config.searchOptions),
-                chunkingConfig: config.chunkingConfig
-            )
-            service = RAGService(lumoKit: lumoKit, chunkingConfig: config.chunkingConfig)
+        let initializationID = UUID()
+        self.initializationID = initializationID
 
-            let dbCount = try await lumoKit.documentCount()
-            if dbCount == 0 && !indexedURLs.isEmpty {
-                indexedURLs.removeAll()
-                sourceTitles.removeAll()
-                chunkTitles.removeAll()
-                saveState()
-            }
-            indexedDocumentCount = indexedURLs.count
-            hasIndexedContent = dbCount > 0
-            isInitialized = true
-        } catch {
-            errorMessage = "Failed to initialize RAG: \(error.localizedDescription)"
-            showError = true
+        let task = Task { @MainActor [weak self] in
+            guard let self else { return }
+            await self.initializeService(config: config, id: initializationID)
         }
+        initializationTask = task
+        await task.value
     }
 
     func indexDocument(from url: URL) async {
@@ -133,7 +128,7 @@ extension RAGChatViewModel {
 
         let urlKey = url.absoluteString
         guard !indexedURLs.contains(urlKey) else {
-            errorMessage = "This document has already been indexed"
+            errorMessage = String(localized: "This document has already been indexed")
             showError = true
             return
         }
@@ -148,24 +143,25 @@ extension RAGChatViewModel {
             indexedDocumentCount += 1
             hasIndexedContent = true
         } catch {
-            errorMessage = "Failed to index document: \(error.localizedDescription)"
+            errorMessage = String(localized: "Failed to index document: \(error.localizedDescription)")
             showError = true
         }
         isSearching = false
     }
 
-    func indexText(_ text: String, title: String) async {
+    @discardableResult
+    func indexText(_ text: String, title: String) async -> Bool {
         await loadFromDatabase()
         guard let service = service else {
             showServiceUnavailableError()
-            return
+            return false
         }
 
         let urlKey = "text://\(title)"
         guard !indexedURLs.contains(urlKey) else {
-            errorMessage = "A document with this title already exists"
+            errorMessage = String(localized: "A document with this title already exists")
             showError = true
-            return
+            return false
         }
 
         isSearching = true
@@ -177,11 +173,14 @@ extension RAGChatViewModel {
             saveState()
             indexedDocumentCount += 1
             hasIndexedContent = true
+            isSearching = false
+            return true
         } catch {
-            errorMessage = "Failed to index text: \(error.localizedDescription)"
+            errorMessage = String(localized: "Failed to index text: \(error.localizedDescription)")
             showError = true
+            isSearching = false
+            return false
         }
-        isSearching = false
     }
 
     func resetDatabase() async {
@@ -200,7 +199,7 @@ extension RAGChatViewModel {
             indexedDocumentCount = 0
             hasIndexedContent = false
         } catch {
-            errorMessage = "Failed to reset database: \(error.localizedDescription)"
+            errorMessage = String(localized: "Failed to reset database: \(error.localizedDescription)")
             showError = true
         }
     }
@@ -242,7 +241,7 @@ extension RAGChatViewModel {
         }
 
         if let error = firstError {
-            errorMessage = "Failed to load samples: \(error.localizedDescription)"
+            errorMessage = String(localized: "Failed to load samples: \(error.localizedDescription)")
             showError = true
         }
         isSearching = false
@@ -263,7 +262,7 @@ extension RAGChatViewModel {
         guard !trimmedContent.isEmpty else { return }
 
         guard hasIndexedContent || indexedDocumentCount > 0 else {
-            errorMessage = "Index documents before asking a question."
+            errorMessage = String(localized: "Index documents before asking a question.")
             showError = true
             return
         }
@@ -275,40 +274,15 @@ extension RAGChatViewModel {
         onSources(topChunks)
 
         guard !topChunks.isEmpty else {
-            onUpdate("No sources found for that question. Try asking about a specific section or rephrase your question.")
+            onUpdate(
+                String(
+                    localized: "No sources found for that question. Try asking about a specific section or rephrase your question."
+                )
+            )
             return
         }
 
         await generateAnswer(query: trimmedContent, chunks: topChunks, onUpdate: onUpdate)
-    }
-
-    func sendMessage(_ content: String) async -> Bool {
-        await loadFromDatabase()
-        guard let service = service else {
-            showServiceUnavailableError()
-            return false
-        }
-
-        let trimmedContent = content.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedContent.isEmpty else { return false }
-
-        guard hasIndexedContent || indexedDocumentCount > 0 else {
-            errorMessage = "Index documents before starting a RAG chat."
-            showError = true
-            return false
-        }
-
-        guard !isSearching && !isGenerating else { return false }
-
-        let userEntry = RAGChatEntry(role: .user, content: trimmedContent, sources: [])
-        conversation.append(userEntry)
-
-        let chunks = await searchDocuments(service: service, query: trimmedContent)
-        let assistantEntry = RAGChatEntry(role: .assistant, content: "", sources: chunks)
-        conversation.append(assistantEntry)
-
-        await generateResponse(for: assistantEntry, query: trimmedContent, chunks: chunks)
-        return true
     }
 
     func dismissError() {
@@ -317,14 +291,56 @@ extension RAGChatViewModel {
     }
 
     func tearDown() {
+        initializationTask?.cancel()
+        initializationTask = nil
+        initializationID = nil
         streamingTask?.cancel()
         streamingTask = nil
     }
 }
 
 private extension RAGChatViewModel {
+    func initializeService(config: RAGConfig, id: UUID) async {
+        defer {
+            if initializationID == id {
+                initializationTask = nil
+                initializationID = nil
+            }
+        }
+
+        do {
+            try Task.checkCancellation()
+            let lumoKit = try await LumoKit(
+                config: VecturaConfig(name: "foundation-lab-rag", searchOptions: config.searchOptions),
+                chunkingConfig: config.chunkingConfig
+            )
+            try Task.checkCancellation()
+            let dbCount = try await lumoKit.documentCount()
+            try Task.checkCancellation()
+
+            guard initializationID == id else { return }
+
+            service = RAGService(lumoKit: lumoKit, chunkingConfig: config.chunkingConfig)
+            if dbCount == 0 && !indexedURLs.isEmpty {
+                indexedURLs.removeAll()
+                sourceTitles.removeAll()
+                chunkTitles.removeAll()
+                saveState()
+            }
+            indexedDocumentCount = indexedURLs.count
+            hasIndexedContent = dbCount > 0
+            isInitialized = true
+        } catch is CancellationError {
+            return
+        } catch {
+            guard initializationID == id else { return }
+            errorMessage = String(localized: "Failed to initialize RAG: \(error.localizedDescription)")
+            showError = true
+        }
+    }
+
     func showServiceUnavailableError() {
-        errorMessage = "RAG service is not available. Please restart the app."
+        errorMessage = String(localized: "RAG service is not available. Please restart the app.")
         showError = true
     }
 
@@ -343,7 +359,7 @@ private extension RAGChatViewModel {
             let results = try await service.search(query: query)
             chunks = results.map { result in
                 // Look up title from chunk ID mapping
-                let title = chunkTitles[result.id.uuidString] ?? sourceTitlesForChunk(result.id.uuidString)
+                let title = chunkTitles[result.id.uuidString] ?? fallbackSourceTitle()
                 return RAGChunk(
                     documentId: result.id.uuidString,
                     documentTitle: title,
@@ -353,18 +369,18 @@ private extension RAGChatViewModel {
                 )
             }
         } catch {
-            errorMessage = "Search failed: \(error.localizedDescription)"
+            errorMessage = String(localized: "Search failed: \(error.localizedDescription)")
             showError = true
         }
 
         return chunks
     }
 
-    func sourceTitlesForChunk(_ chunkId: String) -> String {
+    func fallbackSourceTitle() -> String {
         if sourceTitles.count == 1 {
-            return sourceTitles.values.first ?? "Source"
+            return sourceTitles.values.first ?? String(localized: "Source")
         }
-        return "Source"
+        return String(localized: "Source")
     }
 
     func generateAnswer(query: String, chunks: [RAGChunk], onUpdate: @escaping @MainActor (String) -> Void) async {
@@ -402,48 +418,8 @@ private extension RAGChatViewModel {
                 return
             }
         } catch {
-            onUpdate("Failed to answer: \(error.localizedDescription)")
+            onUpdate(String(localized: "Failed to answer: \(error.localizedDescription)"))
         }
     }
 
-    func generateResponse(for entry: RAGChatEntry, query: String, chunks: [RAGChunk]) async {
-        isGenerating = true
-        defer { isGenerating = false }
-        lastTokenCount = nil
-
-        let systemPrompt = "You are a helpful assistant. Answer based on context. Cite content when possible."
-        let contextText = chunks.isEmpty ? "No relevant documents found." :
-            chunks.enumerated().map { index, chunk in "[Document \(index + 1)]: \(chunk.content)" }.joined(separator: "\n\n")
-        let prompt = "CONTEXT:\n\(contextText)\n\nQUESTION:\n\(query)"
-
-        do {
-            streamingTask?.cancel()
-            let request = StreamingTextGenerationRequest(
-                prompt: prompt,
-                systemPrompt: systemPrompt,
-                modelUseCase: .general,
-                context: CapabilityInvocationContext(source: .app)
-            )
-            let task = Task { @MainActor [streamingTextUseCase] in
-                let result = try await streamingTextUseCase.execute(request) { partialResponse in
-                    await self.updateStreamingEntry(entry, with: partialResponse)
-                }
-                self.lastTokenCount = result.metadata.tokenCount
-            }
-            streamingTask = task
-            defer { streamingTask = nil }
-            do {
-                try await task.value
-            } catch is CancellationError {
-                return
-            }
-        } catch {
-            if entry.content.isEmpty { entry.content = "Failed: \(error.localizedDescription)" }
-        }
-    }
-
-    @MainActor
-    private func updateStreamingEntry(_ entry: RAGChatEntry, with partialResponse: String) {
-        entry.content = partialResponse
-    }
 }

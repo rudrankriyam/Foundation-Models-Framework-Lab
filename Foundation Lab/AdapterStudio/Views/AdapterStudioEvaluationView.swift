@@ -10,10 +10,10 @@ struct AdapterStudioEvaluationView: View {
                 Text("Interactive Timing")
                     .font(.headline)
 
-                Text(
-                    "The two models stream concurrently for fast visual comparison. "
-                        + "Treat these timings as diagnostics; use AppBench for controlled, publishable measurements."
-                )
+                Text("""
+                The two models stream concurrently for fast visual comparison. Treat these timings as diagnostics; \
+                use AppBench for controlled, publishable measurements.
+                """)
                 .font(.callout)
                 .foregroundStyle(.secondary)
             }
@@ -99,7 +99,13 @@ struct AdapterStudioEvaluationView: View {
 
     private func durationLabel(_ duration: TimeInterval?) -> String {
         guard let duration else { return "--" }
-        return "\(duration.formatted(.number.precision(.fractionLength(2))))s"
+        return Measurement(value: duration, unit: UnitDuration.seconds).formatted(
+            .measurement(
+                width: .abbreviated,
+                usage: .asProvided,
+                numberFormatStyle: .number.precision(.fractionLength(2))
+            )
+        )
     }
 
     private func deltaLabel(
@@ -108,8 +114,15 @@ struct AdapterStudioEvaluationView: View {
     ) -> String {
         guard let base, let adapter else { return "--" }
         let delta = adapter - base
-        let prefix = delta > 0 ? "+" : ""
-        return "\(prefix)\(delta.formatted(.number.precision(.fractionLength(2))))s"
+        return Measurement(value: delta, unit: UnitDuration.seconds).formatted(
+            .measurement(
+                width: .abbreviated,
+                usage: .asProvided,
+                numberFormatStyle: .number
+                    .sign(strategy: .always(includingZero: false))
+                    .precision(.fractionLength(2))
+            )
+        )
     }
 }
 #endif

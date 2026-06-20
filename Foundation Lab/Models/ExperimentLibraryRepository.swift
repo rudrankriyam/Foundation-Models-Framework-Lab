@@ -30,6 +30,8 @@ final class ExperimentLibraryRepository {
     @ObservationIgnored private let persistenceRepository: ExperimentPersistenceRepository
     @ObservationIgnored private var writesBlocked: Bool
     @ObservationIgnored private var persistenceRevision = 0
+    @ObservationIgnored private var persistedRevision = 0
+    @ObservationIgnored private var persistenceTask: Task<Bool, Never>?
     @ObservationIgnored private var shouldRemoveLegacyValuesAfterPersisting: Bool
 
     private static let maximumRunCount = 200
@@ -123,21 +125,37 @@ final class ExperimentLibraryRepository {
             return false
         }
 
-        persistenceRevision += 1
-        let revision = persistenceRevision
-        do {
-            let didWrite = try await persistenceRepository.write(
-                makePersistenceDocument(),
-                revision: revision
-            )
-            guard didWrite else { return false }
-            removeLegacyValuesIfNeeded()
-            persistenceErrorMessage = nil
-            return true
-        } catch {
-            persistenceErrorMessage = Self.saveFailureMessage
+        schedulePersistence()
+        return await flushPendingPersistence()
+    }
+
+    /// Waits for the newest in-memory library snapshot to reach disk.
+    @discardableResult
+    func flushPendingPersistence() async -> Bool {
+        guard !writesBlocked else {
+            persistenceErrorMessage = Self.newerVersionMessage
             return false
         }
+
+        while persistedRevision < persistenceRevision {
+            let targetRevision = persistenceRevision
+            guard let persistenceTask else {
+                persistenceErrorMessage = Self.saveFailureMessage
+                return false
+            }
+
+            _ = await persistenceTask.value
+            guard targetRevision == persistenceRevision else {
+                continue
+            }
+
+            if persistedRevision < targetRevision {
+                persistenceErrorMessage = Self.saveFailureMessage
+                return false
+            }
+        }
+
+        return true
     }
 }
 
@@ -153,22 +171,38 @@ private extension ExperimentLibraryRepository {
             return
         }
 
+        schedulePersistence()
+    }
+
+    func schedulePersistence() {
         persistenceRevision += 1
         let revision = persistenceRevision
         let document = makePersistenceDocument()
-        Task { @MainActor [weak self, persistenceRepository] in
+
+        persistenceTask?.cancel()
+        persistenceTask = Task { @MainActor [weak self, persistenceRepository] in
+            guard !Task.isCancelled else { return false }
+
             do {
                 let didWrite = try await persistenceRepository.write(
                     document,
                     revision: revision
                 )
-                guard didWrite, let self, revision == self.persistenceRevision else {
-                    return
+                guard didWrite, let self else {
+                    return false
                 }
-                self.removeLegacyValuesIfNeeded()
+
+                self.persistedRevision = max(self.persistedRevision, revision)
+                if revision == self.persistenceRevision {
+                    self.removeLegacyValuesIfNeeded()
+                    self.persistenceErrorMessage = nil
+                }
+                return true
             } catch {
-                guard let self, revision == self.persistenceRevision else { return }
-                self.persistenceErrorMessage = Self.saveFailureMessage
+                if let self, revision == self.persistenceRevision {
+                    self.persistenceErrorMessage = Self.saveFailureMessage
+                }
+                return false
             }
         }
     }

@@ -266,9 +266,9 @@ extension FormBuilderSchemaView {
 
         do {
             let data = try JSONSerialization.data(withJSONObject: result, options: [.prettyPrinted, .sortedKeys])
-            return String(data: data, encoding: .utf8) ?? "Unable to format"
+            return String(data: data, encoding: .utf8) ?? String(localized: "Unable to format")
         } catch let error {
-            return "Error formatting content: \(error.localizedDescription)"
+            return String(localized: "Error formatting content: \(error.localizedDescription)")
         }
     }
 
@@ -300,9 +300,9 @@ extension FormBuilderSchemaView {
     func formatJSONArray(_ array: [Any]) -> String {
         do {
             let data = try JSONSerialization.data(withJSONObject: array, options: [.prettyPrinted])
-            return String(data: data, encoding: .utf8) ?? "Unable to format array"
+            return String(data: data, encoding: .utf8) ?? String(localized: "Unable to format array")
         } catch {
-            return "Error formatting array: \(error.localizedDescription)"
+            return String(localized: "Error formatting array: \(error.localizedDescription)")
         }
     }
 }

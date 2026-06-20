@@ -10,26 +10,28 @@ import FoundationLabCore
 import FoundationModels
 
 struct NestedDynamicSchemaView: View {
-    @State private var executor = ExampleExecutor()
-    @State private var companyInput = """
+    private static let defaultCompanyInput = """
     Apple Inc. is headquartered in Cupertino, California. The CEO is Tim Cook who has been leading \
     the company since 2011. Apple has several major departments including Hardware Engineering led by \
     John Ternus, Software Engineering led by Craig Federighi, and Services led by Eddy Cue. \
     The company was founded in 1976 and has over 160,000 employees worldwide.
     """
-
-    @State private var orderInput = """
+    private static let defaultOrderInput = """
     Order #12345 was placed on January 15, 2024 by Jane Smith. She ordered 2 iPhone 15 Pro units \
     at $999 each and 1 MacBook Pro 14" for $1999. The items should be shipped to 123 Main St, \
     San Francisco, CA 94105. Payment was made with Visa ending in 4242. Express shipping was selected.
     """
-
-    @State private var eventInput = """
+    private static let defaultEventInput = """
     The AI Conference 2024 will be held at the Moscone Center in San Francisco from March 15-17. \
     The keynote speaker is Dr. Sarah Johnson from Stanford University who will talk about \
     "The Future of Language Models". Other sessions include "Computer Vision Advances" by Prof. Michael Chen \
     and "Ethics in AI" by Dr. Emily Rodriguez. Registration costs $599 for early bird tickets.
     """
+
+    @State private var executor = ExampleExecutor()
+    @State private var companyInput = NestedDynamicSchemaView.defaultCompanyInput
+    @State private var orderInput = NestedDynamicSchemaView.defaultOrderInput
+    @State private var eventInput = NestedDynamicSchemaView.defaultEventInput
 
     @State private var selectedExample = 0
     @State private var nestingDepth = 2
@@ -40,13 +42,19 @@ struct NestedDynamicSchemaView: View {
         ExampleViewBase(
             title: "Nested Objects",
             description: "Create complex nested object structures with multiple levels",
-            defaultPrompt: companyInput,
             currentPrompt: bindingForSelectedExample,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
-            onRun: { Task { await runExample() } },
-            onReset: { selectedExample = 0 },
+            onRun: { await runExample() },
+            onReset: {
+                executor.reset()
+                selectedExample = 0
+                nestingDepth = 2
+                companyInput = Self.defaultCompanyInput
+                orderInput = Self.defaultOrderInput
+                eventInput = Self.defaultEventInput
+            },
             content: {
                 VStack(alignment: .leading, spacing: Spacing.medium) {
                 // Example selector
@@ -67,22 +75,7 @@ struct NestedDynamicSchemaView: View {
                         .padding(8)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.gray.opacity(0.1))
-                        .cornerRadius(8)
-                }
-
-                HStack {
-                    Button("Extract Nested Data") {
-                        Task {
-                            await runExample()
-                        }
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(executor.isRunning || currentInput.isEmpty)
-
-                    if executor.isRunning {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                    }
+                        .clipShape(.rect(cornerRadius: 8))
                 }
 
                 // Results section
@@ -97,7 +90,7 @@ struct NestedDynamicSchemaView: View {
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color.gray.opacity(0.1))
-                                .cornerRadius(8)
+                                .clipShape(.rect(cornerRadius: 8))
                         }
                         .frame(maxHeight: 250)
                     }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AdapterStudioContent: View {
-    let stage: StudioPipelineStage
+    let stage: ExpertWorkspaceStage
 
 #if os(macOS)
     let viewModel: AdapterStudioViewModel
@@ -36,10 +36,10 @@ struct AdapterStudioContent: View {
         ContentUnavailableView(
             "Adapter Comparison Requires macOS",
             systemImage: "macbook",
-            description: Text(
-                "Use Foundation Lab on a Mac to import .fmadapter packages. "
-                    + "Training and export remain available through the fmas CLI."
-            )
+            description: Text("""
+            Use Foundation Lab on a Mac to import .fmadapter packages. Training and export remain available through \
+            the fmas CLI.
+            """)
         )
 #endif
     }

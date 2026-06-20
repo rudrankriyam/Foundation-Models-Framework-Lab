@@ -13,10 +13,12 @@ struct ToolCallingModeLabView: View {
 
     var body: some View {
         ReferenceExampleView(
-            title: "Tool Calling Modes",
-            description: "Inspect allowed, required, and disallowed tool behavior",
+            title: String(localized: "Tool Calling Modes"),
+            description: String(localized: "Inspect allowed, required, and disallowed tool behavior"),
             codeExample: selectedMode.code,
-            referenceNote: "Choose a mode to inspect the corresponding GenerationOptions recipe. This page does not call a model or tool."
+            referenceNote: String(
+                localized: "Choose a mode to inspect the corresponding GenerationOptions recipe. This page does not call a model or tool."
+            )
         ) {
             VStack(spacing: Spacing.medium) {
                 Picker("Tool mode", selection: $selectedMode) {
@@ -32,7 +34,7 @@ struct ToolCallingModeLabView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Xcode27Section("Behavior Matrix") {
+                Xcode27Section(String(localized: "Behavior Matrix")) {
                     VStack(alignment: .leading, spacing: 0) {
                         ForEach(ToolModeExample.allCases) { mode in
                             HStack {
@@ -74,11 +76,11 @@ private enum ToolModeExample: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .allowed:
-            return "Allowed"
+            return String(localized: "Allowed")
         case .required:
-            return "Required"
+            return String(localized: "Required")
         case .disallowed:
-            return "Disallowed"
+            return String(localized: "Disallowed")
         }
     }
 
@@ -96,27 +98,30 @@ private enum ToolModeExample: String, CaseIterable, Identifiable {
     var shortDescription: String {
         switch self {
         case .allowed:
-            return "The model may call tools if they help."
+            return String(localized: "The model may call tools if they help.")
         case .required:
-            return "The model must call a tool before answering."
+            return String(localized: "The model must call a tool before answering.")
         case .disallowed:
-            return "The model must answer without tool calls."
+            return String(localized: "The model must answer without tool calls.")
         }
     }
 
     var explanation: String {
         switch self {
         case .allowed:
-            return "Use this for normal agentic flows where a tool is available but not always necessary."
+            return String(localized: "Use this for normal agentic flows where a tool is available but not always necessary.")
         case .required:
-            return "Use this when the response must be grounded in a tool result, such as weather, calendar, or search."
+            return String(localized: "Use this when the response must be grounded in a tool result, such as weather, calendar, or search.")
         case .disallowed:
-            return "Use this for pure language tasks, drafts, or contexts where external actions would be surprising."
+            return String(localized: "Use this for pure language tasks, drafts, or contexts where external actions would be surprising.")
         }
     }
 
     var code: String {
         """
+        import FoundationModels
+        import FoundationModelsTools
+
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) {
             let options = GenerationOptions(
                 samplingMode: nil,
@@ -125,7 +130,7 @@ private enum ToolModeExample: String, CaseIterable, Identifiable {
                 toolCallingMode: .\(rawValue)
             )
 
-            let session = LanguageModelSession(tools: [weatherTool])
+            let session = LanguageModelSession(tools: [WeatherTool()])
             let response = try await session.respond(
                 to: Prompt("What is the weather in Cupertino?"),
                 options: options

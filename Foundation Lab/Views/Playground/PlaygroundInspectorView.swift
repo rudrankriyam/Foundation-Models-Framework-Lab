@@ -64,6 +64,12 @@ struct PlaygroundInspectorView: View {
                         in: 0.05...1,
                         step: 0.05
                     )
+                    .accessibilityLabel("Top-P")
+                    .accessibilityValue(
+                        topPBinding.wrappedValue.formatted(
+                            .number.precision(.fractionLength(2))
+                        )
+                    )
                     Toggle("Use Fixed Seed", isOn: fixedSeedBinding)
                 }
 
@@ -116,7 +122,9 @@ struct PlaygroundInspectorView: View {
 
                 Button("Save Experiment", systemImage: "square.and.arrow.down") {
                     applyConfiguration()
-                    experimentStore.saveActiveExperiment()
+                    Task {
+                        await experimentStore.saveActiveExperiment()
+                    }
                 }
                 .disabled(viewModel.isLoading)
             }
@@ -333,9 +341,9 @@ private struct ToolSelectionLabel: View {
                 .foregroundStyle(isSelected ? Color.accentColor : .secondary)
 
             VStack(alignment: .leading, spacing: Spacing.xSmall) {
-                Text(tool.displayName)
+                Text(LocalizedStringKey(tool.displayName))
                     .foregroundStyle(.primary)
-                Text(tool.summary)
+                Text(LocalizedStringKey(tool.summary))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -349,6 +357,8 @@ private struct ToolSelectionLabel: View {
         .frame(minHeight: 44)
         .contentShape(.rect)
         .accessibilityElement(children: .combine)
-        .accessibilityValue(isSelected ? "Selected" : "Not selected")
+        .accessibilityValue(
+            isSelected ? String(localized: "Selected") : String(localized: "Not selected")
+        )
     }
 }

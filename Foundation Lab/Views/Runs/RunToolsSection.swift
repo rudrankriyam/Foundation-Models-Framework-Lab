@@ -18,7 +18,7 @@ struct RunToolsSection: View {
                 ForEach(tools) { tool in
                     Label {
                         VStack(alignment: .leading, spacing: Spacing.xSmall) {
-                            Text(tool.displayName)
+                            Text(LocalizedStringKey(tool.displayName))
                             Text(tool.toolName)
                                 .font(.subheadline.monospaced())
                                 .foregroundStyle(.secondary)

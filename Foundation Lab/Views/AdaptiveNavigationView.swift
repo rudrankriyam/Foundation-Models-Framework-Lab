@@ -14,6 +14,7 @@ struct AdaptiveNavigationView: View {
     @State private var navigationCoordinator = NavigationCoordinator()
     @State private var experimentStore = ExperimentStore()
     @State private var playgroundViewModel = ChatViewModel()
+    @State private var persistenceFlushTask: Task<Void, Never>?
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.scenePhase) private var scenePhase
 
@@ -35,20 +36,28 @@ struct AdaptiveNavigationView: View {
         .environment(languageService)
         .environment(navigationCoordinator)
         .environment(experimentStore)
-        .onAppear(perform: navigationCoordinator.activate)
+        .onAppear {
+            navigationCoordinator.activate()
+            experimentStore.activate()
+        }
         .onChange(of: navigationCoordinator.tabSelection) { oldValue, newValue in
             if oldValue == .playground, newValue != .playground {
-                playgroundViewModel.tearDown()
+                playgroundViewModel.suspendVoiceMode()
             }
         }
         .onChange(of: scenePhase) { _, newValue in
             if newValue == .active {
                 navigationCoordinator.activate()
+                experimentStore.activate()
             } else {
-                playgroundViewModel.tearDown()
+                playgroundViewModel.suspendVoiceMode()
+                schedulePersistenceFlush()
             }
         }
-        .onDisappear(perform: playgroundViewModel.tearDown)
+        .onDisappear {
+            playgroundViewModel.suspendVoiceMode()
+            schedulePersistenceFlush()
+        }
         .alert(
             "Couldn’t Save Changes",
             isPresented: persistenceAlertBinding
@@ -60,7 +69,11 @@ struct AdaptiveNavigationView: View {
             }
             Button("Dismiss", role: .cancel, action: experimentStore.clearPersistenceError)
         } message: {
-            Text(experimentStore.persistenceErrorMessage ?? "The latest changes could not be saved.")
+            if let message = experimentStore.persistenceErrorMessage {
+                Text(message)
+            } else {
+                Text("The latest changes could not be saved.")
+            }
         }
     }
 
@@ -140,6 +153,13 @@ struct AdaptiveNavigationView: View {
                 }
             }
         )
+    }
+
+    private func schedulePersistenceFlush() {
+        persistenceFlushTask?.cancel()
+        persistenceFlushTask = Task {
+            _ = await experimentStore.flushPendingPersistence()
+        }
     }
 }
 

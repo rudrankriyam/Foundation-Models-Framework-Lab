@@ -15,10 +15,10 @@ struct RAGChatView: View {
     @State private var sources: [RAGChunk] = []
 
     private let suggestions = [
-        "Summarize the main points of this document.",
-        "What does the document say about its goals?",
-        "List the key takeaways in bullets.",
-        "Where does it mention requirements or constraints?"
+        String(localized: "Summarize the main points of this document."),
+        String(localized: "What does the document say about its goals?"),
+        String(localized: "List the key takeaways in bullets."),
+        String(localized: "Where does it mention requirements or constraints?")
     ]
 
     var body: some View {
@@ -43,18 +43,16 @@ struct RAGChatView: View {
             .padding(.vertical, Spacing.large)
         }
         .navigationTitle("Doc Q&A")
-        .onAppear {
-            Task {
-                await viewModel.loadFromDatabase()
-            }
+        .task {
+            await viewModel.loadFromDatabase()
+        }
+        .onDisappear {
+            viewModel.tearDown()
         }
 #if os(iOS)
         .navigationBarTitleDisplayMode(.large)
         .scrollDismissesKeyboard(.interactively)
 #endif
-        .onTapGesture {
-            isTextFieldFocused = false
-        }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
@@ -71,15 +69,20 @@ struct RAGChatView: View {
             "Error",
             isPresented: $viewModel.showError,
             actions: { Button("OK") { viewModel.dismissError() } },
-            message: { Text(viewModel.errorMessage ?? "An unknown error occurred") }
+            message: {
+                if let message = viewModel.errorMessage {
+                    Text(message)
+                } else {
+                    Text("An unknown error occurred")
+                }
+            }
         )
     }
 
     private var documentsSection: some View {
         VStack(alignment: .leading, spacing: Spacing.small) {
-            Text("DOCUMENTS")
-                .font(.footnote)
-                .fontWeight(.medium)
+            Text("Documents")
+                .font(.headline)
                 .foregroundStyle(.secondary)
 
             HStack(spacing: Spacing.medium) {
@@ -103,25 +106,22 @@ struct RAGChatView: View {
                 .buttonStyle(.glassProminent)
             }
             .padding(Spacing.medium)
-            .background(Color.gray.opacity(0.1))
-            .cornerRadius(12)
+            .background(.quaternary, in: .rect(cornerRadius: CornerRadius.medium))
         }
     }
 
     private var questionSection: some View {
         VStack(alignment: .leading, spacing: Spacing.medium) {
             VStack(alignment: .leading, spacing: Spacing.small) {
-                Text("QUESTION")
-                    .font(.footnote)
-                    .fontWeight(.medium)
+                Text("Question")
+                    .font(.headline)
                     .foregroundStyle(.secondary)
 
                 TextField("Ask a question about your documents...", text: $question, axis: .vertical)
                     .textFieldStyle(.plain)
                     .focused($isTextFieldFocused)
                     .padding(Spacing.medium)
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(12)
+                    .background(.quaternary, in: .rect(cornerRadius: CornerRadius.medium))
                     .onSubmit {
                         askQuestion()
                     }
@@ -151,9 +151,8 @@ struct RAGChatView: View {
 
     private var sourcesSection: some View {
         VStack(alignment: .leading, spacing: Spacing.small) {
-            Text("SOURCES")
-                .font(.footnote)
-                .fontWeight(.medium)
+            Text("Sources")
+                .font(.headline)
                 .foregroundStyle(.secondary)
 
             ForEach(Array(sources.enumerated()), id: \.offset) { index, source in
@@ -168,22 +167,24 @@ struct RAGChatView: View {
 
     private var documentStatusTitle: String {
         if viewModel.indexedDocumentCount > 0 {
-            return "\(viewModel.indexedDocumentCount) sources indexed"
+            return String(localized: "\(viewModel.indexedDocumentCount) sources indexed")
         }
         if viewModel.hasIndexedContent {
-            return "Indexed content available"
+            return String(localized: "Indexed content available")
         }
-        return "No documents indexed"
+        return String(localized: "No documents indexed")
     }
 
     private var documentStatusSubtitle: String {
         hasDocuments
-            ? "Ask a question and we'll cite the top sources."
-            : "Import a PDF or text file to get started."
+            ? String(localized: "Ask a question and we'll cite the top sources.")
+            : String(localized: "Import a PDF or text file to get started.")
     }
 
     private var statusText: String {
-        viewModel.isSearching ? "Processing..." : "Generating answer..."
+        viewModel.isSearching
+            ? String(localized: "Processing...")
+            : String(localized: "Generating answer...")
     }
 
     private var trimmedQuestion: String {

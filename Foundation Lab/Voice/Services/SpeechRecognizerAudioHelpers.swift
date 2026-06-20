@@ -12,7 +12,7 @@ import AVFAudio
 import Accelerate
 import OSLog
 
-private func copyAudioBuffer(_ buffer: AVAudioPCMBuffer) -> AVAudioPCMBuffer? {
+nonisolated private func copyAudioBuffer(_ buffer: AVAudioPCMBuffer) -> AVAudioPCMBuffer? {
     guard let copiedBuffer = AVAudioPCMBuffer(
         pcmFormat: buffer.format,
         frameCapacity: buffer.frameCapacity
@@ -42,10 +42,26 @@ private func copyAudioBuffer(_ buffer: AVAudioPCMBuffer) -> AVAudioPCMBuffer? {
 }
 
 extension SpeechRecognizer {
-    func configureAudioSessionIfNeeded() throws {
+    func configureAudioSessionIfNeeded() async throws {
         logger.debug("Configuring audio session for speech recognition")
 
         #if os(iOS)
+        do {
+            try await Self.configureAudioSession()
+            logger.debug("Audio session configured successfully")
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            logger.error("Audio session configuration failed after all attempts")
+            state = .error(.audioSessionFailed)
+            throw SpeechRecognitionError.audioSessionFailed
+        }
+        #endif
+    }
+
+    #if os(iOS)
+    @concurrent
+    nonisolated private static func configureAudioSession() async throws {
         var lastError: Error?
 
         for attempt in 1...2 {
@@ -57,27 +73,17 @@ extension SpeechRecognizer {
                     options: [.duckOthers, .defaultToSpeaker]
                 )
                 try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-                logger.debug("Audio session configured successfully")
-                lastError = nil
-                break
-
+                return
             } catch {
                 lastError = error
-                logger.error("Audio session configuration failed (attempt \(attempt)): \(error.localizedDescription, privacy: .public)")
-
-                if attempt == 1 {
-                    usleep(100_000)
-                }
+                guard attempt == 1 else { break }
+                try await Task.sleep(for: .milliseconds(100))
             }
         }
 
-        if lastError != nil {
-            logger.error("Audio session configuration failed after all attempts")
-            state = .error(.audioSessionFailed)
-            throw SpeechRecognitionError.audioSessionFailed
-        }
-        #endif
+        throw lastError ?? SpeechRecognitionError.audioSessionFailed
     }
+    #endif
 
     func prepareAudioEngine() throws {
         if audioEngine.isRunning {
@@ -98,17 +104,17 @@ extension SpeechRecognizer {
             bufferSize: 1024,
             format: tapFormat
         ) { [weak self] (buffer: AVAudioPCMBuffer, _: AVAudioTime) in
-            let bufferCopy = copyAudioBuffer(buffer)
+            guard let bufferCopy = copyAudioBuffer(buffer) else { return }
+            let frameLength = bufferCopy.frameLength
             Task { @MainActor [weak self] in
                 guard let self, !self.hasProcessedFinalResult else { return }
-                guard let bufferCopy else { return }
                 self.recognitionRequest?.append(bufferCopy)
                 self.processAudioBuffer(bufferCopy)
 
                 if VoiceLogging.isVerboseEnabled {
                     self.audioBufferCount += 1
                     if self.audioBufferCount % 200 == 0 {
-                        self.logger.debug("Processed \(self.audioBufferCount) audio buffers (frameLength=\(buffer.frameLength))")
+                        self.logger.debug("Processed \(self.audioBufferCount) audio buffers (frameLength=\(frameLength))")
                     }
                 }
             }

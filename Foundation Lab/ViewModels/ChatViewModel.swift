@@ -30,15 +30,12 @@ final class ChatViewModel {
     var isSummarizing: Bool = false
     var isApplyingWindow: Bool = false
     var sessionCount: Int = 1
-    var instructions: String
     var selectedModelRuntime: FoundationLabModelRuntime = .onDevice
     var selectedReasoningLevel: FoundationLabReasoningLevel = .none
-    var showsReasoningTrace: Bool = true
     var samplingStrategy: SamplingStrategy = .default
     var topKSamplingValue: Int = 50
     var probabilityThresholdSamplingValue: Double = 0.9
     var useFixedSeed: Bool = false
-    var usePermissiveGuardrails: Bool = false
     var temperature: Double?
     var maximumResponseTokens: Int?
     private(set) var selectedTools: [FoundationLabBuiltInTool] = []
@@ -79,15 +76,6 @@ final class ChatViewModel {
         }
     }
 
-    var modelRuntimeStatus: String {
-        switch selectedModelRuntime {
-        case .onDevice:
-            return "Runs locally with Apple Intelligence."
-        case .privateCloudCompute:
-            return privateCloudComputeStatus
-        }
-    }
-
     var canSelectPrivateCloudCompute: Bool {
         #if compiler(>=6.4)
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) {
@@ -99,17 +87,9 @@ final class ChatViewModel {
         return false
     }
 
-    var canUseReasoning: Bool {
-        selectedModelRuntime == .privateCloudCompute && canSelectPrivateCloudCompute
-    }
-
     // MARK: - Public Properties
 
     private(set) var session: LanguageModelSession
-
-    // MARK: - Feedback State
-
-    private(set) var feedbackState: [Transcript.Entry.ID: LanguageModelFeedback.Sentiment] = [:]
 
     // MARK: - Generation Options
 
@@ -144,8 +124,6 @@ final class ChatViewModel {
     ) {
         self.permissionManager = permissionManager ?? PermissionManager()
         self.speechSynthesizer = speechSynthesizer ?? SpeechSynthesizer.shared
-        self.instructions = Self.defaultInstructions
-
         let configuration = FoundationLabConversationConfiguration(
             baseInstructions: Self.defaultInstructions,
             summaryInstructions: """
@@ -231,7 +209,6 @@ extension ChatViewModel {
             effectiveConfiguration.reasoningLevel = .none
         }
 
-        instructions = effectiveConfiguration.instructions
         selectedModelRuntime = effectiveConfiguration.modelRuntime
         selectedReasoningLevel = effectiveConfiguration.reasoningLevel
         temperature = effectiveConfiguration.generationOptions.temperature
@@ -243,11 +220,10 @@ extension ChatViewModel {
             baseInstructions: effectiveConfiguration.instructions,
             modelRuntime: effectiveConfiguration.modelRuntime,
             reasoningLevel: effectiveConfiguration.reasoningLevel,
-            guardrails: currentGuardrails(),
+            guardrails: .default,
             tools: selectedTools.map { $0.makeTool() }
         )
         conversationEngine.setMaxContextSize(provisionalContextSize(for: effectiveConfiguration.modelRuntime))
-        feedbackState.removeAll()
         if effectiveConfiguration.modelRuntime == configuration.modelRuntime {
             errorMessage = nil
             showError = false
@@ -279,22 +255,11 @@ extension ChatViewModel {
         }
 
         conversationEngine.rebuild(tools: selectedTools.map { $0.makeTool() })
-        feedbackState.removeAll()
         syncConversationState()
-    }
-
-    func submitFeedback(for entryID: Transcript.Entry.ID, sentiment: LanguageModelFeedback.Sentiment) {
-        feedbackState[entryID] = sentiment
-        _ = session.logFeedbackAttachment(sentiment: sentiment)
-    }
-
-    func getFeedback(for entryID: Transcript.Entry.ID) -> LanguageModelFeedback.Sentiment? {
-        feedbackState[entryID]
     }
 
     func clearChat() {
         conversationEngine.clear()
-        feedbackState.removeAll()
         isLoading = false
         errorMessage = nil
         showError = false
@@ -303,64 +268,6 @@ extension ChatViewModel {
 
     func cancelGeneration() {
         conversationEngine.cancelActiveResponse()
-    }
-
-    @discardableResult
-    func selectModelRuntime(_ runtime: FoundationLabModelRuntime) -> Bool {
-        guard runtime != selectedModelRuntime else { return true }
-
-        if runtime == .privateCloudCompute, !canSelectPrivateCloudCompute {
-            errorMessage = privateCloudComputeStatus
-            showError = true
-            return false
-        }
-
-        selectedModelRuntime = runtime
-        if runtime == .onDevice {
-            selectedReasoningLevel = .none
-        }
-        conversationEngine.rebuild(
-            modelRuntime: runtime,
-            reasoningLevel: selectedReasoningLevel,
-            guardrails: currentGuardrails(),
-            tools: selectedTools.map { $0.makeTool() }
-        )
-        conversationEngine.setMaxContextSize(provisionalContextSize(for: runtime))
-        feedbackState.removeAll()
-        isLoading = false
-        syncConversationState()
-
-        Task {
-            await fetchContextSize(for: runtime)
-        }
-
-        return true
-    }
-
-    @discardableResult
-    func selectReasoningLevel(_ level: FoundationLabReasoningLevel) -> Bool {
-        guard level != selectedReasoningLevel else { return true }
-
-        if level != .none, !canUseReasoning {
-            errorMessage = "Reasoning levels require PCC on Xcode 27 and an eligible OS 27 runtime."
-            showError = true
-            return false
-        }
-
-        selectedReasoningLevel = level
-        conversationEngine.setReasoningLevel(level)
-        syncConversationState()
-        return true
-    }
-
-    func updateInstructions(_ newInstructions: String) {
-        instructions = newInstructions
-        conversationEngine.rebuild(
-            baseInstructions: newInstructions,
-            guardrails: currentGuardrails(),
-            tools: selectedTools.map { $0.makeTool() }
-        )
-        syncConversationState()
     }
 
     func dismissError() {
@@ -392,8 +299,6 @@ extension ChatViewModel {
 
     func fetchContextSize(for runtime: FoundationLabModelRuntime? = nil) async {
         let requestedRuntime = runtime ?? selectedModelRuntime
-        let requestedGuardrails = currentGuardrails()
-
         if requestedRuntime == .privateCloudCompute {
             let contextSize = await privateCloudComputeContextSize()
             guard selectedModelRuntime == requestedRuntime else { return }
@@ -404,10 +309,9 @@ extension ChatViewModel {
 
         let contextSize = await AppConfiguration.TokenManagement.contextSize(
             modelUseCase: .general,
-            guardrails: requestedGuardrails
+            guardrails: .default
         )
-        guard selectedModelRuntime == requestedRuntime,
-              currentGuardrails() == requestedGuardrails else { return }
+        guard selectedModelRuntime == requestedRuntime else { return }
         conversationEngine.setMaxContextSize(contextSize)
         syncConversationState()
     }
@@ -419,12 +323,6 @@ extension ChatViewModel {
         case .privateCloudCompute:
             32_768
         }
-    }
-
-    // MARK: - Language Model
-
-    func currentGuardrails() -> FoundationLabGuardrails {
-        usePermissiveGuardrails ? .permissiveContentTransformations : .default
     }
 
     func generateAndStoreSeed() -> UInt64 {
@@ -461,20 +359,20 @@ extension ChatViewModel {
             switch model.availability {
             case .available:
                 if model.quotaUsage.isLimitReached {
-                    return "PCC daily usage limit reached."
+                    return String(localized: "PCC daily usage limit reached.")
                 }
-                return "Routes requests through Private Cloud Compute."
+                return String(localized: "Routes requests through Private Cloud Compute.")
             case .unavailable(.deviceNotEligible):
-                return "This device is not eligible for PCC."
+                return String(localized: "This device is not eligible for PCC.")
             case .unavailable(.systemNotReady):
-                return "PCC is not ready on this system."
+                return String(localized: "PCC is not ready on this system.")
             @unknown default:
-                return "PCC is currently unavailable."
+                return String(localized: "PCC is currently unavailable.")
             }
         }
         #endif
 
-        return "PCC requires Xcode 27 and iOS, macOS, visionOS, or watchOS 27."
+        return String(localized: "PCC requires Xcode 27 and iOS, macOS, visionOS, or watchOS 27.")
     }
 
     func privateCloudComputeContextSize() async -> Int {

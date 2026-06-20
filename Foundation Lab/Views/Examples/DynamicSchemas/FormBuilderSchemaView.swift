@@ -31,13 +31,17 @@ struct FormBuilderSchemaView: View {
         ExampleViewBase(
             title: "Dynamic Form Builder",
             description: "Generate form schemas from natural language descriptions",
-            defaultPrompt: formDescription,
             currentPrompt: $formDescription,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
-            onRun: { Task { await runExample() } },
-            onReset: { executor.reset() },
+            onRun: { await runExample() },
+            onReset: {
+                executor.reset()
+                formDescription = "Create a job application form with fields for personal info, experience, and skills"
+                generationMode = 0
+                includeValidation = true
+            },
             content: {
             VStack(alignment: .leading, spacing: Spacing.medium) {
                 // Mode selector
@@ -67,7 +71,7 @@ struct FormBuilderSchemaView: View {
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.gray.opacity(0.1))
-                        .cornerRadius(8)
+                        .clipShape(.rect(cornerRadius: 8))
                 }
 
                 // Results
@@ -82,7 +86,7 @@ struct FormBuilderSchemaView: View {
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color.gray.opacity(0.1))
-                                .cornerRadius(8)
+                                .clipShape(.rect(cornerRadius: 8))
                         }
                         .frame(maxHeight: 300)
                     }

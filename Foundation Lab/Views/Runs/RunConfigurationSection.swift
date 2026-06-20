@@ -12,21 +12,28 @@ struct RunConfigurationSection: View {
     var body: some View {
         Section("Experiment") {
             LabeledContent("Experiment", value: experimentName)
-            LabeledContent("Type", value: run.configuration.kind.displayName)
-            LabeledContent("Level", value: run.configuration.level.displayName)
+            LabeledContent("Type") {
+                Text(LocalizedStringKey(run.configuration.kind.displayName))
+            }
+            LabeledContent("Level") {
+                Text(LocalizedStringKey(run.configuration.level.displayName))
+            }
         }
 
         Section("Model") {
             LabeledContent("Runtime") {
-                Label(
-                    run.configuration.modelRuntime.displayName,
-                    systemImage: run.configuration.modelRuntime.systemImage
-                )
+                Label {
+                    Text(LocalizedStringKey(run.configuration.modelRuntime.displayName))
+                } icon: {
+                    Image(systemName: run.configuration.modelRuntime.systemImage)
+                }
             }
 
             LabeledContent("Provider", value: run.provider)
             LabeledContent("Model", value: run.modelIdentifier)
-            LabeledContent("Reasoning", value: run.configuration.reasoningLevel.displayName)
+            LabeledContent("Reasoning") {
+                Text(LocalizedStringKey(run.configuration.reasoningLevel.displayName))
+            }
         }
 
         Section("Generation") {
@@ -37,41 +44,41 @@ struct RunConfigurationSection: View {
     }
 
     private var experimentName: String {
-        run.configuration.name.isEmpty ? "Untitled Experiment" : run.configuration.name
+        run.configuration.name.isEmpty ? String(localized: "Untitled Experiment") : run.configuration.name
     }
 
     private var samplingDescription: String {
         guard let sampling = run.configuration.generationOptions.sampling else {
-            return "System Default"
+            return String(localized: "System Default")
         }
 
         switch sampling {
         case .greedy:
-            return "Greedy"
+            return String(localized: "Greedy")
         case .randomTop(let top, let seed):
-            return "Top-K \(top)\(seedDescription(seed))"
+            return String(localized: "Top-K \(top)") + seedDescription(seed)
         case .randomProbabilityThreshold(let threshold, let seed):
             let value = threshold.formatted(.number.precision(.fractionLength(2)))
-            return "Top-P \(value)\(seedDescription(seed))"
+            return String(localized: "Top-P \(value)") + seedDescription(seed)
         }
     }
 
     private var temperatureDescription: String {
         guard let temperature = run.configuration.generationOptions.temperature else {
-            return "System Default"
+            return String(localized: "System Default")
         }
         return temperature.formatted(.number.precision(.fractionLength(2)))
     }
 
     private var maximumResponseTokensDescription: String {
         guard let maximumResponseTokens = run.configuration.generationOptions.maximumResponseTokens else {
-            return "System Default"
+            return String(localized: "System Default")
         }
         return maximumResponseTokens.formatted()
     }
 
     private func seedDescription(_ seed: UInt64?) -> String {
         guard let seed else { return "" }
-        return " · Seed \(seed)"
+        return " · " + String(localized: "Seed \(seed)")
     }
 }

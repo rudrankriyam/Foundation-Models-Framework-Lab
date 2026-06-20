@@ -53,9 +53,6 @@ struct LibraryView: View {
         .navigationDestination(for: ExampleType.self) { example in
             example.destination
         }
-        .navigationDestination(for: ToolExample.self) { tool in
-            tool.destination
-        }
         .navigationDestination(for: DynamicSchemaExampleType.self) { schema in
             schema.destination
         }
@@ -64,6 +61,9 @@ struct LibraryView: View {
         }
         .navigationDestination(for: ExperimentLibraryCatalog.self) { catalog in
             ExperimentLibraryCatalogView(catalog: catalog)
+        }
+        .navigationDestination(for: ExpertWorkspace.self) { workspace in
+            ExpertWorkspaceView(workspace: workspace)
         }
     }
 }
@@ -91,12 +91,12 @@ private extension LibraryView {
 
             if shouldShowLibraryIntroduction {
                 Section {
-                    Text("Start with a working recipe, change one thing, then save the result as your own experiment.")
+                    Text("""
+                    Recipes open in Playground so you can edit, run, and save them. Guided labs and workspaces provide \
+                    focused interfaces for specialized APIs.
+                    """)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                        .accessibilityLabel(
-                            "Start with a working recipe. Change one thing. Then save the result as your own experiment."
-                        )
                 }
             }
 
@@ -126,23 +126,23 @@ private extension LibraryView {
     @ViewBuilder
     private func templateDestination(_ template: ExperimentTemplate) -> some View {
         switch template.launch {
-        case .playground(let configuration):
+        case .recipe(let configuration):
             Button(
                 action: { openTemplate(configuration) },
                 label: { LibraryTemplateRow(template: template) }
             )
             .buttonStyle(.plain)
             .accessibilityHint("Opens this recipe in Playground")
-        case .example(let example):
+        case .guidedLab(let example):
             NavigationLink(value: example) {
                 LibraryTemplateRow(template: template)
             }
-        case .tool(let tool):
-            NavigationLink(value: tool) {
+        case .workshop(let catalog):
+            NavigationLink(value: catalog) {
                 LibraryTemplateRow(template: template)
             }
-        case .catalog(let catalog):
-            NavigationLink(value: catalog) {
+        case .workspace(let workspace):
+            NavigationLink(value: workspace) {
                 LibraryTemplateRow(template: template)
             }
         }
@@ -160,10 +160,15 @@ private extension LibraryView {
                 }
             }
         } label: {
-            Label(
-                selectedLevel?.displayName ?? "All Levels",
-                systemImage: selectedLevel?.systemImage ?? "line.3.horizontal.decrease"
-            )
+            Label {
+                if let selectedLevel {
+                    Text(selectedLevel.displayName)
+                } else {
+                    Text("All Levels")
+                }
+            } icon: {
+                Image(systemName: selectedLevel?.systemImage ?? "line.3.horizontal.decrease")
+            }
         }
         .accessibilityLabel("Filter by experience level")
     }
@@ -208,6 +213,7 @@ private extension LibraryView {
             template.title,
             template.summary,
             template.level.displayName,
+            template.launch.displayName,
             template.track.title,
             template.track.subtitle
         ] + template.keywords

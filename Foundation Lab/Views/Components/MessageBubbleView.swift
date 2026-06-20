@@ -11,6 +11,7 @@ import FoundationModels
 struct MessageBubbleView: View {
   let message: ChatMessage
   @Environment(ChatViewModel.self) var viewModel
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var animateTyping = false
   @AccessibilityFocusState private var isMessageFocused: Bool
 
@@ -42,13 +43,11 @@ struct MessageBubbleView: View {
       }
     }
     .accessibilityFocused($isMessageFocused)
-    .onAppear {
-      // Auto-focus new assistant messages for screen readers
-      if !message.isFromUser && !message.content.characters.isEmpty {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-          isMessageFocused = true
-        }
-      }
+    .task {
+      guard !message.isFromUser, !message.content.characters.isEmpty else { return }
+      try? await Task.sleep(for: .milliseconds(500))
+      guard !Task.isCancelled else { return }
+      isMessageFocused = true
     }
   }
 
@@ -84,7 +83,7 @@ struct MessageBubbleView: View {
           .frame(width: 6, height: 6)
           .scaleEffect(animateTyping ? 1.2 : 0.8)
           .animation(
-            .easeInOut(duration: 0.6)
+            reduceMotion ? nil : .easeInOut(duration: 0.6)
               .repeatForever()
               .delay(Double(index) * 0.2),
             value: animateTyping
@@ -94,7 +93,7 @@ struct MessageBubbleView: View {
     .padding(.horizontal, Spacing.medium)
     .padding(.vertical, Spacing.small)
     .onAppear {
-      animateTyping = true
+      animateTyping = !reduceMotion
     }
     .accessibilityLabel("Assistant is typing")
     .accessibilityAddTraits(.updatesFrequently)

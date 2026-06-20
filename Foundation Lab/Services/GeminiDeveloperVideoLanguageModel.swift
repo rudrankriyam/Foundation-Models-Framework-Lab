@@ -64,12 +64,13 @@ extension GeminiDeveloperVideoLanguageModelExecutor {
             contents: convertedTranscript.contents,
             systemInstruction: convertedTranscript.systemInstruction
         )
+        try Task.checkCancellation()
 
         guard !response.text.isEmpty else {
             throw GeminiDeveloperAPIError.noTextResponse
         }
 
-        await send(response, for: request.id, into: channel)
+        try await send(response, for: request.id, into: channel)
     }
 }
 
@@ -172,9 +173,10 @@ private extension GeminiDeveloperVideoLanguageModelExecutor {
         _ response: GeminiDeveloperAPIClient.Response,
         for requestID: UUID,
         into channel: LanguageModelExecutorGenerationChannel
-    ) async {
+    ) async throws {
         let text = response.text
         let responseEntryID = requestID.uuidString
+        try Task.checkCancellation()
         await channel.send(
             .response(
                 entryID: responseEntryID,
@@ -192,6 +194,7 @@ private extension GeminiDeveloperVideoLanguageModelExecutor {
         )
 
         if let usage = response.usageMetadata {
+            try Task.checkCancellation()
             await channel.send(
                 .response(
                     entryID: responseEntryID,
@@ -281,6 +284,8 @@ private extension GeminiDeveloperVideoLanguageModelExecutor {
 }
 
 nonisolated struct GeminiDeveloperAPIClient: Sendable {
+    private static let maximumInlineRequestByteCount = 20_000_000
+
     struct Content: Codable, Sendable {
         let role: String?
         let parts: [Part]
@@ -381,12 +386,16 @@ nonisolated struct GeminiDeveloperAPIClient: Sendable {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(requestAPIKey, forHTTPHeaderField: "x-goog-api-key")
-        request.httpBody = try JSONEncoder().encode(
+        let requestBody = try JSONEncoder().encode(
             RequestBody(
                 contents: contents,
                 systemInstruction: systemInstruction
             )
         )
+        guard requestBody.count < Self.maximumInlineRequestByteCount else {
+            throw GeminiDeveloperAPIError.inlineRequestTooLarge(requestBody.count)
+        }
+        request.httpBody = requestBody
 
         let (data, response) = try await urlSession.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -412,23 +421,27 @@ nonisolated enum GeminiDeveloperAPIError: LocalizedError, Sendable {
     case emptyPrompt
     case invalidModelName(String)
     case invalidResponse
+    case inlineRequestTooLarge(Int)
     case noTextResponse
     case requestFailed(statusCode: Int, message: String)
 
     var errorDescription: String? {
         switch self {
         case .apiKeyMissing:
-            return "Enter a Gemini API key or launch with GEMINI_API_KEY."
+            return String(localized: "Enter a Gemini API key or launch with GEMINI_API_KEY.")
         case .emptyPrompt:
-            return "The transcript did not contain a prompt Gemini can send."
+            return String(localized: "The transcript did not contain a prompt Gemini can send.")
         case let .invalidModelName(modelName):
-            return "The Gemini model name is invalid: \(modelName)."
+            return String(localized: "The Gemini model name is invalid: \(modelName).")
         case .invalidResponse:
-            return "Gemini returned an invalid HTTP response."
+            return String(localized: "Gemini returned an invalid HTTP response.")
+        case let .inlineRequestTooLarge(byteCount):
+            let size = ByteCountFormatter.string(fromByteCount: Int64(byteCount), countStyle: .file)
+            return String(localized: "The inline Gemini request is \(size). It must stay below the 20 MB request limit.")
         case .noTextResponse:
-            return "Gemini completed without returning text."
+            return String(localized: "Gemini completed without returning text.")
         case let .requestFailed(statusCode, message):
-            return "Gemini request failed with HTTP \(statusCode): \(message)"
+            return String(localized: "Gemini request failed with HTTP \(statusCode): \(message)")
         }
     }
 }

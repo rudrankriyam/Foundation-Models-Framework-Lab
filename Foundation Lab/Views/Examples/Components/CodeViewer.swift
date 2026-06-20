@@ -15,7 +15,7 @@ struct CodeViewer: View {
   @State private var isCopied = false
 
   @Environment(\.colorScheme) private var colorScheme
-  @State var highlightedCode: AttributedString?
+  @State private var highlightedCode: AttributedString?
 
   init(code: String, language: String = "swift") {
     self.code = code
@@ -25,10 +25,9 @@ struct CodeViewer: View {
   var body: some View {
     VStack(alignment: .leading, spacing: Spacing.small) {
       HStack {
-        Text("CODE")
-          .font(.footnote)
-          .fontWeight(.medium)
-          .foregroundColor(.secondary)
+        Text("Code")
+          .font(.headline)
+          .foregroundStyle(.secondary)
 
         Spacer()
 
@@ -39,26 +38,24 @@ struct CodeViewer: View {
             .padding(.vertical, Spacing.xSmall)
         }
         .buttonStyle(.glass)
+        .accessibilityLabel(isCopied ? "Copied" : "Copy code")
       }
 
-      ScrollView {
-        ScrollView {
-          Text(highlightedCode ?? AttributedString(code))
-            .font(highlightedCode == nil ? .system(.callout, design: .monospaced) : nil)
-            .textSelection(.enabled)
-            .padding(Spacing.medium)
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
+      ScrollView([.horizontal, .vertical]) {
+        Text(highlightedCode ?? AttributedString(code))
+          .font(highlightedCode == nil ? .system(.callout, design: .monospaced) : nil)
+          .textSelection(.enabled)
+          .padding(Spacing.medium)
+          .frame(maxWidth: .infinity, alignment: .leading)
       }
-      .frame(maxHeight: 400)  // Fixed height to ensure consistent display across code examples
-      .background(Color.gray.opacity(0.1))
-      .cornerRadius(CornerRadius.medium)
-      .task {
+      .frame(maxHeight: 400)
+      .background(.quaternary, in: .rect(cornerRadius: CornerRadius.medium))
+      .task(id: colorScheme) {
           do {
               let highlight = Highlight()
               self.highlightedCode = try await highlight
                   .attributedText(code,
-                    language: "swift",
+                    language: language,
                     colors: colorScheme == .dark ? .dark(.xcode) : .light(.xcode)
                   )
           } catch {
@@ -77,7 +74,9 @@ struct CodeViewer: View {
     #endif
 
     isCopied = true
-    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+    Task {
+      try? await Task.sleep(for: .seconds(2))
+      guard !Task.isCancelled else { return }
       isCopied = false
     }
   }
@@ -95,30 +94,11 @@ struct CodeDisclosure: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 0) {
-      Button(action: {
-        isExpanded.toggle()
-      }, label: {
-        HStack(spacing: Spacing.small) {
-          Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-            .font(.caption2)
-            .foregroundColor(.secondary)
-
-          Text("View Code")
-            .font(.callout)
-            .foregroundColor(.primary)
-
-          Spacer()
-        }
-      })
-      .buttonStyle(.plain)
-
-      if isExpanded {
-        CodeViewer(code: code, language: language)
-          .padding(.top, Spacing.small)
-          .transition(.opacity.combined(with: .move(edge: .top)))
-      }
+    DisclosureGroup("View Code", isExpanded: $isExpanded) {
+      CodeViewer(code: code, language: language)
+        .padding(.top, Spacing.small)
     }
+    .font(.callout)
   }
 }
 

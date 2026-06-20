@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ImageInputResolutionFindingsView: View {
     var body: some View {
-        Xcode27Section("Resolution Probe") {
+        Xcode27Section(String(localized: "Resolution Probe")) {
             VStack(alignment: .leading, spacing: Spacing.medium) {
                 Text(
                     """
@@ -60,11 +60,11 @@ struct ImageInputResolutionFindingsView: View {
                 Divider()
 
                 Xcode27InfoRow(
-                    title: "Semantic failure",
-                    detail: """
+                    title: String(localized: "Semantic failure"),
+                    detail: String(localized: """
                     Requests above the boundary still completed successfully, but the model consistently changed a yellow diamond \
                     on a blue background into a circle on black.
-                    """,
+                    """),
                     systemImage: "exclamationmark.triangle.fill",
                     tint: .orange
                 )
@@ -72,11 +72,11 @@ struct ImageInputResolutionFindingsView: View {
                 Divider()
 
                 Xcode27InfoRow(
-                    title: "Inferred 2 GiB boundary",
-                    detail: """
+                    title: String(localized: "Inferred 2 GiB boundary"),
+                    detail: String(localized: """
                     The measured flips align with a 4-byte BGRA decode buffer, using a 16-byte-aligned row stride, crossing 2^31 bytes. \
                     This is an implementation inference, not an official Apple limit.
-                    """,
+                    """),
                     systemImage: "memorychip",
                     tint: .purple
                 )
@@ -89,11 +89,11 @@ struct ImageInputResolutionFindingsView: View {
                 Divider()
 
                 Xcode27InfoRow(
-                    title: "Reproduce it",
-                    detail: """
+                    title: String(localized: "Reproduce it"),
+                    detail: String(localized: """
                     Run Tools/ImageInputProbe/image_input_probe.py with known expected terms to measure transport and semantic correctness \
                     on the current OS and model build.
-                    """,
+                    """),
                     systemImage: "terminal",
                     tint: .blue
                 )

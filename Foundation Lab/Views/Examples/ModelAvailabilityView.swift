@@ -17,7 +17,6 @@ struct ModelAvailabilityView: View {
     ExampleViewBase(
       title: "Model Availability",
       description: "Check if Apple Intelligence is available on this device",
-      defaultPrompt: DefaultPrompts.modelAvailability,
       currentPrompt: .constant(DefaultPrompts.modelAvailability),
       isRunning: isChecking,
       errorMessage: nil,
@@ -31,17 +30,17 @@ struct ModelAvailabilityView: View {
           Image(systemName: isAvailable == true ? "checkmark.circle.fill" :
                               isAvailable == false ? "xmark.circle.fill" : "questionmark.circle")
             .font(.largeTitle)
-            .foregroundColor(isAvailable == true ? .green : isAvailable == false ? .red : .gray)
+            .foregroundStyle(isAvailable == true ? .green : isAvailable == false ? .red : .gray)
 
           Text(availabilityStatus)
             .font(.body)
             .multilineTextAlignment(.center)
-            .foregroundColor(.primary)
+            .foregroundStyle(.primary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, Spacing.xxLarge)
         .background(Color.tertiaryBackgroundColor)
-        .cornerRadius(CornerRadius.large)
+        .clipShape(.rect(cornerRadius: CornerRadius.large))
 
         // Info Section
         VStack(alignment: .leading, spacing: 12) {
@@ -70,22 +69,19 @@ struct ModelAvailabilityView: View {
         }
         .padding()
         .background(Color.tertiaryBackgroundColor)
-        .cornerRadius(CornerRadius.large)
+        .clipShape(.rect(cornerRadius: CornerRadius.large))
       }
     }
   }
 
-  private func checkAvailability() {
-    Task {
-      isChecking = true
-      isAvailable = nil
+  private func checkAvailability() async {
+    isChecking = true
+    defer { isChecking = false }
+    isAvailable = nil
 
-      let availability = CheckModelAvailabilityUseCase().execute()
-      isAvailable = availability.isAvailable
-      availabilityStatus = availabilityMessage(for: availability)
-
-      isChecking = false
-    }
+    let availability = CheckModelAvailabilityUseCase().execute()
+    isAvailable = availability.isAvailable
+    availabilityStatus = availabilityMessage(for: availability)
   }
 
   private func resetStatus() {
@@ -126,18 +122,18 @@ private struct RequirementRow: View {
   var body: some View {
     HStack(spacing: 12) {
       Image(systemName: icon)
-        .foregroundColor(isMet == true ? .green : isMet == false ? .red : .secondary)
+        .foregroundStyle(isMet == true ? .green : isMet == false ? .red : .secondary)
         .frame(width: 24)
 
       Text(text)
         .font(.subheadline)
-        .foregroundColor(.primary)
+        .foregroundStyle(.primary)
 
       Spacer()
 
       if let isMet = isMet {
         Image(systemName: isMet ? "checkmark" : "xmark")
-          .foregroundColor(isMet ? .green : .red)
+          .foregroundStyle(isMet ? .green : .red)
           .font(.caption)
       }
     }

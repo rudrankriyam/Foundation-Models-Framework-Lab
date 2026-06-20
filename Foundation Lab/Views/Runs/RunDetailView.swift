@@ -19,7 +19,9 @@ struct RunDetailView: View {
             RunConfigurationSection(run: run)
             RunToolsSection(tools: run.configuration.selectedTools)
         }
-        .navigationTitle(run.configuration.name.isEmpty ? "Run Detail" : run.configuration.name)
+        .navigationTitle(
+            run.configuration.name.isEmpty ? String(localized: "Run Detail") : run.configuration.name
+        )
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(

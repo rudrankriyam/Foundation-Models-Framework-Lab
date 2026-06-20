@@ -12,22 +12,14 @@ extension ExampleType {
     @ViewBuilder
     var destination: some View {
         switch self {
-        case .basicChat:
-            BasicChatView()
+        case .basicChat, .journaling, .creativeWriting, .streamingResponse, .generationOptions:
+            RecipeDestinationView(example: self)
         case .structuredData:
             StructuredDataView()
         case .generationGuides:
             GenerationGuidesView()
-        case .streamingResponse:
-            StreamingResponseView()
-        case .journaling:
-            JournalingView()
-        case .creativeWriting:
-            CreativeWritingView()
         case .modelAvailability:
             ModelAvailabilityView()
-        case .generationOptions:
-            GenerationOptionsView()
         case .modelRuntime:
             ModelRuntimeView()
         case .contextWindowInspector:
@@ -92,61 +84,7 @@ extension ExampleType {
             HealthExampleView()
         case .rag:
             RAGChatView()
-        case .chat:
-            ChatView(title: "Session", showsDoneButton: false, tearsDownOnDisappear: false)
         }
     }
 
-    static var homeExamples: [ExampleType] {
-        [.modelAvailability, .streamingResponse, .journaling, .creativeWriting]
-    }
-
-    static var studioExamples: [ExampleType] {
-        var examples = generationExamples + modelAndInputExamples + sessionExamples + agentExamples
-#if os(macOS)
-        examples.append(.evaluationsLab)
-#endif
-        examples.append(.fmCLIPythonPlayground)
-        return examples
-    }
-
-    static var generationExamples: [ExampleType] {
-        [.structuredData, .generationGuides, .generationOptions]
-    }
-
-    static var modelAndInputExamples: [ExampleType] {
-        [.modelRuntime, .contextWindowInspector, .privateCloudCompute, .imageInputPlayground, .geminiVideoInput]
-    }
-
-    static var sessionExamples: [ExampleType] {
-        [.toolCallingModeLab, .dynamicProfileBuilder, .reasoningLevelComparison, .transcriptExplorer]
-    }
-
-    static var agentExamples: [ExampleType] {
-        [
-            .agentFlowInspector,
-            .historyTransformLab,
-            .riskyToolConfirmation,
-            .modelRouterDashboard,
-            .contextBudgetVisualizer,
-            .toolCallTrajectoryViewer,
-            .foundationModelsSecurityPlayground,
-            .usagePerformanceTrace,
-            .spotlightRAGExplorer,
-            .providerBridgeWalkthrough
-        ]
-    }
-
-    static var developerToolExamples: [ExampleType] {
-        var examples: [ExampleType] = []
-#if os(macOS)
-        examples.append(.evaluationsLab)
-#endif
-        examples.append(.fmCLIPythonPlayground)
-        return examples
-    }
-
-    static var insightExamples: [ExampleType] {
-        [.health, .rag]
-    }
 }

@@ -23,7 +23,7 @@ struct GeminiVideoPreview: View {
             GeminiPlatformVideoPlayer(player: player)
 
             Button(
-                isPlaying ? "Pause video" : "Play video",
+                isPlaying ? String(localized: "Pause video") : String(localized: "Play video"),
                 systemImage: isPlaying ? "pause.fill" : "play.fill"
             ) {
                 togglePlayback()
@@ -40,18 +40,16 @@ struct GeminiVideoPreview: View {
         .accessibilityLabel("Selected Gemini video input")
         .onAppear {
             load(url)
-            play()
         }
         .onChange(of: url) { _, newURL in
             load(newURL)
-            play()
         }
         .onReceive(NotificationCenter.default.publisher(for: .AVPlayerItemDidPlayToEndTime)) { notification in
             guard notification.object as? AVPlayerItem === player.currentItem else {
                 return
             }
             player.seek(to: .zero)
-            play()
+            isPlaying = false
         }
         .onDisappear {
             player.pause()
@@ -61,6 +59,8 @@ struct GeminiVideoPreview: View {
     }
 
     private func load(_ url: URL) {
+        player.pause()
+        isPlaying = false
         stopAccessingSecurityScopedURL()
         if url.startAccessingSecurityScopedResource() {
             securityScopedURL = url

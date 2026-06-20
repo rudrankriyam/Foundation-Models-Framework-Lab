@@ -24,16 +24,17 @@ extension ExampleExecutor {
     /// Execute a custom async operation and capture the result
     func execute(_ operation: @escaping () async throws -> String) async {
         isRunning = true
+        defer { isRunning = false }
         errorMessage = nil
         result = ""
 
         do {
             result = try await operation()
+        } catch is CancellationError {
+            return
         } catch {
             errorMessage = FoundationModelsErrorHandler.handleError(error)
         }
-
-        isRunning = false
     }
 
     /// Execute with a DynamicGenerationSchema
@@ -54,6 +55,8 @@ extension ExampleExecutor {
                 }
                 return formattedContent
             }
+        } catch is CancellationError {
+            return
         } catch {
             isRunning = false
             errorMessage = FoundationModelsErrorHandler.handleError(error)
@@ -67,6 +70,7 @@ extension ExampleExecutor {
         formatter: @escaping (GeneratedContent) -> String
     ) async {
         isRunning = true
+        defer { isRunning = false }
         errorMessage = nil
         result = ""
 
@@ -82,13 +86,14 @@ extension ExampleExecutor {
                     )
                 )
             )
+            try Task.checkCancellation()
             result = formatter(response.output)
             storeLastTokenCount(response.metadata.tokenCount)
+        } catch is CancellationError {
+            return
         } catch {
             errorMessage = FoundationModelsErrorHandler.handleError(error)
         }
-
-        isRunning = false
     }
 
     /// Helper to format GeneratedContent as JSON string
@@ -102,7 +107,7 @@ extension ExampleExecutor {
             }
             return String(describing: jsonObject)
         } catch {
-            return "Error formatting content: \(error.localizedDescription)"
+            return String(localized: "Error formatting content: \(error.localizedDescription)")
         }
     }
 

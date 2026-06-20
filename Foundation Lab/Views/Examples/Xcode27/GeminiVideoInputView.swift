@@ -67,16 +67,21 @@ struct GeminiVideoInputView: View {
                         systemImage: viewModel.apiKey.isEmpty ? "key" : "key.fill"
                     )
                 }
-                .help(viewModel.apiKey.isEmpty ? "Add Gemini API key" : "Edit Gemini API key")
+                .help(
+                    viewModel.apiKey.isEmpty
+                        ? String(localized: "Add Gemini API key")
+                        : String(localized: "Edit Gemini API key")
+                )
             }
         }
         .sheet(isPresented: $isShowingAPIKey) {
             GeminiAPIKeySheet(viewModel: viewModel)
         }
+        .onDisappear(perform: viewModel.cancelAnalysis)
     }
 
     private var videoSection: some View {
-        Xcode27Section("Video Input") {
+        Xcode27Section(String(localized: "Video Input")) {
             if let videoURL = viewModel.videoURL {
                 GeminiVideoPreview(url: videoURL)
                     .aspectRatio(16 / 9, contentMode: .fit)
@@ -102,7 +107,7 @@ struct GeminiVideoInputView: View {
                 ContentUnavailableView(
                     "Sample Video Missing",
                     systemImage: "video.slash",
-                    description: Text("Choose an MP4, MOV, or M4V file to continue.")
+                    description: Text("This inline demo accepts supported movie files under 14 MB.")
                 )
 
                 Button("Choose Video", action: chooseVideo)
@@ -112,7 +117,7 @@ struct GeminiVideoInputView: View {
     }
 
     private var promptSection: some View {
-        Xcode27Section("Ask Gemini") {
+        Xcode27Section(String(localized: "Ask Gemini")) {
             TextField("Describe what Gemini should inspect", text: $viewModel.prompt, axis: .vertical)
                 .lineLimit(8...12)
                 .textFieldStyle(.roundedBorder)
@@ -124,18 +129,30 @@ struct GeminiVideoInputView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            Button(
-                viewModel.isRunning ? "Analyzing Video..." : "Analyze Video",
-                systemImage: viewModel.isRunning ? "hourglass" : "play.fill",
-                action: analyzeVideo
-            )
-            .buttonStyle(.glassProminent)
-            .controlSize(.large)
-            .frame(maxWidth: .infinity)
-            .disabled(
-                viewModel.isRunning
-                    || viewModel.prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            )
+            if viewModel.isRunning {
+                HStack {
+                    Button("Reset", action: viewModel.reset)
+                        .buttonStyle(.glass)
+
+                    Button(role: .cancel, action: viewModel.cancelAnalysis) {
+                        Label("Stop", systemImage: "stop.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.glassProminent)
+                }
+                .controlSize(.large)
+            } else {
+                HStack {
+                    Button("Reset", action: viewModel.reset)
+                        .buttonStyle(.glass)
+
+                    Button("Analyze Video", systemImage: "play.fill", action: viewModel.startAnalysis)
+                        .buttonStyle(.glassProminent)
+                        .frame(maxWidth: .infinity)
+                        .disabled(viewModel.prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+                .controlSize(.large)
+            }
         }
     }
 
@@ -145,12 +162,6 @@ struct GeminiVideoInputView: View {
 
     private func showAPIKey() {
         isShowingAPIKey = true
-    }
-
-    private func analyzeVideo() {
-        Task {
-            await viewModel.analyzeVideo()
-        }
     }
 
     private func handleVideoImport(_ result: Result<[URL], Error>) {

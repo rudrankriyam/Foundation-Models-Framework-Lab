@@ -10,7 +10,12 @@ import Observation
 @MainActor
 @Observable
 final class ExperimentStore {
-    static let shared = ExperimentStore()
+    private static let fallback = ExperimentStore()
+    private static weak var activeStore: ExperimentStore?
+
+    static var shared: ExperimentStore {
+        activeStore ?? fallback
+    }
 
     var activeExperiment: FoundationLabExperimentConfiguration {
         didSet {
@@ -55,7 +60,8 @@ final class ExperimentStore {
     @ObservationIgnored private let activeExperimentEncoder: JSONEncoder
     @ObservationIgnored private let libraryRepository: ExperimentLibraryRepository
     @ObservationIgnored private var isNormalizingActiveExperiment = false
-    @ObservationIgnored private var activeExperimentPersistenceTask: Task<Void, Never>?
+    @ObservationIgnored private var activeExperimentPersistenceTask: Task<Bool, Never>?
+    @ObservationIgnored private var hasPendingActivationState = false
     private var activePersistenceErrorMessage: String?
 
     init(
@@ -94,9 +100,22 @@ final class ExperimentStore {
 }
 
 extension ExperimentStore {
+    func activate() {
+        if Self.activeStore == nil,
+           self !== Self.fallback,
+           Self.fallback.hasPendingActivationState {
+            let pendingExperiment = Self.fallback.activeExperiment
+            Self.fallback.hasPendingActivationState = false
+            load(pendingExperiment)
+        }
+
+        Self.activeStore = self
+    }
+
     func load(_ configuration: FoundationLabExperimentConfiguration) {
         activeExperiment = configuration.normalized
         activeExperimentLoadRevision += 1
+        markPendingActivationStateIfNeeded()
     }
 
     @discardableResult
@@ -104,6 +123,7 @@ extension ExperimentStore {
         let experiment = FoundationLabExperimentConfiguration(name: "")
         activeExperiment = experiment
         activeExperimentLoadRevision += 1
+        markPendingActivationStateIfNeeded()
         return experiment
     }
 
@@ -111,6 +131,7 @@ extension ExperimentStore {
         var updatedConfiguration = configuration
         updatedConfiguration.modifiedAt = .now
         activeExperiment = updatedConfiguration.normalized
+        markPendingActivationStateIfNeeded()
     }
 
     func updateActiveExperiment(
@@ -120,23 +141,26 @@ extension ExperimentStore {
         update(&updatedExperiment)
         updatedExperiment.modifiedAt = .now
         activeExperiment = updatedExperiment.normalized
+        markPendingActivationStateIfNeeded()
     }
 
     @discardableResult
-    func saveActiveExperiment() -> FoundationLabExperimentConfiguration {
+    func saveActiveExperiment() async -> FoundationLabExperimentConfiguration {
         let savedConfiguration = libraryRepository.save(activeExperiment)
         activeExperiment = savedConfiguration
+        await flushPendingPersistence()
         return savedConfiguration
     }
 
     @discardableResult
     func save(
         _ configuration: FoundationLabExperimentConfiguration
-    ) -> FoundationLabExperimentConfiguration {
+    ) async -> FoundationLabExperimentConfiguration {
         let savedConfiguration = libraryRepository.save(configuration)
         if activeExperiment.id == savedConfiguration.id {
             activeExperiment = savedConfiguration
         }
+        await flushPendingPersistence()
         return savedConfiguration
     }
 
@@ -172,10 +196,23 @@ extension ExperimentStore {
     @discardableResult
     func retryPersistence() async -> Bool {
         activeExperimentPersistenceTask?.cancel()
+        activeExperimentPersistenceTask = nil
         let didPersistActiveExperiment = persistActiveExperimentImmediately(
             activeExperiment.normalized
         )
         let didPersistLibrary = await libraryRepository.retryPersistence()
+        return didPersistActiveExperiment && didPersistLibrary
+    }
+
+    /// Flushes both the debounced active draft and the latest library snapshot.
+    @discardableResult
+    func flushPendingPersistence() async -> Bool {
+        activeExperimentPersistenceTask?.cancel()
+        activeExperimentPersistenceTask = nil
+        let didPersistActiveExperiment = persistActiveExperimentImmediately(
+            activeExperiment.normalized
+        )
+        let didPersistLibrary = await libraryRepository.flushPendingPersistence()
         return didPersistActiveExperiment && didPersistLibrary
     }
 }
@@ -221,6 +258,7 @@ private extension ExperimentStore {
                 try activeExperimentEncoder.encode(experiment),
                 forKey: activeExperimentKey
             )
+            activePersistenceErrorMessage = nil
             return true
         } catch {
             activePersistenceErrorMessage = Self.activeSaveFailureMessage
@@ -236,10 +274,16 @@ private extension ExperimentStore {
             do {
                 try await Task.sleep(for: .milliseconds(250))
             } catch {
-                return
+                return false
             }
-            guard !Task.isCancelled else { return }
-            self?.persistActiveExperimentImmediately(experiment)
+            guard !Task.isCancelled, let self else { return false }
+            return self.persistActiveExperimentImmediately(experiment)
+        }
+    }
+
+    func markPendingActivationStateIfNeeded() {
+        if Self.activeStore == nil, self === Self.fallback {
+            hasPendingActivationState = true
         }
     }
 }

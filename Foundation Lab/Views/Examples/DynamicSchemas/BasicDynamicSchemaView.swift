@@ -21,13 +21,13 @@ struct BasicDynamicSchemaView: View {
         ExampleViewBase(
             title: schemaExample.title,
             description: schemaExample.summary,
-            defaultPrompt: schemaExample.defaultInput,
             currentPrompt: bindingForSelectedExample,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
-            onRun: { Task { await runExample() } },
+            onRun: { await runExample() },
             onReset: {
+                executor.reset()
                 selectedExample = 0
                 personInput = schemaExample.preset(at: 0).defaultInput
                 productInput = schemaExample.preset(at: 1).defaultInput
@@ -54,22 +54,7 @@ struct BasicDynamicSchemaView: View {
                             .padding(8)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(Color.gray.opacity(0.1))
-                            .cornerRadius(8)
-                    }
-
-                    HStack {
-                        Button("Extract Data") {
-                            Task {
-                                await runExample()
-                            }
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(executor.isRunning || currentInput.isEmpty)
-
-                        if executor.isRunning {
-                            ProgressView()
-                                .scaleEffect(0.8)
-                        }
+                            .clipShape(.rect(cornerRadius: 8))
                     }
 
                     // Results section
@@ -84,7 +69,7 @@ struct BasicDynamicSchemaView: View {
                                     .padding()
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .background(Color.gray.opacity(0.1))
-                                    .cornerRadius(8)
+                                    .clipShape(.rect(cornerRadius: 8))
                             }
                             .frame(maxHeight: 250)
                         }

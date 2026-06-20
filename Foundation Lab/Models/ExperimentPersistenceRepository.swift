@@ -26,7 +26,7 @@ actor ExperimentPersistenceRepository {
 
     /// Returns false when a newer snapshot reached the repository first.
     func write(_ document: ExperimentPersistenceDocument, revision: Int) throws -> Bool {
-        guard revision >= latestAttemptedRevision else { return false }
+        guard !Task.isCancelled, revision >= latestAttemptedRevision else { return false }
         latestAttemptedRevision = revision
 
         let data = try encoder.encode(document)

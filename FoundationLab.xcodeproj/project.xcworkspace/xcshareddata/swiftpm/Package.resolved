@@ -11,15 +11,6 @@
       }
     },
     {
-      "identity" : "liquidglaskit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/rryam/LiquidGlasKit.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "06769388536d78d262ff80d4cebeb3fbbd69afdc"
-      }
-    },
-    {
       "identity" : "lrucache",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nicklockwood/LRUCache.git",

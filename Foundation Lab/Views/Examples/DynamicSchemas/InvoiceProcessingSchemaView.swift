@@ -71,7 +71,7 @@ struct InvoiceProcessingSchemaView: View {
         }
         .padding()
         .background(Color.gray.opacity(0.05))
-        .cornerRadius(8)
+        .clipShape(.rect(cornerRadius: 8))
     }
 
     private var sampleInvoiceLoaderSection: some View {
@@ -89,13 +89,18 @@ struct InvoiceProcessingSchemaView: View {
         ExampleViewBase(
             title: "Invoice Processing",
             description: "Extract structured data from real-world invoices using complex schemas",
-            defaultPrompt: invoiceText,
             currentPrompt: $invoiceText,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
-            onRun: { Task { await runExample() } },
-            onReset: { executor.reset() },
+            onRun: { await runExample() },
+            onReset: {
+                executor.reset()
+                extractionMode = 0
+                includeLineItems = true
+                calculateTotals = true
+                loadSampleInvoice()
+            },
             content: {
             VStack(alignment: .leading, spacing: Spacing.medium) {
                 modeSelectorSection
@@ -114,7 +119,7 @@ struct InvoiceProcessingSchemaView: View {
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color.gray.opacity(0.1))
-                                .cornerRadius(8)
+                                .clipShape(.rect(cornerRadius: 8))
                         }
                         .frame(maxHeight: 300)
                     }
@@ -126,6 +131,7 @@ struct InvoiceProcessingSchemaView: View {
 }
 
     private func loadSampleInvoice() {
+        executor.reset()
         invoiceText = """
         INVOICE
         Invoice Number: INV-2025-0042

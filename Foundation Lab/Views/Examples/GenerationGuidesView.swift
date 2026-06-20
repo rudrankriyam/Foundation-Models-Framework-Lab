@@ -16,7 +16,6 @@ struct GenerationGuidesView: View {
     ExampleViewBase(
       title: "Generation Guides",
       description: "Guided generation with constraints and structured output",
-      defaultPrompt: FoundationLabExampleDemo.generationGuides.defaultPrompt,
       currentPrompt: $currentPrompt,
       isRunning: executor.isRunning,
       errorMessage: executor.errorMessage,
@@ -28,15 +27,15 @@ struct GenerationGuidesView: View {
         // Info Banner
         HStack {
           Image(systemName: "info.circle")
-            .foregroundColor(.blue)
+            .foregroundStyle(.blue)
           Text("Uses @Guide annotations to structure product reviews with ratings, pros, cons, and recommendations")
             .font(.caption)
-            .foregroundColor(.secondary)
+            .foregroundStyle(.secondary)
           Spacer()
         }
         .padding()
         .background(Color.blue.opacity(0.1))
-        .cornerRadius(8)
+        .clipShape(.rect(cornerRadius: 8))
 
         // Prompt Suggestions
         PromptSuggestions(
@@ -69,20 +68,18 @@ struct GenerationGuidesView: View {
     }
   }
 
-  private func executeGenerationGuides() {
-    Task {
-      await executor.executeStructured(
-        prompt: currentPrompt,
-        type: ProductReview.self
-      ) { review in
-        review.plainTextSummary
-      }
+  private func executeGenerationGuides() async {
+    await executor.executeStructured(
+      prompt: currentPrompt,
+      type: ProductReview.self
+    ) { review in
+      review.plainTextSummary
     }
   }
 
   private func resetToDefaults() {
-    currentPrompt = "" // Clear the prompt completely
-    executor.clearAll() // Clear all results, errors, and history
+    currentPrompt = FoundationLabExampleDemo.generationGuides.defaultPrompt
+    executor.clearAll()
   }
 }
 

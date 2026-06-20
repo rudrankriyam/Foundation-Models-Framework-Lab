@@ -11,20 +11,20 @@ struct ToolApprovalReview: View {
     let deny: () -> Void
 
     var body: some View {
-        Xcode27Section("Proposed tool action") {
+        Xcode27Section(String(localized: "Proposed tool action")) {
             VStack(alignment: .leading, spacing: Spacing.large) {
                 Xcode27StatusRow(
-                    title: "Authorization",
+                    title: String(localized: "Authorization"),
                     value: decision.title,
                     systemImage: decision.icon,
                     tint: decision.tint
                 )
 
                 Xcode27KeyValueList(items: [
-                    ("Tool", "sendMessage"),
-                    ("Recipient", "Client"),
-                    ("Effect", "External message"),
-                    ("Executed", "No")
+                    (String(localized: "Tool"), "sendMessage"),
+                    (String(localized: "Recipient"), String(localized: "Client")),
+                    (String(localized: "Effect"), String(localized: "External message")),
+                    (String(localized: "Executed"), String(localized: "No"))
                 ])
 
                 Text(decision.detail)
@@ -32,14 +32,26 @@ struct ToolApprovalReview: View {
                     .foregroundStyle(.secondary)
 
                 if decision.awaitsDecision {
-                    HStack(spacing: Spacing.small) {
-                        Button("Deny", systemImage: "xmark", action: deny)
-                            .buttonStyle(.bordered)
-                            .frame(maxWidth: .infinity)
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: Spacing.small) {
+                            Button("Deny", systemImage: "xmark", action: deny)
+                                .buttonStyle(.bordered)
+                                .frame(maxWidth: .infinity)
 
-                        Button("Approve demo", systemImage: "checkmark", action: approve)
-                            .buttonStyle(.borderedProminent)
-                            .frame(maxWidth: .infinity)
+                            Button("Approve demo", systemImage: "checkmark", action: approve)
+                                .buttonStyle(.borderedProminent)
+                                .frame(maxWidth: .infinity)
+                        }
+
+                        VStack(spacing: Spacing.small) {
+                            Button("Deny", systemImage: "xmark", action: deny)
+                                .buttonStyle(.bordered)
+                                .frame(maxWidth: .infinity)
+
+                            Button("Approve demo", systemImage: "checkmark", action: approve)
+                                .buttonStyle(.borderedProminent)
+                                .frame(maxWidth: .infinity)
+                        }
                     }
                 }
             }

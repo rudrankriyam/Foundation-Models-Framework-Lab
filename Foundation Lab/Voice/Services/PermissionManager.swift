@@ -102,7 +102,6 @@ class PermissionManager: PermissionServiceProtocol {
         checkMicrophonePermission()
         checkSpeechPermission()
         updateAllPermissionsStatus()
-        debugPrintPermissionStatuses(context: "Initial check")
     }
 
     func requestAllPermissions() async -> Bool {
@@ -111,7 +110,6 @@ class PermissionManager: PermissionServiceProtocol {
         _ = await requestSpeechPermission()
 
         updateAllPermissionsStatus()
-        debugPrintPermissionStatuses(context: "Post-request")
         return allPermissionsGranted
     }
 
@@ -243,9 +241,6 @@ class PermissionManager: PermissionServiceProtocol {
             permissionAlertMessage = "Please enable \(permissionsList) in Settings to use Voice features."
             showPermissionAlert = true
         }
-    }
-
-    private func debugPrintPermissionStatuses(context: String) {
     }
 
     func openSettings() {

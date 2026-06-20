@@ -13,19 +13,20 @@ enum ToolApprovalDecision {
 
     var title: String {
         switch self {
-        case .notPrepared: "No proposed action"
-        case .awaitingUser: "Waiting for the user"
-        case .approvedForDemo: "Approved in this demo"
-        case .denied: "Denied by the user"
+        case .notPrepared: String(localized: "No proposed action")
+        case .awaitingUser: String(localized: "Waiting for the user")
+        case .approvedForDemo: String(localized: "Approved in this demo")
+        case .denied: String(localized: "Denied by the user")
         }
     }
 
     var detail: String {
         switch self {
-        case .notPrepared: "Run prepares a local review record from the prompt."
-        case .awaitingUser: "Nothing has been sent. The app must wait at this boundary."
-        case .approvedForDemo: "The demo recorded approval but intentionally has no message transport, so nothing was sent."
-        case .denied: "The app stopped the proposed action before any side effect."
+        case .notPrepared: String(localized: "Run prepares a local review record from the prompt.")
+        case .awaitingUser: String(localized: "Nothing has been sent. The app must wait at this boundary.")
+        case .approvedForDemo:
+            String(localized: "The demo recorded approval but intentionally has no message transport, so nothing was sent.")
+        case .denied: String(localized: "The app stopped the proposed action before any side effect.")
         }
     }
 

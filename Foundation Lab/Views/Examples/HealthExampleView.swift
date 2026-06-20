@@ -33,24 +33,15 @@ struct HealthExampleView: View {
 
 struct HealthUnavailableView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "heart.slash")
-                .font(.largeTitle)
-                .imageScale(.large)
-                .foregroundColor(.secondary)
-                .padding()
-
-            Text("Health Data Unavailable")
-                .font(.title2)
-                .fontWeight(.semibold)
-
-            Spacer()
+        ContentUnavailableView {
+            Label("Health Data Unavailable", systemImage: "heart.slash")
+        } description: {
+            Text("HealthKit is available on supported iPhone devices. Foundation Lab never invents missing measurements.")
         }
-        .padding()
     }
 }
 
 #Preview {
     HealthExampleView()
-        .modelContainer(for: [HealthMetric.self, HealthInsight.self, HealthSession.self])
+        .modelContainer(for: [HealthMetric.self, HealthSession.self])
 }

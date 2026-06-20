@@ -307,7 +307,7 @@ private extension FoundationLabConversationEngine {
                 activeResponseID = nil
             }
         }
-        return try await task.value
+        return try await task.valuePropagatingCancellation()
     }
 
     func performStreamingResponse(
@@ -350,7 +350,7 @@ private extension FoundationLabConversationEngine {
                 activeResponseID = nil
             }
         }
-        return try await task.value
+        return try await task.valuePropagatingCancellation()
     }
 
     func streamWithGenerationOptions(

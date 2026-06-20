@@ -80,7 +80,9 @@ struct HealthDataTool: Tool {
             return createErrorOutput(error: message)
         }
     }
+}
 
+private extension HealthDataTool {
     private func fetchTodayData(healthManager: HealthDataManager, refresh: Bool) async -> GeneratedContent {
         if refresh {
             do {
@@ -90,24 +92,50 @@ struct HealthDataTool: Tool {
             }
         }
 
-        let metricsJSON = await MainActor.run {
-            """
-            {
-                "steps": \(Int(healthManager.todaySteps)),
-                "activeEnergy": \(Int(healthManager.todayActiveEnergy)),
-                "distance": \(String(format: "%.2f", healthManager.todayDistance)),
-                "heartRate": \(Int(healthManager.currentHeartRate)),
-                "sleep": \(String(format: "%.1f", healthManager.lastNightSleep))
-            }
-            """
+        let metricValues = await MainActor.run {
+            (
+                healthManager.todaySteps,
+                healthManager.todayActiveEnergy,
+                healthManager.todayDistance,
+                healthManager.currentHeartRate,
+                healthManager.lastNightSleep
+            )
+        }
+        let metricsJSON = """
+        {
+            "steps": \(jsonNumber(metricValues.0)),
+            "activeEnergy": \(jsonNumber(metricValues.1)),
+            "distance": \(jsonNumber(metricValues.2)),
+            "heartRate": \(jsonNumber(metricValues.3)),
+            "sleep": \(jsonNumber(metricValues.4))
+        }
+        """
+        let availableMetricCount = [
+            metricValues.0,
+            metricValues.1,
+            metricValues.2,
+            metricValues.3,
+            metricValues.4
+        ].compactMap { $0 }.count
+        let status: String
+        let message: String
+        if availableMetricCount == 0 {
+            status = "unavailable"
+            message = "No readable health measurements were returned"
+        } else if availableMetricCount < 5 {
+            status = "partial"
+            message = "\(availableMetricCount) of 5 requested health measurements were available"
+        } else {
+            status = "success"
+            message = "Today's health data retrieved successfully"
         }
 
         return GeneratedContent(properties: [
-            "status": "success",
+            "status": status,
             "dataType": "today",
             "metrics": metricsJSON,
             "timestamp": ISO8601DateFormatter().string(from: Date()),
-            "message": "Today's health data retrieved successfully"
+            "message": message
         ])
     }
 
@@ -115,29 +143,45 @@ struct HealthDataTool: Tool {
         let weeklyData = await healthManager.fetchWeeklyData()
 
         var weeklyStatsArray: [String] = []
+        var availableDayCount = 0
+        var requestedDayCount = 0
 
         for (metric, dailyData) in weeklyData {
-            let values = dailyData.map { $0.value }
+            let values = dailyData.compactMap(\.value)
+            availableDayCount += values.count
+            requestedDayCount += dailyData.count
             let total = values.reduce(0, +)
-            let average = values.isEmpty ? 0 : total / Double(values.count)
+            let average = values.isEmpty ? nil : total / Double(values.count)
 
             weeklyStatsArray.append("""
                 "\(metric.rawValue)": {
-                    "total": \(String(format: "%.0f", total)),
-                    "average": \(String(format: "%.1f", average)),
+                    "total": \(values.isEmpty ? "null" : jsonNumber(total)),
+                    "average": \(jsonNumber(average)),
                     "days": \(values.count)
                 }
                 """)
         }
 
         let weeklyStatsJSON = "{\(weeklyStatsArray.joined(separator: ","))}"
+        let status: String
+        let message: String
+        if availableDayCount == 0 {
+            status = "unavailable"
+            message = "No readable weekly health samples were returned"
+        } else if availableDayCount < requestedDayCount {
+            status = "partial"
+            message = "Health data was available for \(availableDayCount) of \(requestedDayCount) daily samples"
+        } else {
+            status = "success"
+            message = "Weekly health data retrieved successfully"
+        }
 
         return GeneratedContent(properties: [
-            "status": "success",
+            "status": status,
             "dataType": "weekly",
             "weeklyStats": weeklyStatsJSON,
             "timestamp": ISO8601DateFormatter().string(from: Date()),
-            "message": "Weekly health data retrieved successfully"
+            "message": message
         ])
     }
 
@@ -154,7 +198,7 @@ struct HealthDataTool: Tool {
             }
         }
 
-        let value: Double = await MainActor.run {
+        let value: Double? = await MainActor.run {
             switch type {
             case .steps:
                 return healthManager.todaySteps
@@ -167,12 +211,18 @@ struct HealthDataTool: Tool {
             case .distance:
                 return healthManager.todayDistance
             default:
-                return 0.0
+                return nil
             }
         }
 
-        if type.rawValue == "unsupported" {
-            return createErrorOutput(error: "Metric type not supported")
+        guard let value else {
+            return GeneratedContent(properties: [
+                "status": "unavailable",
+                "metric": type.rawValue,
+                "unit": type.defaultUnit,
+                "timestamp": ISO8601DateFormatter().string(from: Date()),
+                "message": "No readable \(type.rawValue) measurement was returned"
+            ])
         }
 
         return GeneratedContent(properties: [
@@ -193,12 +243,21 @@ struct HealthDataTool: Tool {
         case .heartRate:
             return "\(Int(value)) bpm"
         case .sleep:
-            return String(format: "%.1f hours", value)
+            return value.formatted(.number.precision(.fractionLength(1))) + " hours"
         case .distance:
-            return String(format: "%.2f km", value)
+            return value.formatted(.number.precision(.fractionLength(2))) + " km"
         default:
-            return String(format: "%.1f", value)
+            return value.formatted(.number.precision(.fractionLength(1)))
         }
+    }
+
+    nonisolated private func jsonNumber(_ value: Double?) -> String {
+        guard let value,
+              let data = try? JSONEncoder().encode(value),
+              let encodedValue = String(data: data, encoding: .utf8) else {
+            return "null"
+        }
+        return encodedValue
     }
 
     private func createErrorOutput(error: String) -> GeneratedContent {

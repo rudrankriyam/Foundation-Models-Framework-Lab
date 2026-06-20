@@ -13,9 +13,8 @@ struct RiskyToolConfirmationDemoView: View {
 
     var body: some View {
         ExampleViewBase(
-            title: "Tool Authorization",
-            description: "Keep side-effect authorization inside app-owned tool code",
-            defaultPrompt: Self.defaultPrompt,
+            title: String(localized: "Tool Authorization"),
+            description: String(localized: "Keep side-effect authorization inside app-owned tool code"),
             currentPrompt: $currentPrompt,
             codeExample: ToolApprovalCodeExample.source,
             onRun: prepareReview,

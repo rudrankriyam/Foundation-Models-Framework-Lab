@@ -70,10 +70,8 @@ struct TranscriptEntryView: View {
 
         #if compiler(>=6.4)
         case .reasoning(let reasoning):
-            if chatViewModel.showsReasoningTrace {
-                if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) {
-                    ReasoningTraceView(reasoning: reasoning)
-                }
+            if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) {
+                ReasoningTraceView(reasoning: reasoning)
             }
         #endif
 
@@ -158,10 +156,10 @@ private struct ReasoningTraceView: View {
         }
 
         if reasoning.signature != nil {
-            return "The model provided an opaque reasoning signature, but no readable reasoning text."
+            return String(localized: "The model provided an opaque reasoning signature, but no readable reasoning text.")
         }
 
-        return "No readable reasoning trace was included in this transcript entry."
+        return String(localized: "No readable reasoning trace was included in this transcript entry.")
     }
 }
 #endif

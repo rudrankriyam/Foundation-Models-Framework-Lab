@@ -10,24 +10,26 @@ import FoundationLabCore
 import FoundationModels
 
 struct ReferencedSchemaView: View {
-    @State private var executor = ExampleExecutor()
-    @State private var blogInput = """
+    private static let defaultBlogInput = """
     The blog post "Understanding AI" was written by John Smith on March 15, 2024. \
     It received 3 comments: Alice said "Great article!", Bob commented "Very informative", \
     and Carol wrote "Thanks for sharing". The post has tags: AI, Machine Learning, and Technology.
     """
-
-    @State private var projectInput = """
+    private static let defaultProjectInput = """
     The SwiftUI project is managed by Sarah Johnson and has 3 team members: \
     Mike Davis (iOS Developer), Emma Wilson (Designer), and Tom Brown (Backend Engineer). \
     Mike is working on the login feature, Emma is designing the dashboard, and Tom is building the API.
     """
-
-    @State private var libraryInput = """
+    private static let defaultLibraryInput = """
     The library has 3 books: "1984" by George Orwell (borrowed by John on Jan 10), \
     "To Kill a Mockingbird" by Harper Lee (borrowed by Sarah on Jan 15), and \
     "The Great Gatsby" by F. Scott Fitzgerald (available). John also borrowed "Brave New World" on Jan 20.
     """
+
+    @State private var executor = ExampleExecutor()
+    @State private var blogInput = ReferencedSchemaView.defaultBlogInput
+    @State private var projectInput = ReferencedSchemaView.defaultProjectInput
+    @State private var libraryInput = ReferencedSchemaView.defaultLibraryInput
 
     @State private var selectedExample = 0
     @State private var showReferences = true
@@ -38,13 +40,19 @@ struct ReferencedSchemaView: View {
         ExampleViewBase(
             title: "Schema References",
             description: "Use schema references to avoid duplication and create reusable components",
-            defaultPrompt: blogInput,
             currentPrompt: .constant(currentInput),
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
-            onRun: { Task { await runExample() } },
-            onReset: { selectedExample = 0; showReferences = true },
+            onRun: { await runExample() },
+            onReset: {
+                executor.reset()
+                selectedExample = 0
+                showReferences = true
+                blogInput = Self.defaultBlogInput
+                projectInput = Self.defaultProjectInput
+                libraryInput = Self.defaultLibraryInput
+            },
             content: {
                 VStack(alignment: .leading, spacing: Spacing.medium) {
                 // Example selector
@@ -73,7 +81,7 @@ struct ReferencedSchemaView: View {
                             .padding(8)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(Color.blue.opacity(0.1))
-                            .cornerRadius(8)
+                            .clipShape(.rect(cornerRadius: 8))
                     }
                 }
 
@@ -87,22 +95,7 @@ struct ReferencedSchemaView: View {
                         .frame(minHeight: 100)
                         .padding(8)
                         .background(Color.gray.opacity(0.1))
-                        .cornerRadius(8)
-                }
-
-                HStack {
-                    Button("Extract with References") {
-                        Task {
-                            await runExample()
-                        }
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(executor.isRunning || currentInput.isEmpty)
-
-                    if executor.isRunning {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                    }
+                        .clipShape(.rect(cornerRadius: 8))
                 }
 
                 // Results section
@@ -117,7 +110,7 @@ struct ReferencedSchemaView: View {
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color.gray.opacity(0.1))
-                                .cornerRadius(8)
+                                .clipShape(.rect(cornerRadius: 8))
                         }
                         .frame(maxHeight: 250)
                     }
