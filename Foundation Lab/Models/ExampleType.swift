@@ -253,67 +253,6 @@ extension ExampleType {
         }
     }
 
-    /// Static property for examples displayed in the grid (excludes chat)
-    static var gridExamples: [ExampleType] {
-        allCases.filter { $0 != .chat }
-    }
-
-}
-
-// MARK: - Tool Example Enum
-
-enum ToolExample: String, CaseIterable, Hashable {
-    case weather
-    case web
-    case contacts
-    case calendar
-    case reminders
-    case location
-    case health
-    case music
-    case webMetadata
-
-    var displayName: String {
-        switch self {
-        case .weather: return "Weather"
-        case .web: return "Web Search"
-        case .contacts: return "Contacts"
-        case .calendar: return "Calendar"
-        case .reminders: return "Reminders"
-        case .location: return "Location"
-        case .health: return "Health"
-        case .music: return "Music"
-        case .webMetadata: return "Web Metadata"
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .weather: return "cloud.sun"
-        case .web: return "magnifyingglass"
-        case .contacts: return "person.2"
-        case .calendar: return "calendar"
-        case .reminders: return "checklist"
-        case .location: return "location"
-        case .health: return "heart"
-        case .music: return "music.note"
-        case .webMetadata: return "link.circle"
-        }
-    }
-
-    var shortDescription: String {
-        switch self {
-        case .weather: return "Current conditions"
-        case .web: return "Search the web"
-        case .contacts: return "Find contacts"
-        case .calendar: return "Manage events"
-        case .reminders: return "Create reminders"
-        case .location: return "Get location"
-        case .health: return "Health data"
-        case .music: return "Search music"
-        case .webMetadata: return "Extract metadata"
-        }
-    }
 }
 
 // MARK: - Language Example Enum
