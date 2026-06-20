@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "xceval.pipeline/v1",
+  "name": "FMBench recorded-run evaluation",
+  "workingDirectory": ".",
+  "artifactsDirectory": ".xceval/pipeline",
+  "resultsPath": ".xceval/results",
+  "requiresEvaluationsXcode": true,
+  "steps": [
+    {
+      "name": "replay-recorded-run",
+      "command": [
+        "./fmbench-evaluate",
+        "replay",
+        "${FMBENCH_RESULT}",
+        "--output",
+        ".xceval/results",
+        "--format",
+        "json"
+      ]
+    }
+  ],
+  "selection": {
+    "evaluationID": "FMBenchReplayEvaluation"
+  }
+}

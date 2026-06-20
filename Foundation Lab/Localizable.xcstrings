@@ -32545,7 +32545,7 @@
         }
       }
     },
-    "AppBench" : {
+    "FMBench" : {
       "shouldTranslate" : false
     },
     "Apple Intelligence not enabled" : {
@@ -55021,66 +55021,66 @@
         }
       }
     },
-    "Open the AppBenchDeviceRunner project, select a physical Apple Intelligence device, and run its scheme." : {
+    "Open the FMBenchDeviceRunner project, select a physical Apple Intelligence device, and run its scheme." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open the AppBenchDeviceRunner project, select a physical Apple Intelligence device, and run its scheme."
+            "value" : "Open the FMBenchDeviceRunner project, select a physical Apple Intelligence device, and run its scheme."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Offen AppBenchDeviceRunner Projekt, wählen Sie eine physische Apple Intelligence Gerät, und führen Sie sein Schema."
+            "value" : "Offen FMBenchDeviceRunner Projekt, wählen Sie eine physische Apple Intelligence Gerät, und führen Sie sein Schema."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Abrir el AppBenchDeviceRunner proyecto, seleccionar un físico Apple Intelligence dispositivo, y ejecutar su esquema."
+            "value" : "Abrir el FMBenchDeviceRunner proyecto, seleccionar un físico Apple Intelligence dispositivo, y ejecutar su esquema."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ouvrir la AppBenchDeviceRunner projet, sélectionner un physique Apple Intelligence et exécuter son schéma."
+            "value" : "Ouvrir la FMBenchDeviceRunner projet, sélectionner un physique Apple Intelligence et exécuter son schéma."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aprire AppBenchDeviceRunner progetto, selezionare un fisico Apple Intelligence dispositivo, ed eseguire il suo schema."
+            "value" : "Aprire FMBenchDeviceRunner progetto, selezionare un fisico Apple Intelligence dispositivo, ed eseguire il suo schema."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "開く AppBenchDeviceRunner プロジェクトを選択し、物理的 Apple Intelligence デバイス、およびそのスキームを実行します。"
+            "value" : "開く FMBenchDeviceRunner プロジェクトを選択し、物理的 Apple Intelligence デバイス、およびそのスキームを実行します。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "자주 묻는 질문 AppBenchDeviceRunner 프로젝트, 물리적 선택 Apple Intelligence 장치, 그리고 그것의 계획을 실행."
+            "value" : "자주 묻는 질문 FMBenchDeviceRunner 프로젝트, 물리적 선택 Apple Intelligence 장치, 그리고 그것의 계획을 실행."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Abra o AppBenchDeviceRunner projeto, selecione um físico Apple Intelligence dispositivo, e executar seu esquema."
+            "value" : "Abra o FMBenchDeviceRunner projeto, selecione um físico Apple Intelligence dispositivo, e executar seu esquema."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "打开 AppBenchDeviceRunner ,选择物理 Apple Intelligence 设备,并运行其方案。"
+            "value" : "打开 FMBenchDeviceRunner ,选择物理 Apple Intelligence 设备,并运行其方案。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "開啟 AppBenchDeviceRunner 專案,選擇物理 Apple Intelligence 裝置,並執行它的設計。"
+            "value" : "開啟 FMBenchDeviceRunner 專案,選擇物理 Apple Intelligence 裝置,並執行它的設計。"
           }
         }
       }
@@ -61680,66 +61680,66 @@
         }
       }
     },
-    "Responses remain selectable for manual review. Use AppBench when you need stored datasets and deterministic graders." : {
+    "Responses remain selectable for manual review. Use FMBench when you need stored datasets and deterministic graders." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Responses remain selectable for manual review. Use AppBench when you need stored datasets and deterministic graders."
+            "value" : "Responses remain selectable for manual review. Use FMBench when you need stored datasets and deterministic graders."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Antworten bleiben für die manuelle Überprüfung wählbar. Verwendung AppBench wenn Sie gespeicherte Datensätze und deterministische Grader benötigen."
+            "value" : "Die Antworten bleiben für die manuelle Überprüfung wählbar. Verwendung FMBench wenn Sie gespeicherte Datensätze und deterministische Grader benötigen."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Las respuestas siguen siendo seleccionables para la revisión manual. Uso AppBench cuando necesita conjuntos de datos almacenados y graduadores deterministas."
+            "value" : "Las respuestas siguen siendo seleccionables para la revisión manual. Uso FMBench cuando necesita conjuntos de datos almacenados y graduadores deterministas."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Les réponses restent sélectionnables pour examen manuel. Utilisation AppBench lorsque vous avez besoin de données stockées et de niveleuses déterministes."
+            "value" : "Les réponses restent sélectionnables pour examen manuel. Utilisation FMBench lorsque vous avez besoin de données stockées et de niveleuses déterministes."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Le risposte rimangono selezionabili per la revisione manuale. Uso AppBench quando hai bisogno di set di dati memorizzati e gradi deterministici."
+            "value" : "Le risposte rimangono selezionabili per la revisione manuale. Uso FMBench quando hai bisogno di set di dati memorizzati e gradi deterministici."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "マニュアルレビューでは、応答は選択可能です。 使用条件 AppBench 保存したデータセットと決定的なグレーダーが必要な場合。"
+            "value" : "マニュアルレビューでは、応答は選択可能です。 使用条件 FMBench 保存したデータセットと決定的なグレーダーが必要な場合。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "응답은 수동 검토를 위해 선택할 수 있습니다. 제품 정보 AppBench 저장된 datasets 및 deterministic 그레이더가 필요할 때."
+            "value" : "응답은 수동 검토를 위해 선택할 수 있습니다. 제품 정보 FMBench 저장된 datasets 및 deterministic 그레이더가 필요할 때."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "As respostas permanecem selecionáveis para revisão manual. Use AppBench Quando você precisa de conjuntos de dados armazenados e graduadores determinísticos."
+            "value" : "As respostas permanecem selecionáveis para revisão manual. Use FMBench Quando você precisa de conjuntos de dados armazenados e graduadores determinísticos."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "答复仍可选作人工审查。 使用 AppBench 当您需要存储的数据集和确定分级器时。"
+            "value" : "答复仍可选作人工审查。 使用 FMBench 当您需要存储的数据集和确定分级器时。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "答复仍可作人工审查。 使用 AppBench 當您需要儲存的數據集和決定分類。"
+            "value" : "答复仍可作人工审查。 使用 FMBench 當您需要儲存的數據集和決定分類。"
           }
         }
       }
@@ -62256,66 +62256,66 @@
         }
       }
     },
-    "Run AppBench on the device, then use the macOS evaluation tools." : {
+    "Run FMBench on the device, then use the macOS evaluation tools." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Run AppBench on the device, then use the macOS evaluation tools."
+            "value" : "Run FMBench on the device, then use the macOS evaluation tools."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lauf AppBench auf dem Gerät, dann verwenden Sie die macOS Bewertungsinstrumente."
+            "value" : "Lauf FMBench auf dem Gerät, dann verwenden Sie die macOS Bewertungsinstrumente."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Corre AppBench en el dispositivo, luego utilizar el macOS herramientas de evaluación."
+            "value" : "Corre FMBench en el dispositivo, luego utilizar el macOS herramientas de evaluación."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cours AppBench sur l'appareil, puis utiliser macOS outils d'évaluation."
+            "value" : "Cours FMBench sur l'appareil, puis utiliser macOS outils d'évaluation."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Corri! AppBench sul dispositivo, quindi utilizzare il macOS strumenti di valutazione."
+            "value" : "Corri! FMBench sul dispositivo, quindi utilizzare il macOS strumenti di valutazione."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ログイン AppBench 装置で、それから使用して下さい macOS 評価ツール。"
+            "value" : "ログイン FMBench 装置で、それから使用して下さい macOS 評価ツール。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "지원하다 AppBench 기기에서 다음을 사용합니다. macOS 평가 도구."
+            "value" : "지원하다 FMBench 기기에서 다음을 사용합니다. macOS 평가 도구."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Corra. AppBench no dispositivo, então use o macOS Ferramentas de avaliação."
+            "value" : "Corra. FMBench no dispositivo, então use o macOS Ferramentas de avaliação."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "运行 AppBench 在设备上,然后使用 macOS 评价工具。"
+            "value" : "运行 FMBench 在设备上,然后使用 macOS 评价工具。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "快跑 AppBench 在裝置上,然后使用 macOS 评估工具。"
+            "value" : "快跑 FMBench 在裝置上,然后使用 macOS 评估工具。"
           }
         }
       }
@@ -65520,66 +65520,66 @@
         }
       }
     },
-    "Signed AppBenchDeviceRunner" : {
+    "Signed FMBenchDeviceRunner" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Signed AppBenchDeviceRunner"
+            "value" : "Signed FMBenchDeviceRunner"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Unterzeichnet AppBenchDeviceRunner"
+            "value" : "Unterzeichnet FMBenchDeviceRunner"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "AppBenchDeviceRunner firmado"
+            "value" : "FMBenchDeviceRunner firmado"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Signé AppBenchDeviceRunner"
+            "value" : "Signé FMBenchDeviceRunner"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Firmato AppBenchDeviceRunner"
+            "value" : "Firmato FMBenchDeviceRunner"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "サインイン AppBenchDeviceRunner"
+            "value" : "サインイン FMBenchDeviceRunner"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "서명된 AppBenchDeviceRunner"
+            "value" : "서명된 FMBenchDeviceRunner"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Assinado. AppBenchDeviceRunner"
+            "value" : "Assinado. FMBenchDeviceRunner"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已签署 AppBenchDeviceRunner"
+            "value" : "已签署 FMBenchDeviceRunner"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已簽署 AppBenchDeviceRunner"
+            "value" : "已簽署 FMBenchDeviceRunner"
           }
         }
       }
@@ -70579,66 +70579,66 @@
         }
       }
     },
-    "The two models stream concurrently for fast visual comparison. Treat these timings as diagnostics; use AppBench for controlled, publishable measurements." : {
+    "The two models stream concurrently for fast visual comparison. Treat these timings as diagnostics; use FMBench for controlled, publishable measurements." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The two models stream concurrently for fast visual comparison. Treat these timings as diagnostics; use AppBench for controlled, publishable measurements."
+            "value" : "The two models stream concurrently for fast visual comparison. Treat these timings as diagnostics; use FMBench for controlled, publishable measurements."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die beiden Modelle streamen gleichzeitig für einen schnellen visuellen Vergleich. Behandeln Sie diese Timings als Diagnose; Verwendung AppBench für kontrollierte, veröffentlichbare Messungen."
+            "value" : "Die beiden Modelle streamen gleichzeitig für einen schnellen visuellen Vergleich. Behandeln Sie diese Timings als Diagnose; Verwendung FMBench für kontrollierte, veröffentlichbare Messungen."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Los dos modelos fluyen simultáneamente para una comparación visual rápida. Tratar estos tiempos como diagnósticos; utilizar AppBench para mediciones controladas y publicables."
+            "value" : "Los dos modelos fluyen simultáneamente para una comparación visual rápida. Tratar estos tiempos como diagnósticos; utilizar FMBench para mediciones controladas y publicables."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Les deux modèles circulent simultanément pour une comparaison visuelle rapide. Traiter ces timings comme des diagnostics; utiliser AppBench pour les mesures contrôlées et publiables."
+            "value" : "Les deux modèles circulent simultanément pour une comparaison visuelle rapide. Traiter ces timings comme des diagnostics; utiliser FMBench pour les mesures contrôlées et publiables."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "I due modelli stream contemporaneamente per un rapido confronto visivo. Trattare questi tempi come diagnostica; utilizzare AppBench per le misurazioni controllate e pubblicabili."
+            "value" : "I due modelli stream contemporaneamente per un rapido confronto visivo. Trattare questi tempi come diagnostica; utilizzare FMBench per le misurazioni controllate e pubblicabili."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "2つのモデルは、迅速な視覚比較のために同時ストリーミングします。 これらのタイミングを診断として扱います;使用して下さい AppBench 制御、出版可能な測定のため。"
+            "value" : "2つのモデルは、迅速な視覚比較のために同時ストリーミングします。 これらのタイミングを診断として扱います;使用して下さい FMBench 制御、出版可能な測定のため。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "빠른 시각 비교를 위해 concurrently 2개의 모형 시내. 진단으로 이러한 타이밍을 치료; 사용 AppBench 제어, 게시 가능한 측정을 위해."
+            "value" : "빠른 시각 비교를 위해 concurrently 2개의 모형 시내. 진단으로 이러한 타이밍을 치료; 사용 FMBench 제어, 게시 가능한 측정을 위해."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Os dois modelos fluem simultaneamente para comparação visual rápida. Trate esses timings como diagnósticos; use AppBench para medições controladas e publicáveis."
+            "value" : "Os dois modelos fluem simultaneamente para comparação visual rápida. Trate esses timings como diagnósticos; use FMBench para medições controladas e publicáveis."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "两个模型同时流,用于快速的视觉比较. 将这些时间作为诊断; AppBench 用于可控制的、可公布的测量。"
+            "value" : "两个模型同时流,用于快速的视觉比较. 将这些时间作为诊断; FMBench 用于可控制的、可公布的测量。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "兩個型號同时流 以快速視覺比對 將這些時間當作诊断; 使用 AppBench 用于可控制的、可公布的量度。"
+            "value" : "兩個型號同时流 以快速視覺比對 將這些時間當作诊断; 使用 FMBench 用于可控制的、可公布的量度。"
           }
         }
       }
@@ -72691,7 +72691,7 @@
         }
       }
     },
-    "Tools/AppBench/Results" : {
+    "Tools/FMBench/Results" : {
       "shouldTranslate" : false
     },
     "Top-K %lld" : {
@@ -79225,36 +79225,36 @@
         }
       }
     },
-    "appbench CLI" : {
+    "fmbench CLI" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "appbench CLI"
+            "value" : "fmbench CLI"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Appbench CLI"
+            "value" : "FMBench CLI"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Appbench CLI"
+            "value" : "FMBench CLI"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Appbench CLI"
+            "value" : "FMBench CLI"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Appbench CLI"
+            "value" : "FMBench CLI"
           }
         },
         "ja" : {
@@ -79266,13 +79266,13 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "appbench CLI"
+            "value" : "fmbench CLI"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Appbench CLI"
+            "value" : "FMBench CLI"
           }
         },
         "zh-Hans" : {

@@ -14,8 +14,8 @@ let package = Package(
             targets: ["AFMCLI"]
         ),
         .executable(
-            name: "appbench",
-            targets: ["AppBenchCLI"]
+            name: "fmbench",
+            targets: ["FMBenchCLI"]
         ),
         .library(
             name: "FoundationModelsKit",
@@ -30,12 +30,12 @@ let package = Package(
             targets: ["FoundationLabCore"]
         ),
         .library(
-            name: "AppBenchCore",
-            targets: ["AppBenchCore"]
+            name: "FMBenchCore",
+            targets: ["FMBenchCore"]
         ),
         .library(
             name: "BenchmarkCore",
-            targets: ["AppBenchCore"]
+            targets: ["FMBenchCore"]
         )
     ],
     dependencies: [
@@ -71,13 +71,13 @@ let package = Package(
             path: "Tools/AFMCLI/Sources/AFMCLI"
         ),
         .target(
-            name: "AppBenchCore",
-            path: "Tools/AppBench/BenchmarkCore/Sources/AppBenchCore"
+            name: "FMBenchCore",
+            path: "Tools/FMBench/BenchmarkCore/Sources/FMBenchCore"
         ),
         .executableTarget(
-            name: "AppBenchCLI",
-            dependencies: ["AppBenchCore"],
-            path: "Tools/AppBench/BenchmarkCore/Sources/AppBenchCLI"
+            name: "FMBenchCLI",
+            dependencies: ["FMBenchCore"],
+            path: "Tools/FMBench/BenchmarkCore/Sources/FMBenchCLI"
         ),
         .testTarget(
             name: "FoundationModelsKitTests",
@@ -100,9 +100,9 @@ let package = Package(
             path: "Tools/AFMCLI/Tests/AFMCLITests"
         ),
         .testTarget(
-            name: "AppBenchCoreTests",
-            dependencies: ["AppBenchCore"],
-            path: "Tools/AppBench/BenchmarkCore/Tests/AppBenchCoreTests"
+            name: "FMBenchCoreTests",
+            dependencies: ["FMBenchCore"],
+            path: "Tools/FMBench/BenchmarkCore/Tests/FMBenchCoreTests"
         )
     ]
 )

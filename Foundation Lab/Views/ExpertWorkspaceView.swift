@@ -94,14 +94,14 @@ struct ExpertWorkspaceView: View {
 #else
             AdapterStudioContent(stage: selectedStage)
 #endif
-        case .appBench:
-            AppBenchStudioContent(stage: selectedStage)
+        case .fmBench:
+            FMBenchStudioContent(stage: selectedStage)
         }
     }
 }
 
 #Preview {
     NavigationStack {
-        ExpertWorkspaceView(workspace: .appBench)
+        ExpertWorkspaceView(workspace: .fmBench)
     }
 }

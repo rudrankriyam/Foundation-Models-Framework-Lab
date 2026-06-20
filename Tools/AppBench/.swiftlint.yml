@@ -1,8 +1,0 @@
-included:
-  - BenchmarkCore/Sources/AppBenchCore
-  - BenchmarkCore/Sources/AppBenchCLI
-  - AppBenchDeviceRunner/AppBenchDeviceRunner
-
-excluded:
-  - build
-  - .build

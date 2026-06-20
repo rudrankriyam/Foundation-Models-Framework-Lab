@@ -509,13 +509,13 @@ extension ExperimentTemplate {
             keywords: ["adapter", "fmadapter", "fine tuning", "comparison", "fmas"]
         ),
         ExperimentTemplate(
-            id: "appbench",
-            title: "AppBench",
+            id: "fmbench",
+            title: "FMBench",
             summary: "Run repeatable app-shaped quality and performance evaluations.",
             systemImage: "gauge.with.dots.needle.67percent",
             level: .expert,
             track: .advancedWorkflows,
-            launch: .workspace(.appBench),
+            launch: .workspace(.fmBench),
             keywords: ["benchmark", "evaluation", "latency", "quality", "device runner"]
         )
     ]

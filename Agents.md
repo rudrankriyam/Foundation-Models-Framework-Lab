@@ -73,7 +73,7 @@ FoundationLabApp
 - `recipe`: loads a `FoundationLabExperimentConfiguration` into Playground.
 - `guidedLab`: opens a focused API demonstration.
 - `workshop`: opens a schema or language progression.
-- `workspace`: opens Adapter Comparison or AppBench.
+- `workspace`: opens Adapter Comparison or FMBench.
 
 Do not add a second top-level destination for a feature that belongs in Library.
 Runnable prompt/tool examples should be recipes unless they genuinely need a
@@ -146,10 +146,10 @@ confirmation before side effects.
 views. It is routed through `ExpertWorkspaceView` from Library. Adapter training
 and export live in `Tools/AdapterStudio` through the `fmas` CLI.
 
-### AppBench
+### FMBench
 
-`AppBenchStudioContent` explains AppBench stages inside the app. The canonical
-runner, datasets, graders, reports, and device harness live in `Tools/AppBench`.
+`FMBenchStudioContent` explains FMBench stages inside the app. The canonical
+runner, datasets, graders, reports, and device harness live in `Tools/FMBench`.
 Never present Simulator benchmark output as publishable device evidence.
 
 ## Voice
@@ -233,7 +233,7 @@ Foundation Lab/                 Native app
 FoundationLabCore/              Shared capability and experiment runtime
 Packages/FoundationModelsKit/   Reusable model and tool packages
 Tools/AFMCLI/                   afm command-line interface
-Tools/AppBench/                 Evaluation suite and device runner
+Tools/FMBench/                 Evaluation suite and device runner
 Tools/AdapterStudio/            fmas adapter tooling
 BookPlaygrounds/                Chapter-oriented Xcode playgrounds
 skills/                         Reusable agent skills

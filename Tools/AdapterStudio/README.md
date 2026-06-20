@@ -63,5 +63,5 @@ python -m unittest discover -s Tools/AdapterStudio/tests -v
 
 The Lab workspace is for quick qualitative inspection and interactive timing. It runs
 the two streams concurrently, so its latency numbers are diagnostic rather than
-publishable benchmark results. Use AppBench for controlled warmups, repetitions,
+publishable benchmark results. Use FMBench for controlled warmups, repetitions,
 randomization, deterministic graders, and report artifacts.

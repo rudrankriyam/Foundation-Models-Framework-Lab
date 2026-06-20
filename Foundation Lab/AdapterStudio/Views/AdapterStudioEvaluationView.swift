@@ -12,7 +12,7 @@ struct AdapterStudioEvaluationView: View {
 
                 Text("""
                 The two models stream concurrently for fast visual comparison. Treat these timings as diagnostics; \
-                use AppBench for controlled, publishable measurements.
+                use FMBench for controlled, publishable measurements.
                 """)
                 .font(.callout)
                 .foregroundStyle(.secondary)

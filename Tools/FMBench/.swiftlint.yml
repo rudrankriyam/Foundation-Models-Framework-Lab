@@ -1,0 +1,8 @@
+included:
+  - BenchmarkCore/Sources/FMBenchCore
+  - BenchmarkCore/Sources/FMBenchCLI
+  - FMBenchDeviceRunner/FMBenchDeviceRunner
+
+excluded:
+  - build
+  - .build
