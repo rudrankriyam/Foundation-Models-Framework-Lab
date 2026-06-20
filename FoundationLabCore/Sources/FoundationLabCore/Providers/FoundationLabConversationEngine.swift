@@ -298,7 +298,7 @@ private extension FoundationLabConversationEngine {
             )
             try Task.checkCancellation()
             return latest.isEmpty
-                ? self.latestResponseText(after: transcriptCountBeforeResponse)
+                ? self.session.transcript.latestResponseText(after: transcriptCountBeforeResponse)
                 : latest
         }
 
@@ -573,20 +573,6 @@ private extension FoundationLabConversationEngine {
         }
 
         return message
-    }
-
-    func latestResponseText(after entryCount: Int) -> String {
-        for entry in session.transcript.dropFirst(entryCount).reversed() {
-            switch entry {
-            case .response:
-                return entry.textContent() ?? ""
-            case .prompt:
-                return ""
-            default:
-                continue
-            }
-        }
-        return ""
     }
 
     #if compiler(>=6.4)
