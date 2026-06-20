@@ -72563,66 +72563,66 @@
         }
       }
     },
-    "Tool output" : {
+    "Tool call + output" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tool output"
+            "value" : "Tool call + output"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Werkzeugausgabe"
+            "value" : "Werkzeugaufruf + Ausgabe"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Salida de la herramienta"
+            "value" : "Llamada de herramienta + resultado"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sortie de l'outil"
+            "value" : "Appel d’outil + sortie"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uscita dello strumento"
+            "value" : "Chiamata strumento + output"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ツール出力"
+            "value" : "ツール呼び出し + 出力"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "도구 출력"
+            "value" : "도구 호출 + 출력"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saída da ferramenta"
+            "value" : "Chamada de ferramenta + saída"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "工具输出"
+            "value" : "工具调用 + 输出"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "工具輸出"
+            "value" : "工具呼叫 + 輸出"
           }
         }
       }

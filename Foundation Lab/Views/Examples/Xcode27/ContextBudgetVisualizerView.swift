@@ -11,12 +11,15 @@ import SwiftUI
 
 struct ContextBudgetVisualizerView: View {
     private static let defaultPrompt = "Use the latest research and our earlier decisions to propose the next three implementation steps."
+    private static let initialContextSize = SystemLanguageModel.default.contextSize
 
     @State private var currentPrompt = defaultPrompt
     @State private var policy = ContextBudgetPolicy.keepRecent
     @State private var responseReserve = 640.0
     @State private var measuredPromptTokens: Int?
     @State private var measuredHistoryTokens: [String: Int]?
+    @State private var measuredContextSize: Int?
+    @State private var errorMessage: String?
     @State private var measurementNote = String(
         localized: "Measure the prompt and sample transcript with the model tokenizer."
     )
@@ -25,7 +28,7 @@ struct ContextBudgetVisualizerView: View {
 
     private var simulation: ContextBudgetSimulation {
         ContextBudgetSimulation(
-            contextSize: SystemLanguageModel.default.contextSize,
+            contextSize: measuredContextSize ?? Self.initialContextSize,
             promptTokens: measuredPromptTokens,
             historyTokenCounts: measuredHistoryTokens,
             responseReserve: Int(responseReserve),
@@ -39,6 +42,7 @@ struct ContextBudgetVisualizerView: View {
             description: String(localized: "Decide what your app keeps before a session runs out of context"),
             currentPrompt: $currentPrompt,
             isRunning: isRunning,
+            errorMessage: errorMessage,
             codeExample: codeExample,
             runLabel: String(localized: "Measure Budget"),
             onRun: runSimulation,
@@ -148,6 +152,7 @@ struct ContextBudgetVisualizerView: View {
         isRunning = true
         measuredPromptTokens = nil
         measuredHistoryTokens = nil
+        errorMessage = nil
         measurementNote = String(localized: "Measuring prompt and sample transcript…")
 
         defer {
@@ -160,17 +165,21 @@ struct ContextBudgetVisualizerView: View {
         do {
             if #available(iOS 26.4, macOS 26.4, visionOS 26.4, *) {
                 let model = SystemLanguageModel.default
+                let contextSize = model.contextSize
                 let promptTokens = try await model.tokenCount(for: Prompt(prompt))
                 var historyTokens: [String: Int] = [:]
 
                 for sample in ContextBudgetSimulation.entriesToMeasure {
                     try Task.checkCancellation()
-                    historyTokens[sample.id] = try await model.tokenCount(for: [sample.transcriptEntry])
+                    historyTokens[sample.id] = try await model.tokenCount(for: sample.transcriptEntries)
                 }
 
                 try Task.checkCancellation()
                 guard activeMeasurementID == measurementID, currentPrompt == prompt else { return }
 
+                if contextSize > 0 {
+                    measuredContextSize = contextSize
+                }
                 measuredPromptTokens = promptTokens
                 measuredHistoryTokens = historyTokens
                 measurementNote = String(localized: "Measured with SystemLanguageModel.tokenCount(for:).")
@@ -183,7 +192,8 @@ struct ContextBudgetVisualizerView: View {
             return
         } catch {
             guard activeMeasurementID == measurementID, currentPrompt == prompt else { return }
-            measurementNote = String(localized: "The model tokenizer is unavailable; no estimates are shown.")
+            errorMessage = error.localizedDescription
+            measurementNote = error.localizedDescription
         }
     }
 
@@ -195,6 +205,8 @@ struct ContextBudgetVisualizerView: View {
         responseReserve = 640
         measuredPromptTokens = nil
         measuredHistoryTokens = nil
+        measuredContextSize = nil
+        errorMessage = nil
         measurementNote = String(localized: "Measure the prompt and sample transcript with the model tokenizer.")
     }
 
@@ -203,6 +215,7 @@ struct ContextBudgetVisualizerView: View {
         isRunning = false
         measuredPromptTokens = nil
         measuredHistoryTokens = nil
+        errorMessage = nil
         if currentPrompt == Self.defaultPrompt {
             measurementNote = String(localized: "Measure the prompt and sample transcript with the model tokenizer.")
         } else if currentPrompt.isEmpty {

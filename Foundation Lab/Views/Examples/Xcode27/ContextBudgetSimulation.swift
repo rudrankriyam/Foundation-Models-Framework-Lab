@@ -42,7 +42,7 @@ struct ContextBudgetSimulation {
         let id: String
         let title: String
         let kind: String
-        let transcriptEntry: Transcript.Entry
+        let transcriptEntries: [Transcript.Entry]
     }
 
     let contextSize: Int
@@ -56,51 +56,64 @@ struct ContextBudgetSimulation {
             id: "instructions",
             title: String(localized: "System instructions"),
             kind: String(localized: "Instructions"),
-            transcriptEntry: .instructions(
+            transcriptEntries: [.instructions(
                 Transcript.Instructions(
                     segments: [.text(Transcript.TextSegment(content: longInstructions))],
                     toolDefinitions: []
                 )
-            )
+            )]
         ),
         SourceEntry(
             id: "old-plan",
             title: String(localized: "Early architecture discussion"),
             kind: String(localized: "Prompt"),
-            transcriptEntry: .prompt(
+            transcriptEntries: [.prompt(
                 Transcript.Prompt(segments: [.text(Transcript.TextSegment(content: earlyArchitecturePrompt))])
-            )
+            )]
         ),
         SourceEntry(
             id: "draft",
             title: String(localized: "Discarded implementation draft"),
             kind: String(localized: "Response"),
-            transcriptEntry: .response(
+            transcriptEntries: [.response(
                 Transcript.Response(
                     assetIDs: [],
                     segments: [.text(Transcript.TextSegment(content: discardedDraft))]
                 )
-            )
+            )]
         ),
         SourceEntry(
             id: "tools",
             title: String(localized: "Completed research output"),
-            kind: String(localized: "Tool output"),
-            transcriptEntry: .toolOutput(
-                Transcript.ToolOutput(
-                    id: "sample-research",
-                    toolName: "documentationSearch",
-                    segments: [.text(Transcript.TextSegment(content: researchOutput))]
+            kind: String(localized: "Tool call + output"),
+            transcriptEntries: [
+                .toolCalls(
+                    Transcript.ToolCalls([
+                        Transcript.ToolCall(
+                            id: "sample-research",
+                            toolName: "documentationSearch",
+                            arguments: GeneratedContent(properties: [
+                                "query": "Foundation Models context management"
+                            ])
+                        )
+                    ])
+                ),
+                .toolOutput(
+                    Transcript.ToolOutput(
+                        id: "sample-research",
+                        toolName: "documentationSearch",
+                        segments: [.text(Transcript.TextSegment(content: researchOutput))]
+                    )
                 )
-            )
+            ]
         ),
         SourceEntry(
             id: "latest",
             title: String(localized: "Latest decision and constraints"),
             kind: String(localized: "Prompt"),
-            transcriptEntry: .prompt(
+            transcriptEntries: [.prompt(
                 Transcript.Prompt(segments: [.text(Transcript.TextSegment(content: latestConstraints))])
-            )
+            )]
         )
     ]
 
@@ -108,9 +121,9 @@ struct ContextBudgetSimulation {
         id: "summary",
         title: String(localized: "Summary of earlier conversation"),
         kind: String(localized: "App-generated prompt context"),
-        transcriptEntry: .prompt(
+        transcriptEntries: [.prompt(
             Transcript.Prompt(segments: [.text(Transcript.TextSegment(content: compactedSummary))])
-        )
+        )]
     )
 
     static var entriesToMeasure: [SourceEntry] {
