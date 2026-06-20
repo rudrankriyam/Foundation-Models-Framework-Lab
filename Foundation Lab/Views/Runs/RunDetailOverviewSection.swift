@@ -12,7 +12,7 @@ struct RunDetailOverviewSection: View {
     var body: some View {
         Section {
             LabeledContent("Status") {
-                RunStatusLabel(succeeded: run.succeeded)
+                RunStatusLabel(status: run.status)
             }
 
             LabeledContent("Started") {

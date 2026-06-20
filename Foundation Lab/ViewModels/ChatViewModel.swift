@@ -167,12 +167,12 @@ final class ChatViewModel {
 
 extension ChatViewModel {
     @discardableResult
-    func sendMessage(_ content: String) async -> String? {
-        guard !isLoading, !session.isResponding, !voiceState.isActive else { return nil }
+    func sendMessage(_ content: String) async -> ChatGenerationOutcome {
+        guard !isLoading, !session.isResponding, !voiceState.isActive else { return .notStarted }
         if let availabilityMessage = onDeviceAvailabilityMessage {
             errorMessage = availabilityMessage
             showError = true
-            return nil
+            return .failed(availabilityMessage)
         }
         isLoading = true
         defer { isLoading = false }
@@ -183,13 +183,14 @@ extension ChatViewModel {
                 generationOptions: generationOptions
             )
             syncConversationState()
-            return response
+            return .succeeded(response)
         } catch is CancellationError {
-            return nil
+            return .cancelled
         } catch {
-            errorMessage = message(for: error)
+            let failureMessage = message(for: error)
+            errorMessage = failureMessage
             showError = true
-            return nil
+            return .failed(failureMessage)
         }
     }
 

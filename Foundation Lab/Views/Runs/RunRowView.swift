@@ -55,7 +55,7 @@ struct RunRowView: View {
     }
 
     private var statusLabel: some View {
-        RunStatusLabel(succeeded: run.succeeded)
+        RunStatusLabel(status: run.status)
             .font(.subheadline)
     }
 

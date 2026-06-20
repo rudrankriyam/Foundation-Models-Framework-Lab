@@ -285,6 +285,7 @@ private extension FoundationLabConversationEngine {
         onPartialResponse: (@MainActor @Sendable (String) -> Void)?
     ) async throws -> String {
         activeStreamingTask?.cancel()
+        let transcriptCountBeforeResponse = session.transcript.count
         let task = Task<String, Error> { @MainActor [weak self] in
             guard let self else {
                 throw CancellationError()
@@ -295,7 +296,10 @@ private extension FoundationLabConversationEngine {
                 generationOptions: generationOptions,
                 onPartialResponse: onPartialResponse
             )
-            return latest.isEmpty ? self.latestResponseText() : latest
+            try Task.checkCancellation()
+            return latest.isEmpty
+                ? self.latestResponseText(after: transcriptCountBeforeResponse)
+                : latest
         }
 
         let responseID = UUID()
@@ -338,7 +342,9 @@ private extension FoundationLabConversationEngine {
             guard let self else {
                 throw CancellationError()
             }
-            return try await self.respond(to: prompt, generationOptions: generationOptions)
+            let response = try await self.respond(to: prompt, generationOptions: generationOptions)
+            try Task.checkCancellation()
+            return response
         }
 
         let responseID = UUID()
@@ -473,6 +479,8 @@ private extension FoundationLabConversationEngine {
         do {
             let summary = try await generateConversationSummary()
             createNewSession(with: summary)
+        } catch is CancellationError {
+            throw CancellationError()
         } catch {
             createFreshSessionAfterOverflow()
 
@@ -567,8 +575,8 @@ private extension FoundationLabConversationEngine {
         return message
     }
 
-    func latestResponseText() -> String {
-        for entry in session.transcript.reversed() {
+    func latestResponseText(after entryCount: Int) -> String {
+        for entry in session.transcript.dropFirst(entryCount).reversed() {
             switch entry {
             case .response:
                 return entry.textContent() ?? ""

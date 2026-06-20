@@ -112,10 +112,42 @@ final class FoundationLabExperimentTests: XCTestCase {
 
         XCTAssertTrue(successfulRun.succeeded)
         XCTAssertFalse(failedRun.succeeded)
+        XCTAssertEqual(successfulRun.status, .succeeded)
+        XCTAssertEqual(failedRun.status, .failed)
 
         let data = try JSONEncoder().encode(successfulRun)
         let decoded = try JSONDecoder().decode(FoundationLabExperimentRun.self, from: data)
         XCTAssertEqual(decoded, successfulRun)
+    }
+
+    func testCancelledRunRoundTripAndLegacyStatusInference() throws {
+        let timestamp = Date(timeIntervalSince1970: 1_750_000_000)
+        let configuration = FoundationLabExperimentConfiguration(
+            name: "Cancelled chat",
+            prompt: "Write a long response.",
+            createdAt: timestamp
+        )
+        let cancelledRun = FoundationLabExperimentRun(
+            configuration: configuration,
+            prompt: configuration.prompt,
+            response: "",
+            startedAt: timestamp,
+            duration: 0.25,
+            provider: "Apple",
+            modelIdentifier: "system-language-model",
+            status: .cancelled
+        )
+
+        let encoded = try JSONEncoder().encode(cancelledRun)
+        let decoded = try JSONDecoder().decode(FoundationLabExperimentRun.self, from: encoded)
+        XCTAssertEqual(decoded.status, .cancelled)
+        XCTAssertFalse(decoded.succeeded)
+
+        var legacyObject = try XCTUnwrap(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        legacyObject.removeValue(forKey: "status")
+        let legacyData = try JSONSerialization.data(withJSONObject: legacyObject)
+        let legacyRun = try JSONDecoder().decode(FoundationLabExperimentRun.self, from: legacyData)
+        XCTAssertEqual(legacyRun.status, .succeeded)
     }
 
 }
