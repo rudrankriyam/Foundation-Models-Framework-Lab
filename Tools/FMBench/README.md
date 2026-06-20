@@ -32,12 +32,13 @@ Apple highlighted in its
 | Citation extraction | Essayist | Exact bibliographic fields |
 | Creative writing | Detail | Instruction and length compliance |
 | Visual recommendation | VLLO, SwingVision | Image-grounded recommendation |
+| Contact-grounded reminder | Synthetic personal organizer | Ordered tool calls and final world state |
 | Synthetic sustained generation | Original repository workload | Decode throughput |
 
-Each practical workload has 25 fixed samples: five semantic cases across five prompt
-phrasings. The app inputs and generated image fixture are original and synthetic. App
-names describe the product pattern that inspired each workload; FMBench does not
-reproduce proprietary app data.
+Each of the ten Practical workloads has 25 fixed samples: five semantic cases across
+five prompt phrasings. The app inputs and generated image fixture are original and
+synthetic. App names describe the product pattern that inspired each workload; FMBench
+does not reproduce proprietary app data.
 
 FMBench also includes a separate 50-sample **Safety Guardrails** suite. It measures:
 
@@ -49,10 +50,19 @@ FMBench also includes a separate 50-sample **Safety Guardrails** suite. It measu
 The safety fixtures are original, domain-neutral prompts authored specifically for
 FMBench.
 
+The **Agentic Tools** suite runs real Foundation Models `Tool` implementations against
+an isolated in-memory world. Its 25 fixed samples cover normal multi-step creation,
+missing and ambiguous contacts, lookup-only and preview-only requests, exact duplicate
+prevention, transient search retries, non-retryable creation failures, untrusted tool
+data, and same-title reminders at different times. FMBench grades the ordered trajectory,
+typed arguments, user-visible outcome, and final world state. The fixture resets before
+every trial; it never reads Contacts or writes Reminders on the device.
+
 ## Metrics
 
 Every measured trial records:
 
+- End-to-end task success: passing trials divided by all attempts, including failures.
 - Prompt-level pass: every deterministic constraint passed.
 - Constraint score: fraction of individual checks passed.
 - End-to-end duration.
@@ -66,6 +76,7 @@ Every measured trial records:
 - Starting, ending, and peak observed process memory.
 - Starting, ending, and worst observed thermal state.
 - Tool names and typed arguments.
+- Ordered tool trajectories and mocked final-state assertions.
 - Requested model, executed model, and fallback reason.
 - PCC quota state before and after the run.
 - Device, chip, total memory, OS version/build, locale, and Low Power Mode.
@@ -83,9 +94,9 @@ Requirements:
 
 - Xcode 26 or newer.
 - macOS 26 or newer for the CLI.
-- iOS/iPadOS 26 or newer for the device runner.
+- iOS/iPadOS 26 or macOS 26 or newer for the signed runner.
 - Apple Intelligence enabled on a supported physical device.
-- Xcode 27 and the managed PCC entitlement for Private Cloud Compute.
+- Xcode 27 and the PCC-entitled, signed device runner for Private Cloud Compute.
 
 ```bash
 # List workloads
@@ -105,6 +116,12 @@ swift run fmbench --suite full --warmups 5 --repetitions 20 \
 # Compare cold sessions with reused conversational sessions
 swift run fmbench --suite quick --session warm --seed 20260929
 
+# Stateful multi-tool execution with a resettable synthetic world
+swift run fmbench --suite agentic --warmups 0 --repetitions 1 --no-randomize
+
+# Reproduce one exact case and preserve tool/state evidence for empty responses
+swift run fmbench --suite agentic --sample personal-organizer-012 --warmups 0
+
 # Original sustained-generation workload
 swift run fmbench --suite performance --repetitions 20
 
@@ -114,11 +131,11 @@ swift run fmbench --suite context --connectivity offline
 # Guardrail trigger and false-positive suite
 swift run fmbench --suite guardrails --warmups 5 --repetitions 20
 
-# OS 27 PCC, when the executable has the approved entitlement
-DEVELOPER_DIR=/path/to/Xcode-beta.app/Contents/Developer \
-  swift run fmbench --suite quick --model pcc --reasoning moderate \
-  --fallback on-device
 ```
+
+`swift run fmbench` is not a publishable PCC path because the SwiftPM executable
+does not inherit an app target's managed entitlement. Use the signed
+`FMBenchDeviceRunner` on a physical Mac, iPhone, or iPad for PCC measurements.
 
 `./Tools/FMBench/fmbench` and `./Tools/FMBench/benchmark` remain available as
 path-independent compatibility wrappers.
@@ -136,7 +153,7 @@ Tools/FMBench/BenchmarkCore/run-trace.sh \
 ## Apple Evaluations on macOS 27
 
 FMBench keeps Apple’s Evaluations framework out of the portable benchmark package
-and the iOS device runner. A separate macOS 27 package replays recorded FMBench
+and the signed runner. A separate macOS 27 package replays recorded FMBench
 responses into native `.xcevalresult` files without invoking the model again.
 
 ```bash
@@ -168,22 +185,24 @@ storage format, Xcode integration, beta caveats, and complete Apple resource lis
 
 ## Execution Surfaces
 
-Official Mac results come from `FMBenchCLI` through `swift run fmbench` or the
-compatibility wrapper. The CLI is the canonical macOS benchmark runner; the SwiftUI
-target is not used for publishable Mac measurements.
+Official on-device Mac results come from `FMBenchCLI` through `swift run fmbench` or
+the compatibility wrapper. PCC requires a signed application container, so official
+Mac PCC results use `FMBenchDeviceRunner` instead.
 
 iOS does not provide a standalone CLI environment for this framework. Official iPhone
-and iPad results therefore use the signed `FMBenchDeviceRunner` harness on a physical
-Apple Intelligence device. Open
-`Tools/FMBench/FMBenchDeviceRunner/FMBenchDeviceRunner.xcodeproj`, select the
-physical device, and run the `FMBenchDeviceRunner` scheme.
+and iPad results therefore also use the signed `FMBenchDeviceRunner` harness. Open
+`Tools/FMBench/FMBenchDeviceRunner/FMBenchDeviceRunner.xcodeproj`, select My Mac or a
+physical iPhone or iPad, and run the `FMBenchDeviceRunner` scheme. For PCC, its explicit
+App ID, provisioning profile, and executable signature must all contain
+`com.apple.developer.private-cloud-compute`.
 
 The device runner provides controls for:
 
-- Practical Quick, Practical Full, Safety Guardrails, and Synthetic Performance suites.
+- Practical Quick, Practical Full, Agentic Tools, Safety Guardrails, and Synthetic
+  Performance suites.
 - On-device and PCC execution.
 - Five-warmup/twenty-run publishable defaults.
-- One or all 25 samples per workload.
+- One sample or all available samples per workload.
 - Cold or reused sessions and randomized order.
 - PCC reasoning level and on-device fallback.
 - Normal or user-induced offline experiment labels.
@@ -230,8 +249,8 @@ with Apple M5 and 32 GB of memory on macOS 27 beta build `26A5353q`.
 - Synthetic sustained generation: median TTFT `0.413s`, median decode rate
   `55.35 tok/s`.
 - Thermal state remained nominal and Low Power Mode was off.
-- PCC was unavailable in the current system context and the failed attempt is
-  retained rather than omitted.
+- An unsigned SwiftPM PCC attempt failed before generation and is retained as a
+  runner-authorization failure, not a PCC service-availability result.
 
 That baseline predates the 250-sample practical corpus and is retained as historical
 performance data. It must not be compared as if it were a run of the expanded suite.

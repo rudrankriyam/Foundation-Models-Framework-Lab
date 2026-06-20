@@ -24,6 +24,7 @@ public struct FMBenchEvaluationRecord: Sendable {
   public let checks: [FMBenchCheck]
   public let response: String?
   public let toolCalls: [FMBenchToolCall]
+  public let finalState: FMBenchStateSnapshot?
   public let safetyExpectation: FMBenchSafetyExpectation?
   public let safetyOutcome: FMBenchSafetyOutcome
   public let iteration: Int
@@ -46,6 +47,7 @@ public struct FMBenchEvaluationRecord: Sendable {
     checks: [FMBenchCheck],
     response: String?,
     toolCalls: [FMBenchToolCall] = [],
+    finalState: FMBenchStateSnapshot? = nil,
     safetyExpectation: FMBenchSafetyExpectation? = nil,
     safetyOutcome: FMBenchSafetyOutcome = .notApplicable,
     iteration: Int = 1,
@@ -67,6 +69,7 @@ public struct FMBenchEvaluationRecord: Sendable {
     self.checks = checks
     self.response = response
     self.toolCalls = toolCalls
+    self.finalState = finalState
     self.safetyExpectation = safetyExpectation
     self.safetyOutcome = safetyOutcome
     self.iteration = iteration
@@ -209,6 +212,7 @@ public enum FMBenchRecordedRunLoader {
       checks: trial.sample.checks,
       response: trial.response,
       toolCalls: trial.toolCalls,
+      finalState: trial.finalState,
       safetyExpectation: trial.sample.safetyExpectation,
       safetyOutcome: trial.safetyOutcome,
       iteration: trial.iteration,

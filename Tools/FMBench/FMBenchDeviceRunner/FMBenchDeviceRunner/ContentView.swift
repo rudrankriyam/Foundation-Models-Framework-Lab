@@ -24,7 +24,9 @@ struct ContentView: View {
                 }
             }
             .navigationTitle("FMBench")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .alert("FMBench Failed", isPresented: $viewModel.showError) {
                 Button("OK", role: .cancel) {}
             } message: {

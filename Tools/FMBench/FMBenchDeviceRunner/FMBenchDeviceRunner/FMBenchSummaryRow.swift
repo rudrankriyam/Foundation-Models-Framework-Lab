@@ -6,6 +6,10 @@ struct FMBenchSummaryRow: View {
 
     var body: some View {
         DisclosureGroup {
+            LabeledContent("Completed prompt pass") {
+                Text(summary.promptPassRate, format: .percent.precision(.fractionLength(1)))
+            }
+
             LabeledContent("Constraint score") {
                 Text(summary.meanConstraintScore, format: .percent.precision(.fractionLength(1)))
             }
@@ -34,8 +38,15 @@ struct FMBenchSummaryRow: View {
                 Text(summary.title)
                     .font(.headline)
                 Spacer()
-                Text(summary.promptPassRate, format: .percent.precision(.fractionLength(0)))
+                Text(summary.endToEndPassRate, format: .percent.precision(.fractionLength(0)))
                     .foregroundStyle(.secondary)
+                    .accessibilityLabel("Task success")
+                    .accessibilityValue(
+                        Text(
+                            summary.endToEndPassRate,
+                            format: .percent.precision(.fractionLength(0))
+                        )
+                    )
             }
         }
     }

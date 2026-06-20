@@ -13,6 +13,7 @@ public struct FMBenchTrialResult: Codable, Identifiable, Sendable {
     public let fallbackReason: String?
     public let offlineSuccess: Bool
     public let toolCalls: [FMBenchToolCall]
+    public let finalState: FMBenchStateSnapshot?
     public let safetyOutcome: FMBenchSafetyOutcome
     public let safetyDetail: String?
     public let response: String
@@ -31,6 +32,7 @@ public struct FMBenchTrialResult: Codable, Identifiable, Sendable {
         fallbackReason: String? = nil,
         offlineSuccess: Bool = false,
         toolCalls: [FMBenchToolCall] = [],
+        finalState: FMBenchStateSnapshot? = nil,
         safetyOutcome: FMBenchSafetyOutcome = .notApplicable,
         safetyDetail: String? = nil,
         response: String,
@@ -50,6 +52,7 @@ public struct FMBenchTrialResult: Codable, Identifiable, Sendable {
         self.fallbackReason = fallbackReason
         self.offlineSuccess = offlineSuccess
         self.toolCalls = toolCalls
+        self.finalState = finalState
         self.safetyOutcome = safetyOutcome
         self.safetyDetail = safetyDetail
         self.response = response
@@ -77,6 +80,8 @@ public struct FMBenchFailure: Codable, Identifiable, Sendable {
     public let iteration: Int
     public let kind: String
     public let message: String
+    public let toolCalls: [FMBenchToolCall]?
+    public let finalState: FMBenchStateSnapshot?
 
     public init(
         id: UUID = UUID(),
@@ -84,7 +89,9 @@ public struct FMBenchFailure: Codable, Identifiable, Sendable {
         sampleID: String,
         iteration: Int,
         kind: String,
-        message: String
+        message: String,
+        toolCalls: [FMBenchToolCall]? = nil,
+        finalState: FMBenchStateSnapshot? = nil
     ) {
         self.id = id
         self.scenarioID = scenarioID
@@ -92,6 +99,8 @@ public struct FMBenchFailure: Codable, Identifiable, Sendable {
         self.iteration = iteration
         self.kind = kind
         self.message = message
+        self.toolCalls = toolCalls
+        self.finalState = finalState
     }
 }
 
@@ -132,6 +141,13 @@ public struct FMBenchScenarioSummary: Codable, Identifiable, Sendable {
     public let timeToFirstToken: FMBenchDistribution
     public let outputTokensPerSecond: FMBenchDistribution
     public let peakObservedResidentMemoryBytes: FMBenchDistribution
+
+    public var endToEndPassRate: Double {
+        let attemptCount = trialCount + failureCount
+        guard attemptCount > 0 else { return 0 }
+        let passingTrialCount = promptPassRate * Double(trialCount)
+        return passingTrialCount / Double(attemptCount)
+    }
 
     init(scenario: FMBenchScenario, trials: [FMBenchTrialResult], failureCount: Int) {
         id = scenario.id

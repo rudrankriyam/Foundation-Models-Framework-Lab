@@ -18,13 +18,12 @@ struct FMBenchCLI {
 
             let configuration = FMBenchRunConfiguration(
                 suite: options.suite,
-                scenarios: options.scenarioID.flatMap { id in
-                    FMBenchScenarioCatalog.all.filter { $0.id == id }
-                },
+                scenarios: options.selectedScenarios,
                 model: options.model,
                 warmupCount: options.warmups,
                 repetitions: options.repetitions,
                 sampleLimit: options.sampleLimit,
+                sampleIDs: options.sampleID.map { [$0] },
                 useAllSamples: options.useAllSamples,
                 sessionMode: options.sessionMode,
                 reasoningLevel: options.reasoningLevel,
@@ -70,8 +69,9 @@ struct FMBenchCLI {
         print("Model: \(options.model.displayName)")
         print("Warmups: \(options.warmups)")
         print("Repetitions: \(options.repetitions)")
-        let samples =
-            options.useAllSamples ? "all" : options.sampleLimit.map(String.init) ?? "suite default"
+        let samples = options.sampleID.map { "selected (\($0))" }
+            ?? (options.useAllSamples
+                ? "all" : options.sampleLimit.map(String.init) ?? "suite default")
         print("Samples: \(samples)")
         print("Session: \(options.sessionMode.displayName)")
         print("Reasoning: \(options.reasoningLevel.displayName)")
@@ -80,6 +80,9 @@ struct FMBenchCLI {
         print("Randomized: \(options.randomizeOrder ? "yes" : "no") (seed \(options.randomSeed))")
         if let scenarioID = options.scenarioID {
             print("Scenario: \(scenarioID)")
+        }
+        if let sampleID = options.sampleID {
+            print("Sample: \(sampleID)")
         }
         print()
     }
@@ -117,9 +120,10 @@ struct FMBenchCLI {
               ./fmbench [run] [options]
 
             Options:
-              --suite quick|full|guardrails|performance|context
+              --suite quick|full|agentic|guardrails|performance|context
               --model on-device|pcc
               --scenario <scenario-id>
+              --sample <sample-id>
               --warmups <count>
               --repetitions <count>
               --samples <count>
@@ -143,6 +147,7 @@ private struct CLIOptions {
         case conflictingArguments(String, String)
         case unknownArgument(String)
         case unknownScenario(String)
+        case unknownSample(String)
 
         var errorDescription: String? {
             switch self {
@@ -156,6 +161,8 @@ private struct CLIOptions {
                 "Unknown argument “\(value)”."
             case .unknownScenario(let value):
                 "Unknown scenario “\(value)”."
+            case .unknownSample(let value):
+                "Unknown sample “\(value)”."
             }
         }
     }
@@ -163,6 +170,7 @@ private struct CLIOptions {
     var suite: FMBenchSuite = .quick
     var model: FMBenchModel = .onDevice
     var scenarioID: String?
+    var sampleID: String?
     var warmups = 5
     var repetitions = 20
     var sampleLimit: Int?
@@ -203,6 +211,14 @@ private struct CLIOptions {
                     throw Error.unknownScenario(value)
                 }
                 scenarioID = value
+            case "--sample":
+                let value = try Self.value(after: argument, at: &index, in: arguments)
+                guard FMBenchScenarioCatalog.all.contains(where: { scenario in
+                    scenario.samples.contains { $0.id == value }
+                }) else {
+                    throw Error.unknownSample(value)
+                }
+                sampleID = value
             case "--warmups":
                 let value = try Self.value(after: argument, at: &index, in: arguments)
                 guard let count = Int(value), count >= 0 else {
@@ -271,6 +287,26 @@ private struct CLIOptions {
 
         if sampleLimit != nil, useAllSamples {
             throw Error.conflictingArguments("--samples", "--all-samples")
+        }
+        if sampleID != nil, scenarioID != nil {
+            throw Error.conflictingArguments("--sample", "--scenario")
+        }
+        if sampleID != nil, sampleLimit != nil {
+            throw Error.conflictingArguments("--sample", "--samples")
+        }
+        if sampleID != nil, useAllSamples {
+            throw Error.conflictingArguments("--sample", "--all-samples")
+        }
+    }
+
+    var selectedScenarios: [FMBenchScenario]? {
+        if let sampleID {
+            return FMBenchScenarioCatalog.all.filter { scenario in
+                scenario.samples.contains { $0.id == sampleID }
+            }
+        }
+        return scenarioID.map { id in
+            FMBenchScenarioCatalog.all.filter { $0.id == id }
         }
     }
 

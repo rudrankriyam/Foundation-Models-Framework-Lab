@@ -12,6 +12,7 @@ public struct FMBenchRunConfiguration: Sendable {
     public let warmupCount: Int
     public let repetitions: Int
     public let sampleLimit: Int?
+    public let sampleIDs: Set<String>?
     public let sessionMode: FMBenchSessionMode
     public let reasoningLevel: FMBenchReasoningLevel
     public let fallbackMode: FMBenchFallbackMode
@@ -26,6 +27,7 @@ public struct FMBenchRunConfiguration: Sendable {
         warmupCount: Int = 5,
         repetitions: Int = 20,
         sampleLimit: Int? = nil,
+        sampleIDs: Set<String>? = nil,
         useAllSamples: Bool = false,
         sessionMode: FMBenchSessionMode = .cold,
         reasoningLevel: FMBenchReasoningLevel = .none,
@@ -39,8 +41,9 @@ public struct FMBenchRunConfiguration: Sendable {
         self.model = model
         self.warmupCount = max(0, warmupCount)
         self.repetitions = max(1, repetitions)
-        self.sampleLimit =
-            useAllSamples ? nil : sampleLimit.map { max(1, $0) } ?? suite.defaultSampleLimit
+        self.sampleLimit = sampleIDs?.count
+            ?? (useAllSamples ? nil : sampleLimit.map { max(1, $0) } ?? suite.defaultSampleLimit)
+        self.sampleIDs = sampleIDs
         self.sessionMode = sessionMode
         self.reasoningLevel = reasoningLevel
         self.fallbackMode = fallbackMode
@@ -114,13 +117,16 @@ public actor FMBenchRunner {
             do {
                 try await warmUp()
             } catch {
+                let evidence = error as? FMBenchExecutionEvidenceError
                 failures.append(
                     FMBenchFailure(
                         scenarioID: "__warmup__",
                         sampleID: "__warmup__-\(index + 1)",
                         iteration: index + 1,
-                        kind: failureKind(error),
-                        message: detailedMessage(for: error)
+                        kind: evidence?.kind ?? failureKind(error),
+                        message: evidence?.message ?? detailedMessage(for: error),
+                        toolCalls: evidence?.toolCalls,
+                        finalState: evidence?.finalState
                     )
                 )
             }
@@ -131,13 +137,16 @@ public actor FMBenchRunner {
             do {
                 trials.append(try await run(item: item, contextSize: contextSize))
             } catch {
+                let evidence = error as? FMBenchExecutionEvidenceError
                 failures.append(
                     FMBenchFailure(
                         scenarioID: item.scenario.id,
                         sampleID: item.sample.id,
                         iteration: item.iteration,
-                        kind: failureKind(error),
-                        message: detailedMessage(for: error)
+                        kind: evidence?.kind ?? failureKind(error),
+                        message: evidence?.message ?? detailedMessage(for: error),
+                        toolCalls: evidence?.toolCalls,
+                        finalState: evidence?.finalState
                     )
                 )
             }
@@ -169,9 +178,11 @@ public actor FMBenchRunner {
 
     private func workItems() -> [WorkItem] {
         var items = configuration.scenarios.flatMap { scenario in
-            let samples =
-                configuration.sampleLimit.map { Array(scenario.samples.prefix($0)) }
-                ?? scenario.samples
+            let selectedSamples = configuration.sampleIDs.map { sampleIDs in
+                scenario.samples.filter { sampleIDs.contains($0.id) }
+            } ?? scenario.samples
+            let samples = configuration.sampleLimit.map { Array(selectedSamples.prefix($0)) }
+                ?? selectedSamples
             return samples.flatMap { sample in
                 (1...configuration.repetitions).map {
                     WorkItem(scenario: scenario, sample: sample, iteration: $0)
@@ -298,6 +309,7 @@ public actor FMBenchRunner {
         try ensureScenarioAvailability(item.scenario)
         let bundle = try sessionBundle(for: item.scenario, model: model)
         await bundle.recorder.reset()
+        await bundle.mockWorld?.reset(for: item.sample.id)
         let transcriptStartIndex = bundle.session.transcript.endIndex
 
         let options = generationOptions(
@@ -460,8 +472,15 @@ public actor FMBenchRunner {
             resources.append(.capture())
         }
 
+        let toolCalls = await bundle.recorder.snapshot()
+        let finalState = await bundle.mockWorld?.snapshot()
         guard !response.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            throw Error.emptyResponse
+            throw FMBenchExecutionEvidenceError(
+                kind: "generation",
+                message: detailedMessage(for: Error.emptyResponse),
+                toolCalls: toolCalls,
+                finalState: finalState
+            )
         }
 
         resources.append(.capture())
@@ -479,7 +498,6 @@ public actor FMBenchRunner {
             firstStreamUpdate: usageFirstOutputTokens ?? estimatedCounts.firstStreamUpdate,
             source: usageOutputTokens == nil ? estimatedCounts.source : .sessionUsage
         )
-        let toolCalls = await bundle.recorder.snapshot()
         let safetyOutcome = FMBenchSafetyClassifier.outcome(
             for: response,
             expectation: item.sample.safetyExpectation
@@ -509,12 +527,14 @@ public actor FMBenchRunner {
             fallbackReason: fallbackReason,
             offlineSuccess: isVerifiedOfflineExecution(model: model),
             toolCalls: toolCalls,
+            finalState: finalState,
             safetyOutcome: safetyOutcome,
             response: response,
             grade: FMBenchGrader.grade(
                 response: response,
                 checks: item.sample.checks,
-                toolCalls: toolCalls
+                toolCalls: toolCalls,
+                finalState: finalState
             ),
             metrics: metrics,
             environment: EnvironmentSnapshot.capture()
@@ -531,7 +551,7 @@ public actor FMBenchRunner {
         }
 
         let recorder = FMBenchToolRecorder()
-        let tools = fmBenchTools(for: scenario.toolSet, recorder: recorder)
+        let toolRuntime = fmBenchToolRuntime(for: scenario.toolSet, recorder: recorder)
         let session: LanguageModelSession
         switch model {
         case .onDevice:
@@ -541,7 +561,7 @@ public actor FMBenchRunner {
             )
             session = LanguageModelSession(
                 model: systemModel,
-                tools: tools,
+                tools: toolRuntime.tools,
                 instructions: Instructions(scenario.instructions)
             )
         case .privateCloudCompute:
@@ -553,7 +573,7 @@ public actor FMBenchRunner {
                     }
                     session = LanguageModelSession(
                         model: pcc,
-                        tools: tools,
+                        tools: toolRuntime.tools,
                         instructions: Instructions(scenario.instructions)
                     )
                 } else {
@@ -564,7 +584,11 @@ public actor FMBenchRunner {
             #endif
         }
 
-        let bundle = FMBenchSessionBundle(session: session, recorder: recorder)
+        let bundle = FMBenchSessionBundle(
+            session: session,
+            recorder: recorder,
+            mockWorld: toolRuntime.mockWorld
+        )
         if configuration.sessionMode == .warm {
             warmSessions[key] = bundle
         }
@@ -759,6 +783,15 @@ private func detailedMessage(for error: any Swift.Error) -> String {
     let userInfo = nsError.userInfo.isEmpty ? "" : " userInfo=\(nsError.userInfo)"
     return
         "\(error.localizedDescription) [\(reflected); domain=\(nsError.domain) code=\(nsError.code)\(userInfo)]"
+}
+
+private struct FMBenchExecutionEvidenceError: Swift.Error, LocalizedError, Sendable {
+    let kind: String
+    let message: String
+    let toolCalls: [FMBenchToolCall]
+    let finalState: FMBenchStateSnapshot?
+
+    var errorDescription: String? { message }
 }
 
 private func failureKind(_ error: any Swift.Error) -> String {

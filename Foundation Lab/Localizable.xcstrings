@@ -20047,6 +20047,134 @@
         }
       }
     },
+    "Agentic Tools" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agentenwerkzeuge"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agentic Tools"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herramientas de agentes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Outils agentiques"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strumenti agentici"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エージェントツール"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트 도구"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ferramentas de agentes"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "智能体工具"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "代理程式工具"
+          }
+        }
+      }
+    },
+    "Ordered tool calls, typed arguments, and final world state." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geordnete Werkzeugaufrufe, typisierte Argumente und endgültiger Weltzustand."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordered tool calls, typed arguments, and final world state."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Llamadas de herramientas ordenadas, argumentos tipados y estado final del entorno."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appels d’outils ordonnés, arguments typés et état final du monde."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiamate agli strumenti ordinate, argomenti tipizzati e stato finale del mondo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "順序付きツール呼び出し、型付き引数、最終ワールド状態。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "순서가 지정된 도구 호출, 형식화된 인수 및 최종 월드 상태."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chamadas de ferramentas ordenadas, argumentos tipados e estado final do ambiente."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有序工具调用、类型化参数和最终环境状态。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有序工具呼叫、型別化引數和最終環境狀態。"
+          }
+        }
+      }
+    },
     "Agent Workbench" : {
       "localizations" : {
         "de" : {
@@ -79260,7 +79388,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アプリベンチ CLI"
+            "value" : "FMBench CLI"
           }
         },
         "ko" : {
@@ -79278,13 +79406,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "应用程序 CLI"
+            "value" : "FMBench CLI"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "應用程式 CLI"
+            "value" : "FMBench CLI"
           }
         }
       }

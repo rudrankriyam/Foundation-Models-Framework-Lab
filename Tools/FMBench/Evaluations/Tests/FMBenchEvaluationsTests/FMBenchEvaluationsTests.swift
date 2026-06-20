@@ -30,6 +30,26 @@ final class FMBenchEvaluationsTests: XCTestCase {
     )
   }
 
+  func testAgenticScenarioPreservesOrderedTrajectoryExpectations() throws {
+    let samples = try FMBenchEvaluationsAdapter.samples(
+      for: FMBenchScenarioCatalog.personalOrganizer
+    )
+    let expectation = try XCTUnwrap(samples[0].output.expectations)
+
+    XCTAssertEqual(
+      expectation.ordered.map(\.name),
+      ["searchContacts", "listReminders", "createReminder"]
+    )
+    XCTAssertFalse(expectation.allowsAdditionalCalls)
+
+    let missingContactExpectation = try XCTUnwrap(samples[10].output.expectations)
+    XCTAssertEqual(missingContactExpectation.ordered.map(\.name), ["searchContacts"])
+    XCTAssertEqual(
+      Set(missingContactExpectation.disallowed.map(\.name)),
+      Set(["createReminder"])
+    )
+  }
+
   func testLoadsCurrentFMBenchResult() throws {
     let run = makeCurrentRun()
     let data = try XCTUnwrap(

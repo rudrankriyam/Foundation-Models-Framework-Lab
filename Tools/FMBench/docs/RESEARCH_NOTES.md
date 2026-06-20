@@ -86,7 +86,10 @@ an otherwise fluent response.
 BFCL treats tool choice and arguments as executable behavior rather than prose.
 FMBench's grounded explanation and exercise substitution workloads execute
 real deterministic tools and grade the selected tool plus typed arguments.
-Call-order, state-change, and recovery datasets remain future extensions.
+The Agentic Tools suite now adds ordered calls and mocked final-state grading through a
+25-sample contact-grounded reminder scenario. It exercises missing and ambiguous data,
+side-effect restraint, duplicate detection, retry behavior, hard failures, and untrusted
+tool output. Broader domains and longer-horizon state dependencies remain future work.
 
 ### RULER
 

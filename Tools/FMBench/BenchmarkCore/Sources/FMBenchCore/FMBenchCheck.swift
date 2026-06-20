@@ -9,6 +9,7 @@ public enum FMBenchJSONValue: Codable, Equatable, Sendable {
 
 public enum FMBenchCheck: Codable, Sendable {
     case contains(String)
+    case containsAny([String])
     case excludes(String)
     case minimumWords(Int)
     case maximumWords(Int)
@@ -16,33 +17,53 @@ public enum FMBenchCheck: Codable, Sendable {
     case jsonContains(path: String, values: [String])
     case toolCalled(String)
     case toolArgumentEquals(tool: String, argument: String, value: FMBenchJSONValue)
+    case toolArgumentContains(tool: String, argument: String, value: String)
+    case toolCallSequence([String], allowsAdditionalCalls: Bool)
+    case toolNotCalled(String)
+    case stateEquals(path: String, value: FMBenchJSONValue)
+    case stateContains(path: String, value: String)
 
     public var label: String {
         switch self {
         case .contains(let value):
-            "Contains “\(value)”"
+            return "Contains “\(value)”"
+        case .containsAny(let values):
+            return "Contains any of \(values.joined(separator: ", "))"
         case .excludes(let value):
-            "Excludes “\(value)”"
+            return "Excludes “\(value)”"
         case .minimumWords(let count):
-            "At least \(count) words"
+            return "At least \(count) words"
         case .maximumWords(let count):
-            "At most \(count) words"
+            return "At most \(count) words"
         case .jsonEquals(let path, let value):
-            "\(path) equals \(value.description)"
+            return "\(path) equals \(value.description)"
         case .jsonContains(let path, let values):
-            "\(path) contains \(values.joined(separator: ", "))"
+            return "\(path) contains \(values.joined(separator: ", "))"
         case .toolCalled(let name):
-            "Calls \(name)"
+            return "Calls \(name)"
         case .toolArgumentEquals(let tool, let argument, let value):
-            "\(tool).\(argument) equals \(value.description)"
+            return "\(tool).\(argument) equals \(value.description)"
+        case .toolArgumentContains(let tool, let argument, let value):
+            return "\(tool).\(argument) contains \(value)"
+        case .toolCallSequence(let tools, let allowsAdditionalCalls):
+            let qualifier = allowsAdditionalCalls ? "in order" : "exactly in order"
+            return "Calls \(tools.joined(separator: " → ")) \(qualifier)"
+        case .toolNotCalled(let name):
+            return "Does not call \(name)"
+        case .stateEquals(let path, let value):
+            return "Final state \(path) equals \(value.description)"
+        case .stateContains(let path, let value):
+            return "Final state \(path) contains \(value)"
         }
     }
 
     public var isToolCheck: Bool {
         switch self {
-        case .toolCalled, .toolArgumentEquals:
+        case .toolCalled, .toolArgumentEquals, .toolArgumentContains, .toolCallSequence,
+            .toolNotCalled:
             true
-        default:
+        case .contains, .containsAny, .excludes, .minimumWords, .maximumWords, .jsonEquals,
+            .jsonContains, .stateEquals, .stateContains:
             false
         }
     }

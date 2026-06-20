@@ -7,7 +7,8 @@
 - OS 26 on-device baseline.
 - OS 27 on-device comparison.
 - OS 27 PCC service comparison.
-- Run every published Mac measurement with `FMBenchCLI`.
+- Run on-device measurements with `FMBenchCLI` and PCC measurements with the
+  signed `FMBenchDeviceRunner` app.
 
 ### iPhone 16 Pro Max
 

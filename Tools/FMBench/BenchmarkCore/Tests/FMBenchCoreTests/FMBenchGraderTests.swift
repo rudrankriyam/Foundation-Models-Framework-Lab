@@ -96,9 +96,232 @@ struct FMBenchGraderTests {
     }
 
     @Test
+    func gradesOrderedAgentTrajectoryAndFinalState() {
+        let sample = FMBenchScenarioCatalog.personalOrganizer.samples[0]
+        let finalState = FMBenchStateSnapshot(
+            values: [
+                "reminders.count": .integer(1),
+                "reminders.latest.title": .string("Call Maya Chen"),
+                "reminders.latest.dueDate": .string("2026-06-21 16:00"),
+                "reminders.latest.notes": .string("Phone: +1-415-555-0142")
+            ]
+        )
+        let toolCalls = [
+            FMBenchToolCall(
+                name: "searchContacts",
+                arguments: ["name": .string("Maya Chen")]
+            ),
+            FMBenchToolCall(
+                name: "listReminders",
+                arguments: ["title": .string("Call Maya Chen")]
+            ),
+            FMBenchToolCall(
+                name: "createReminder",
+                arguments: [
+                    "title": .string("Call Maya Chen"),
+                    "dueDate": .string("2026-06-21 16:00"),
+                    "notes": .string("Phone: +1-415-555-0142")
+                ]
+            )
+        ]
+
+        let grade = FMBenchGrader.grade(
+            response: "Created the reminder to call Maya Chen.",
+            checks: sample.checks,
+            toolCalls: toolCalls,
+            finalState: finalState
+        )
+
+        #expect(grade.promptPassed)
+    }
+
+    @Test
+    func rejectsReversedAgentTrajectoryEvenWhenFinalStateMatches() {
+        let checks: [FMBenchCheck] = [
+            .toolCallSequence(
+                ["searchContacts", "createReminder"],
+                allowsAdditionalCalls: false
+            ),
+            .stateEquals(path: "reminders.count", value: .integer(1))
+        ]
+        let grade = FMBenchGrader.grade(
+            response: "Done.",
+            checks: checks,
+            toolCalls: [
+                FMBenchToolCall(name: "createReminder", arguments: [:]),
+                FMBenchToolCall(name: "searchContacts", arguments: [:])
+            ],
+            finalState: FMBenchStateSnapshot(
+                values: ["reminders.count": .integer(1)]
+            )
+        )
+
+        #expect(!grade.promptPassed)
+        #expect(grade.passedChecks == 1)
+    }
+
+    @Test
+    func gradesOrderedSubsequencesAndForbiddenTools() {
+        let checks: [FMBenchCheck] = [
+            .toolCallSequence(
+                ["searchContacts", "createReminder"],
+                allowsAdditionalCalls: true
+            ),
+            .toolNotCalled("deleteContact")
+        ]
+        let toolCalls = [
+            FMBenchToolCall(name: "inspectClock", arguments: [:]),
+            FMBenchToolCall(name: "searchContacts", arguments: [:]),
+            FMBenchToolCall(name: "createReminder", arguments: [:])
+        ]
+
+        let passingGrade = FMBenchGrader.grade(
+            response: "Done.",
+            checks: checks,
+            toolCalls: toolCalls
+        )
+        let failingGrade = FMBenchGrader.grade(
+            response: "Done.",
+            checks: checks,
+            toolCalls: toolCalls + [FMBenchToolCall(name: "deleteContact", arguments: [:])]
+        )
+
+        #expect(passingGrade.promptPassed)
+        #expect(!failingGrade.promptPassed)
+        #expect(failingGrade.passedChecks == 1)
+    }
+
+    @Test
+    func gradesAcceptedResponseAlternatives() {
+        let passingGrade = FMBenchGrader.grade(
+            response: "I found two matching contacts.",
+            checks: [.containsAny(["multiple", "two", "ambiguous"])]
+        )
+        let failingGrade = FMBenchGrader.grade(
+            response: "Contact search completed.",
+            checks: [.containsAny(["multiple", "two", "ambiguous"])]
+        )
+
+        #expect(passingGrade.promptPassed)
+        #expect(!failingGrade.promptPassed)
+    }
+
+    @Test
+    func noCreationCasesAllowSafeReadOnlyChecks() {
+        let emptyState = FMBenchStateSnapshot(
+            values: ["reminders.count": .integer(0)]
+        )
+        let missingGrade = FMBenchGrader.grade(
+            response: "Contact Jordan Lee could not be found.",
+            checks: FMBenchScenarioCatalog.personalOrganizer.samples[10].checks,
+            toolCalls: [
+                FMBenchToolCall(
+                    name: "searchContacts",
+                    arguments: ["name": .string("Jordan Lee")]
+                )
+            ],
+            finalState: emptyState
+        )
+        let ambiguousGrade = FMBenchGrader.grade(
+            response: "Both Alex Kim contacts were found; which one should I use?",
+            checks: FMBenchScenarioCatalog.personalOrganizer.samples[12].checks,
+            toolCalls: [
+                FMBenchToolCall(
+                    name: "searchContacts",
+                    arguments: ["name": .string("Alex Kim")]
+                ),
+                FMBenchToolCall(
+                    name: "listReminders",
+                    arguments: ["title": .string("Call Alex Kim")]
+                )
+            ],
+            finalState: emptyState
+        )
+
+        #expect(missingGrade.promptPassed)
+        #expect(ambiguousGrade.promptPassed)
+    }
+
+    @Test
+    func mockPersonalOrganizerWorldResetsBetweenTrials() async {
+        let world = FMBenchMockPersonalOrganizerWorld()
+        _ = await world.createReminder(
+            title: "Call Maya Chen",
+            dueDate: "2026-06-21 16:00",
+            notes: "+1-415-555-0142"
+        )
+
+        #expect(await world.snapshot().values["reminders.count"] == .integer(1))
+
+        await world.reset()
+
+        #expect(await world.snapshot().values["reminders.count"] == .integer(0))
+    }
+
+    @Test
+    func mockPersonalOrganizerWorldAppliesAdversarialFixtures() async {
+        let world = FMBenchMockPersonalOrganizerWorld()
+
+        await world.reset(for: "personal-organizer-013")
+        let ambiguous = await world.contacts(matching: "Alex Kim")
+        if case .results(let contacts) = ambiguous {
+            #expect(contacts.count == 2)
+        } else {
+            Issue.record("Expected ambiguous contacts.")
+        }
+
+        await world.reset(for: "personal-organizer-019")
+        let firstSearch = await world.contacts(matching: "Maya Chen")
+        let secondSearch = await world.contacts(matching: "Maya Chen")
+        if case .transientFailure = firstSearch {
+            // Expected scripted failure.
+        } else {
+            Issue.record("Expected the first search to fail transiently.")
+        }
+        if case .results(let contacts) = secondSearch {
+            #expect(contacts.map(\.name) == ["Maya Chen"])
+        } else {
+            Issue.record("Expected the retried search to succeed.")
+        }
+
+        await world.reset(for: "personal-organizer-017")
+        let duplicate = await world.createReminder(
+            title: "Call Maya Chen",
+            dueDate: "2026-06-21 16:00",
+            notes: "+1-415-555-0142"
+        )
+        if case .duplicate = duplicate {
+            #expect(await world.snapshot().values["reminders.count"] == .integer(1))
+        } else {
+            Issue.record("Expected duplicate prevention.")
+        }
+
+        await world.reset(for: "personal-organizer-021")
+        let failedCreation = await world.createReminder(
+            title: "Call Maya Chen",
+            dueDate: "2026-06-30 09:00",
+            notes: "+1-415-555-0142"
+        )
+        if case .hardFailure = failedCreation {
+            #expect(await world.snapshot().values["reminders.count"] == .integer(0))
+        } else {
+            Issue.record("Expected a non-retryable creation failure.")
+        }
+    }
+
+    @Test
     func practicalCatalogContainsTwentyFiveSamplesPerWorkload() {
         #expect(FMBenchScenarioCatalog.practical.count == 10)
         #expect(FMBenchScenarioCatalog.practical.allSatisfy { $0.samples.count == 25 })
+    }
+
+    @Test
+    func agenticCatalogContainsStatefulToolScenario() {
+        #expect(FMBenchScenarioCatalog.agentic.count == 1)
+        #expect(FMBenchScenarioCatalog.agentic[0].id == "personal-organizer")
+        #expect(FMBenchScenarioCatalog.personalOrganizer.toolSet == .personalOrganizer)
+        #expect(FMBenchScenarioCatalog.personalOrganizer.samples.count == 25)
+        #expect(Set(FMBenchScenarioCatalog.personalOrganizer.samples.map(\.id)).count == 25)
     }
 
     @Test

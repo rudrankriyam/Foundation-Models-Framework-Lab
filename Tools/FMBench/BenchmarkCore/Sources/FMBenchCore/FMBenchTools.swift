@@ -113,18 +113,40 @@ struct ExerciseCatalogTool: Tool {
 struct FMBenchSessionBundle: Sendable {
     let session: LanguageModelSession
     let recorder: FMBenchToolRecorder
+    let mockWorld: FMBenchMockPersonalOrganizerWorld?
 }
 
-func fmBenchTools(
+struct FMBenchToolRuntime: Sendable {
+    let tools: [any Tool]
+    let mockWorld: FMBenchMockPersonalOrganizerWorld?
+}
+
+func fmBenchToolRuntime(
     for toolSet: FMBenchToolSet,
     recorder: FMBenchToolRecorder
-) -> [any Tool] {
+) -> FMBenchToolRuntime {
     switch toolSet {
     case .none:
-        []
+        return FMBenchToolRuntime(tools: [], mockWorld: nil)
     case .knowledge:
-        [KnowledgeLookupTool(recorder: recorder)]
+        return FMBenchToolRuntime(
+            tools: [KnowledgeLookupTool(recorder: recorder)],
+            mockWorld: nil
+        )
     case .exerciseCatalog:
-        [ExerciseCatalogTool(recorder: recorder)]
+        return FMBenchToolRuntime(
+            tools: [ExerciseCatalogTool(recorder: recorder)],
+            mockWorld: nil
+        )
+    case .personalOrganizer:
+        let world = FMBenchMockPersonalOrganizerWorld()
+        return FMBenchToolRuntime(
+            tools: [
+                FMBenchSearchContactsTool(world: world, recorder: recorder),
+                FMBenchListRemindersTool(world: world, recorder: recorder),
+                FMBenchCreateReminderTool(world: world, recorder: recorder)
+            ],
+            mockWorld: world
+        )
     }
 }

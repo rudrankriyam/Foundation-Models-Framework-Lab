@@ -149,11 +149,32 @@ struct FMBenchMetricsTests {
             endedAt: start.addingTimeInterval(1),
             environment: environment,
             trials: [trial],
-            failures: [],
+            failures: [
+                FMBenchFailure(
+                    scenarioID: scenario.id,
+                    sampleID: "failed-sample",
+                    iteration: 1,
+                    kind: "generation",
+                    message: "Test failure",
+                    toolCalls: [
+                        FMBenchToolCall(name: "searchContacts", arguments: [:])
+                    ],
+                    finalState: FMBenchStateSnapshot(
+                        values: ["reminders.count": .integer(0)]
+                    )
+                )
+            ],
             scenarios: [scenario]
         )
 
         #expect(result.summaries[0].peakObservedResidentMemoryBytes.maximum == 24_477_696)
+        #expect(result.summaries[0].promptPassRate == 1)
+        #expect(result.summaries[0].failureRate == 0.5)
+        #expect(result.summaries[0].endToEndPassRate == 0.5)
+        let report = FMBenchReport(result: result).markdown()
+        #expect(report.contains("Task success"))
+        #expect(report.contains("Tool sequence: searchContacts"))
+        #expect(report.contains("reminders.count=0"))
     }
 
     @Test

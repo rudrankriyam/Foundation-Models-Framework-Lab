@@ -29,7 +29,38 @@ eligibility requirements. Availability can still fail after those static
 requirements are met, so production code needs a graceful on-device or
 non-model fallback.
 
-## June 12, 2026 Control Experiment
+## Signed Runner Requirement
+
+PCC authorization belongs to the executable that makes the request. Apple
+embeds an app's entitlements in that executable's code signature; team-level
+approval and an enabled App ID are necessary, but they do not grant PCC access
+to every process launched by that developer.
+
+For that reason, `swift run fmbench --model pcc` is not a valid PCC benchmark
+path. The SwiftPM executable does not inherit the app target's provisioning
+profile or entitlements. Run PCC measurements from `FMBenchDeviceRunner` on a
+physical Mac, iPhone, or iPad. Its explicit App ID and signed provisioning profile include
+`com.apple.developer.private-cloud-compute`.
+
+Before recording a PCC result, verify both the built app and its embedded
+profile:
+
+```bash
+codesign -d --entitlements :- /path/to/FMBenchDeviceRunner.app
+
+# macOS
+security cms -D -i \
+  /path/to/FMBenchDeviceRunner.app/Contents/embedded.provisionprofile
+
+# iOS or iPadOS
+security cms -D -i \
+  /path/to/FMBenchDeviceRunner.app/embedded.mobileprovision
+```
+
+Both outputs must contain `com.apple.developer.private-cloud-compute = true`.
+See Apple's [Entitlements documentation](https://developer.apple.com/documentation/bundleresources/entitlements).
+
+## June 12, 2026 Unsigned Control
 
 Environment:
 
@@ -52,10 +83,23 @@ Apple's own signed `/usr/bin/fm` utility reported:
 PCC inference is not available in this context.
 ```
 
-This control means the observed failure should not be described solely as a
-missing entitlement in FMBench. PCC was unavailable in the current system,
-account, region, quota, or service context even to Apple's utility. The report
-retains the failed attempt with its environment and timestamp.
+This attempt is retained as evidence from an unsigned SwiftPM runner, not as a
+PCC service-availability control. Apple's `/usr/bin/fm` executable also does not
+inherit a third-party app's managed entitlement, so its result cannot prove that
+the entitled app context is unavailable. Only a request from the signed,
+provisioned FMBench app is publishable PCC evidence.
+
+## June 20, 2026 Signed-Runner Validation
+
+The signed macOS runner on the same Mac successfully executed the agentic
+`personal-organizer-001` PCC smoke test with fallback disabled. A separate local
+one-repetition run covered all 25 personal-organizer samples: all 235 deterministic
+tool, argument, response, and final-state checks passed, with zero execution failures
+and zero fallback trials. PCC quota was below-limit before and after.
+
+This proves the signed Mac execution path and explains the earlier authorization
+failure. It is not a publishable performance baseline: it used zero warmups, one
+measured repetition per sample, and an uncommitted development build.
 
 ## Benchmarking Rules
 

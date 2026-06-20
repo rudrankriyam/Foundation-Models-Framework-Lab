@@ -88,36 +88,63 @@ public enum FMBenchEvaluationsAdapter {
   static func trajectoryExpectation(
     for checks: [FMBenchCheck]
   ) -> TrajectoryExpectation? {
-    var toolNames: [String] = []
+    var unorderedToolNames: [String] = []
+    var orderedToolNames: [String] = []
+    var disallowedToolNames: [String] = []
+    var allowsAdditionalToolCalls = true
     var argumentsByTool: [String: [ArgumentMatcher]] = [:]
 
     for check in checks {
       switch check {
       case .toolCalled(let name):
-        if !toolNames.contains(name) {
-          toolNames.append(name)
+        if !unorderedToolNames.contains(name) {
+          unorderedToolNames.append(name)
         }
       case .toolArgumentEquals(let tool, let argument, let value):
-        if !toolNames.contains(tool) {
-          toolNames.append(tool)
+        if !unorderedToolNames.contains(tool) {
+          unorderedToolNames.append(tool)
         }
         argumentsByTool[tool, default: []].append(
           .exact(argumentName: argument, value: argumentValue(value))
         )
+      case .toolArgumentContains(let tool, let argument, let value):
+        if !unorderedToolNames.contains(tool) {
+          unorderedToolNames.append(tool)
+        }
+        argumentsByTool[tool, default: []].append(
+          .contains(argumentName: argument, substring: value)
+        )
+      case .toolCallSequence(let names, let allowsAdditionalCalls):
+        orderedToolNames = names
+        allowsAdditionalToolCalls = allowsAdditionalCalls
+      case .toolNotCalled(let name):
+        if !disallowedToolNames.contains(name) {
+          disallowedToolNames.append(name)
+        }
       default:
         break
       }
     }
 
-    guard !toolNames.isEmpty else { return nil }
-    let expectations = toolNames.map { name in
+    unorderedToolNames.removeAll { orderedToolNames.contains($0) }
+    guard !orderedToolNames.isEmpty || !unorderedToolNames.isEmpty || !disallowedToolNames.isEmpty
+    else {
+      return nil
+    }
+    let ordered = orderedToolNames.map { name in
       ToolExpectation(name, arguments: argumentsByTool[name] ?? [])
     }
-    return TrajectoryExpectation(
-      ordered: [],
-      unordered: expectations,
-      allowsAdditionalToolCalls: true
+    let unordered = unorderedToolNames.map { name in
+      ToolExpectation(name, arguments: argumentsByTool[name] ?? [])
+    }
+    let disallowed = disallowedToolNames.map { ToolExpectation($0) }
+    var expectation = TrajectoryExpectation(
+      ordered: ordered,
+      unordered: unordered,
+      allowsAdditionalToolCalls: allowsAdditionalToolCalls
     )
+    expectation.disallowed = disallowed
+    return expectation
   }
 
   private static func checksBySampleID(

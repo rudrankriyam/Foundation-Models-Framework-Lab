@@ -19,6 +19,7 @@ public enum FMBenchModel: String, CaseIterable, Codable, Identifiable, Sendable 
 public enum FMBenchSuite: String, CaseIterable, Codable, Identifiable, Sendable {
     case quick
     case full
+    case agentic
     case guardrails
     case performance
     case context
@@ -31,6 +32,8 @@ public enum FMBenchSuite: String, CaseIterable, Codable, Identifiable, Sendable 
             "Practical Quick"
         case .full:
             "Practical Full"
+        case .agentic:
+            "Agentic Tools"
         case .guardrails:
             "Safety Guardrails"
         case .performance:
@@ -44,7 +47,7 @@ public enum FMBenchSuite: String, CaseIterable, Codable, Identifiable, Sendable 
         switch self {
         case .quick:
             1
-        case .full, .guardrails, .performance, .context:
+        case .full, .agentic, .guardrails, .performance, .context:
             nil
         }
     }
@@ -61,6 +64,7 @@ public enum FMBenchScenarioCategory: String, Codable, CaseIterable, Sendable {
     case citationExtraction
     case creativeWriting
     case visualRecommendation
+    case agenticToolUse
     case guardrailExpectedResponse
     case guardrailExpectedProtection
     case syntheticThroughput
@@ -88,6 +92,8 @@ public enum FMBenchScenarioCategory: String, Codable, CaseIterable, Sendable {
             "Creative writing"
         case .visualRecommendation:
             "Visual recommendation"
+        case .agenticToolUse:
+            "Agentic tool use"
         case .guardrailExpectedResponse:
             "Guardrail false positives"
         case .guardrailExpectedProtection:
@@ -187,6 +193,7 @@ public enum FMBenchToolSet: String, Codable, Sendable {
     case none
     case knowledge
     case exerciseCatalog
+    case personalOrganizer
 }
 
 public enum FMBenchVisualFixture: String, Codable, Sendable {
