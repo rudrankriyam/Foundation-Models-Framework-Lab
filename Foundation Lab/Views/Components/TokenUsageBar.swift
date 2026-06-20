@@ -48,4 +48,3 @@ struct TokenUsageBar: View {
         }
     }
 }
-

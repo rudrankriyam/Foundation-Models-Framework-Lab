@@ -52,8 +52,6 @@ struct StudioSourceList: View {
                 sourceInfoRow(title: "Custom Adapter", subtitle: ".fmadapter", systemImage: "shippingbox")
                 sourceInfoRow(title: "Training CLI", subtitle: "fmas", systemImage: "terminal")
             }
-        case .structuredOutput, .capabilityMatrix:
-            EmptyView()
         }
     }
 

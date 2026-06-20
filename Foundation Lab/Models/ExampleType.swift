@@ -41,7 +41,9 @@ enum ExampleType: String, CaseIterable, Identifiable {
     case health = "health"
     case rag = "rag"
     case chat = "chat"
+}
 
+extension ExampleType {
     var id: String { rawValue }
 
     var title: String {

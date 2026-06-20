@@ -12,18 +12,20 @@ struct SidebarView: View {
 
     var body: some View {
         List(selection: $selection) {
-            ForEach(TabSelection.allCases, id: \.self) { tab in
-                Label(tab.displayName, systemImage: tab.systemImage)
-                    .tag(tab)
+            Section("Workspace") {
+                ForEach(TabSelection.allCases, id: \.self) { tab in
+                    Label(tab.displayName, systemImage: tab.systemImage)
+                        .tag(tab)
 #if os(macOS)
-                    .keyboardShortcut(tab.keyboardShortcut, modifiers: .command)
+                        .keyboardShortcut(tab.keyboardShortcut, modifiers: .command)
 #endif
+                }
             }
         }
-        .listStyle(SidebarListStyle())
-        .navigationTitle("Foundation Models")
+        .listStyle(.sidebar)
+        .navigationTitle("Foundation Lab")
 #if os(macOS)
-        .navigationSplitViewColumnWidth(min: 200, ideal: 250, max: 300)
+        .navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 280)
 #endif
     }
 }
@@ -31,27 +33,21 @@ struct SidebarView: View {
 extension TabSelection {
     var systemImage: String {
         switch self {
-        case .home:
-            return "house.fill"
-        case .session:
-            return "bubble.left.and.bubble.right.fill"
-        case .lab:
-            return "flask.fill"
-        case .studio:
-            return "slider.horizontal.3"
-        case .insights:
-            return "sparkle.magnifyingglass"
+        case .library:
+            return "books.vertical"
+        case .playground:
+            return "play.square.stack"
+        case .runs:
+            return "clock.arrow.circlepath"
         }
     }
 
 #if os(macOS)
     var keyboardShortcut: KeyEquivalent {
         switch self {
-        case .home: return "1"
-        case .session: return "2"
-        case .lab: return "3"
-        case .studio: return "4"
-        case .insights: return "5"
+        case .library: return "1"
+        case .playground: return "2"
+        case .runs: return "3"
         }
     }
 #endif
@@ -59,7 +55,7 @@ extension TabSelection {
 
 #Preview {
     NavigationSplitView {
-        SidebarView(selection: .constant(.home))
+        SidebarView(selection: .constant(.library))
     } detail: {
         Text("Detail View")
     }

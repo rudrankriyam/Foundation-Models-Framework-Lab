@@ -19,13 +19,6 @@ struct StudioActivityInspector: View {
             AppBenchStudioInspector()
         case .promptTesting:
             promptInspector
-        case .structuredOutput, .capabilityMatrix:
-            ContentUnavailableView(
-                workspace.title,
-                systemImage: workspace.icon,
-                description: Text(workspace.subtitle)
-            )
-            .padding(Spacing.large)
         }
     }
 

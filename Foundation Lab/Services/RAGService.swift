@@ -9,6 +9,12 @@ import Foundation
 import LumoKit
 import VecturaKit
 
+// LumoKit 2.0 predates complete Swift 6 annotations. Both types are safe to
+// transfer: LumoKit owns only immutable configuration plus a VecturaKit actor,
+// and ChunkingConfig is an immutable value composed of value types.
+extension LumoKit: @unchecked @retroactive Sendable {}
+extension ChunkingConfig: @unchecked @retroactive Sendable {}
+
 /// Service handling RAG indexing operations.
 @MainActor
 final class RAGService {

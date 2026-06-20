@@ -7,16 +7,16 @@ public enum FoundationLabModelRuntime: String, CaseIterable, Sendable, Hashable,
     public var displayName: String {
         switch self {
         case .onDevice:
-            return "On Device"
+            return String(localized: "On Device")
         case .privateCloudCompute:
-            return "Private Cloud Compute"
+            return String(localized: "Private Cloud Compute")
         }
     }
 
     public var shortName: String {
         switch self {
         case .onDevice:
-            return "On-device"
+            return String(localized: "On-device")
         case .privateCloudCompute:
             return "PCC"
         }

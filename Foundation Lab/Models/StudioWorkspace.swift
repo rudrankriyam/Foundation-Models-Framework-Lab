@@ -10,10 +10,8 @@ import FoundationLabCore
 
 enum StudioWorkspace: String, CaseIterable, Identifiable {
     case promptTesting
-    case structuredOutput
     case adapterComparison
     case benchmarkRuns
-    case capabilityMatrix
 
     var id: Self { self }
 
@@ -21,14 +19,10 @@ enum StudioWorkspace: String, CaseIterable, Identifiable {
         switch self {
         case .promptTesting:
             return "Prompt Testing"
-        case .structuredOutput:
-            return "Structured Output"
         case .adapterComparison:
             return "Adapter Comparison"
         case .benchmarkRuns:
             return "Benchmark Runs"
-        case .capabilityMatrix:
-            return "Capability Matrix"
         }
     }
 
@@ -36,14 +30,10 @@ enum StudioWorkspace: String, CaseIterable, Identifiable {
         switch self {
         case .promptTesting:
             return "Compare instructions, sampling, and prompt variants."
-        case .structuredOutput:
-            return "Validate generated values against dynamic schemas."
         case .adapterComparison:
             return "Compare a custom .fmadapter package with the base system model."
         case .benchmarkRuns:
             return "Compare app-shaped workloads with separate quality and performance metrics."
-        case .capabilityMatrix:
-            return "Map model behavior across tasks, tools, and languages."
         }
     }
 
@@ -51,94 +41,21 @@ enum StudioWorkspace: String, CaseIterable, Identifiable {
         switch self {
         case .promptTesting:
             return "text.bubble"
-        case .structuredOutput:
-            return "checklist.checked"
         case .adapterComparison:
             return "square.split.2x1"
         case .benchmarkRuns:
             return "speedometer"
-        case .capabilityMatrix:
-            return "square.grid.3x3"
         }
     }
 
     var status: String {
         switch self {
         case .promptTesting:
-            return "First Slice"
-        case .structuredOutput:
-            return "Next"
+            return "Interactive"
         case .adapterComparison:
             return "Available"
         case .benchmarkRuns:
-            return "Available"
-        case .capabilityMatrix:
-            return "Planned"
-        }
-    }
-
-    var metricTitle: String {
-        switch self {
-        case .promptTesting:
-            return "Variants"
-        case .structuredOutput:
-            return "Schemas"
-        case .adapterComparison:
-            return "Models"
-        case .benchmarkRuns:
-            return "Suites"
-        case .capabilityMatrix:
-            return "Axes"
-        }
-    }
-
-    var metricValue: String {
-        switch self {
-        case .promptTesting:
-            return "4"
-        case .structuredOutput:
-            return "8"
-        case .adapterComparison:
-            return "2"
-        case .benchmarkRuns:
-            return "5"
-        case .capabilityMatrix:
-            return "6"
-        }
-    }
-
-    var checkpoints: [String] {
-        switch self {
-        case .promptTesting:
-            return [
-                "Prompt set editor",
-                "Generation options matrix",
-                "Side-by-side run history"
-            ]
-        case .structuredOutput:
-            return [
-                "Schema picker",
-                "Validation failures",
-                "Repair prompt tracking"
-            ]
-        case .adapterComparison:
-            return [
-                "Managed .fmadapter imports",
-                "Fresh base and adapter sessions",
-                "Side-by-side output and timing"
-            ]
-        case .benchmarkRuns:
-            return [
-                "Canonical Mac CLI",
-                "Physical-device iPhone and iPad runner",
-                "Deterministic quality and runtime reports"
-            ]
-        case .capabilityMatrix:
-            return [
-                "Use-case profiles",
-                "Language coverage",
-                "Tool-call reliability"
-            ]
+            return "CLI Workflow"
         }
     }
 }
@@ -181,31 +98,6 @@ enum StudioPipelineStage: String, CaseIterable, Identifiable {
             return "square.and.arrow.up"
         }
     }
-}
-
-struct StudioRunSummary: Identifiable {
-    let id = UUID()
-    let name: String
-    let score: String
-    let detail: String
-
-    static let samples = [
-        StudioRunSummary(
-            name: "Recipe JSON schema",
-            score: "92%",
-            detail: "Valid structure across short and detailed prompts"
-        ),
-        StudioRunSummary(
-            name: "Travel assistant tone",
-            score: "A-",
-            detail: "Best result used concise role instructions"
-        ),
-        StudioRunSummary(
-            name: "Tool routing smoke test",
-            score: "18 ms",
-            detail: "Median setup overhead before generation"
-        )
-    ]
 }
 
 struct StudioActivityEvent: Identifiable {

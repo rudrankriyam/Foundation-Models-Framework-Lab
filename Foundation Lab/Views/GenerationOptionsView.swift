@@ -41,9 +41,11 @@ struct GenerationOptionsView: View {
             contextSize = await AppConfiguration.TokenManagement.contextSize()
         }
     }
+}
 
-    // MARK: - View Components
+// MARK: - View Components
 
+private extension GenerationOptionsView {
     private var headerView: some View {
         VStack(alignment: .leading, spacing: Spacing.small) {
             Text("Experiment with Generation Parameters")

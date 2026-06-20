@@ -97,26 +97,6 @@ extension ExampleType {
         }
     }
 
-    var preferredTab: TabSelection {
-        switch self {
-        case .structuredData, .generationGuides, .generationOptions, .modelRuntime,
-             .contextWindowInspector, .privateCloudCompute, .imageInputPlayground,
-             .geminiVideoInput, .toolCallingModeLab, .dynamicProfileBuilder, .reasoningLevelComparison,
-             .transcriptExplorer, .agentFlowInspector, .historyTransformLab,
-             .riskyToolConfirmation, .modelRouterDashboard, .contextBudgetVisualizer,
-             .toolCallTrajectoryViewer, .foundationModelsSecurityPlayground,
-             .usagePerformanceTrace, .spotlightRAGExplorer, .providerBridgeWalkthrough,
-             .evaluationsLab, .fmCLIPythonPlayground:
-            return .lab
-        case .health, .rag:
-            return .insights
-        case .chat:
-            return .session
-        case .basicChat, .journaling, .creativeWriting, .streamingResponse, .modelAvailability:
-            return .home
-        }
-    }
-
     static var homeExamples: [ExampleType] {
         [.modelAvailability, .streamingResponse, .journaling, .creativeWriting]
     }

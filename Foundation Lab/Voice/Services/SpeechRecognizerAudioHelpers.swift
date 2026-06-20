@@ -206,7 +206,9 @@ extension SpeechRecognizer {
                 guard let self, !self.hasProcessedFinalResult else {
                     if VoiceLogging.isVerboseEnabled {
                         if let error {
-                            VoiceLogging.recognition.debug("Callback ignored (already processed) error: \(error.localizedDescription, privacy: .public)")
+                            VoiceLogging.recognition.debug(
+                                "Callback ignored (already processed) error: \(error.localizedDescription, privacy: .public)"
+                            )
                         } else if let result {
                             VoiceLogging.recognition.debug("Callback ignored (already processed) result final=\(result.isFinal)")
                         } else {

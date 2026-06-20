@@ -9,13 +9,13 @@ public enum FoundationLabReasoningLevel: String, CaseIterable, Sendable, Hashabl
     public var displayName: String {
         switch self {
         case .none:
-            return "None"
+            return String(localized: "None")
         case .light:
-            return "Light"
+            return String(localized: "Light")
         case .moderate:
-            return "Moderate"
+            return String(localized: "Moderate")
         case .deep:
-            return "Deep"
+            return String(localized: "Deep")
         }
     }
 

@@ -101,13 +101,17 @@ struct ModelAvailabilityView: View {
 
     switch result.reason {
     case .deviceNotEligible:
-      return "Apple Intelligence is not available because this device is not eligible. Foundation Lab requires iOS 26.0+, macOS 26.0+, or visionOS 26.0+ on supported Apple Intelligence hardware."
+      return "Apple Intelligence is not available because this device is not eligible. "
+        + "Foundation Lab requires iOS 26.0+, macOS 26.0+, or visionOS 26.0+ "
+        + "on supported Apple Intelligence hardware."
     case .appleIntelligenceNotEnabled:
       return "Apple Intelligence is not enabled. Turn it on in Settings, then try again."
     case .modelNotReady:
       return "Apple Intelligence is still preparing model assets on this device. Please wait a bit and try again."
     case .unknown, .none:
-      return "Apple Intelligence is not available on this device right now. This feature requires iOS 26.0+, macOS 26.0+, or visionOS 26.0+ and a compatible Apple device with Apple Intelligence enabled."
+      return "Apple Intelligence is not available on this device right now. "
+        + "This feature requires iOS 26.0+, macOS 26.0+, or visionOS 26.0+ "
+        + "and a compatible Apple device with Apple Intelligence enabled."
     }
   }
 }

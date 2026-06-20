@@ -5,18 +5,19 @@
 //  Created by Rudrank Riyam on 27/10/2025.
 //
 
+import CoreLocation
 import Foundation
 import FoundationModels
-import CoreLocation
+import MapKit
 import Playgrounds
 
-struct MockLocationTool: Tool {
+struct LocationTool: Tool {
     let name = "getUserLocation"
-    let description = "Gets the user's current location coordinates"
+    let description = "Gets the user's current location after Core Location grants permission"
 
     @Generable
     struct Arguments {
-        @Guide(description: "Whether to include city/country information")
+        @Guide(description: "Whether to reverse-geocode city and country information")
         var includeAddress: Bool = false
     }
 
@@ -30,33 +31,105 @@ struct MockLocationTool: Tool {
     }
 
     func call(arguments: Arguments) async throws -> LocationData {
-        // In a real app, you'd use CLLocationManager
-        // For demo purposes, return mock location data
+        let location = try await CurrentLocationProvider.requestLocation()
+        var city: String?
+        var country: String?
 
-        let mockLocations = [
-            (latitude: 37.7749, longitude: -122.4194, city: "San Francisco", country: "US"),
-            (latitude: 40.7128, longitude: -74.0060, city: "New York", country: "US"),
-            (latitude: 51.5074, longitude: -0.1278, city: "London", country: "GB"),
-            (latitude: 48.8566, longitude: 2.3522, city: "Paris", country: "FR")
-        ]
-
-        let randomLocation = mockLocations.randomElement()!
+        if arguments.includeAddress,
+           let request = MKReverseGeocodingRequest(location: location),
+           let mapItems = try? await request.mapItems,
+           let address = mapItems.first?.addressRepresentations {
+            city = address.cityName
+            country = address.regionName
+        }
 
         return LocationData(
-            latitude: randomLocation.latitude,
-            longitude: randomLocation.longitude,
-            city: arguments.includeAddress ? randomLocation.city : nil,
-            country: arguments.includeAddress ? randomLocation.country : nil,
-            timestamp: ISO8601DateFormatter().string(from: Date())
+            latitude: location.coordinate.latitude,
+            longitude: location.coordinate.longitude,
+            city: city,
+            country: country,
+            timestamp: ISO8601DateFormatter().string(from: location.timestamp)
         )
     }
 }
 
+@MainActor
+private final class CurrentLocationProvider: NSObject, @MainActor CLLocationManagerDelegate {
+    private let manager = CLLocationManager()
+    private var continuation: CheckedContinuation<CLLocation, Error>?
+
+    static func requestLocation() async throws -> CLLocation {
+        let provider = CurrentLocationProvider()
+        return try await provider.requestLocation()
+    }
+
+    override init() {
+        super.init()
+        manager.delegate = self
+        manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+    }
+
+    private func requestLocation() async throws -> CLLocation {
+        try await withCheckedThrowingContinuation { continuation in
+            self.continuation = continuation
+            requestAuthorizationOrLocation()
+        }
+    }
+
+    private func requestAuthorizationOrLocation() {
+        switch manager.authorizationStatus {
+        case .notDetermined:
+            manager.requestWhenInUseAuthorization()
+        case .authorizedAlways, .authorizedWhenInUse:
+            manager.requestLocation()
+        case .denied, .restricted:
+            finish(with: .failure(LocationError.permissionDenied))
+        @unknown default:
+            finish(with: .failure(LocationError.permissionDenied))
+        }
+    }
+
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        guard continuation != nil else { return }
+        requestAuthorizationOrLocation()
+    }
+
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else {
+            finish(with: .failure(LocationError.locationUnavailable))
+            return
+        }
+        finish(with: .success(location))
+    }
+
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        finish(with: .failure(error))
+    }
+
+    private func finish(with result: Result<CLLocation, Error>) {
+        guard let continuation else { return }
+        self.continuation = nil
+        continuation.resume(with: result)
+    }
+}
+
+private enum LocationError: LocalizedError {
+    case permissionDenied
+    case locationUnavailable
+
+    var errorDescription: String? {
+        switch self {
+        case .permissionDenied:
+            return "Location permission is required for this tool."
+        case .locationUnavailable:
+            return "Core Location did not return a location."
+        }
+    }
+}
+
 #Playground {
-    let locationTool = MockLocationTool()
-
-    let arguments = MockLocationTool.Arguments(includeAddress: true)
-
+    let locationTool = LocationTool()
+    let arguments = LocationTool.Arguments(includeAddress: true)
     let result = try await locationTool.call(arguments: arguments)
     debugPrint("Location result: \(result)")
 }

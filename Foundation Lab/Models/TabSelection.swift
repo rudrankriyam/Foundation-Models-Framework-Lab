@@ -8,24 +8,18 @@
 import Foundation
 
 enum TabSelection: String, CaseIterable, Hashable {
-  case home
-  case session
-  case lab
-  case studio
-  case insights
+  case library
+  case playground
+  case runs
 
   var displayName: String {
     switch self {
-    case .home:
-      return "Home"
-    case .session:
-      return "Session"
-    case .lab:
-      return "Lab"
-    case .studio:
-      return "Studio"
-    case .insights:
-      return "Insights"
+    case .library:
+      return String(localized: "Library")
+    case .playground:
+      return String(localized: "Playground")
+    case .runs:
+      return String(localized: "Runs")
     }
   }
 }

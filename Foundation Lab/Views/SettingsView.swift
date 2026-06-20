@@ -9,52 +9,45 @@ import SwiftUI
 
 struct SettingsView: View {
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Link(destination: URL(string: "https://github.com/rudrankriyam/Foundation-Models-Framework-Lab/issues")!) {
-                    HStack {
-                        Text("Bug/Feature Request")
-                        Spacer()
-                        Image(systemName: "arrow.up.right.square")
-                            .foregroundColor(.secondary)
-                            .font(.caption)
-                    }
-                }
-                .foregroundColor(.primary)
+        Form {
+            Section("About") {
+                LabeledContent("Version", value: version)
 
-                Link(destination: URL(string: "https://x.com/rudrankriyam")!) {
-                    HStack {
-                        Text("Made by Rudrank Riyam")
-                        Spacer()
-                        Image(systemName: "arrow.up.right.square")
-                            .foregroundColor(.secondary)
-                            .font(.caption)
-                    }
-                }
-                .foregroundColor(.primary)
+                Text("Learn with ready-made experiments, then compose and inspect your own Foundation Models sessions.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
 
-                HStack {
-                    Text("Version")
-                    Spacer()
-                    Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")
-                        .foregroundColor(.secondary)
+            Section("Support") {
+                Link(destination: issueURL) {
+                    Label("Report a Bug or Request a Feature", systemImage: "exclamationmark.bubble")
                 }
-                Text("Explore on-device AI with Apple's Foundation Models framework.")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+
+                Link(destination: authorURL) {
+                    Label("Made by Rudrank Riyam", systemImage: "person.crop.circle")
+                }
             }
-            .padding()
-            .background(Color.tertiaryBackgroundColor, in: .rect(cornerRadius: CornerRadius.large))
-            .overlay {
-                RoundedRectangle(cornerRadius: CornerRadius.large)
-                    .stroke(.quaternary, lineWidth: 1)
-            }
-            .padding([.horizontal, .top])
         }
-#if os(macOS)
-        .padding()
-#endif
+        .formStyle(.grouped)
         .navigationTitle("Settings")
+    }
+
+    private var version: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+    }
+
+    private var issueURL: URL {
+        guard let url = URL(string: "https://github.com/rudrankriyam/Foundation-Models-Framework-Lab/issues") else {
+            preconditionFailure("The Foundation Lab issue URL must be valid.")
+        }
+        return url
+    }
+
+    private var authorURL: URL {
+        guard let url = URL(string: "https://x.com/rudrankriyam") else {
+            preconditionFailure("The Foundation Lab author URL must be valid.")
+        }
+        return url
     }
 }
 

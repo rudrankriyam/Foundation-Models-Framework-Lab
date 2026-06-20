@@ -78,13 +78,6 @@ struct StudioView: View {
             adapterStudioContent
         } else if selectedWorkspace == .benchmarkRuns {
             AppBenchStudioContent(stage: selectedStage)
-        } else if selectedWorkspace == .structuredOutput || selectedWorkspace == .capabilityMatrix {
-            ContentUnavailableView(
-                selectedWorkspace.title,
-                systemImage: selectedWorkspace.icon,
-                description: Text(selectedWorkspace.subtitle)
-            )
-            .frame(maxWidth: .infinity, minHeight: 320)
         } else {
             StudioPromptStageView(
                 stage: $selectedStage,

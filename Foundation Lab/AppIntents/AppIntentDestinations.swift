@@ -19,9 +19,9 @@ enum ExampleDestination: String, AppEnum, CaseIterable {
     case health
     case rag
 
-    static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Example")
+    static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Example")
 
-    static var caseDisplayRepresentations: [ExampleDestination: DisplayRepresentation] = [
+    static let caseDisplayRepresentations: [ExampleDestination: DisplayRepresentation] = [
         .basicChat: DisplayRepresentation(title: "One-shot"),
         .journaling: DisplayRepresentation(title: "Journaling"),
         .creativeWriting: DisplayRepresentation(title: "Creative Writing"),
@@ -71,9 +71,9 @@ enum ToolDestination: String, AppEnum, CaseIterable {
     case music
     case webMetadata
 
-    static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Tool")
+    static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Tool")
 
-    static var caseDisplayRepresentations: [ToolDestination: DisplayRepresentation] = [
+    static let caseDisplayRepresentations: [ToolDestination: DisplayRepresentation] = [
         .weather: DisplayRepresentation(title: "Weather"),
         .web: DisplayRepresentation(title: "Web Search"),
         .contacts: DisplayRepresentation(title: "Contacts"),
@@ -122,9 +122,9 @@ enum SchemaDestination: String, AppEnum, CaseIterable {
     case errorHandling
     case invoiceProcessing
 
-    static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Schema Example")
+    static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Schema Example")
 
-    static var caseDisplayRepresentations: [SchemaDestination: DisplayRepresentation] = [
+    static let caseDisplayRepresentations: [SchemaDestination: DisplayRepresentation] = [
         .basicObject: DisplayRepresentation(title: "Basic Object Schema"),
         .arraySchema: DisplayRepresentation(title: "Array Schemas"),
         .enumSchema: DisplayRepresentation(title: "Enum Schemas"),
@@ -172,9 +172,9 @@ enum LanguageDestination: String, AppEnum, CaseIterable {
     case sessionManagement
     case productionExample
 
-    static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Language Example")
+    static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Language Example")
 
-    static var caseDisplayRepresentations: [LanguageDestination: DisplayRepresentation] = [
+    static let caseDisplayRepresentations: [LanguageDestination: DisplayRepresentation] = [
         .languageDetection: DisplayRepresentation(title: "Language Detection"),
         .multilingualResponses: DisplayRepresentation(title: "Multilingual Play"),
         .sessionManagement: DisplayRepresentation(title: "Multiple Sessions"),

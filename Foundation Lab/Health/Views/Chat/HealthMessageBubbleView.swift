@@ -51,7 +51,7 @@ struct HealthMessageBubbleView: View {
             }
 
             if isFromUser {
-                // User avatar placeholder
+                // User avatar
                 Circle()
                     .fill(Color.primary.opacity(0.08))
                     .frame(width: 28, height: 28)

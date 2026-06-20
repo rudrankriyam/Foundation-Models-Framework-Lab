@@ -123,22 +123,25 @@ struct ChatInstructionsView: View {
             Picker("Sampling Strategy", selection: $viewModel.samplingStrategy) {
                 Text("Default").tag(SamplingStrategy.default)
                 Text("Greedy").tag(SamplingStrategy.greedy)
-                Text("Sampling").tag(SamplingStrategy.sampling)
+                Text("Top-K").tag(SamplingStrategy.sampling)
+                Text("Top-P").tag(SamplingStrategy.probabilityThreshold)
             }
-            .pickerStyle(.segmented)
+            .pickerStyle(.menu)
             .padding(.horizontal, Spacing.medium)
 
             Text("""
                 Default: Uses system defaults for optimal balance.
                 Greedy: Always chooses the most likely token (deterministic).
-                Sampling: Uses top-k sampling for creative, varied responses.
+                Top-K: Samples from a fixed number of likely tokens.
+                Top-P: Samples from the smallest set that reaches a probability threshold.
                 """)
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, Spacing.medium)
 
-            if viewModel.samplingStrategy == .sampling {
+            if viewModel.samplingStrategy == .sampling
+                || viewModel.samplingStrategy == .probabilityThreshold {
                 samplingConfigurationView
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .padding(.top, Spacing.small)
@@ -154,21 +157,31 @@ struct ChatInstructionsView: View {
 
     private var samplingConfigurationView: some View {
         VStack(alignment: .leading, spacing: Spacing.medium) {
-            HStack {
-                Text("Top-K Sampling Value")
-                    .font(.subheadline)
-                Spacer()
-                TextField("Value", value: clampedTopKSamplingValue, formatter: NumberFormatter())
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: Constants.textFieldWidth)
+            if viewModel.samplingStrategy == .sampling {
+                HStack {
+                    Text("Top-K Sampling Value")
+                        .font(.subheadline)
+                    Spacer()
+                    TextField("Value", value: clampedTopKSamplingValue, formatter: NumberFormatter())
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: Constants.textFieldWidth)
+                }
+            } else {
+                LabeledContent("Top-P Threshold") {
+                    Text(viewModel.probabilityThresholdSamplingValue, format: .number.precision(.fractionLength(2)))
+                        .monospacedDigit()
+                }
+                Slider(
+                    value: $viewModel.probabilityThresholdSamplingValue,
+                    in: 0.05...1,
+                    step: 0.05
+                )
             }
 
             Toggle("Use Fixed Seed", isOn: $viewModel.useFixedSeed)
                 .font(.subheadline)
 
-            Text("The Top-K value determines how many of the most likely tokens to consider. " +
-                 "Lower values (10-20) produce more focused, deterministic responses. " +
-                 "Higher values (50-100) allow more creative variations.")
+            Text(samplingHelpText)
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -187,6 +200,15 @@ struct ChatInstructionsView: View {
         .padding(Spacing.medium)
         .background(Constants.samplingConfigBackgroundColor)
         .cornerRadius(12)
+    }
+
+    private var samplingHelpText: String {
+        if viewModel.samplingStrategy == .sampling {
+            return "Top-K limits sampling to a fixed number of likely tokens. "
+                + "Lower values are more focused; higher values allow more variation."
+        }
+
+        return "Top-P includes the smallest group of likely tokens whose combined probability reaches this threshold."
     }
 }
 

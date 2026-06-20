@@ -196,7 +196,7 @@ private extension HealthDashboardView {
             .padding(.horizontal, 4)
 
             if insights.isEmpty {
-                InsightPlaceholderView()
+                NoHealthInsightsView()
             } else {
                 ForEach(insights.prefix(3)) { insight in
                     InsightCardView(insight: insight)
@@ -329,8 +329,8 @@ struct HealthScoreRing: View {
     }
 }
 
-// MARK: - Placeholder View
-struct InsightPlaceholderView: View {
+// MARK: - Empty State
+struct NoHealthInsightsView: View {
     var body: some View {
         VStack(spacing: 12) {
             Image(systemName: "lightbulb.fill")

@@ -27,7 +27,7 @@ final class HealthMetric {
     }
 }
 
-enum MetricType: String, Codable, CaseIterable {
+enum MetricType: String, Codable, CaseIterable, Sendable {
     case steps = "Steps"
     case heartRate = "Heart Rate"
     case sleep = "Sleep"
@@ -37,7 +37,7 @@ enum MetricType: String, Codable, CaseIterable {
     case bloodPressure = "Blood Pressure"
     case bloodOxygen = "Blood Oxygen"
 
-    var icon: String {
+    nonisolated var icon: String {
         switch self {
         case .steps: return "figure.walk"
         case .heartRate: return "heart.fill"
@@ -50,7 +50,7 @@ enum MetricType: String, Codable, CaseIterable {
         }
     }
 
-    var color: String {
+    nonisolated var color: String {
         switch self {
         case .steps: return "blue"
         case .heartRate: return "red"
@@ -63,7 +63,7 @@ enum MetricType: String, Codable, CaseIterable {
         }
     }
 
-    var defaultUnit: String {
+    nonisolated var defaultUnit: String {
         switch self {
         case .steps: return "steps"
         case .heartRate: return "bpm"

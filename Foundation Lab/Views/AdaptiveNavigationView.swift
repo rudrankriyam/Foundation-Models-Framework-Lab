@@ -11,8 +11,11 @@ import FoundationModels
 struct AdaptiveNavigationView: View {
     @State private var languageService = LanguageService()
     @State private var columnVisibility: NavigationSplitViewVisibility = .automatic
-    @State private var navigationCoordinator = NavigationCoordinator.shared
+    @State private var navigationCoordinator = NavigationCoordinator()
+    @State private var experimentStore = ExperimentStore()
+    @State private var playgroundViewModel = ChatViewModel()
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         Group {
@@ -31,48 +34,60 @@ struct AdaptiveNavigationView: View {
         }
         .environment(languageService)
         .environment(navigationCoordinator)
+        .environment(experimentStore)
+        .onAppear(perform: navigationCoordinator.activate)
+        .onChange(of: navigationCoordinator.tabSelection) { oldValue, newValue in
+            if oldValue == .playground, newValue != .playground {
+                playgroundViewModel.tearDown()
+            }
+        }
+        .onChange(of: scenePhase) { _, newValue in
+            if newValue == .active {
+                navigationCoordinator.activate()
+            } else {
+                playgroundViewModel.tearDown()
+            }
+        }
+        .onDisappear(perform: playgroundViewModel.tearDown)
+        .alert(
+            "Couldn’t Save Changes",
+            isPresented: persistenceAlertBinding
+        ) {
+            Button("Retry") {
+                Task {
+                    await experimentStore.retryPersistence()
+                }
+            }
+            Button("Dismiss", role: .cancel, action: experimentStore.clearPersistenceError)
+        } message: {
+            Text(experimentStore.persistenceErrorMessage ?? "The latest changes could not be saved.")
+        }
     }
 
     @ViewBuilder
     private var tabBasedNavigation: some View {
         @Bindable var navigationCoordinator = navigationCoordinator
-        TabView(selection: .init(
-            get: { navigationCoordinator.tabSelection },
-            set: { navigationCoordinator.tabSelection = $0 }
-        )) {
-            Tab(TabSelection.home.displayName, systemImage: "house.fill", value: .home) {
-                NavigationStack(path: $navigationCoordinator.homePath) {
-                    HomeView()
+        TabView(selection: $navigationCoordinator.tabSelection) {
+            Tab(TabSelection.library.displayName, systemImage: TabSelection.library.systemImage, value: .library) {
+                NavigationStack(path: $navigationCoordinator.libraryPath) {
+                    LibraryView()
                 }
             }
 
-            Tab(TabSelection.session.displayName, systemImage: "bubble.left.and.bubble.right.fill", value: .session) {
-                NavigationStack {
-                    ChatView(title: "Session", showsDoneButton: false, tearsDownOnDisappear: false)
+            Tab(TabSelection.playground.displayName, systemImage: TabSelection.playground.systemImage, value: .playground) {
+                NavigationStack(path: $navigationCoordinator.playgroundPath) {
+                    PlaygroundView(viewModel: playgroundViewModel)
                 }
             }
 
-            Tab(TabSelection.lab.displayName, systemImage: "flask.fill", value: .lab) {
-                NavigationStack(path: $navigationCoordinator.labPath) {
-                    LabView()
-                }
-            }
-
-            Tab(TabSelection.studio.displayName, systemImage: "slider.horizontal.3", value: .studio) {
-                NavigationStack(path: $navigationCoordinator.studioPath) {
-                    StudioView()
-                }
-            }
-
-            Tab(TabSelection.insights.displayName, systemImage: "sparkle.magnifyingglass", value: .insights) {
-                NavigationStack(path: $navigationCoordinator.insightsPath) {
-                    InsightsView()
+            Tab(TabSelection.runs.displayName, systemImage: TabSelection.runs.systemImage, value: .runs) {
+                NavigationStack(path: $navigationCoordinator.runsPath) {
+                    RunsView()
                 }
             }
         }
 #if os(iOS)
         .tabBarMinimizeBehavior(.onScrollDown)
-        .ignoresSafeArea(.keyboard)
 #endif
         .onChange(of: navigationCoordinator.tabSelection) { _, newValue in
             navigationCoordinator.splitViewSelection = newValue
@@ -85,10 +100,7 @@ struct AdaptiveNavigationView: View {
         NavigationSplitView(
             columnVisibility: $columnVisibility
         ) {
-            SidebarView(selection: .init(
-                get: { navigationCoordinator.splitViewSelection },
-                set: { navigationCoordinator.splitViewSelection = $0 }
-            ))
+            SidebarView(selection: $navigationCoordinator.splitViewSelection)
         } detail: {
             detailView
         }
@@ -103,28 +115,31 @@ struct AdaptiveNavigationView: View {
     @ViewBuilder
     private var detailView: some View {
         @Bindable var navigationCoordinator = navigationCoordinator
-        switch navigationCoordinator.splitViewSelection ?? .home {
-        case .home:
-            NavigationStack(path: $navigationCoordinator.homePath) {
-                HomeView()
+        switch navigationCoordinator.splitViewSelection ?? .library {
+        case .library:
+            NavigationStack(path: $navigationCoordinator.libraryPath) {
+                LibraryView()
             }
-        case .session:
-            NavigationStack {
-                ChatView(title: "Session", showsDoneButton: false, tearsDownOnDisappear: false)
+        case .playground:
+            NavigationStack(path: $navigationCoordinator.playgroundPath) {
+                PlaygroundView(viewModel: playgroundViewModel)
             }
-        case .lab:
-            NavigationStack(path: $navigationCoordinator.labPath) {
-                LabView()
-            }
-        case .studio:
-            NavigationStack(path: $navigationCoordinator.studioPath) {
-                StudioView()
-            }
-        case .insights:
-            NavigationStack(path: $navigationCoordinator.insightsPath) {
-                InsightsView()
+        case .runs:
+            NavigationStack(path: $navigationCoordinator.runsPath) {
+                RunsView()
             }
         }
+    }
+
+    private var persistenceAlertBinding: Binding<Bool> {
+        Binding(
+            get: { experimentStore.persistenceErrorMessage != nil },
+            set: { isPresented in
+                if !isPresented {
+                    experimentStore.clearPersistenceError()
+                }
+            }
+        )
     }
 }
 
