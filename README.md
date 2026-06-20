@@ -1,29 +1,22 @@
 # Foundation Models Framework Lab
 
 <div align="center">
+  <img src="images/FoundationLab-Library-macOS.png" alt="Foundation Lab for macOS showing the Library with editable beginner recipes and built-in tool examples" width="1000"/>
+  <br/>
+  <strong>Library</strong>
+  <br/>
+  <br/>
   <table>
     <tr>
       <td align="center" style="padding: 15px;">
-        <img src="images/FMF_Examples.png" alt="FMF examples - One-shot prompt interface showing a haiku generation example with prompt input, reset/run buttons, suggestions, and resulting haiku about destiny" width="500" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
+        <img src="images/FoundationLab-Playground-macOS.png" alt="Foundation Lab for macOS showing an empty Playground with runtime, reasoning, generation, instructions, and tool controls" width="500"/>
         <br/>
-        <strong>FMF Examples</strong>
+        <strong>Playground</strong>
       </td>
       <td align="center" style="padding: 15px;">
-        <img src="images/FMF_Tools.png" alt="FMF tools - Tools page showing various utility options including Weather, Web Search, Contacts, Calendar, Reminders, Location, Health, Music, and Web Metadata tools" width="500" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
+        <img src="images/FoundationLab-Xcode27-macOS.png" alt="Foundation Lab for macOS showing the Xcode 27 workshop with runtime, context, tool, security, transcript, and agent labs" width="500"/>
         <br/>
-        <strong>FMF Tools</strong>
-      </td>
-    </tr>
-    <tr>
-      <td align="center" style="padding: 15px;">
-        <img src="images/FMF_Chat.png" alt="FMF chat - Chat interface displaying a conversation about the meaning of life, with user messages on the right and AI responses on the left, including a detailed philosophical answer" width="500" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
-        <br/>
-        <strong>FMF Chat</strong>
-      </td>
-      <td align="center" style="padding: 15px;">
-        <img src="images/FMF_Languages.png" alt="FMF languages - Languages page showing various language options and language selection interface for the Foundation Models framework" width="500" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
-        <br/>
-        <strong>FMF Languages</strong>
+        <strong>Xcode 27 Workshop</strong>
       </td>
     </tr>
   </table>
