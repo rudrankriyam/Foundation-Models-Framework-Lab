@@ -49,11 +49,29 @@ enum ExperimentTrack: String, CaseIterable, Hashable, Identifiable {
             return String(localized: "Compose and measure production-grade experiments.")
         }
     }
+
+    var systemImage: String {
+        switch self {
+        case .startHere:
+            "sparkles"
+        case .buildWithTools:
+            "wrench.and.screwdriver"
+        case .structuredOutput:
+            "curlybraces.square"
+        case .contextAndRuntime:
+            "cpu"
+        case .appliedProjects:
+            "shippingbox"
+        case .advancedWorkflows:
+            "point.topleft.down.curvedto.point.bottomright.up"
+        }
+    }
 }
 
 enum ExperimentLibraryCatalog: String, Hashable, Identifiable {
     case schemas
     case languages
+    case xcode27
 
     var id: String { rawValue }
 
@@ -63,6 +81,8 @@ enum ExperimentLibraryCatalog: String, Hashable, Identifiable {
             return String(localized: "Dynamic Schemas")
         case .languages:
             return String(localized: "Languages")
+        case .xcode27:
+            return String(localized: "Xcode 27")
         }
     }
 }
@@ -467,6 +487,16 @@ extension ExperimentTemplate {
             level: .expert,
             track: .advancedWorkflows,
             summary: "Bridge a custom video-capable model into LanguageModelSession."
+        ),
+        ExperimentTemplate(
+            id: "xcode-27",
+            title: "Xcode 27",
+            summary: "Compose and measure production-grade experiments.",
+            systemImage: "apple.intelligence",
+            level: .expert,
+            track: .advancedWorkflows,
+            launch: .workshop(.xcode27),
+            keywords: ExampleType.xcode27Examples.flatMap { [$0.title, $0.subtitle] }
         ),
         ExperimentTemplate(
             id: "adapter-comparison",

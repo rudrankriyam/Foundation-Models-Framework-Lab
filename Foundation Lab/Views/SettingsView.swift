@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(\.dismiss) private var dismiss
+
     var body: some View {
         Form {
             Section("About") {
@@ -30,6 +32,13 @@ struct SettingsView: View {
         }
         .formStyle(.grouped)
         .navigationTitle("Settings")
+#if os(iOS)
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Done", action: dismiss.callAsFunction)
+            }
+        }
+#endif
     }
 
     private var version: String {

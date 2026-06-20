@@ -84,8 +84,6 @@ extension ExampleType {
             HealthExampleView()
         case .rag:
             RAGChatView()
-        case .chat:
-            ChatView(title: "Session", showsDoneButton: false, tearsDownOnDisappear: false)
         }
     }
 

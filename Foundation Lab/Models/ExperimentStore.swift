@@ -61,6 +61,7 @@ final class ExperimentStore {
     @ObservationIgnored private let libraryRepository: ExperimentLibraryRepository
     @ObservationIgnored private var isNormalizingActiveExperiment = false
     @ObservationIgnored private var activeExperimentPersistenceTask: Task<Bool, Never>?
+    @ObservationIgnored private var hasPendingActivationState = false
     private var activePersistenceErrorMessage: String?
 
     init(
@@ -100,12 +101,21 @@ final class ExperimentStore {
 
 extension ExperimentStore {
     func activate() {
+        if Self.activeStore == nil,
+           self !== Self.fallback,
+           Self.fallback.hasPendingActivationState {
+            let pendingExperiment = Self.fallback.activeExperiment
+            Self.fallback.hasPendingActivationState = false
+            load(pendingExperiment)
+        }
+
         Self.activeStore = self
     }
 
     func load(_ configuration: FoundationLabExperimentConfiguration) {
         activeExperiment = configuration.normalized
         activeExperimentLoadRevision += 1
+        markPendingActivationStateIfNeeded()
     }
 
     @discardableResult
@@ -113,6 +123,7 @@ extension ExperimentStore {
         let experiment = FoundationLabExperimentConfiguration(name: "")
         activeExperiment = experiment
         activeExperimentLoadRevision += 1
+        markPendingActivationStateIfNeeded()
         return experiment
     }
 
@@ -120,6 +131,7 @@ extension ExperimentStore {
         var updatedConfiguration = configuration
         updatedConfiguration.modifiedAt = .now
         activeExperiment = updatedConfiguration.normalized
+        markPendingActivationStateIfNeeded()
     }
 
     func updateActiveExperiment(
@@ -129,6 +141,7 @@ extension ExperimentStore {
         update(&updatedExperiment)
         updatedExperiment.modifiedAt = .now
         activeExperiment = updatedExperiment.normalized
+        markPendingActivationStateIfNeeded()
     }
 
     @discardableResult
@@ -265,6 +278,12 @@ private extension ExperimentStore {
             }
             guard !Task.isCancelled, let self else { return false }
             return self.persistActiveExperimentImmediately(experiment)
+        }
+    }
+
+    func markPendingActivationStateIfNeeded() {
+        if Self.activeStore == nil, self === Self.fallback {
+            hasPendingActivationState = true
         }
     }
 }

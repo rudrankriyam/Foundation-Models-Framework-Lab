@@ -40,11 +40,34 @@ enum ExampleType: String, CaseIterable, Identifiable {
     case fmCLIPythonPlayground = "fm_cli_python_playground"
     case health = "health"
     case rag = "rag"
-    case chat = "chat"
 }
 
 extension ExampleType {
     var id: String { rawValue }
+
+    static let xcode27Examples: [ExampleType] = [
+        .modelRuntime,
+        .contextWindowInspector,
+        .privateCloudCompute,
+        .imageInputPlayground,
+        .usagePerformanceTrace,
+        .toolCallingModeLab,
+        .riskyToolConfirmation,
+        .foundationModelsSecurityPlayground,
+        .toolCallTrajectoryViewer,
+        .dynamicProfileBuilder,
+        .reasoningLevelComparison,
+        .transcriptExplorer,
+        .agentFlowInspector,
+        .historyTransformLab,
+        .modelRouterDashboard,
+        .contextBudgetVisualizer,
+        .geminiVideoInput,
+        .spotlightRAGExplorer,
+        .providerBridgeWalkthrough,
+        .evaluationsLab,
+        .fmCLIPythonPlayground
+    ]
 
     var title: String {
         switch self {
@@ -110,8 +133,6 @@ extension ExampleType {
             return "Health Dashboard"
         case .rag:
             return "Doc Q&A"
-        case .chat:
-            return "Chat"
         }
     }
 
@@ -158,7 +179,7 @@ extension ExampleType {
         case .riskyToolConfirmation:
             return "Review app-owned authorization before side effects"
         case .modelRouterDashboard:
-            return "Explain system, PCC, Core AI, and provider choices"
+            return "Make routing an explicit app policy"
         case .contextBudgetVisualizer:
             return "Show kept, summarized, and dropped context"
         case .toolCallTrajectoryViewer:
@@ -179,8 +200,6 @@ extension ExampleType {
             return "AI-powered health insights and tracking"
         case .rag:
             return "Ask questions with source citations"
-        case .chat:
-            return "Multi-turn conversation with AI assistant"
         }
     }
 
@@ -248,8 +267,6 @@ extension ExampleType {
             return "heart.fill"
         case .rag:
             return "doc.text.magnifyingglass"
-        case .chat:
-            return "bubble.left.and.bubble.right.fill"
         }
     }
 

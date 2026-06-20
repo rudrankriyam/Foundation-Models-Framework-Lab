@@ -44,7 +44,7 @@ struct ReferenceExampleView<Content: View>: View {
         .navigationTitle(title)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.large)
-        .navigationSubtitle(description)
         #endif
+        .navigationSubtitle(description)
     }
 }

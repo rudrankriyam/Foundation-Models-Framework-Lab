@@ -17,7 +17,7 @@ Foundation Lab has three primary destinations:
 
 | Destination | Purpose |
 | --- | --- |
-| Library | Browse 18 editable recipes, 14 guided labs, two workshops, saved experiments, and two expert workspaces. |
+| Library | Browse 18 editable recipes, 14 guided labs, three workshops, saved experiments, and two expert workspaces. |
 | Playground | Edit prompts and instructions, configure the model and tools, stream responses, use voice input, save experiments, and export Swift. |
 | Runs | Inspect persisted run status, configuration, transcript events, tool calls, timing, and token usage. |
 
@@ -25,7 +25,7 @@ Library entries identify how they open:
 
 - **Recipe** opens in Playground and can be edited, run, and saved.
 - **Guided Lab** uses a focused interface for a specific Foundation Models API.
-- **Workshop** groups a progression of related schema or language examples.
+- **Workshop** groups related schema, language, or Xcode 27 examples without adding another top-level destination.
 - **Workspace** opens an expert tool such as Adapter Comparison or AppBench.
 
 ## Requirements
