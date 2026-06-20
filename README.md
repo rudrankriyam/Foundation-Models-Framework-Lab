@@ -11,6 +11,28 @@ The app is designed for two complementary workflows:
 - Experienced developers can compose custom prompts and tools, inspect every run,
   compare adapters, and use the repository's CLI and evaluation tooling.
 
+<div align="center">
+  <img src="images/FoundationLab-Library-macOS.png" alt="Foundation Lab for macOS showing the Library with editable beginner recipes and built-in tool examples" width="1000"/>
+  <br/>
+  <strong>Library</strong>
+  <br/>
+  <br/>
+  <table>
+    <tr>
+      <td align="center" style="padding: 15px;">
+        <img src="images/FoundationLab-Playground-macOS.png" alt="Foundation Lab for macOS showing an empty Playground with runtime, reasoning, generation, instructions, and tool controls" width="500"/>
+        <br/>
+        <strong>Playground</strong>
+      </td>
+      <td align="center" style="padding: 15px;">
+        <img src="images/FoundationLab-Xcode27-macOS.png" alt="Foundation Lab for macOS showing the Xcode 27 workshop with runtime, context, tool, security, transcript, and agent labs" width="500"/>
+        <br/>
+        <strong>Xcode 27 Workshop</strong>
+      </td>
+    </tr>
+  </table>
+</div>
+
 ## App Structure
 
 Foundation Lab has three primary destinations:
