@@ -1,0 +1,46 @@
+#!/bin/sh
+
+# Compatibility wrapper for Foundation Models FMFBench.
+# Automatically builds, finds build path, and runs - all in one step.
+#
+# Usage:
+#   ./benchmark
+#   ./benchmark --debug --suite performance
+
+CONFIGURATION=release
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+
+# Parse flags
+if [ "$1" = "--debug" ]; then
+	CONFIGURATION=debug
+	shift
+fi
+
+PROJECT_DIR="$SCRIPT_DIR/BenchmarkCore"
+PACKAGE_FILE="$PROJECT_DIR/Package.swift"
+FMFBENCH_COMMIT="$(git -C "$SCRIPT_DIR" rev-parse --short HEAD 2>/dev/null || true)"
+export FMFBENCH_COMMIT
+
+# Check if Package.swift exists
+if [ ! -f "$PACKAGE_FILE" ]; then
+	echo "Error: $PACKAGE_FILE not found."
+	exit 1
+fi
+
+# Build first
+echo "Building FMFBenchCLI ($CONFIGURATION)..."
+if ! swift build --package-path "$PROJECT_DIR" -c "$CONFIGURATION"; then
+	echo "Build failed"
+	exit 1
+fi
+
+# Find the build directory
+BUILD_DIR="$(swift build --package-path "$PROJECT_DIR" -c "$CONFIGURATION" --show-bin-path)"
+
+if [ -f "$BUILD_DIR/FMFBenchCLI" ]; then
+	export DYLD_FRAMEWORK_PATH="$BUILD_DIR/PackageFrameworks:$BUILD_DIR"
+	exec "$BUILD_DIR/FMFBenchCLI" "$@"
+else
+	echo "Error: $BUILD_DIR/FMFBenchCLI does not exist"
+	exit 1
+fi
