@@ -41,7 +41,38 @@ nonisolated private func copyAudioBuffer(_ buffer: AVAudioPCMBuffer) -> AVAudioP
     return copiedBuffer
 }
 
+/// Owns a deep-copied buffer while it crosses from the real-time audio queue to the main actor.
+nonisolated private struct TransferredAudioBuffer: @unchecked Sendable {
+    let value: AVAudioPCMBuffer
+}
+
 extension SpeechRecognizer {
+    nonisolated private static func makeAudioTapHandler(
+        for recognizer: SpeechRecognizer
+    ) -> AVAudioNodeTapBlock {
+        { [weak recognizer] buffer, _ in
+            guard let bufferCopy = copyAudioBuffer(buffer) else { return }
+            let transferredBuffer = TransferredAudioBuffer(value: bufferCopy)
+            let frameLength = bufferCopy.frameLength
+
+            Task { @MainActor [weak recognizer] in
+                guard let recognizer, !recognizer.hasProcessedFinalResult else { return }
+                let bufferCopy = transferredBuffer.value
+                recognizer.recognitionRequest?.append(bufferCopy)
+                recognizer.processAudioBuffer(bufferCopy)
+
+                if VoiceLogging.isVerboseEnabled {
+                    recognizer.audioBufferCount += 1
+                    if recognizer.audioBufferCount % 200 == 0 {
+                        recognizer.logger.debug(
+                            "Processed \(recognizer.audioBufferCount) audio buffers (frameLength=\(frameLength))"
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     func configureAudioSessionIfNeeded() async throws {
         logger.debug("Configuring audio session for speech recognition")
 
@@ -99,26 +130,13 @@ extension SpeechRecognizer {
         }
 
         audioBufferCount = 0
+        let audioTapHandler = Self.makeAudioTapHandler(for: self)
         inputNode.installTap(
             onBus: 0,
             bufferSize: 1024,
-            format: tapFormat
-        ) { [weak self] (buffer: AVAudioPCMBuffer, _: AVAudioTime) in
-            guard let bufferCopy = copyAudioBuffer(buffer) else { return }
-            let frameLength = bufferCopy.frameLength
-            Task { @MainActor [weak self] in
-                guard let self, !self.hasProcessedFinalResult else { return }
-                self.recognitionRequest?.append(bufferCopy)
-                self.processAudioBuffer(bufferCopy)
-
-                if VoiceLogging.isVerboseEnabled {
-                    self.audioBufferCount += 1
-                    if self.audioBufferCount % 200 == 0 {
-                        self.logger.debug("Processed \(self.audioBufferCount) audio buffers (frameLength=\(frameLength))")
-                    }
-                }
-            }
-        }
+            format: tapFormat,
+            block: audioTapHandler
+        )
 
         audioEngine.prepare()
 

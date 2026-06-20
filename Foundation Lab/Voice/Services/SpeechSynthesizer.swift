@@ -32,15 +32,6 @@ protocol SpeechSynthesisService: AnyObject {
     /// Handler invoked when an unrecoverable error occurs
     var errorHandler: ((SpeechSynthesizerError) -> Void)? { get set }
 
-    /// Available voices organized by language
-    var voicesByLanguage: [String: [AVSpeechSynthesisVoice]] { get }
-
-    /// All available languages
-    var availableLanguages: [String] { get }
-
-    /// Currently selected voice
-    var selectedVoice: AVSpeechSynthesisVoice? { get set }
-
     /// Convert text to speech and speak it directly
     /// - Parameter text: The text to synthesize and speak
     /// - Throws: SpeechSynthesizerError if synthesis fails
@@ -90,10 +81,6 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
     var speakingStateHandler: ((Bool) -> Void)?
     var errorHandler: ((SpeechSynthesizerError) -> Void)?
 
-    var selectedVoice: AVSpeechSynthesisVoice?
-    var availableVoices: [AVSpeechSynthesisVoice] = []
-    var voicesByLanguage: [String: [AVSpeechSynthesisVoice]] = [:]
-    var availableLanguages: [String] = []
     private let volume: Float
 
     private init(volume: Float = 1.0) {
@@ -102,7 +89,6 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
         super.init()
 
         synthesizer.delegate = self
-        loadAvailableVoices()
     }
 
     func synthesizeAndSpeak(text: String) async throws {
@@ -211,35 +197,8 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
     }
     #endif
 
-    func loadAvailableVoices() {
-        let allVoices = AVSpeechSynthesisVoice.speechVoices()
-        let speechVoices = filterSpeechVoices(from: allVoices)
-        var voicesGroupedByLanguage = groupVoicesByLanguage(speechVoices)
-        voicesGroupedByLanguage = sortVoicesWithinLanguages(voicesGroupedByLanguage)
-
-        voicesByLanguage = voicesGroupedByLanguage
-        availableLanguages = sortLanguages(Set(voicesGroupedByLanguage.keys))
-
-        let englishVoices = filterAndSortEnglishVoices(from: speechVoices, allVoices: allVoices)
-        availableVoices = englishVoices
-
-        selectedVoice = selectPreferredVoice(from: englishVoices)
-
-        if VoiceLogging.isVerboseEnabled, let voice = selectedVoice {
-            logger.debug(
-                """
-                Selected voice: \(voice.name, privacy: .public) \
-                (\(voice.language, privacy: .public)) quality=\(voice.quality.rawValue)
-                """
-            )
-            let summaries = availableVoices.map { "\($0.name) (Q:\($0.quality.rawValue))" }.joined(separator: ", ")
-            logger.debug("Available voices: \(summaries, privacy: .public)")
-        }
-    }
-
     private func createUtterance(from text: String) -> AVSpeechUtterance {
         let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = selectedVoice ?? AVSpeechSynthesisVoice(language: "en-US")
         utterance.volume = max(0.0, min(1.0, volume))
 
         if VoiceLogging.isVerboseEnabled {

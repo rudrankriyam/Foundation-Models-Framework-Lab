@@ -92,7 +92,10 @@ struct PlaygroundView: View {
             }
         }
         .alert("Experiment Error", isPresented: $viewModel.showError) {
-            Button("Dismiss", action: viewModel.dismissError)
+            if viewModel.shouldOfferPermissionSettings {
+                Button("Open Settings", action: viewModel.openPermissionSettings)
+            }
+            Button("Dismiss", role: .cancel, action: viewModel.dismissError)
         } message: {
             if let message = viewModel.errorMessage {
                 Text(message)
@@ -159,28 +162,44 @@ private extension PlaygroundView {
             configurationSnapshot(prompt: prompt)
         )
         experimentStore.updateActiveExperiment(configuration)
-        let transcriptCountBeforeRun = viewModel.session.transcript.count
-        let response = await viewModel.sendMessage(prompt)
-        guard response != nil || viewModel.errorMessage != nil else {
+        let matchingPromptCountBeforeRun = transcriptPromptCount(matching: prompt)
+        let outcome = await viewModel.sendMessage(prompt)
+        let response: String
+        let errorMessage: String?
+        let status: FoundationLabExperimentRun.Status
+        switch outcome {
+        case .succeeded(let content):
+            response = content
+            errorMessage = nil
+            status = .succeeded
+        case .cancelled:
+            response = ""
+            errorMessage = nil
+            status = .cancelled
+        case .failed(let message):
+            response = ""
+            errorMessage = message
+            status = .failed
+        case .notStarted:
             return
         }
-        let errorMessage = response == nil ? viewModel.errorMessage : nil
         let events = capturedRunEvents(
             ensuringPrompt: prompt,
             startedAt: startedAt,
-            after: transcriptCountBeforeRun
+            matchingPromptCountBeforeRun: matchingPromptCountBeforeRun
         )
 
         let run = FoundationLabExperimentRun(
             configuration: configuration,
             prompt: prompt,
-            response: response ?? "",
+            response: response,
             startedAt: startedAt,
             duration: Date.now.timeIntervalSince(startedAt),
             provider: "Apple Foundation Models",
             modelIdentifier: modelIdentifier(for: configuration.modelRuntime),
             tokenCount: viewModel.currentTokenCount,
             errorMessage: errorMessage,
+            status: status,
             events: events
         )
         experimentStore.record(run)
@@ -303,11 +322,13 @@ private extension PlaygroundView {
     private func capturedRunEvents(
         ensuringPrompt currentPrompt: String? = nil,
         startedAt: Date? = nil,
-        after transcriptCountBeforeRun: Int? = nil
+        matchingPromptCountBeforeRun: Int = 0
     ) -> [FoundationLabExperimentEvent] {
         var events = viewModel.session.transcript.flatMap { capturedEvents(for: $0) }
-        let capturedCurrentPrompt = transcriptCountBeforeRun.map(transcriptContainsPrompt(after:)) ?? false
-        if let currentPrompt, !capturedCurrentPrompt {
+        let capturedPromptCount = currentPrompt.map { prompt in
+            events.count(where: { $0.role == .user && $0.text == prompt })
+        } ?? 0
+        if let currentPrompt, capturedPromptCount <= matchingPromptCountBeforeRun {
             events.append(
                 FoundationLabExperimentEvent(
                     role: .user,
@@ -320,12 +341,11 @@ private extension PlaygroundView {
         return events
     }
 
-    private func transcriptContainsPrompt(after entryCount: Int) -> Bool {
-        viewModel.session.transcript.enumerated().contains { index, entry in
-            guard index >= entryCount else { return false }
-            if case .prompt = entry { return true }
-            return false
-        }
+    private func transcriptPromptCount(matching text: String) -> Int {
+        viewModel.session.transcript.count(where: { entry in
+            guard case .prompt(let prompt) = entry else { return false }
+            return transcriptText(from: prompt.segments) == text
+        })
     }
 
     private func capturedEvents(for entry: Transcript.Entry) -> [FoundationLabExperimentEvent] {

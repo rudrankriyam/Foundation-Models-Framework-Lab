@@ -25624,6 +25624,70 @@
         }
       }
     },
+    "Cancelled" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abgebrochen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelled"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annulé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annullato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャンセル済み"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "취소됨"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelado"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已取消"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已取消"
+          }
+        }
+      }
+    },
     "Succeeded" : {
       "localizations" : {
         "de" : {
@@ -25748,6 +25812,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "失敗"
+          }
+        }
+      }
+    },
+    "Run cancelled" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausführung abgebrochen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Run cancelled"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ejecución cancelada"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exécution annulée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esecuzione annullata"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "実行がキャンセルされました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실행 취소됨"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Execução cancelada"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "运行已取消"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "執行已取消"
           }
         }
       }
@@ -72435,66 +72563,66 @@
         }
       }
     },
-    "Tool output" : {
+    "Tool call + output" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tool output"
+            "value" : "Tool call + output"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Werkzeugausgabe"
+            "value" : "Werkzeugaufruf + Ausgabe"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Salida de la herramienta"
+            "value" : "Llamada de herramienta + resultado"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sortie de l'outil"
+            "value" : "Appel d’outil + sortie"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uscita dello strumento"
+            "value" : "Chiamata strumento + output"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ツール出力"
+            "value" : "ツール呼び出し + 出力"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "도구 출력"
+            "value" : "도구 호출 + 출력"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saída da ferramenta"
+            "value" : "Chamada de ferramenta + saída"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "工具输出"
+            "value" : "工具调用 + 输出"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "工具輸出"
+            "value" : "工具呼叫 + 輸出"
           }
         }
       }
@@ -75382,66 +75510,66 @@
         }
       }
     },
-    "Use this when the response must be grounded in a tool result, such as weather, calendar, or search." : {
+    "Use this when the response must be grounded in a tool result. Always define an exit condition; this recipe switches to Allowed after the first tool call so the model can answer." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Use this when the response must be grounded in a tool result, such as weather, calendar, or search."
+            "value" : "Use this when the response must be grounded in a tool result. Always define an exit condition; this recipe switches to Allowed after the first tool call so the model can answer."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verwenden Sie dies, wenn die Antwort in einem Tool-Ergebnis wie Wetter, Kalender oder Suche geerdet werden muss."
+            "value" : "Verwenden Sie diesen Modus, wenn die Antwort auf einem Werkzeugergebnis basieren muss. Definieren Sie immer eine Abbruchbedingung; dieses Rezept wechselt nach dem ersten Werkzeugaufruf zu „Erlaubt“, damit das Modell antworten kann."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Use esto cuando la respuesta debe basarse en un resultado de la herramienta, como el tiempo, el calendario o la búsqueda."
+            "value" : "Úsalo cuando la respuesta deba basarse en el resultado de una herramienta. Define siempre una condición de salida; esta receta cambia a Permitido después de la primera llamada a la herramienta para que el modelo pueda responder."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Utilisez ceci lorsque la réponse doit être basée sur un résultat d'outil, comme la météo, le calendrier ou la recherche."
+            "value" : "Utilisez ce mode lorsque la réponse doit s’appuyer sur le résultat d’un outil. Définissez toujours une condition de sortie ; cette recette passe à Autorisé après le premier appel d’outil afin que le modèle puisse répondre."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Utilizzare questo quando la risposta deve essere messa a terra in un risultato degli strumenti, come il tempo, il calendario o la ricerca."
+            "value" : "Usa questa modalità quando la risposta deve basarsi sul risultato di uno strumento. Definisci sempre una condizione di uscita; questa ricetta passa a Consentito dopo la prima chiamata allo strumento, così il modello può rispondere."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "応答は、天候、カレンダー、検索などのツール結果に接地する必要があるときにこれを使用してください。"
+            "value" : "応答をツールの結果に基づかせる必要がある場合に使用します。必ず終了条件を定義してください。このレシピは最初のツール呼び出し後に「許可」に切り替え、モデルが応答できるようにします。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "해당 이용 후기에 달린 코멘트가 없습니다."
+            "value" : "응답을 도구 결과에 근거해야 할 때 사용합니다. 항상 종료 조건을 정의하세요. 이 레시피는 첫 번째 도구 호출 후 허용으로 전환하여 모델이 응답할 수 있게 합니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Use isso quando a resposta deve ser fundamentada em um resultado de ferramenta, como tempo, calendário ou busca."
+            "value" : "Use este modo quando a resposta precisar se basear no resultado de uma ferramenta. Sempre defina uma condição de saída; esta receita muda para Permitido após a primeira chamada da ferramenta para que o modelo possa responder."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "当响应必须基于天气、日历或搜索等工具结果时使用。"
+            "value" : "当响应必须基于工具结果时使用。请始终定义退出条件；此示例会在第一次工具调用后切换为“允许”，以便模型能够回答。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "當回應必須根據工具結果( 如天氣、 行事曆或搜尋) 時使用 。"
+            "value" : "當回應必須以工具結果為依據時使用。請務必定義結束條件；此範例會在第一次工具呼叫後切換為「允許」，讓模型能夠回答。"
           }
         }
       }

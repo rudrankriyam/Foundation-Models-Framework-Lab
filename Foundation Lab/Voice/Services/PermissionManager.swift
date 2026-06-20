@@ -16,6 +16,16 @@ import AppKit
 import AVFoundation
 #endif
 
+enum SpeechAuthorizationRequester {
+    nonisolated static func request() async -> SFSpeechRecognizerAuthorizationStatus {
+        await withCheckedContinuation { continuation in
+            SFSpeechRecognizer.requestAuthorization { status in
+                continuation.resume(returning: status)
+            }
+        }
+    }
+}
+
 // MARK: - Microphone Permission Type
 
 #if os(iOS)
@@ -110,6 +120,12 @@ class PermissionManager: PermissionServiceProtocol {
         _ = await requestSpeechPermission()
 
         updateAllPermissionsStatus()
+        if allPermissionsGranted {
+            permissionAlertMessage = ""
+            showPermissionAlert = false
+        } else {
+            showSettingsAlert()
+        }
         return allPermissionsGranted
     }
 
@@ -201,14 +217,9 @@ class PermissionManager: PermissionServiceProtocol {
             return true
         }
 
-        return await withCheckedContinuation { continuation in
-            SFSpeechRecognizer.requestAuthorization { status in
-                Task { @MainActor in
-                    self.speechPermissionStatus = status
-                    continuation.resume(returning: status == .authorized)
-                }
-            }
-        }
+        let status = await SpeechAuthorizationRequester.request()
+        speechPermissionStatus = status
+        return status == .authorized
     }
 
     // MARK: - Helpers
@@ -236,11 +247,13 @@ class PermissionManager: PermissionServiceProtocol {
             deniedPermissions.append("Speech Recognition")
         }
 
-        if !deniedPermissions.isEmpty {
+        if deniedPermissions.isEmpty {
+            permissionAlertMessage = "Microphone and Speech Recognition access are required to use Voice."
+        } else {
             let permissionsList = deniedPermissions.joined(separator: ", ")
             permissionAlertMessage = "Please enable \(permissionsList) in Settings to use Voice features."
-            showPermissionAlert = true
         }
+        showPermissionAlert = true
     }
 
     func openSettings() {

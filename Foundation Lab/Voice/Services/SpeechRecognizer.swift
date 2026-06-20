@@ -186,26 +186,22 @@ class SpeechRecognizer: NSObject, SpeechRecognitionService {
     }
 
     func requestPermission() async -> Bool {
-        return await withCheckedContinuation { continuation in
-            SFSpeechRecognizer.requestAuthorization { [weak self] authStatus in
-                Task { @MainActor in
-                    switch authStatus {
-                    case .authorized:
-                        self?.hasPermission = true
-                        continuation.resume(returning: true)
-                    case .denied, .restricted:
-                        self?.hasPermission = false
-                        self?.state = .error(.notAuthorized)
-                        continuation.resume(returning: false)
-                    case .notDetermined:
-                        self?.hasPermission = false
-                        continuation.resume(returning: false)
-                    @unknown default:
-                        self?.hasPermission = false
-                        continuation.resume(returning: false)
-                    }
-                }
-            }
+        let authorizationStatus = await SpeechAuthorizationRequester.request()
+
+        switch authorizationStatus {
+        case .authorized:
+            hasPermission = true
+            return true
+        case .denied, .restricted:
+            hasPermission = false
+            state = .error(.notAuthorized)
+            return false
+        case .notDetermined:
+            hasPermission = false
+            return false
+        @unknown default:
+            hasPermission = false
+            return false
         }
     }
 
@@ -253,8 +249,7 @@ class SpeechRecognizer: NSObject, SpeechRecognitionService {
 #if os(iOS)
         Task { @MainActor in
             do {
-                let audioSession = AVAudioSession.sharedInstance()
-                try audioSession.setActive(false, options: .notifyOthersOnDeactivation)
+                try await Self.deactivateAudioSession()
                 logger.debug("Deactivated audio session after speech recognition")
             } catch {
                 logger.error("Failed to deactivate audio session: \(error.localizedDescription, privacy: .public)")
@@ -262,6 +257,23 @@ class SpeechRecognizer: NSObject, SpeechRecognitionService {
         }
 #endif
     }
+
+#if os(iOS)
+    @concurrent
+    nonisolated private static func deactivateAudioSession() async throws {
+        let audioSession = AVAudioSession.sharedInstance()
+        #if compiler(>=6.4)
+        if #available(iOS 27.0, *) {
+            let didDeactivate = try await audioSession.deactivate(options: .notifyOthersOnDeactivation)
+            guard didDeactivate else {
+                throw SpeechRecognitionError.audioSessionFailed
+            }
+            return
+        }
+        #endif
+        try audioSession.setActive(false, options: .notifyOthersOnDeactivation)
+    }
+#endif
 
     // MARK: - Private Helper Methods
 

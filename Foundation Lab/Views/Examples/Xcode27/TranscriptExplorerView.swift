@@ -72,24 +72,43 @@ struct TranscriptExplorerView: View {
 
     private var codeExample: String {
         """
-        switch entry {
-        case .reasoning(let reasoning):
-            renderReasoning(reasoning)
-        case .segment(let segment):
-            switch segment {
-            case .text(let text):
-                render(text.content)
-            case .structure(let structured):
-                render(structured.schemaName)
-            case .attachment(let attachment):
-                render(attachment.label)
-            case .custom(let custom):
-                render(custom.description)
+        func render(_ entry: Transcript.Entry) {
+            switch entry {
+            case .instructions(let instructions):
+                render(instructions.segments)
+            case .prompt(let prompt):
+                render(prompt.segments)
+            case .toolCalls(let calls):
+                for call in calls {
+                    render(call.toolName)
+                    render(String(describing: call.arguments))
+                }
+            case .toolOutput(let output):
+                render(output.segments)
+            case .response(let response):
+                render(response.segments)
+            case .reasoning(let reasoning):
+                render(reasoning.segments)
             @unknown default:
-                render("Unknown segment")
+                render("Unknown entry")
             }
-        @unknown default:
-            render("Unknown entry")
+        }
+
+        func render(_ segments: [Transcript.Segment]) {
+            for segment in segments {
+                switch segment {
+                case .text(let text):
+                    render(text.content)
+                case .structure(let structured):
+                    render(structured.schemaName)
+                case .attachment(let attachment):
+                    render(attachment.label ?? "Attachment")
+                case .custom(let custom):
+                    render(custom.description)
+                @unknown default:
+                    render("Unknown segment")
+                }
+            }
         }
         """
     }

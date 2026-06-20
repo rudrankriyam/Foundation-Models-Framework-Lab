@@ -111,14 +111,23 @@ private enum ToolModeExample: String, CaseIterable, Identifiable {
         case .allowed:
             return String(localized: "Use this for normal agentic flows where a tool is available but not always necessary.")
         case .required:
-            return String(localized: "Use this when the response must be grounded in a tool result, such as weather, calendar, or search.")
+            return String(
+                localized: """
+                Use this when the response must be grounded in a tool result. Always define an exit condition; this recipe switches to \
+                Allowed after the first tool call so the model can answer.
+                """
+            )
         case .disallowed:
             return String(localized: "Use this for pure language tasks, drafts, or contexts where external actions would be surprising.")
         }
     }
 
     var code: String {
-        """
+        if self == .required {
+            return Self.requiredModeCode
+        }
+
+        return """
         import FoundationModels
         import FoundationModelsTools
 
@@ -138,6 +147,40 @@ private enum ToolModeExample: String, CaseIterable, Identifiable {
         }
         """
     }
+
+    private static let requiredModeCode = """
+    import FoundationModels
+    import FoundationModelsTools
+
+    @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+    extension SessionPropertyValues {
+        @SessionPropertyEntry
+        var weatherToolCallCount = 0
+    }
+
+    @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+    struct RequiredWeatherProfile: LanguageModelSession.DynamicProfile {
+        @SessionProperty(\\.weatherToolCallCount)
+        var weatherToolCallCount
+
+        var body: some LanguageModelSession.DynamicProfile {
+            LanguageModelSession.Profile {
+                WeatherTool()
+            }
+            .toolCallingMode(weatherToolCallCount == 0 ? .required : .allowed)
+            .onToolCall {
+                weatherToolCallCount += 1
+            }
+        }
+    }
+
+    if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) {
+        let session = LanguageModelSession(profile: RequiredWeatherProfile())
+        let response = try await session.respond(
+            to: Prompt("What is the weather in Cupertino?")
+        )
+    }
+    """
 }
 
 #Preview {

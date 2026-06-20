@@ -24,6 +24,8 @@ final class ChatViewModel {
     var voiceState: VoiceState = .idle
     @ObservationIgnored var speechRecognizer: SpeechRecognizer?
     @ObservationIgnored var speechObservationTask: Task<Void, Never>?
+    @ObservationIgnored private var activeGenerationTask: Task<String, Error>?
+    @ObservationIgnored private var activeGenerationID: UUID?
     @ObservationIgnored let permissionManager: PermissionManager
     @ObservationIgnored let speechSynthesizer: SpeechSynthesisService
     @ObservationIgnored let conversationEngine: FoundationLabConversationEngine
@@ -167,29 +169,45 @@ final class ChatViewModel {
 
 extension ChatViewModel {
     @discardableResult
-    func sendMessage(_ content: String) async -> String? {
-        guard !isLoading, !session.isResponding, !voiceState.isActive else { return nil }
+    func sendMessage(_ content: String) async -> ChatGenerationOutcome {
+        guard !isLoading, !session.isResponding, !voiceState.isActive else { return .notStarted }
         if let availabilityMessage = onDeviceAvailabilityMessage {
             errorMessage = availabilityMessage
             showError = true
-            return nil
+            return .failed(availabilityMessage)
         }
+        let generationID = UUID()
+        let engine = conversationEngine
+        let options = generationOptions
+        let task = Task<String, Error> { @MainActor in
+            try await engine.sendStreamingMessage(content, generationOptions: options)
+        }
+        activeGenerationTask = task
+        activeGenerationID = generationID
         isLoading = true
-        defer { isLoading = false }
+        defer {
+            if activeGenerationID == generationID {
+                activeGenerationTask = nil
+                activeGenerationID = nil
+                isLoading = false
+            }
+        }
 
         do {
-            let response = try await conversationEngine.sendStreamingMessage(
-                content,
-                generationOptions: generationOptions
-            )
+            let response = try await withTaskCancellationHandler {
+                try await task.value
+            } onCancel: {
+                task.cancel()
+            }
             syncConversationState()
-            return response
+            return .succeeded(response)
         } catch is CancellationError {
-            return nil
+            return .cancelled
         } catch {
-            errorMessage = message(for: error)
+            let failureMessage = message(for: error)
+            errorMessage = failureMessage
             showError = true
-            return nil
+            return .failed(failureMessage)
         }
     }
 
@@ -259,23 +277,37 @@ extension ChatViewModel {
     }
 
     func clearChat() {
+        cancelGeneration()
         conversationEngine.clear()
-        isLoading = false
         errorMessage = nil
         showError = false
         syncConversationState()
     }
 
     func cancelGeneration() {
+        activeGenerationTask?.cancel()
+        activeGenerationTask = nil
+        activeGenerationID = nil
         conversationEngine.cancelActiveResponse()
+        isLoading = false
     }
 
     func dismissError() {
         showError = false
         errorMessage = nil
+        permissionManager.showPermissionAlert = false
         if case .error = voiceState {
             voiceState = .idle
         }
+    }
+
+    var shouldOfferPermissionSettings: Bool {
+        permissionManager.showPermissionAlert
+    }
+
+    func openPermissionSettings() {
+        permissionManager.openSettings()
+        dismissError()
     }
 
 }

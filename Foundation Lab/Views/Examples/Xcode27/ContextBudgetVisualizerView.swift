@@ -17,6 +17,8 @@ struct ContextBudgetVisualizerView: View {
     @State private var responseReserve = 640.0
     @State private var measuredPromptTokens: Int?
     @State private var measuredHistoryTokens: [String: Int]?
+    @State private var measuredContextSize: Int?
+    @State private var errorMessage: String?
     @State private var measurementNote = String(
         localized: "Measure the prompt and sample transcript with the model tokenizer."
     )
@@ -25,7 +27,7 @@ struct ContextBudgetVisualizerView: View {
 
     private var simulation: ContextBudgetSimulation {
         ContextBudgetSimulation(
-            contextSize: SystemLanguageModel.default.contextSize,
+            contextSize: measuredContextSize ?? 0,
             promptTokens: measuredPromptTokens,
             historyTokenCounts: measuredHistoryTokens,
             responseReserve: Int(responseReserve),
@@ -39,6 +41,7 @@ struct ContextBudgetVisualizerView: View {
             description: String(localized: "Decide what your app keeps before a session runs out of context"),
             currentPrompt: $currentPrompt,
             isRunning: isRunning,
+            errorMessage: errorMessage,
             codeExample: codeExample,
             runLabel: String(localized: "Measure Budget"),
             onRun: runSimulation,
@@ -140,7 +143,9 @@ struct ContextBudgetVisualizerView: View {
             }
         }
     }
+}
 
+private extension ContextBudgetVisualizerView {
     private func runSimulation() async {
         let prompt = currentPrompt
         let measurementID = UUID()
@@ -148,6 +153,7 @@ struct ContextBudgetVisualizerView: View {
         isRunning = true
         measuredPromptTokens = nil
         measuredHistoryTokens = nil
+        errorMessage = nil
         measurementNote = String(localized: "Measuring prompt and sample transcript…")
 
         defer {
@@ -165,12 +171,23 @@ struct ContextBudgetVisualizerView: View {
 
                 for sample in ContextBudgetSimulation.entriesToMeasure {
                     try Task.checkCancellation()
-                    historyTokens[sample.id] = try await model.tokenCount(for: [sample.transcriptEntry])
+                    historyTokens[sample.id] = try await model.tokenCount(for: sample.transcriptEntries)
+                }
+
+                guard let contextSize = try await readyContextSize(for: model) else {
+                    guard activeMeasurementID == measurementID, currentPrompt == prompt else { return }
+                    let message = String(
+                        localized: "The on-device model is still preparing. Try again when Apple Intelligence is ready."
+                    )
+                    errorMessage = message
+                    measurementNote = message
+                    return
                 }
 
                 try Task.checkCancellation()
                 guard activeMeasurementID == measurementID, currentPrompt == prompt else { return }
 
+                measuredContextSize = contextSize
                 measuredPromptTokens = promptTokens
                 measuredHistoryTokens = historyTokens
                 measurementNote = String(localized: "Measured with SystemLanguageModel.tokenCount(for:).")
@@ -183,8 +200,23 @@ struct ContextBudgetVisualizerView: View {
             return
         } catch {
             guard activeMeasurementID == measurementID, currentPrompt == prompt else { return }
-            measurementNote = String(localized: "The model tokenizer is unavailable; no estimates are shown.")
+            errorMessage = error.localizedDescription
+            measurementNote = error.localizedDescription
         }
+    }
+
+    private func readyContextSize(for model: SystemLanguageModel) async throws -> Int? {
+        for attempt in 0..<5 {
+            try Task.checkCancellation()
+            let contextSize = model.contextSize
+            if contextSize > 0 {
+                return contextSize
+            }
+            if attempt < 4 {
+                try await Task.sleep(for: .milliseconds(250))
+            }
+        }
+        return nil
     }
 
     private func reset() {
@@ -195,6 +227,8 @@ struct ContextBudgetVisualizerView: View {
         responseReserve = 640
         measuredPromptTokens = nil
         measuredHistoryTokens = nil
+        measuredContextSize = nil
+        errorMessage = nil
         measurementNote = String(localized: "Measure the prompt and sample transcript with the model tokenizer.")
     }
 
@@ -203,6 +237,7 @@ struct ContextBudgetVisualizerView: View {
         isRunning = false
         measuredPromptTokens = nil
         measuredHistoryTokens = nil
+        errorMessage = nil
         if currentPrompt == Self.defaultPrompt {
             measurementNote = String(localized: "Measure the prompt and sample transcript with the model tokenizer.")
         } else if currentPrompt.isEmpty {
