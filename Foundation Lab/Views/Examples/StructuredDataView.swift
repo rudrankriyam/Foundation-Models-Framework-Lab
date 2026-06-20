@@ -68,10 +68,8 @@ struct StructuredDataView: View {
     }
   }
 
-  private func executeStructuredData() {
-    Task {
-      await executor.executeBookRecommendation(prompt: currentPrompt)
-    }
+  private func executeStructuredData() async {
+    await executor.executeBookRecommendation(prompt: currentPrompt)
   }
 
   private func resetToDefaults() {

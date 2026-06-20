@@ -74,17 +74,14 @@ struct ModelAvailabilityView: View {
     }
   }
 
-  private func checkAvailability() {
-    Task {
-      isChecking = true
-      isAvailable = nil
+  private func checkAvailability() async {
+    isChecking = true
+    defer { isChecking = false }
+    isAvailable = nil
 
-      let availability = CheckModelAvailabilityUseCase().execute()
-      isAvailable = availability.isAvailable
-      availabilityStatus = availabilityMessage(for: availability)
-
-      isChecking = false
-    }
+    let availability = CheckModelAvailabilityUseCase().execute()
+    isAvailable = availability.isAvailable
+    availabilityStatus = availabilityMessage(for: availability)
   }
 
   private func resetStatus() {

@@ -42,7 +42,9 @@ final class HealthChatViewModel {
     // MARK: - Public Properties
 
     private(set) var session: LanguageModelSession
+    private var configurationTask: Task<Void, Never>?
     private var modelContext: ModelContext?
+    private var responseTask: Task<Void, Never>?
     private let healthDataManager: HealthDataManager
     private let languageModel = SystemLanguageModel.default
     private let conversationEngine: FoundationLabConversationEngine
@@ -89,8 +91,10 @@ final class HealthChatViewModel {
         }
         syncConversationState()
 
-        Task {
-            let contextSize = await AppConfiguration.TokenManagement.contextSize(for: languageModel)
+        let configuredLanguageModel = languageModel
+        configurationTask = Task { [weak self, configuredLanguageModel] in
+            let contextSize = await AppConfiguration.TokenManagement.contextSize(for: configuredLanguageModel)
+            guard !Task.isCancelled, let self else { return }
             conversationEngine.setMaxContextSize(contextSize)
             syncConversationState()
         }
@@ -102,10 +106,19 @@ final class HealthChatViewModel {
 
     // MARK: - Public Methods
 
-    func sendMessage(_ content: String) async {
+    func sendMessage(_ content: String) {
         guard !isLoading else { return }
         isLoading = true
-        defer { isLoading = false }
+        responseTask = Task { [weak self] in
+            await self?.performSendMessage(content)
+        }
+    }
+
+    private func performSendMessage(_ content: String) async {
+        defer {
+            isLoading = false
+            responseTask = nil
+        }
 
         do {
             await saveMessageToSession(content, isFromUser: true)
@@ -127,11 +140,17 @@ final class HealthChatViewModel {
     }
 
     func clearChat() {
+        responseTask?.cancel()
+        responseTask = nil
         conversationEngine.clear()
         syncConversationState()
     }
 
     func tearDown() {
+        configurationTask?.cancel()
+        configurationTask = nil
+        responseTask?.cancel()
+        responseTask = nil
         conversationEngine.cancelActiveResponse()
     }
 

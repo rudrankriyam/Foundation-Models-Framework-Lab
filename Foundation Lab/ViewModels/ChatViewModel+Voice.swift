@@ -5,6 +5,11 @@ import FoundationModels
 extension ChatViewModel {
     func tearDown() {
         conversationEngine.cancelActiveResponse()
+        suspendVoiceMode()
+    }
+
+    /// Releases microphone and speech resources without canceling an active text response.
+    func suspendVoiceMode() {
         stopSpeechObservation()
         speechRecognizer?.stopRecognition()
         speechRecognizer = nil
@@ -39,27 +44,24 @@ extension ChatViewModel {
         speechRecognizer = nil
 
         let didStart = await initializeSpeechRecognizer()
-        guard didStart else { return }
-
-        if case .preparing = voiceState {
-            voiceState = .listening(partialText: "")
+        guard didStart, case .preparing = voiceState else {
+            speechRecognizer?.stopRecognition()
+            speechRecognizer = nil
+            return
         }
+        voiceState = .listening(partialText: "")
         startSpeechObservation()
     }
 
     func cancelVoiceMode() {
-        stopSpeechObservation()
-        voiceState = .idle
+        suspendVoiceMode()
         errorMessage = nil
         showError = false
-        speechRecognizer?.stopRecognition()
-        speechRecognizer = nil
     }
 
     func stopSpeaking() {
         guard case .speaking = voiceState else { return }
         speechSynthesizer.cancelSpeaking()
-        restartListening()
     }
 
     func stopVoiceModeAndSend() async -> (prompt: String, response: String)? {
@@ -87,6 +89,9 @@ extension ChatViewModel {
             )
             isLoading = false
             syncConversationState()
+            guard case .processing = voiceState else {
+                return (trimmedText, response)
+            }
             voiceState = .speaking(response: response)
             await speak(response)
             return (trimmedText, response)
@@ -106,9 +111,14 @@ extension ChatViewModel {
     func speak(_ response: String) async {
         do {
             try await speechSynthesizer.synthesizeAndSpeak(text: response)
-            restartListening()
+            guard case .speaking = voiceState else { return }
+            await restartListening()
         } catch let synthError as SpeechSynthesizerError {
-            if case .cancelled = synthError { return }
+            if case .cancelled = synthError {
+                guard case .speaking = voiceState else { return }
+                await restartListening()
+                return
+            }
             handleVoiceError(synthError.localizedDescription)
         } catch {
             handleVoiceError(error.localizedDescription)
@@ -120,8 +130,10 @@ extension ChatViewModel {
         speechRecognizer = recognizer
 
         do {
-            try recognizer.startRecognition()
+            try await recognizer.startRecognition()
             return true
+        } catch is CancellationError {
+            return false
         } catch {
             handleVoiceError(error.localizedDescription)
             return false
@@ -140,15 +152,18 @@ extension ChatViewModel {
         speechObservationTask = nil
     }
 
-    func restartListening() {
+    func restartListening() async {
         guard let recognizer = speechRecognizer else {
             handleVoiceError("Speech recognizer not initialized")
             return
         }
 
         do {
-            try recognizer.startRecognition()
+            try await recognizer.startRecognition()
+            try Task.checkCancellation()
             voiceState = .listening(partialText: "")
+        } catch is CancellationError {
+            return
         } catch {
             handleVoiceError(error.localizedDescription)
         }

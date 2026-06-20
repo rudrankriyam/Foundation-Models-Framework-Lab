@@ -27,7 +27,7 @@ struct ArrayDynamicSchemaView: View {
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
-            onRun: { Task { await runExample() } },
+            onRun: { await runExample() },
             onReset: {
                 selectedExample = 0
                 todoInput = schemaExample.preset(at: 0).defaultInput
@@ -85,21 +85,6 @@ struct ArrayDynamicSchemaView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(Color.orange.opacity(0.1))
                             .clipShape(.rect(cornerRadius: 8))
-                    }
-
-                    HStack {
-                        Button("Extract Array") {
-                            Task {
-                                await runExample()
-                            }
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(executor.isRunning || currentInput.isEmpty)
-
-                        if executor.isRunning {
-                            ProgressView()
-                                .scaleEffect(0.8)
-                        }
                     }
 
                     // Results section

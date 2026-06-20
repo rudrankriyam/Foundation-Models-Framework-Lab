@@ -62,80 +62,76 @@ struct PrivateCloudComputeView: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            .task {
-                inspect()
-            }
         }
     }
 
-    private func inspect() {
+    private func inspect() async {
         let id = UUID()
         inspectionID = id
         isInspecting = true
         errorMessage = nil
 
-        Task { @MainActor in
-            defer {
-                if inspectionID == id {
-                    isInspecting = false
-                }
+        defer {
+            if inspectionID == id {
+                isInspecting = false
             }
+        }
 
-            isInspecting = true
-
-            #if compiler(>=6.4)
-            guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) else {
-                guard inspectionID == id else { return }
-                report = .unsupported
-                return
-            }
-
-            let model = PrivateCloudComputeLanguageModel()
-            let availabilityText: String
-
-            switch model.availability {
-            case .available:
-                availabilityText = "Available"
-            case .unavailable(let reason):
-                availabilityText = unavailableReasonDescription(reason)
-            }
-
-            let quotaUsage = model.quotaUsage
-            let quotaText = quotaDescription(quotaUsage)
-            let languages = model.supportedLanguages
-                .map { $0.minimalIdentifier }
-                .sorted()
-                .joined(separator: ", ")
-
-            do {
-                let contextSize = try await model.contextSize
-                guard inspectionID == id else { return }
-                report = PrivateCloudComputeReport(
-                    availability: availabilityText,
-                    isAvailable: model.isAvailable,
-                    contextSize: contextSize,
-                    quota: quotaText,
-                    quotaLimitReached: quotaUsage.isLimitReached,
-                    supportedLanguages: languages.isEmpty ? "No languages reported yet." : languages
-                )
-            } catch {
-                guard inspectionID == id else { return }
-                report = PrivateCloudComputeReport(
-                    availability: availabilityText,
-                    isAvailable: model.isAvailable,
-                    contextSize: nil,
-                    quota: quotaText,
-                    quotaLimitReached: quotaUsage.isLimitReached,
-                    supportedLanguages: languages.isEmpty ? "No languages reported yet." : languages
-                )
-                errorMessage = error.localizedDescription
-            }
-            #else
+        #if compiler(>=6.4)
+        guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) else {
             guard inspectionID == id else { return }
             report = .unsupported
-            errorMessage = "PrivateCloudComputeLanguageModel requires the Xcode 27 SDK."
-            #endif
+            return
         }
+
+        let model = PrivateCloudComputeLanguageModel()
+        let availabilityText: String
+
+        switch model.availability {
+        case .available:
+            availabilityText = "Available"
+        case .unavailable(let reason):
+            availabilityText = unavailableReasonDescription(reason)
+        }
+
+        let quotaUsage = model.quotaUsage
+        let quotaText = quotaDescription(quotaUsage)
+        let languages = model.supportedLanguages
+            .map { $0.minimalIdentifier }
+            .sorted()
+            .joined(separator: ", ")
+
+        do {
+            let contextSize = try await model.contextSize
+            try Task.checkCancellation()
+            guard inspectionID == id else { return }
+            report = PrivateCloudComputeReport(
+                availability: availabilityText,
+                isAvailable: model.isAvailable,
+                contextSize: contextSize,
+                quota: quotaText,
+                quotaLimitReached: quotaUsage.isLimitReached,
+                supportedLanguages: languages.isEmpty ? "No languages reported yet." : languages
+            )
+        } catch is CancellationError {
+            return
+        } catch {
+            guard inspectionID == id else { return }
+            report = PrivateCloudComputeReport(
+                availability: availabilityText,
+                isAvailable: model.isAvailable,
+                contextSize: nil,
+                quota: quotaText,
+                quotaLimitReached: quotaUsage.isLimitReached,
+                supportedLanguages: languages.isEmpty ? "No languages reported yet." : languages
+            )
+            errorMessage = error.localizedDescription
+        }
+        #else
+        guard inspectionID == id else { return }
+        report = .unsupported
+        errorMessage = "PrivateCloudComputeLanguageModel requires the Xcode 27 SDK."
+        #endif
     }
 
     private func reset() {

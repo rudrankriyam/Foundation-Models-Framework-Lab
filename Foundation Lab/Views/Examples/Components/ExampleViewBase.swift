@@ -16,9 +16,10 @@ struct ExampleViewBase<Content: View>: View {
   let errorMessage: String?
   let codeExample: String?
   let runLabel: String
-  let onRun: () -> Void
+  let onRun: () async -> Void
   let onReset: () -> Void
   let content: Content
+  @State private var runTask: Task<Void, Never>?
 
   init(
     title: String,
@@ -28,7 +29,7 @@ struct ExampleViewBase<Content: View>: View {
     errorMessage: String? = nil,
     codeExample: String? = nil,
     runLabel: String = "Run",
-    onRun: @escaping () -> Void,
+    onRun: @escaping () async -> Void,
     onReset: @escaping () -> Void,
     @ViewBuilder content: () -> Content
   ) {
@@ -79,6 +80,9 @@ struct ExampleViewBase<Content: View>: View {
     #if os(iOS)
     .navigationBarTitleDisplayMode(.large)
     #endif
+    .onDisappear {
+      cancelRun()
+    }
   }
 
   private var promptSection: some View {
@@ -99,7 +103,7 @@ struct ExampleViewBase<Content: View>: View {
 
   private var actionButtons: some View {
     HStack(spacing: Spacing.small) {
-      Button(action: onReset) {
+      Button(action: reset) {
         Text("Reset")
           .font(.callout)
           .fontWeight(.medium)
@@ -107,16 +111,15 @@ struct ExampleViewBase<Content: View>: View {
           .padding(.vertical, Spacing.small)
       }
       .buttonStyle(.glass)
-      .disabled(isRunning)
+      .disabled(isExecuting)
       .accessibilityHint("Restore this example's defaults")
 
-      Button(action: onRun) {
+      Button(action: toggleRun) {
         HStack(spacing: Spacing.small) {
-          if isRunning {
-            ProgressView()
-              .scaleEffect(0.8)
+          if isExecuting {
+            Image(systemName: "stop.fill")
           }
-          Text(LocalizedStringKey(isRunning ? "Running..." : runLabel))
+          Text(LocalizedStringKey(isExecuting ? "Stop" : runLabel))
             .font(.callout)
             .fontWeight(.medium)
         }
@@ -124,8 +127,35 @@ struct ExampleViewBase<Content: View>: View {
         .padding(.vertical, Spacing.small)
       }
       .buttonStyle(.glassProminent)
-      .disabled(isRunning || currentPrompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+      .disabled(!isExecuting && currentPrompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
     }
+  }
+
+  private var isExecuting: Bool {
+    isRunning || runTask != nil
+  }
+
+  private func toggleRun() {
+    if isExecuting {
+      cancelRun()
+      return
+    }
+
+    runTask = Task {
+      await onRun()
+      guard !Task.isCancelled else { return }
+      runTask = nil
+    }
+  }
+
+  private func cancelRun() {
+    runTask?.cancel()
+    runTask = nil
+  }
+
+  private func reset() {
+    cancelRun()
+    onReset()
   }
 }
 

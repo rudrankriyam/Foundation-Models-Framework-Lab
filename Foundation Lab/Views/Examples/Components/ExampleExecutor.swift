@@ -11,6 +11,7 @@ import FoundationModels
 import SwiftUI
 
 /// A reusable helper class for executing example operations
+@MainActor
 @Observable
 final class ExampleExecutor {
     var isRunning = false
@@ -38,6 +39,7 @@ final class ExampleExecutor {
         }
 
         isRunning = true
+        defer { isRunning = false }
         errorMessage = nil
         self.successMessage = nil
         result = ""
@@ -57,19 +59,19 @@ final class ExampleExecutor {
                     )
                 )
             )
+            try Task.checkCancellation()
             result = response.content
             lastTokenCount = response.metadata.tokenCount
 
             if let successMessage = successMessage {
                 self.successMessage = successMessage
             }
-
+        } catch is CancellationError {
+            return
         } catch {
             errorMessage = FoundationModelsErrorHandler.handleError(error)
             self.successMessage = nil
         }
-
-        isRunning = false
     }
 
     /// Executes a structured data generation operation
@@ -85,6 +87,7 @@ final class ExampleExecutor {
         }
 
         isRunning = true
+        defer { isRunning = false }
         errorMessage = nil
         successMessage = nil
         result = ""
@@ -103,15 +106,15 @@ final class ExampleExecutor {
                     )
                 )
             )
+            try Task.checkCancellation()
 
             result = formatter(response.output)
             lastTokenCount = response.metadata.tokenCount
-
+        } catch is CancellationError {
+            return
         } catch {
             errorMessage = FoundationModelsErrorHandler.handleError(error)
         }
-
-        isRunning = false
     }
 
     /// Executes the shared book recommendation capability.
@@ -125,6 +128,7 @@ final class ExampleExecutor {
         }
 
         isRunning = true
+        defer { isRunning = false }
         errorMessage = nil
         successMessage = nil
         result = ""
@@ -143,6 +147,7 @@ final class ExampleExecutor {
                     )
                 )
             )
+            try Task.checkCancellation()
 
             let book = response.recommendation
             result = """
@@ -154,11 +159,11 @@ final class ExampleExecutor {
             \(book.description)
             """
             lastTokenCount = response.metadata.tokenCount
+        } catch is CancellationError {
+            return
         } catch {
             errorMessage = FoundationModelsErrorHandler.handleError(error)
         }
-
-        isRunning = false
     }
 
     /// Executes a streaming operation
@@ -173,6 +178,7 @@ final class ExampleExecutor {
         }
 
         isRunning = true
+        defer { isRunning = false }
         errorMessage = nil
         successMessage = nil
         result = ""
@@ -194,15 +200,15 @@ final class ExampleExecutor {
                 guard let self else { return }
                 await self.applyStreamingUpdate(partialText, onPartialResult: onPartialResult)
             }
+            try Task.checkCancellation()
 
             result = response.content
             lastTokenCount = response.metadata.tokenCount
-
+        } catch is CancellationError {
+            return
         } catch {
             errorMessage = FoundationModelsErrorHandler.handleError(error)
         }
-
-        isRunning = false
     }
 
     @MainActor

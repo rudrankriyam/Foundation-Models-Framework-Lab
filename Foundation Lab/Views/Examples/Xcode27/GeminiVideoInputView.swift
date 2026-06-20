@@ -73,6 +73,7 @@ struct GeminiVideoInputView: View {
         .sheet(isPresented: $isShowingAPIKey) {
             GeminiAPIKeySheet(viewModel: viewModel)
         }
+        .onDisappear(perform: viewModel.cancelAnalysis)
     }
 
     private var videoSection: some View {
@@ -124,18 +125,20 @@ struct GeminiVideoInputView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            Button(
-                viewModel.isRunning ? "Analyzing Video..." : "Analyze Video",
-                systemImage: viewModel.isRunning ? "hourglass" : "play.fill",
-                action: analyzeVideo
-            )
-            .buttonStyle(.glassProminent)
-            .controlSize(.large)
-            .frame(maxWidth: .infinity)
-            .disabled(
-                viewModel.isRunning
-                    || viewModel.prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            )
+            if viewModel.isRunning {
+                Button(role: .cancel, action: viewModel.cancelAnalysis) {
+                    Label("Stop", systemImage: "stop.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.glassProminent)
+                .controlSize(.large)
+            } else {
+                Button("Analyze Video", systemImage: "play.fill", action: viewModel.startAnalysis)
+                    .buttonStyle(.glassProminent)
+                    .controlSize(.large)
+                    .frame(maxWidth: .infinity)
+                    .disabled(viewModel.prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
         }
     }
 
@@ -145,12 +148,6 @@ struct GeminiVideoInputView: View {
 
     private func showAPIKey() {
         isShowingAPIKey = true
-    }
-
-    private func analyzeVideo() {
-        Task {
-            await viewModel.analyzeVideo()
-        }
     }
 
     private func handleVideoImport(_ result: Result<[URL], Error>) {

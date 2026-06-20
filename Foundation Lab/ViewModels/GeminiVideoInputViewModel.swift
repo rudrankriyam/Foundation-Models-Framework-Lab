@@ -32,6 +32,9 @@ final class GeminiVideoInputViewModel {
     var errorMessage: String?
     var isRunning = false
 
+    private var analysisTask: Task<Void, Never>?
+    private var activeAnalysisID: UUID?
+
     init(
         bundle: Bundle = .main,
         environment: [String: String] = ProcessInfo.processInfo.environment
@@ -90,12 +93,13 @@ extension GeminiVideoInputViewModel {
     }
 
     func selectVideo(_ url: URL) {
+        cancelAnalysis()
         videoURL = url
         result = ""
         errorMessage = nil
     }
 
-    func analyzeVideo() async {
+    func startAnalysis() {
         guard let videoURL else {
             errorMessage = "Choose a video before running the analysis."
             return
@@ -112,31 +116,36 @@ extension GeminiVideoInputViewModel {
             return
         }
 
+        cancelAnalysis()
+
+        let request = GeminiVideoAnalysisRequest(
+            videoURL: videoURL,
+            prompt: trimmedPrompt,
+            apiKey: apiKey
+        )
+        let analysisID = UUID()
+        activeAnalysisID = analysisID
         isRunning = true
         errorMessage = nil
         result = ""
         resultIsSuccess = false
 
-        defer {
-            isRunning = false
+        let task = Task { @MainActor [weak self] in
+            guard let self else { return }
+            await self.performAnalysis(request, id: analysisID)
         }
+        analysisTask = task
+    }
 
-        do {
-            let loadedVideo = try await Task.detached(priority: .userInitiated) {
-                try Self.loadVideo(from: videoURL)
-            }.value
-            let video = VideoSegment(
-                data: loadedVideo.data,
-                mimeType: loadedVideo.mimeType
-            )
-
-            try await runCustomWrapper(video: video, prompt: trimmedPrompt)
-        } catch {
-            errorMessage = error.localizedDescription
-        }
+    func cancelAnalysis() {
+        activeAnalysisID = nil
+        analysisTask?.cancel()
+        analysisTask = nil
+        isRunning = false
     }
 
     func reset() {
+        cancelAnalysis()
         prompt = Self.defaultPrompt
         result = ""
         errorMessage = nil
@@ -148,22 +157,62 @@ extension GeminiVideoInputViewModel {
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 private extension GeminiVideoInputViewModel {
-    func runCustomWrapper(video: VideoSegment, prompt: String) async throws {
+    func performAnalysis(_ request: GeminiVideoAnalysisRequest, id: UUID) async {
+        defer {
+            if activeAnalysisID == id {
+                activeAnalysisID = nil
+                analysisTask = nil
+                isRunning = false
+            }
+        }
+
+        do {
+            let loadedVideo = try await Self.loadVideo(from: request.videoURL)
+            try Task.checkCancellation()
+
+            let video = VideoSegment(
+                data: loadedVideo.data,
+                mimeType: loadedVideo.mimeType
+            )
+            let content = try await runCustomWrapper(
+                video: video,
+                prompt: request.prompt,
+                apiKey: request.apiKey
+            )
+            try Task.checkCancellation()
+
+            guard activeAnalysisID == id else { return }
+            result = content
+            resultIsSuccess = !content.isEmpty
+        } catch is CancellationError {
+            return
+        } catch {
+            guard activeAnalysisID == id else { return }
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func runCustomWrapper(video: VideoSegment, prompt: String, apiKey: String) async throws -> String {
+        try Task.checkCancellation()
         let model = GeminiDeveloperVideoLanguageModel(
             apiKey: apiKey,
             modelName: Self.modelName
         )
         let session = LanguageModelSession(model: model)
+        try Task.checkCancellation()
         let response = try await session.respond {
             video
             prompt
         }
+        try Task.checkCancellation()
 
-        result = response.content
-        resultIsSuccess = !response.content.isEmpty
+        return response.content
     }
 
-    nonisolated static func loadVideo(from url: URL) throws -> LoadedVideo {
+    @concurrent
+    nonisolated static func loadVideo(from url: URL) async throws -> LoadedVideo {
+        try Task.checkCancellation()
+
         let accessed = url.startAccessingSecurityScopedResource()
         defer {
             if accessed {
@@ -171,15 +220,20 @@ private extension GeminiVideoInputViewModel {
             }
         }
 
+        let mimeType = try mimeType(for: url)
         let file = try FileHandle(forReadingFrom: url)
         defer {
             try? file.close()
         }
 
-        return LoadedVideo(
-            data: try file.readToEnd() ?? Data(),
-            mimeType: try mimeType(for: url)
-        )
+        var data = Data()
+        while let chunk = try file.read(upToCount: 1_048_576), !chunk.isEmpty {
+            try Task.checkCancellation()
+            data.append(chunk)
+        }
+        try Task.checkCancellation()
+
+        return LoadedVideo(data: data, mimeType: mimeType)
     }
 
     nonisolated static func mimeType(for url: URL) throws -> String {
@@ -194,6 +248,12 @@ private extension GeminiVideoInputViewModel {
 
         return mimeType
     }
+}
+
+private struct GeminiVideoAnalysisRequest: Sendable {
+    let videoURL: URL
+    let prompt: String
+    let apiKey: String
 }
 
 private struct LoadedVideo: Sendable {

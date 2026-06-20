@@ -105,9 +105,7 @@ struct HealthChatInputView: View {
         messageText = ""
         isTextFieldFocused = true // Keep focus for continuous conversation
 
-        Task {
-            await chatViewModel.sendMessage(trimmedMessage)
-        }
+        chatViewModel.sendMessage(trimmedMessage)
     }
 }
 

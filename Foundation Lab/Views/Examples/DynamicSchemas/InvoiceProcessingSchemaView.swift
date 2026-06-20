@@ -93,7 +93,7 @@ struct InvoiceProcessingSchemaView: View {
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
-            onRun: { Task { await runExample() } },
+            onRun: { await runExample() },
             onReset: { executor.reset() },
             content: {
             VStack(alignment: .leading, spacing: Spacing.medium) {

@@ -94,46 +94,47 @@ struct ModelRuntimeView: View {
         }
     }
 
-    private func inspectRuntime() {
+    private func inspectRuntime() async {
         let id = UUID()
         inspectionID = id
         isInspecting = true
         errorMessage = nil
         report = nil
 
-        Task { @MainActor in
-            defer {
-                if inspectionID == id {
-                    isInspecting = false
-                }
+        defer {
+            if inspectionID == id {
+                isInspecting = false
             }
-
-            let model = SystemLanguageModel.default
-            let availability = availabilityDescription(model.availability)
-            let promptTokenDescription: String
-
-            if #available(iOS 26.4, macOS 26.4, visionOS 26.4, *) {
-                do {
-                    let promptTokens = try await model.tokenCount(for: currentPrompt)
-                    promptTokenDescription = tokenLabel(promptTokens)
-                } catch {
-                    guard inspectionID == id else { return }
-                    promptTokenDescription = "Tokenization failed"
-                    errorMessage = "The runtime was inspected, but the prompt could not be tokenized: \(error.localizedDescription)"
-                }
-            } else {
-                promptTokenDescription = "Requires OS 26.4"
-            }
-
-            guard inspectionID == id else { return }
-            report = ModelRuntimeReport(
-                contextSize: model.contextSize,
-                availability: availability.text,
-                isAvailable: availability.isAvailable,
-                promptTokenDescription: promptTokenDescription,
-                capabilities: capabilityRows(for: model)
-            )
         }
+
+        let model = SystemLanguageModel.default
+        let availability = availabilityDescription(model.availability)
+        let promptTokenDescription: String
+
+        if #available(iOS 26.4, macOS 26.4, visionOS 26.4, *) {
+            do {
+                let promptTokens = try await model.tokenCount(for: currentPrompt)
+                try Task.checkCancellation()
+                promptTokenDescription = tokenLabel(promptTokens)
+            } catch is CancellationError {
+                return
+            } catch {
+                guard inspectionID == id else { return }
+                promptTokenDescription = "Tokenization failed"
+                errorMessage = "The runtime was inspected, but the prompt could not be tokenized: \(error.localizedDescription)"
+            }
+        } else {
+            promptTokenDescription = "Requires OS 26.4"
+        }
+
+        guard inspectionID == id else { return }
+        report = ModelRuntimeReport(
+            contextSize: model.contextSize,
+            availability: availability.text,
+            isAvailable: availability.isAvailable,
+            promptTokenDescription: promptTokenDescription,
+            capabilities: capabilityRows(for: model)
+        )
     }
 
     private func reset() {

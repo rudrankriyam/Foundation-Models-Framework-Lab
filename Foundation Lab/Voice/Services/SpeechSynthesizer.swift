@@ -86,6 +86,7 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
     private var currentUtterance: AVSpeechUtterance?
     private var pendingContinuation: CheckedContinuation<Void, Error>?
     private var isSynthesisInFlight = false
+    private var cancellationRequested = false
     var speakingStateHandler: ((Bool) -> Void)?
     var errorHandler: ((SpeechSynthesizerError) -> Void)?
 
@@ -102,12 +103,15 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
 
         synthesizer.delegate = self
         loadAvailableVoices()
-        preWarmSynthesizer()
     }
 
     func synthesizeAndSpeak(text: String) async throws {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw SpeechSynthesizerError.invalidInput
+        }
+
+        guard !Task.isCancelled else {
+            throw SpeechSynthesizerError.cancelled
         }
 
         guard !isSpeaking, !isSynthesisInFlight else {
@@ -121,28 +125,45 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
         }
 
         isSynthesisInFlight = true
-        defer { isSynthesisInFlight = false }
+        cancellationRequested = false
+        defer {
+            isSynthesisInFlight = false
+            cancellationRequested = false
+        }
 
         let playbackSessionWasActivated = await configurePlaybackSession()
+        guard !Task.isCancelled, !cancellationRequested else {
+            await deactivatePlaybackSession(ifActivated: playbackSessionWasActivated)
+            throw SpeechSynthesizerError.cancelled
+        }
+
         do {
-            try Task.checkCancellation()
+            try await withTaskCancellationHandler {
+                try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                    guard !Task.isCancelled, !self.cancellationRequested else {
+                        continuation.resume(throwing: SpeechSynthesizerError.cancelled)
+                        return
+                    }
+
+                    self.pendingContinuation = continuation
+
+                    let utterance = self.createUtterance(from: text)
+                    self.startSynthesis(utterance: utterance)
+                }
+            } onCancel: { [weak self] in
+                Task { @MainActor [weak self] in
+                    self?.requestCancellation()
+                }
+            }
         } catch {
-            await deactivatePlaybackSessionAfterCancelledStartup(ifActivated: playbackSessionWasActivated)
+            await deactivatePlaybackSession(ifActivated: playbackSessionWasActivated)
             throw error
         }
 
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            self.pendingContinuation = continuation
-
-            let utterance = self.createUtterance(from: text)
-            self.startSynthesis(utterance: utterance)
+        await deactivatePlaybackSession(ifActivated: playbackSessionWasActivated)
+        guard !Task.isCancelled else {
+            throw SpeechSynthesizerError.cancelled
         }
-    }
-
-    private func preWarmSynthesizer() {
-        // Don't pre-warm automatically - it can cause audio engine conflicts
-        // We'll initialize on first use instead
-        logger.debug("Speech synthesizer ready for first use")
     }
 
     private func configurePlaybackSession() async -> Bool {
@@ -160,62 +181,59 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
         #endif
     }
 
-    private func deactivatePlaybackSessionAfterCancelledStartup(ifActivated: Bool) async {
+    private func deactivatePlaybackSession(ifActivated: Bool) async {
         #if os(iOS)
         guard ifActivated else { return }
 
         do {
             try await Self.deactivatePlaybackSession()
-            logger.debug("Deactivated audio session after cancelled speech startup")
+            logger.debug("Deactivated speech playback session")
         } catch {
-            logger.error("Failed to deactivate audio session after cancelled startup: \(error.localizedDescription, privacy: .public)")
+            logger.error("Failed to deactivate speech playback session: \(error.localizedDescription, privacy: .public)")
         }
         #endif
     }
 
     #if os(iOS)
     /// `setActive` is synchronous, so keep it off the main actor to avoid blocking UI work.
+    @concurrent
     private nonisolated static func activatePlaybackSession() async throws {
-        try await Task.detached(priority: .userInitiated) {
-            let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setCategory(.playback, mode: .default, options: [.duckOthers])
-            try audioSession.setActive(true, options: [])
-        }.value
+        try Task.checkCancellation()
+        let audioSession = AVAudioSession.sharedInstance()
+        try audioSession.setCategory(.playback, mode: .default, options: [.duckOthers])
+        try audioSession.setActive(true, options: [])
     }
 
+    @concurrent
     private nonisolated static func deactivatePlaybackSession() async throws {
-        try await Task.detached(priority: .utility) {
-            let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setActive(false, options: .notifyOthersOnDeactivation)
-        }.value
+        let audioSession = AVAudioSession.sharedInstance()
+        try audioSession.setActive(false, options: .notifyOthersOnDeactivation)
     }
     #endif
 
     func loadAvailableVoices() {
-        Task { @MainActor in
-            let allVoices = AVSpeechSynthesisVoice.speechVoices()
-            let speechVoices = filterSpeechVoices(from: allVoices)
-            var voicesGroupedByLanguage = groupVoicesByLanguage(speechVoices)
-            voicesGroupedByLanguage = sortVoicesWithinLanguages(voicesGroupedByLanguage)
+        let allVoices = AVSpeechSynthesisVoice.speechVoices()
+        let speechVoices = filterSpeechVoices(from: allVoices)
+        var voicesGroupedByLanguage = groupVoicesByLanguage(speechVoices)
+        voicesGroupedByLanguage = sortVoicesWithinLanguages(voicesGroupedByLanguage)
 
-            voicesByLanguage = voicesGroupedByLanguage
-            availableLanguages = sortLanguages(Set(voicesGroupedByLanguage.keys))
+        voicesByLanguage = voicesGroupedByLanguage
+        availableLanguages = sortLanguages(Set(voicesGroupedByLanguage.keys))
 
-            let englishVoices = filterAndSortEnglishVoices(from: speechVoices, allVoices: allVoices)
-            availableVoices = englishVoices
+        let englishVoices = filterAndSortEnglishVoices(from: speechVoices, allVoices: allVoices)
+        availableVoices = englishVoices
 
-            selectedVoice = selectPreferredVoice(from: englishVoices)
+        selectedVoice = selectPreferredVoice(from: englishVoices)
 
-            if VoiceLogging.isVerboseEnabled, let voice = selectedVoice {
-                logger.debug(
-                    """
-                    Selected voice: \(voice.name, privacy: .public) \
-                    (\(voice.language, privacy: .public)) quality=\(voice.quality.rawValue)
-                    """
-                )
-                let summaries = availableVoices.map { "\($0.name) (Q:\($0.quality.rawValue))" }.joined(separator: ", ")
-                logger.debug("Available voices: \(summaries, privacy: .public)")
-            }
+        if VoiceLogging.isVerboseEnabled, let voice = selectedVoice {
+            logger.debug(
+                """
+                Selected voice: \(voice.name, privacy: .public) \
+                (\(voice.language, privacy: .public)) quality=\(voice.quality.rawValue)
+                """
+            )
+            let summaries = availableVoices.map { "\($0.name) (Q:\($0.quality.rawValue))" }.joined(separator: ", ")
+            logger.debug("Available voices: \(summaries, privacy: .public)")
         }
     }
 
@@ -245,62 +263,66 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
         synthesizer.speak(utterance)
     }
 
-    private func resetState() {
-        isSpeaking = false
-        currentUtterance = nil
-        pendingContinuation = nil
-    }
-
-    private func handleSuccess() {
-        logger.info("Speech synthesis completed successfully")
-
-        #if os(iOS)
-        Task { @MainActor in
-            do {
-                try await Self.deactivatePlaybackSession()
-                logger.debug("Deactivated audio session after speech synthesis")
-            } catch {
-                logger.error("Failed to deactivate audio session: \(error.localizedDescription, privacy: .public)")
-            }
-        }
-        #endif
-
-        if let continuation = pendingContinuation {
-            continuation.resume()
-            pendingContinuation = nil
-        }
-
-        resetState()
-        speakingStateHandler?(false)
-    }
-
-    private func handleError(_ synthError: SpeechSynthesizerError) {
-        error = synthError
-        errorHandler?(synthError)
-
-#if os(iOS)
-        Task { @MainActor in
-            do {
-                try await Self.deactivatePlaybackSession()
-                logger.debug("Deactivated audio session after speech synthesis error")
-            } catch {
-                logger.error("Failed to deactivate audio session after error: \(error.localizedDescription, privacy: .public)")
-            }
-        }
-#endif
-
-        if let continuation = pendingContinuation {
-            continuation.resume(throwing: synthError)
-            pendingContinuation = nil
-        }
-
-        resetState()
-        speakingStateHandler?(false)
-    }
-
     func cancelSpeaking() {
-        guard synthesizer.isSpeaking else { return }
-        synthesizer.stopSpeaking(at: .immediate)
+        requestCancellation()
+    }
+}
+
+private extension SpeechSynthesizer {
+    func handleSuccess(for utteranceID: ObjectIdentifier) {
+        logger.info("Speech synthesis completed successfully")
+        finishSynthesis(for: utteranceID, result: .success(()))
+    }
+
+    func handleError(_ synthError: SpeechSynthesizerError, for utteranceID: ObjectIdentifier) {
+        finishSynthesis(for: utteranceID, result: .failure(synthError))
+    }
+
+    func finishSynthesis(
+        for utteranceID: ObjectIdentifier,
+        result: Result<Void, SpeechSynthesizerError>,
+        stopSpeaking: Bool = false
+    ) {
+        guard let activeUtterance = currentUtterance,
+              ObjectIdentifier(activeUtterance) == utteranceID else { return }
+
+        let continuation = pendingContinuation
+        pendingContinuation = nil
+        currentUtterance = nil
+        isSpeaking = false
+
+        if stopSpeaking {
+            synthesizer.stopSpeaking(at: .immediate)
+        }
+
+        switch result {
+        case .success:
+            continuation?.resume()
+        case .failure(let synthError):
+            error = synthError
+            errorHandler?(synthError)
+            continuation?.resume(throwing: synthError)
+        }
+
+        speakingStateHandler?(false)
+    }
+
+    func requestCancellation() {
+        guard isSynthesisInFlight || currentUtterance != nil || synthesizer.isSpeaking else { return }
+        cancellationRequested = true
+
+        guard let currentUtterance else {
+            if synthesizer.isSpeaking {
+                synthesizer.stopSpeaking(at: .immediate)
+            }
+            return
+        }
+
+        finishSynthesis(
+            for: ObjectIdentifier(currentUtterance),
+            result: .failure(.cancelled),
+            stopSpeaking: true
+        )
     }
 }
 
@@ -309,20 +331,24 @@ final class SpeechSynthesizer: NSObject, SpeechSynthesisService {
 extension SpeechSynthesizer: AVSpeechSynthesizerDelegate {
 
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
+        let utteranceID = ObjectIdentifier(utterance)
         Task { @MainActor in
+            guard self.currentUtterance.map(ObjectIdentifier.init) == utteranceID else { return }
             self.isSpeaking = true
         }
     }
 
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        let utteranceID = ObjectIdentifier(utterance)
         Task { @MainActor in
-            self.handleSuccess()
+            self.handleSuccess(for: utteranceID)
         }
     }
 
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+        let utteranceID = ObjectIdentifier(utterance)
         Task { @MainActor in
-            self.handleError(.cancelled)
+            self.handleError(.cancelled, for: utteranceID)
         }
     }
 }

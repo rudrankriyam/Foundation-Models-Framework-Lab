@@ -27,7 +27,7 @@ struct EnumDynamicSchemaView: View {
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
-            onRun: { Task { await runExample() } },
+            onRun: { await runExample() },
             onReset: {
                 selectedExample = 0
                 customerInput = schemaExample.preset(at: 0).defaultInput
@@ -73,21 +73,6 @@ struct EnumDynamicSchemaView: View {
                     .padding()
                     .background(Color.gray.opacity(0.1))
                     .clipShape(.rect(cornerRadius: 8))
-
-                    HStack {
-                        Button("Classify") {
-                            Task {
-                                await runExample()
-                            }
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(executor.isRunning || currentInput.isEmpty)
-
-                        if executor.isRunning {
-                            ProgressView()
-                                .scaleEffect(0.8)
-                        }
-                    }
 
                     // Results section
                     if !executor.results.isEmpty {

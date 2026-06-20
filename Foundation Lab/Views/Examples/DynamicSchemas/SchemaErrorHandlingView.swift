@@ -29,7 +29,7 @@ struct SchemaErrorHandlingView: View {
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
-            onRun: { Task { await runExample() } },
+            onRun: { await runExample() },
             onReset: {
                 executor.reset()
                 selectedScenario = 0

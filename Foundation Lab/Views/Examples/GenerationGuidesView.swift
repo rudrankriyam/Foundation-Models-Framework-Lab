@@ -68,14 +68,12 @@ struct GenerationGuidesView: View {
     }
   }
 
-  private func executeGenerationGuides() {
-    Task {
-      await executor.executeStructured(
-        prompt: currentPrompt,
-        type: ProductReview.self
-      ) { review in
-        review.plainTextSummary
-      }
+  private func executeGenerationGuides() async {
+    await executor.executeStructured(
+      prompt: currentPrompt,
+      type: ProductReview.self
+    ) { review in
+      review.plainTextSummary
     }
   }
 

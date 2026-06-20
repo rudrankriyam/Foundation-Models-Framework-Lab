@@ -73,65 +73,66 @@ struct UsagePerformanceTraceView: View {
         }
     }
 
-    private func runTrace() {
+    private func runTrace() async {
         let id = UUID()
         runID = id
         isRunning = true
         errorMessage = nil
         report = nil
 
-        Task { @MainActor in
-            defer {
-                if runID == id {
-                    isRunning = false
-                }
+        defer {
+            if runID == id {
+                isRunning = false
             }
-
-            #if compiler(>=6.4)
-            guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else {
-                guard runID == id else { return }
-                errorMessage = "Response usage requires an OS 27 runtime."
-                return
-            }
-
-            do {
-                let session = LanguageModelSession()
-                let clock = ContinuousClock()
-                let startedAt = clock.now
-                var firstUpdateAt: ContinuousClock.Instant?
-                let stream = session.streamResponse(
-                    to: currentPrompt,
-                    contextOptions: ContextOptions(reasoningLevel: .moderate),
-                    metadata: ["example": "response-usage"]
-                )
-
-                for try await _ in stream where firstUpdateAt == nil {
-                    firstUpdateAt = clock.now
-                }
-
-                let response = try await stream.collect()
-                let finishedAt = clock.now
-                guard runID == id else { return }
-
-                report = UsagePerformanceReport(
-                    response: response.content,
-                    inputTokens: response.usage.input.totalTokenCount,
-                    cachedInputTokens: response.usage.input.cachedTokenCount,
-                    outputTokens: response.usage.output.totalTokenCount,
-                    reasoningTokens: response.usage.output.reasoningTokenCount,
-                    totalTokens: response.usage.totalTokenCount,
-                    timeToFirstUpdate: firstUpdateAt.map { startedAt.duration(to: $0) },
-                    totalDuration: startedAt.duration(to: finishedAt)
-                )
-            } catch {
-                guard runID == id else { return }
-                errorMessage = error.localizedDescription
-            }
-            #else
-            guard runID == id else { return }
-            errorMessage = "Response usage requires the Xcode 27 SDK."
-            #endif
         }
+
+        #if compiler(>=6.4)
+        guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else {
+            guard runID == id else { return }
+            errorMessage = "Response usage requires an OS 27 runtime."
+            return
+        }
+
+        do {
+            let session = LanguageModelSession()
+            let clock = ContinuousClock()
+            let startedAt = clock.now
+            var firstUpdateAt: ContinuousClock.Instant?
+            let stream = session.streamResponse(
+                to: currentPrompt,
+                contextOptions: ContextOptions(reasoningLevel: .moderate),
+                metadata: ["example": "response-usage"]
+            )
+
+            for try await _ in stream where firstUpdateAt == nil {
+                firstUpdateAt = clock.now
+            }
+
+            let response = try await stream.collect()
+            try Task.checkCancellation()
+            let finishedAt = clock.now
+            guard runID == id else { return }
+
+            report = UsagePerformanceReport(
+                response: response.content,
+                inputTokens: response.usage.input.totalTokenCount,
+                cachedInputTokens: response.usage.input.cachedTokenCount,
+                outputTokens: response.usage.output.totalTokenCount,
+                reasoningTokens: response.usage.output.reasoningTokenCount,
+                totalTokens: response.usage.totalTokenCount,
+                timeToFirstUpdate: firstUpdateAt.map { startedAt.duration(to: $0) },
+                totalDuration: startedAt.duration(to: finishedAt)
+            )
+        } catch is CancellationError {
+            return
+        } catch {
+            guard runID == id else { return }
+            errorMessage = error.localizedDescription
+        }
+        #else
+        guard runID == id else { return }
+        errorMessage = "Response usage requires the Xcode 27 SDK."
+        #endif
     }
 
     private func reset() {

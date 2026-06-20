@@ -14,6 +14,7 @@ struct AdaptiveNavigationView: View {
     @State private var navigationCoordinator = NavigationCoordinator()
     @State private var experimentStore = ExperimentStore()
     @State private var playgroundViewModel = ChatViewModel()
+    @State private var persistenceFlushTask: Task<Void, Never>?
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.scenePhase) private var scenePhase
 
@@ -41,17 +42,22 @@ struct AdaptiveNavigationView: View {
         }
         .onChange(of: navigationCoordinator.tabSelection) { oldValue, newValue in
             if oldValue == .playground, newValue != .playground {
-                playgroundViewModel.tearDown()
+                playgroundViewModel.suspendVoiceMode()
             }
         }
         .onChange(of: scenePhase) { _, newValue in
             if newValue == .active {
                 navigationCoordinator.activate()
+                experimentStore.activate()
             } else {
-                playgroundViewModel.tearDown()
+                playgroundViewModel.suspendVoiceMode()
+                schedulePersistenceFlush()
             }
         }
-        .onDisappear(perform: playgroundViewModel.tearDown)
+        .onDisappear {
+            playgroundViewModel.suspendVoiceMode()
+            schedulePersistenceFlush()
+        }
         .alert(
             "Couldn’t Save Changes",
             isPresented: persistenceAlertBinding
@@ -143,6 +149,13 @@ struct AdaptiveNavigationView: View {
                 }
             }
         )
+    }
+
+    private func schedulePersistenceFlush() {
+        persistenceFlushTask?.cancel()
+        persistenceFlushTask = Task {
+            _ = await experimentStore.flushPendingPersistence()
+        }
     }
 }
 

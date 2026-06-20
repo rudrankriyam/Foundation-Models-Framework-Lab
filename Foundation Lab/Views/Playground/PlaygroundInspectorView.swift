@@ -122,7 +122,9 @@ struct PlaygroundInspectorView: View {
 
                 Button("Save Experiment", systemImage: "square.and.arrow.down") {
                     applyConfiguration()
-                    experimentStore.saveActiveExperiment()
+                    Task {
+                        await experimentStore.saveActiveExperiment()
+                    }
                 }
                 .disabled(viewModel.isLoading)
             }

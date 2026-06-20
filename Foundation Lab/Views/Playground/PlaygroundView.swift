@@ -66,7 +66,11 @@ struct PlaygroundView: View {
                 Menu("Experiment Actions", systemImage: "ellipsis.circle") {
                     Button("New Experiment", systemImage: "plus", action: requestNewExperiment)
                         .keyboardShortcut("n", modifiers: .command)
-                    Button("Save Experiment", systemImage: "square.and.arrow.down", action: saveExperiment)
+                    Button("Save Experiment", systemImage: "square.and.arrow.down") {
+                        Task {
+                            await saveExperiment()
+                        }
+                    }
                         .keyboardShortcut("s", modifiers: .command)
                     Button("Settings", systemImage: "gear") {
                         showsSettings = true
@@ -204,10 +208,10 @@ private extension PlaygroundView {
         }
     }
 
-    private func saveExperiment() {
+    private func saveExperiment() async {
         let configuration = ensureConfigurationIsApplied(configurationSnapshot())
         experimentStore.updateActiveExperiment(configuration)
-        experimentStore.saveActiveExperiment()
+        await experimentStore.saveActiveExperiment()
     }
 
     private func prepareVoiceRun() {

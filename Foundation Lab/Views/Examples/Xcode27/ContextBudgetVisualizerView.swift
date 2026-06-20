@@ -131,7 +131,7 @@ struct ContextBudgetVisualizerView: View {
         }
     }
 
-    private func runSimulation() {
+    private func runSimulation() async {
         let prompt = currentPrompt
         let measurementID = UUID()
         activeMeasurementID = measurementID
@@ -140,33 +140,37 @@ struct ContextBudgetVisualizerView: View {
         measuredHistoryTokens = nil
         measurementNote = "Measuring prompt and sample transcript…"
 
-        Task { @MainActor in
-            do {
-                if #available(iOS 26.4, macOS 26.4, visionOS 26.4, *) {
-                    let model = SystemLanguageModel.default
-                    let promptTokens = try await model.tokenCount(for: Prompt(prompt))
-                    var historyTokens: [String: Int] = [:]
-
-                    for sample in ContextBudgetSimulation.entriesToMeasure {
-                        historyTokens[sample.id] = try await model.tokenCount(for: [sample.transcriptEntry])
-                    }
-
-                    guard activeMeasurementID == measurementID, currentPrompt == prompt else { return }
-
-                    measuredPromptTokens = promptTokens
-                    measuredHistoryTokens = historyTokens
-                    measurementNote = "Measured with SystemLanguageModel.tokenCount(for:)."
-                } else {
-                    measurementNote = "Model token counting requires version 26.4 or later; no estimates are shown."
-                }
-            } catch {
-                measurementNote = "The model tokenizer is unavailable; no estimates are shown."
+        defer {
+            if activeMeasurementID == measurementID {
+                isRunning = false
+                activeMeasurementID = nil
             }
+        }
 
-            guard activeMeasurementID == measurementID, currentPrompt == prompt else { return }
+        do {
+            if #available(iOS 26.4, macOS 26.4, visionOS 26.4, *) {
+                let model = SystemLanguageModel.default
+                let promptTokens = try await model.tokenCount(for: Prompt(prompt))
+                var historyTokens: [String: Int] = [:]
 
-            isRunning = false
-            activeMeasurementID = nil
+                for sample in ContextBudgetSimulation.entriesToMeasure {
+                    try Task.checkCancellation()
+                    historyTokens[sample.id] = try await model.tokenCount(for: [sample.transcriptEntry])
+                }
+
+                try Task.checkCancellation()
+                guard activeMeasurementID == measurementID, currentPrompt == prompt else { return }
+
+                measuredPromptTokens = promptTokens
+                measuredHistoryTokens = historyTokens
+                measurementNote = "Measured with SystemLanguageModel.tokenCount(for:)."
+            } else {
+                measurementNote = "Model token counting requires version 26.4 or later; no estimates are shown."
+            }
+        } catch is CancellationError {
+            return
+        } catch {
+            measurementNote = "The model tokenizer is unavailable; no estimates are shown."
         }
     }
 

@@ -112,7 +112,7 @@ protocol SpeechRecognitionService: AnyObject {
 
     /// Start speech recognition
     /// - Throws: SpeechRecognitionError if recognition cannot be started
-    func startRecognition() throws
+    func startRecognition() async throws
 
     /// Stop speech recognition and return to idle state
     func stopRecognition()
@@ -209,13 +209,14 @@ class SpeechRecognizer: NSObject, SpeechRecognitionService {
         }
     }
 
-    func startRecognition() throws {
+    func startRecognition() async throws {
         logger.info("START RECOGNITION CALLED")
 
         try validateAuthorization()
         try ensureRecognizerAvailable()
         cleanUpIfCurrentlyListening()
-        try configureAudioSessionIfNeeded()
+        try await configureAudioSessionIfNeeded()
+        try Task.checkCancellation()
 
         let request = prepareRecognitionRequest()
         recognitionRequest = request
