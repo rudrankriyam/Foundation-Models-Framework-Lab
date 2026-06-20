@@ -24,6 +24,8 @@ final class ChatViewModel {
     var voiceState: VoiceState = .idle
     @ObservationIgnored var speechRecognizer: SpeechRecognizer?
     @ObservationIgnored var speechObservationTask: Task<Void, Never>?
+    @ObservationIgnored private var activeGenerationTask: Task<String, Error>?
+    @ObservationIgnored private var activeGenerationID: UUID?
     @ObservationIgnored let permissionManager: PermissionManager
     @ObservationIgnored let speechSynthesizer: SpeechSynthesisService
     @ObservationIgnored let conversationEngine: FoundationLabConversationEngine
@@ -174,14 +176,29 @@ extension ChatViewModel {
             showError = true
             return .failed(availabilityMessage)
         }
+        let generationID = UUID()
+        let engine = conversationEngine
+        let options = generationOptions
+        let task = Task<String, Error> { @MainActor in
+            try await engine.sendStreamingMessage(content, generationOptions: options)
+        }
+        activeGenerationTask = task
+        activeGenerationID = generationID
         isLoading = true
-        defer { isLoading = false }
+        defer {
+            if activeGenerationID == generationID {
+                activeGenerationTask = nil
+                activeGenerationID = nil
+                isLoading = false
+            }
+        }
 
         do {
-            let response = try await conversationEngine.sendStreamingMessage(
-                content,
-                generationOptions: generationOptions
-            )
+            let response = try await withTaskCancellationHandler {
+                try await task.value
+            } onCancel: {
+                task.cancel()
+            }
             syncConversationState()
             return .succeeded(response)
         } catch is CancellationError {
@@ -260,14 +277,17 @@ extension ChatViewModel {
     }
 
     func clearChat() {
+        cancelGeneration()
         conversationEngine.clear()
-        isLoading = false
         errorMessage = nil
         showError = false
         syncConversationState()
     }
 
     func cancelGeneration() {
+        activeGenerationTask?.cancel()
+        activeGenerationTask = nil
+        activeGenerationID = nil
         conversationEngine.cancelActiveResponse()
         isLoading = false
     }

@@ -4,7 +4,7 @@ import FoundationModels
 
 extension ChatViewModel {
     func tearDown() {
-        conversationEngine.cancelActiveResponse()
+        cancelGeneration()
         suspendVoiceMode()
     }
 
