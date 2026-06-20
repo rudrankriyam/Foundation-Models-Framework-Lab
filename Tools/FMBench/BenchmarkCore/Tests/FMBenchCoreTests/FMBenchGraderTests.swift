@@ -325,6 +325,28 @@ struct FMBenchGraderTests {
     }
 
     @Test
+    func scenarioSelectionStaysWithinTheConfiguredSuite() {
+        #expect(
+            FMBenchScenarioCatalog.scenarios(
+                for: .quick,
+                sampleID: "personal-organizer-001"
+            ).isEmpty
+        )
+        #expect(
+            FMBenchScenarioCatalog.scenarios(
+                for: .agentic,
+                sampleID: "personal-organizer-001"
+            ).map(\.id) == ["personal-organizer"]
+        )
+        #expect(
+            FMBenchScenarioCatalog.scenarios(
+                for: .guardrails,
+                scenarioID: FMBenchScenarioCatalog.taskCapture.id
+            ).isEmpty
+        )
+    }
+
+    @Test
     func guardrailCatalogContainsExpectedTriggerAndNonTriggerCorpora() {
         #expect(FMBenchScenarioCatalog.safety.count == 2)
         #expect(FMBenchScenarioCatalog.safety.allSatisfy { $0.samples.count == 25 })

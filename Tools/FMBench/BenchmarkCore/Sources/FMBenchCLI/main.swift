@@ -148,6 +148,8 @@ private struct CLIOptions {
         case unknownArgument(String)
         case unknownScenario(String)
         case unknownSample(String)
+        case scenarioNotInSuite(id: String, suite: FMBenchSuite)
+        case sampleNotInSuite(id: String, suite: FMBenchSuite)
 
         var errorDescription: String? {
             switch self {
@@ -163,6 +165,10 @@ private struct CLIOptions {
                 "Unknown scenario “\(value)”."
             case .unknownSample(let value):
                 "Unknown sample “\(value)”."
+            case .scenarioNotInSuite(let id, let suite):
+                "Scenario “\(id)” is not part of the \(suite.displayName) suite."
+            case .sampleNotInSuite(let id, let suite):
+                "Sample “\(id)” is not part of the \(suite.displayName) suite."
             }
         }
     }
@@ -297,16 +303,34 @@ private struct CLIOptions {
         if sampleID != nil, useAllSamples {
             throw Error.conflictingArguments("--sample", "--all-samples")
         }
+        if let scenarioID,
+            FMBenchScenarioCatalog.scenarios(
+                for: suite,
+                scenarioID: scenarioID
+            ).isEmpty {
+            throw Error.scenarioNotInSuite(id: scenarioID, suite: suite)
+        }
+        if let sampleID,
+            FMBenchScenarioCatalog.scenarios(
+                for: suite,
+                sampleID: sampleID
+            ).isEmpty {
+            throw Error.sampleNotInSuite(id: sampleID, suite: suite)
+        }
     }
 
     var selectedScenarios: [FMBenchScenario]? {
         if let sampleID {
-            return FMBenchScenarioCatalog.all.filter { scenario in
-                scenario.samples.contains { $0.id == sampleID }
-            }
+            return FMBenchScenarioCatalog.scenarios(
+                for: suite,
+                sampleID: sampleID
+            )
         }
         return scenarioID.map { id in
-            FMBenchScenarioCatalog.all.filter { $0.id == id }
+            FMBenchScenarioCatalog.scenarios(
+                for: suite,
+                scenarioID: id
+            )
         }
     }
 

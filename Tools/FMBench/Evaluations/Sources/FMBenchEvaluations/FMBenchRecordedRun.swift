@@ -243,6 +243,8 @@ public enum FMBenchRecordedRunLoader {
       instructions: scenario?.instructions ?? "",
       checks: sample?.checks ?? [],
       response: nil,
+      toolCalls: failure.toolCalls ?? [],
+      finalState: failure.finalState,
       safetyExpectation: sample?.safetyExpectation,
       safetyOutcome: safetyOutcome(forFailureKind: failure.kind),
       iteration: failure.iteration,

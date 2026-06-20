@@ -128,6 +128,92 @@ final class FMBenchEvaluationsTests: XCTestCase {
     XCTAssertEqual(failure.safetyOutcome, .guardrailViolation)
   }
 
+  func testCurrentFailurePreservesToolCallsAndFinalState() throws {
+    let scenario = FMBenchScenarioCatalog.personalOrganizer
+    let sample = scenario.samples[0]
+    let finalState = FMBenchStateSnapshot(
+      values: ["reminders.count": .integer(1)]
+    )
+    let run = makeCurrentRun(
+      scenario: scenario,
+      failures: [
+        FMBenchFailure(
+          scenarioID: scenario.id,
+          sampleID: sample.id,
+          iteration: 2,
+          kind: "generation",
+          message: "Response was empty",
+          toolCalls: [
+            FMBenchToolCall(
+              name: "createReminder",
+              arguments: ["title": .string("Call Maya Chen")]
+            )
+          ],
+          finalState: finalState
+        )
+      ]
+    )
+    let data = try XCTUnwrap(
+      FMBenchReport(result: run).json().data(using: .utf8)
+    )
+
+    let recorded = try FMBenchRecordedRunLoader.decode(data)
+    let failure = try XCTUnwrap(
+      recorded.records.first { !$0.executionSucceeded }
+    )
+
+    XCTAssertEqual(failure.toolCalls.map(\.name), ["createReminder"])
+    XCTAssertEqual(
+      failure.toolCalls[0].arguments["title"],
+      .string("Call Maya Chen")
+    )
+    XCTAssertEqual(failure.finalState, finalState)
+  }
+
+  func testLiveStatefulEvaluatorsUseSuppliedFinalState() async throws {
+    let scenario = makeStatefulEvaluationScenario()
+    let sample = try XCTUnwrap(
+      FMBenchEvaluationsAdapter.samples(for: scenario).first
+    )
+    let subject = ModelSubject(
+      value: "Created",
+      transcript: StructuredTranscript()
+    )
+    let finalState = FMBenchStateSnapshot(
+      values: ["reminders.count": .integer(1)]
+    )
+    let provider: FMBenchFinalStateProvider = { _ in finalState }
+
+    let promptMetrics = try await FMBenchEvaluationsAdapter.promptPassEvaluator(
+      for: scenario,
+      finalStateProvider: provider
+    ).metrics(subject: subject, input: sample)
+    let constraintMetrics = try await FMBenchEvaluationsAdapter.constraintScoreEvaluator(
+      for: scenario,
+      finalStateProvider: provider
+    ).metrics(subject: subject, input: sample)
+
+    XCTAssertEqual(promptMetrics.first?.value, .passing)
+    XCTAssertEqual(constraintMetrics.first?.value, .scoring(1))
+  }
+
+  func testLiveStatefulEvaluatorsIgnoreMissingFinalState() async throws {
+    let scenario = makeStatefulEvaluationScenario()
+    let sample = try XCTUnwrap(
+      FMBenchEvaluationsAdapter.samples(for: scenario).first
+    )
+    let subject = ModelSubject(
+      value: "Created",
+      transcript: StructuredTranscript()
+    )
+
+    let metrics = try await FMBenchEvaluationsAdapter.promptPassEvaluator(
+      for: scenario
+    ).metrics(subject: subject, input: sample)
+
+    XCTAssertEqual(metrics.first?.value, .ignore)
+  }
+
   func testLoadsLegacyFMBenchResult() throws {
     let json = """
       {
@@ -418,6 +504,24 @@ final class FMBenchEvaluationsTests: XCTestCase {
     )
   }
 
+}
+
+private func makeStatefulEvaluationScenario() -> FMBenchScenario {
+  FMBenchScenario(
+    id: "stateful-evaluation",
+    title: "Stateful evaluation",
+    summary: "Verifies final-state evaluation plumbing.",
+    category: .agenticToolUse,
+    inspiredBy: ["FMBench"],
+    instructions: "Create the requested reminder.",
+    prompt: "Create a reminder.",
+    outputMode: .text,
+    maximumResponseTokens: 32,
+    checks: [
+      .contains("Created"),
+      .stateEquals(path: "reminders.count", value: .integer(1))
+    ]
+  )
 }
 
 private func makeCurrentRun(

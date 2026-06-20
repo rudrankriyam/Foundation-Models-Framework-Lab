@@ -3,6 +3,11 @@ import Evaluations
 import FoundationModels
 
 @available(macOS 27.0, *)
+public typealias FMBenchFinalStateProvider = @Sendable (
+  FMBenchEvaluationSample
+) async throws -> FMBenchStateSnapshot?
+
+@available(macOS 27.0, *)
 public enum FMBenchEvaluationsAdapter {
   public static let promptPassMetric = Metric("FMBench Prompt Pass")
   public static let constraintScoreMetric = Metric("FMBench Constraint Score")
@@ -32,17 +37,25 @@ public enum FMBenchEvaluationsAdapter {
   }
 
   public static func promptPassEvaluator(
-    for scenario: FMBenchScenario
+    for scenario: FMBenchScenario,
+    finalStateProvider: FMBenchFinalStateProvider? = nil
   ) -> Evaluator<FMBenchEvaluationSample> {
     let checks = checksBySampleID(scenario)
     return Evaluator { input, subject in
       guard let sampleChecks = checks[input.recordID] else {
         return promptPassMetric.ignore(rationale: "Missing FMBench sample metadata.")
       }
+      let finalState = try await finalStateProvider?(input)
+      if requiresFinalState(sampleChecks), finalState == nil {
+        return promptPassMetric.ignore(
+          rationale: "Final state was not supplied for this stateful sample."
+        )
+      }
       let grade = FMBenchGrader.grade(
         response: subject.value,
         checks: sampleChecks,
-        toolCalls: subject.fmBenchToolCalls
+        toolCalls: subject.fmBenchToolCalls,
+        finalState: finalState
       )
       return grade.promptPassed
         ? promptPassMetric.passing()
@@ -51,7 +64,8 @@ public enum FMBenchEvaluationsAdapter {
   }
 
   public static func constraintScoreEvaluator(
-    for scenario: FMBenchScenario
+    for scenario: FMBenchScenario,
+    finalStateProvider: FMBenchFinalStateProvider? = nil
   ) -> Evaluator<FMBenchEvaluationSample> {
     let checks = checksBySampleID(scenario)
     return Evaluator { input, subject in
@@ -60,10 +74,17 @@ public enum FMBenchEvaluationsAdapter {
           rationale: "Missing FMBench sample metadata."
         )
       }
+      let finalState = try await finalStateProvider?(input)
+      if requiresFinalState(sampleChecks), finalState == nil {
+        return constraintScoreMetric.ignore(
+          rationale: "Final state was not supplied for this stateful sample."
+        )
+      }
       let grade = FMBenchGrader.grade(
         response: subject.value,
         checks: sampleChecks,
-        toolCalls: subject.fmBenchToolCalls
+        toolCalls: subject.fmBenchToolCalls,
+        finalState: finalState
       )
       return constraintScoreMetric.scoring(
         grade.score,
@@ -151,6 +172,17 @@ public enum FMBenchEvaluationsAdapter {
     _ scenario: FMBenchScenario
   ) -> [String: [FMBenchCheck]] {
     Dictionary(uniqueKeysWithValues: scenario.samples.map { ($0.id, $0.checks) })
+  }
+
+  private static func requiresFinalState(_ checks: [FMBenchCheck]) -> Bool {
+    checks.contains { check in
+      switch check {
+      case .stateEquals, .stateContains:
+        true
+      default:
+        false
+      }
+    }
   }
 
   private static func argumentValue(_ value: FMBenchJSONValue) -> ArgumentValue {

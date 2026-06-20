@@ -55,6 +55,22 @@ public enum FMBenchScenarioCatalog {
         }
     }
 
+    public static func scenarios(
+        for suite: FMBenchSuite,
+        scenarioID: String
+    ) -> [FMBenchScenario] {
+        scenarios(for: suite).filter { $0.id == scenarioID }
+    }
+
+    public static func scenarios(
+        for suite: FMBenchSuite,
+        sampleID: String
+    ) -> [FMBenchScenario] {
+        scenarios(for: suite).filter { scenario in
+            scenario.samples.contains { $0.id == sampleID }
+        }
+    }
+
     public static let taskCapture = FMBenchScenario(
         id: "task-capture",
         title: "Natural-language task parsing",
