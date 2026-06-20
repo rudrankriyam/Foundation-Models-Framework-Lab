@@ -249,8 +249,7 @@ class SpeechRecognizer: NSObject, SpeechRecognitionService {
 #if os(iOS)
         Task { @MainActor in
             do {
-                let audioSession = AVAudioSession.sharedInstance()
-                try audioSession.setActive(false, options: .notifyOthersOnDeactivation)
+                try await Self.deactivateAudioSession()
                 logger.debug("Deactivated audio session after speech recognition")
             } catch {
                 logger.error("Failed to deactivate audio session: \(error.localizedDescription, privacy: .public)")
@@ -258,6 +257,13 @@ class SpeechRecognizer: NSObject, SpeechRecognitionService {
         }
 #endif
     }
+
+#if os(iOS)
+    @concurrent
+    nonisolated private static func deactivateAudioSession() async throws {
+        try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    }
+#endif
 
     // MARK: - Private Helper Methods
 
