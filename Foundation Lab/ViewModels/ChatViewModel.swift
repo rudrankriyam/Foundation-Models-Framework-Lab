@@ -269,6 +269,7 @@ extension ChatViewModel {
 
     func cancelGeneration() {
         conversationEngine.cancelActiveResponse()
+        isLoading = false
     }
 
     func dismissError() {
