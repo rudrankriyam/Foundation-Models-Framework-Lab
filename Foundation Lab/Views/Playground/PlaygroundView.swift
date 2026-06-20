@@ -92,7 +92,10 @@ struct PlaygroundView: View {
             }
         }
         .alert("Experiment Error", isPresented: $viewModel.showError) {
-            Button("Dismiss", action: viewModel.dismissError)
+            if viewModel.shouldOfferPermissionSettings {
+                Button("Open Settings", action: viewModel.openPermissionSettings)
+            }
+            Button("Dismiss", role: .cancel, action: viewModel.dismissError)
         } message: {
             if let message = viewModel.errorMessage {
                 Text(message)

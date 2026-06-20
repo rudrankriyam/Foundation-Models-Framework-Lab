@@ -274,9 +274,19 @@ extension ChatViewModel {
     func dismissError() {
         showError = false
         errorMessage = nil
+        permissionManager.showPermissionAlert = false
         if case .error = voiceState {
             voiceState = .idle
         }
+    }
+
+    var shouldOfferPermissionSettings: Bool {
+        permissionManager.showPermissionAlert
+    }
+
+    func openPermissionSettings() {
+        permissionManager.openSettings()
+        dismissError()
     }
 
 }

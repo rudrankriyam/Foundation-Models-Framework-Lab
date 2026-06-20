@@ -120,6 +120,12 @@ class PermissionManager: PermissionServiceProtocol {
         _ = await requestSpeechPermission()
 
         updateAllPermissionsStatus()
+        if allPermissionsGranted {
+            permissionAlertMessage = ""
+            showPermissionAlert = false
+        } else {
+            showSettingsAlert()
+        }
         return allPermissionsGranted
     }
 
@@ -241,11 +247,13 @@ class PermissionManager: PermissionServiceProtocol {
             deniedPermissions.append("Speech Recognition")
         }
 
-        if !deniedPermissions.isEmpty {
+        if deniedPermissions.isEmpty {
+            permissionAlertMessage = "Microphone and Speech Recognition access are required to use Voice."
+        } else {
             let permissionsList = deniedPermissions.joined(separator: ", ")
             permissionAlertMessage = "Please enable \(permissionsList) in Settings to use Voice features."
-            showPermissionAlert = true
         }
+        showPermissionAlert = true
     }
 
     func openSettings() {
