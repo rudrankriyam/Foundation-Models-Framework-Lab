@@ -129,7 +129,9 @@ struct ContextBudgetSimulation {
     static var entriesToMeasure: [SourceEntry] {
         sampleEntries + [summaryEntry]
     }
+}
 
+extension ContextBudgetSimulation {
     private var sourceEntries: [Entry] {
         Self.sampleEntries.map { source in
             let tokens = historyTokenCounts?[source.id]
