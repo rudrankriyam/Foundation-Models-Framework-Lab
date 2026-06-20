@@ -35,13 +35,12 @@ struct LocationTool: Tool {
         var city: String?
         var country: String?
 
-        if arguments.includeAddress {
-            guard let request = MKReverseGeocodingRequest(location: location) else {
-                throw LocationError.locationUnavailable
-            }
-            let address = try await request.mapItems.first?.addressRepresentations
-            city = address?.cityName
-            country = address?.region?.identifier ?? address?.regionName
+        if arguments.includeAddress,
+           let request = MKReverseGeocodingRequest(location: location),
+           let mapItems = try? await request.mapItems,
+           let address = mapItems.first?.addressRepresentations {
+            city = address.cityName
+            country = address.regionName
         }
 
         return LocationData(
