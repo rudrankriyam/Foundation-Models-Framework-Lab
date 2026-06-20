@@ -11,7 +11,7 @@ struct SecurityRequestConfiguration: View {
     @Binding var requiresApproval: Bool
 
     var body: some View {
-        Xcode27Section("App policy for this turn") {
+        Xcode27Section(String(localized: "App policy for this turn")) {
             VStack(alignment: .leading, spacing: Spacing.large) {
                 VStack(alignment: .leading, spacing: Spacing.small) {
                     Text("Untrusted tool output")

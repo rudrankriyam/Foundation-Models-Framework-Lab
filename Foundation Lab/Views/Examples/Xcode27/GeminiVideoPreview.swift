@@ -23,7 +23,7 @@ struct GeminiVideoPreview: View {
             GeminiPlatformVideoPlayer(player: player)
 
             Button(
-                isPlaying ? "Pause video" : "Play video",
+                isPlaying ? String(localized: "Pause video") : String(localized: "Play video"),
                 systemImage: isPlaying ? "pause.fill" : "play.fill"
             ) {
                 togglePlayback()

@@ -29,23 +29,23 @@ struct HealthChatInputView: View {
             if messageText.isEmpty && !chatViewModel.isLoading {
                 ScrollView(.horizontal) {
                     HStack(spacing: 8) {
-                        QuickActionChip(text: "How am I doing today?") {
-                            messageText = "How am I doing today?"
+                        QuickActionChip(text: String(localized: "How am I doing today?")) {
+                            messageText = String(localized: "How am I doing today?")
                             sendMessage()
                         }
 
-                        QuickActionChip(text: "Set a fitness goal") {
-                            messageText = "Help me set a fitness goal"
+                        QuickActionChip(text: String(localized: "Set a fitness goal")) {
+                            messageText = String(localized: "Help me set a fitness goal")
                             sendMessage()
                         }
 
-                        QuickActionChip(text: "Sleep tips") {
-                            messageText = "Give me tips to improve my sleep"
+                        QuickActionChip(text: String(localized: "Sleep tips")) {
+                            messageText = String(localized: "Give me tips to improve my sleep")
                             sendMessage()
                         }
 
-                        QuickActionChip(text: "Weekly summary") {
-                            messageText = "Show me my weekly health summary"
+                        QuickActionChip(text: String(localized: "Weekly summary")) {
+                            messageText = String(localized: "Show me my weekly health summary")
                             sendMessage()
                         }
                     }

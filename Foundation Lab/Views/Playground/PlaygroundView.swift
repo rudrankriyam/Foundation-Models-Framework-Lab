@@ -94,7 +94,11 @@ struct PlaygroundView: View {
         .alert("Experiment Error", isPresented: $viewModel.showError) {
             Button("Dismiss", action: viewModel.dismissError)
         } message: {
-            Text(viewModel.errorMessage ?? "The experiment could not run.")
+            if let message = viewModel.errorMessage {
+                Text(message)
+            } else {
+                Text("The experiment could not run.")
+            }
         }
         .confirmationDialog(
             "Discard unsaved experiment?",

@@ -15,16 +15,18 @@ struct DynamicProfileBuilderView: View {
 
     var body: some View {
         ReferenceExampleView(
-            title: "Dynamic Profile",
-            description: "Compose a LanguageModelSession.Profile recipe",
+            title: String(localized: "Dynamic Profile"),
+            description: String(localized: "Compose a LanguageModelSession.Profile recipe"),
             codeExample: codeExample,
-            referenceNote: "Adjust the controls to generate a profile recipe. This page does not create a session or send a prompt."
+            referenceNote: String(
+                localized: "Adjust the controls to generate a profile recipe. This page does not create a session or send a prompt."
+            )
         ) {
             VStack(spacing: Spacing.medium) {
-                Xcode27Section("Profile Controls") {
+                Xcode27Section(String(localized: "Profile Controls")) {
                     VStack(spacing: Spacing.large) {
                         Xcode27ValueSlider(
-                            title: "Temperature",
+                            title: String(localized: "Temperature"),
                             valueText: temperature.formatted(.number.precision(.fractionLength(2))),
                             systemImage: "thermometer.medium",
                             value: $temperature,
@@ -32,7 +34,7 @@ struct DynamicProfileBuilderView: View {
                             step: 0.01
                         )
                         Xcode27ValueSlider(
-                            title: "Maximum tokens",
+                            title: String(localized: "Maximum tokens"),
                             valueText: Int(maxTokens).formatted(),
                             systemImage: "text.line.last.and.arrowtriangle.forward",
                             value: $maxTokens,
@@ -55,7 +57,7 @@ struct DynamicProfileBuilderView: View {
                     }
                 }
 
-                Xcode27Section("Generated Recipe") {
+                Xcode27Section(String(localized: "Generated Recipe")) {
                     Text(recipePreview)
                         .font(.body.monospaced())
                         .textSelection(.enabled)
@@ -101,7 +103,11 @@ private enum ReasoningLevelChoice: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     var title: String {
-        rawValue.capitalized
+        switch self {
+        case .light: String(localized: "Light")
+        case .moderate: String(localized: "Moderate")
+        case .deep: String(localized: "Deep")
+        }
     }
 }
 
@@ -113,7 +119,11 @@ private enum DynamicToolMode: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     var title: String {
-        rawValue.capitalized
+        switch self {
+        case .allowed: String(localized: "Allowed")
+        case .required: String(localized: "Required")
+        case .disallowed: String(localized: "Disallowed")
+        }
     }
 }
 

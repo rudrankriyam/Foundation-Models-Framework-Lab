@@ -161,9 +161,9 @@ private extension HealthDashboardView {
     var timeOfDay: String {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
-        case 0..<12: return "morning"
-        case 12..<17: return "afternoon"
-        default: return "evening"
+        case 0..<12: return String(localized: "morning")
+        case 12..<17: return String(localized: "afternoon")
+        default: return String(localized: "evening")
         }
     }
 
@@ -224,7 +224,9 @@ private extension HealthDashboardView {
                 .replacingOccurrences(of: "\u{201C}", with: "")
                 .replacingOccurrences(of: "\u{201D}", with: "")
         } catch {
-            encouragementMessage = score >= 75 ? "Great progress today!" : "Keep working towards your goals!"
+            encouragementMessage = score >= 75
+                ? String(localized: "Great progress today!")
+                : String(localized: "Keep working towards your goals!")
         }
 
     }
@@ -238,7 +240,9 @@ private extension HealthDashboardView {
             do {
                 try await healthDataManager.requestAuthorization()
             } catch {
-                loadErrorMessage = "Allow Health access in Settings, then try again. \(error.localizedDescription)"
+                loadErrorMessage = String(
+                    localized: "Allow Health access in Settings, then try again. \(error.localizedDescription)"
+                )
                 isLoading = false
                 return
             }
@@ -247,7 +251,9 @@ private extension HealthDashboardView {
         do {
             try await healthDataManager.fetchTodayHealthData()
         } catch {
-            loadErrorMessage = "Foundation Lab couldn't load Health data. \(error.localizedDescription)"
+            loadErrorMessage = String(
+                localized: "Foundation Lab couldn't load Health data. \(error.localizedDescription)"
+            )
             isLoading = false
             return
         }

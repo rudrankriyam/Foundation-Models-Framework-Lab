@@ -18,8 +18,12 @@ struct FMCLIPythonPlaygroundView: View {
                         Text("Reference playground")
                             .bold()
                         Text(
-                            "Nothing runs inside Foundation Lab. Copy a verified example and run it in Terminal "
-                                + "or a Python environment on a supported Mac."
+                            String(
+                                localized: """
+                                Nothing runs inside Foundation Lab. Copy a verified example and run it in Terminal or a Python \
+                                environment on a supported Mac.
+                                """
+                            )
                         )
                             .foregroundStyle(.secondary)
                     }
@@ -82,41 +86,58 @@ private enum ScriptingSurface: String, CaseIterable, Identifiable {
         switch self {
         case .cli: return "CLI"
         case .python: return "Python"
-        case .evaluation: return "Evaluation"
+        case .evaluation: return String(localized: "Evaluation")
         }
     }
 
     var explanation: String {
         switch self {
         case .cli:
-            return "The fm command ships with macOS 27. Use fm chat for interactive exploration "
-                + "and fm respond when a script needs a single response."
+            return String(
+                localized: """
+                The fm command ships with macOS 27. Use fm chat for interactive exploration and fm respond when a script needs a \
+                single response.
+                """
+            )
         case .python:
-            return "The Foundation Models SDK for Python exposes the on-device model to Python 3.10+ "
-                + "on Apple silicon Macs with Xcode installed."
+            return String(
+                localized: """
+                The Foundation Models SDK for Python exposes the on-device model to Python 3.10+ on Apple silicon Macs with Xcode \
+                installed.
+                """
+            )
         case .evaluation:
-            return "Use the Python SDK with notebooks and data tools to run representative prompts, "
-                + "record outputs, and compare measurable quality criteria."
+            return String(
+                localized: """
+                Use the Python SDK with notebooks and data tools to run representative prompts, record outputs, and compare measurable \
+                quality criteria.
+                """
+            )
         }
     }
 
     var uses: [(String, String)] {
         switch self {
         case .cli:
-            return [("Runs in", "Terminal on macOS 27"), ("Interactive", "fm chat"), ("Automation", "fm respond"), ("Help", "fm --help")]
+            return [
+                (String(localized: "Runs in"), String(localized: "Terminal on macOS 27")),
+                (String(localized: "Interactive"), "fm chat"),
+                (String(localized: "Automation"), "fm respond"),
+                (String(localized: "Help"), "fm --help")
+            ]
         case .python:
             return [
-                ("Package", "apple_fm_sdk"),
-                ("Python", "3.10 or later"),
-                ("Hardware", "Apple silicon Mac"),
-                ("Setup", "Xcode installed")
+                (String(localized: "Package"), "apple_fm_sdk"),
+                (String(localized: "Python"), String(localized: "3.10 or later")),
+                (String(localized: "Hardware"), String(localized: "Apple silicon Mac")),
+                (String(localized: "Setup"), String(localized: "Xcode installed"))
             ]
         case .evaluation:
             return [
-                ("Input", "representative prompts"),
-                ("Output", "recorded responses"),
-                ("Measure", "feature-specific criteria"),
-                ("Compare", "prompt variants")
+                (String(localized: "Input"), String(localized: "representative prompts")),
+                (String(localized: "Output"), String(localized: "recorded responses")),
+                (String(localized: "Measure"), String(localized: "feature-specific criteria")),
+                (String(localized: "Compare"), String(localized: "prompt variants"))
             ]
         }
     }

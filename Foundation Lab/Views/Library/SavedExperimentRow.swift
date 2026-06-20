@@ -22,10 +22,16 @@ struct SavedExperimentRow: View {
                 Text(experiment.name)
                     .font(.headline)
 
-                Text(experiment.summary.isEmpty ? experiment.kind.displayName : experiment.summary)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                Group {
+                    if experiment.summary.isEmpty {
+                        Text(LocalizedStringKey(experiment.kind.displayName))
+                    } else {
+                        Text(experiment.summary)
+                    }
+                }
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
 
                 ViewThatFits(in: .horizontal) {
                     HStack(spacing: 12) {

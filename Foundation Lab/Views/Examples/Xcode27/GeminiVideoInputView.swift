@@ -67,7 +67,11 @@ struct GeminiVideoInputView: View {
                         systemImage: viewModel.apiKey.isEmpty ? "key" : "key.fill"
                     )
                 }
-                .help(viewModel.apiKey.isEmpty ? "Add Gemini API key" : "Edit Gemini API key")
+                .help(
+                    viewModel.apiKey.isEmpty
+                        ? String(localized: "Add Gemini API key")
+                        : String(localized: "Edit Gemini API key")
+                )
             }
         }
         .sheet(isPresented: $isShowingAPIKey) {
@@ -77,7 +81,7 @@ struct GeminiVideoInputView: View {
     }
 
     private var videoSection: some View {
-        Xcode27Section("Video Input") {
+        Xcode27Section(String(localized: "Video Input")) {
             if let videoURL = viewModel.videoURL {
                 GeminiVideoPreview(url: videoURL)
                     .aspectRatio(16 / 9, contentMode: .fit)
@@ -113,7 +117,7 @@ struct GeminiVideoInputView: View {
     }
 
     private var promptSection: some View {
-        Xcode27Section("Ask Gemini") {
+        Xcode27Section(String(localized: "Ask Gemini")) {
             TextField("Describe what Gemini should inspect", text: $viewModel.prompt, axis: .vertical)
                 .lineLimit(8...12)
                 .textFieldStyle(.roundedBorder)

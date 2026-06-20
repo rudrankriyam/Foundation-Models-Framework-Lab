@@ -70,7 +70,7 @@ struct ExperimentLibraryCatalogView: View {
     }
 
     private func schemaSection(
-        _ title: String,
+        _ title: LocalizedStringKey,
         systemImage: String,
         examples: [DynamicSchemaExampleType]
     ) -> some View {
@@ -106,9 +106,9 @@ struct ExperimentLibraryCatalogView: View {
     ) -> some View {
         Label {
             VStack(alignment: .leading, spacing: Spacing.xSmall) {
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.headline)
-                Text(subtitle)
+                Text(LocalizedStringKey(subtitle))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }

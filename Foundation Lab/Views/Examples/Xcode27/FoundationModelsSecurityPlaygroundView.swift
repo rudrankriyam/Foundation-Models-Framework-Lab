@@ -16,8 +16,8 @@ struct FoundationModelsSecurityPlaygroundView: View {
 
     var body: some View {
         ExampleViewBase(
-            title: "Agent Security",
-            description: "Inspect the boundary between Foundation Models and your app",
+            title: String(localized: "Agent Security"),
+            description: String(localized: "Inspect the boundary between Foundation Models and your app"),
             currentPrompt: $currentPrompt,
             codeExample: SecurityCodeExample.make(
                 for: toolAccess,

@@ -418,17 +418,17 @@ nonisolated enum GeminiDeveloperAPIError: LocalizedError, Sendable {
     var errorDescription: String? {
         switch self {
         case .apiKeyMissing:
-            return "Enter a Gemini API key or launch with GEMINI_API_KEY."
+            return String(localized: "Enter a Gemini API key or launch with GEMINI_API_KEY.")
         case .emptyPrompt:
-            return "The transcript did not contain a prompt Gemini can send."
+            return String(localized: "The transcript did not contain a prompt Gemini can send.")
         case let .invalidModelName(modelName):
-            return "The Gemini model name is invalid: \(modelName)."
+            return String(localized: "The Gemini model name is invalid: \(modelName).")
         case .invalidResponse:
-            return "Gemini returned an invalid HTTP response."
+            return String(localized: "Gemini returned an invalid HTTP response.")
         case .noTextResponse:
-            return "Gemini completed without returning text."
+            return String(localized: "Gemini completed without returning text.")
         case let .requestFailed(statusCode, message):
-            return "Gemini request failed with HTTP \(statusCode): \(message)"
+            return String(localized: "Gemini request failed with HTTP \(statusCode): \(message)")
         }
     }
 }

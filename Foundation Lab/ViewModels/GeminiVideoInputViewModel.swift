@@ -49,12 +49,12 @@ final class GeminiVideoInputViewModel {
     }
 
     var videoName: String {
-        videoURL?.lastPathComponent ?? "No video selected"
+        videoURL?.lastPathComponent ?? String(localized: "No video selected")
     }
 
     var videoSize: String {
         guard let videoURL else {
-            return "Unknown size"
+            return String(localized: "Unknown size")
         }
 
         let accessed = videoURL.startAccessingSecurityScopedResource()
@@ -66,7 +66,7 @@ final class GeminiVideoInputViewModel {
 
         guard let values = try? videoURL.resourceValues(forKeys: [.fileSizeKey]),
               let bytes = values.fileSize else {
-            return "Unknown size"
+            return String(localized: "Unknown size")
         }
 
         return ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
@@ -101,13 +101,13 @@ extension GeminiVideoInputViewModel {
 
     func startAnalysis() {
         guard let videoURL else {
-            errorMessage = "Choose a video before running the analysis."
+            errorMessage = String(localized: "Choose a video before running the analysis.")
             return
         }
 
         let trimmedPrompt = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedPrompt.isEmpty else {
-            errorMessage = "Enter a prompt before running the experiment."
+            errorMessage = String(localized: "Enter a prompt before running the experiment.")
             return
         }
 
@@ -267,8 +267,8 @@ private enum GeminiVideoInputError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case let .unsupportedVideoFormat(pathExtension):
-            let format = pathExtension.isEmpty ? "unknown" : pathExtension.uppercased()
-            return "The selected \(format) file does not have a recognized video MIME type."
+            let format = pathExtension.isEmpty ? String(localized: "unknown") : pathExtension.uppercased()
+            return String(localized: "The selected \(format) file does not have a recognized video MIME type.")
         }
     }
 }

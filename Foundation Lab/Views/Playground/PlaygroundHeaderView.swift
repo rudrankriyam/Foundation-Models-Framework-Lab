@@ -27,8 +27,14 @@ struct PlaygroundHeaderView: View {
 
     private var title: some View {
         VStack(alignment: .leading, spacing: Spacing.xSmall) {
-            Text(configuration.name.isEmpty ? "Untitled Experiment" : configuration.name)
-                .font(.headline)
+            Group {
+                if configuration.name.isEmpty {
+                    Text("Untitled Experiment")
+                } else {
+                    Text(configuration.name)
+                }
+            }
+            .font(.headline)
 
             if !configuration.summary.isEmpty {
                 Text(configuration.summary)

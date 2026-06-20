@@ -42,12 +42,16 @@ struct DailyProgressRow: View {
         }
         .padding(.vertical, Spacing.xSmall)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(metricType.rawValue)
-        .accessibilityValue("\(formattedValue) of \(formattedGoal), \(progressPercentage) percent")
+        .accessibilityLabel(metricType.localizedName)
+        .accessibilityValue(
+            String(
+                localized: "\(formattedValue) of \(formattedGoal), \(progressPercentage) percent"
+            )
+        )
     }
 
     private var metricLabel: some View {
-        Label(metricType.rawValue, systemImage: metricType.icon)
+        Label(metricType.localizedName, systemImage: metricType.icon)
             .foregroundStyle(.primary)
     }
 
@@ -58,29 +62,11 @@ struct DailyProgressRow: View {
     }
 
     private var formattedValue: String {
-        switch metricType {
-        case .steps:
-            return "\(Int(currentValue)) steps"
-        case .activeEnergy:
-            return "\(Int(currentValue)) calories"
-        case .sleep:
-            return String(format: "%.1f hours", currentValue)
-        default:
-            return "\(Int(currentValue))"
-        }
+        metricType.formattedValue(currentValue)
     }
 
     private var formattedGoal: String {
-        switch metricType {
-        case .steps:
-            return "\(Int(goalValue)) steps"
-        case .activeEnergy:
-            return "\(Int(goalValue)) calories"
-        case .sleep:
-            return String(format: "%.0f hours", goalValue)
-        default:
-            return "\(Int(goalValue))"
-        }
+        metricType.formattedValue(goalValue)
     }
 }
 

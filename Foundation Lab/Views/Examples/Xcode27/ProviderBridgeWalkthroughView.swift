@@ -29,7 +29,7 @@ struct ProviderBridgeWalkthroughView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(.purple.opacity(0.08), in: .rect(cornerRadius: CornerRadius.medium))
 
-                Xcode27Section("Bridge Layers") {
+                Xcode27Section(String(localized: "Bridge Layers")) {
                     VStack(spacing: 0) {
                         ForEach(ProviderBridgeLayer.allCases) { layer in
                             Button {
@@ -107,41 +107,61 @@ private enum ProviderBridgeLayer: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .protocols: return "Protocols"
-        case .prewarm: return "Prewarm"
-        case .transcript: return "Transcript"
-        case .streaming: return "Streaming"
-        case .request: return "Request Mapping"
+        case .protocols: return String(localized: "Protocols")
+        case .prewarm: return String(localized: "Prewarm")
+        case .transcript: return String(localized: "Transcript")
+        case .streaming: return String(localized: "Streaming")
+        case .request: return String(localized: "Request Mapping")
         }
     }
 
     var detail: String {
         switch self {
-        case .protocols: return "Declare LanguageModel and LanguageModelExecutor."
-        case .prewarm: return "Load resources before the user waits."
-        case .transcript: return "Map transcript entries to provider messages."
-        case .streaming: return "Send tokens and tool output through the channel."
-        case .request: return "Translate the transcript and options for the backend."
+        case .protocols: return String(localized: "Declare LanguageModel and LanguageModelExecutor.")
+        case .prewarm: return String(localized: "Load resources before the user waits.")
+        case .transcript: return String(localized: "Map transcript entries to provider messages.")
+        case .streaming: return String(localized: "Send tokens and tool output through the channel.")
+        case .request: return String(localized: "Translate the transcript and options for the backend.")
         }
     }
 
     var explanation: String {
         switch self {
         case .protocols:
-            return "A custom model adopts LanguageModel and pairs itself with one LanguageModelExecutor type. "
-                + "LanguageModelSession continues to own the public prompting API."
+            return String(
+                localized: """
+                A custom model adopts LanguageModel and pairs itself with one LanguageModelExecutor type. LanguageModelSession \
+                continues to own the public prompting API.
+                """
+            )
         case .prewarm:
-            return "The framework calls the executor's prewarm hook when a session is prewarmed. "
-                + "Providers can load assets or prepare cached state before generation begins."
+            return String(
+                localized: """
+                The framework calls the executor's prewarm hook when a session is prewarmed. Providers can load assets or prepare \
+                cached state before generation begins.
+                """
+            )
         case .transcript:
-            return "The executor receives the session transcript and is responsible for mapping its entries "
-                + "to the provider's request format."
+            return String(
+                localized: """
+                The executor receives the session transcript and is responsible for mapping its entries to the provider's request \
+                format.
+                """
+            )
         case .streaming:
-            return "The executor sends incremental generation events through LanguageModelExecutorGenerationChannel. "
-                + "The channel finishes when respond returns or throws."
+            return String(
+                localized: """
+                The executor sends incremental generation events through LanguageModelExecutorGenerationChannel. The channel \
+                finishes when respond returns or throws.
+                """
+            )
         case .request:
-            return "LanguageModelExecutorGenerationRequest carries the transcript plus generation and context options. "
-                + "A provider maps supported options and defines deliberate fallbacks for unsupported ones."
+            return String(
+                localized: """
+                LanguageModelExecutorGenerationRequest carries the transcript plus generation and context options. A provider maps \
+                supported options and defines deliberate fallbacks for unsupported ones.
+                """
+            )
         }
     }
 

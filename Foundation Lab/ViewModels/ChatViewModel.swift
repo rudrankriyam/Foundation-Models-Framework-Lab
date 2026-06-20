@@ -342,7 +342,7 @@ extension ChatViewModel {
         guard level != selectedReasoningLevel else { return true }
 
         if level != .none, !canUseReasoning {
-            errorMessage = "Reasoning levels require PCC on Xcode 27 and an eligible OS 27 runtime."
+            errorMessage = String(localized: "Reasoning levels require PCC on Xcode 27 and an eligible OS 27 runtime.")
             showError = true
             return false
         }
@@ -461,20 +461,20 @@ extension ChatViewModel {
             switch model.availability {
             case .available:
                 if model.quotaUsage.isLimitReached {
-                    return "PCC daily usage limit reached."
+                    return String(localized: "PCC daily usage limit reached.")
                 }
-                return "Routes requests through Private Cloud Compute."
+                return String(localized: "Routes requests through Private Cloud Compute.")
             case .unavailable(.deviceNotEligible):
-                return "This device is not eligible for PCC."
+                return String(localized: "This device is not eligible for PCC.")
             case .unavailable(.systemNotReady):
-                return "PCC is not ready on this system."
+                return String(localized: "PCC is not ready on this system.")
             @unknown default:
-                return "PCC is currently unavailable."
+                return String(localized: "PCC is currently unavailable.")
             }
         }
         #endif
 
-        return "PCC requires Xcode 27 and iOS, macOS, visionOS, or watchOS 27."
+        return String(localized: "PCC requires Xcode 27 and iOS, macOS, visionOS, or watchOS 27.")
     }
 
     func privateCloudComputeContextSize() async -> Int {

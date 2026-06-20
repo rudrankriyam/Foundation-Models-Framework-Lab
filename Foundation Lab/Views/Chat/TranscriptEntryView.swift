@@ -158,10 +158,10 @@ private struct ReasoningTraceView: View {
         }
 
         if reasoning.signature != nil {
-            return "The model provided an opaque reasoning signature, but no readable reasoning text."
+            return String(localized: "The model provided an opaque reasoning signature, but no readable reasoning text.")
         }
 
-        return "No readable reasoning trace was included in this transcript entry."
+        return String(localized: "No readable reasoning trace was included in this transcript entry.")
     }
 }
 #endif

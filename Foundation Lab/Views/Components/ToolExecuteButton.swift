@@ -6,13 +6,13 @@
 import SwiftUI
 
 struct ToolExecuteButton: View {
-    let title: String
+    let title: LocalizedStringKey
     let systemImage: String?
     let isRunning: Bool
     let action: () -> Void
 
     init(
-        _ title: String,
+        _ title: LocalizedStringKey,
         systemImage: String? = nil,
         isRunning: Bool = false,
         action: @escaping () -> Void
@@ -33,7 +33,7 @@ struct ToolExecuteButton: View {
                     Image(systemName: systemImage)
                 }
 
-                Text(isRunning ? "\(title)…" : title)
+                Text(title)
             }
             .frame(maxWidth: .infinity)
         }

@@ -10,10 +10,7 @@ struct AdapterStudioPreviewView: View {
                 Text("Adapter Workflow")
                     .font(.headline)
 
-                Text(
-                    "Train and export with Apple's toolkit, then use this workspace "
-                        + "for a quick base-versus-adapter inspection."
-                )
+                Text("Train and export with Apple's toolkit, then use this workspace for a quick base-versus-adapter inspection.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
             }
@@ -34,14 +31,13 @@ struct AdapterStudioPreviewView: View {
                 LabeledContent(
                     "5. Compare",
                     value: viewModel.adapterContext?.metadata.fileName
-                        ?? "Import the .fmadapter package"
+                        ?? String(localized: "Import the .fmadapter package")
                 )
                 .padding(.vertical, Spacing.small)
             }
 
             Label(
-                "Adapters are tied to a specific system-model version. "
-                    + "Retrain and reevaluate them when the compatible OS model changes.",
+                "Adapters are tied to a specific system-model version. Retrain and reevaluate them when the compatible OS model changes.",
                 systemImage: "exclamationmark.arrow.trianglehead.2.clockwise.rotate.90"
             )
             .font(.callout)

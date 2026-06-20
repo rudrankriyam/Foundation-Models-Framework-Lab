@@ -10,10 +10,10 @@ struct AdapterStudioSettingsView: View {
                 Text("Adapter Package")
                     .font(.headline)
 
-                Text(
-                    "Foundation Lab copies imported .fmadapter packages into "
-                        + "Application Support so they remain available across launches."
-                )
+                Text("""
+                Foundation Lab copies imported .fmadapter packages into Application Support so they remain available \
+                across launches.
+                """)
                 .font(.callout)
                 .foregroundStyle(.secondary)
             }

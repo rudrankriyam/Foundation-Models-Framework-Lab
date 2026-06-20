@@ -13,8 +13,8 @@ struct HistoryTransformLabView: View {
 
     var body: some View {
         ExampleViewBase(
-            title: "History Lab",
-            description: "Compare transcript transforms before a model call",
+            title: String(localized: "History Lab"),
+            description: String(localized: "Compare transcript transforms before a model call"),
             currentPrompt: $currentPrompt,
             codeExample: transform.code,
             onRun: nextTransform,
@@ -36,24 +36,30 @@ struct HistoryTransformLabView: View {
 
                 ViewThatFits(in: .horizontal) {
                     HStack(alignment: .top, spacing: Spacing.large) {
-                        TranscriptPanel(title: "Before", entries: TranscriptEntrySample.original)
+                        TranscriptPanel(title: String(localized: "Before"), entries: TranscriptEntrySample.original)
                             .frame(minWidth: 280)
-                        TranscriptPanel(title: "After", entries: transform.entries)
+                        TranscriptPanel(title: String(localized: "After"), entries: transform.entries)
                             .frame(minWidth: 280)
                     }
 
                     VStack(alignment: .leading, spacing: Spacing.large) {
-                        TranscriptPanel(title: "Before", entries: TranscriptEntrySample.original)
-                        TranscriptPanel(title: "After", entries: transform.entries)
+                        TranscriptPanel(title: String(localized: "Before"), entries: TranscriptEntrySample.original)
+                        TranscriptPanel(title: String(localized: "After"), entries: transform.entries)
                     }
                 }
 
-                Xcode27Section("Budget Impact") {
+                Xcode27Section(String(localized: "Budget Impact")) {
                     Xcode27KeyValueList(items: [
-                        ("Before", "\(TranscriptEntrySample.original.map(\.tokens).reduce(0, +)) tokens"),
-                        ("After", "\(transform.entries.map(\.tokens).reduce(0, +)) tokens"),
-                        ("Policy", transform.policy),
-                        ("Safety", transform.safety)
+                        (
+                            String(localized: "Before"),
+                            String(localized: "\(TranscriptEntrySample.original.map(\.tokens).reduce(0, +)) tokens")
+                        ),
+                        (
+                            String(localized: "After"),
+                            String(localized: "\(transform.entries.map(\.tokens).reduce(0, +)) tokens")
+                        ),
+                        (String(localized: "Policy"), transform.policy),
+                        (String(localized: "Safety"), transform.safety)
                     ])
                 }
             }
@@ -149,21 +155,21 @@ private enum HistoryTransformExample: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .trim: return "Trim"
-        case .summarize: return "Summarize"
-        case .spotlight: return "Spotlight"
-        case .redact: return "Redact"
-        case .dropTools: return "Drop Tools"
+        case .trim: return String(localized: "Trim")
+        case .summarize: return String(localized: "Summarize")
+        case .spotlight: return String(localized: "Spotlight")
+        case .redact: return String(localized: "Redact")
+        case .dropTools: return String(localized: "Drop Tools")
         }
     }
 
     var reason: String {
         switch self {
-        case .trim: return "Keep the most recent entries when the model needs short-term continuity."
-        case .summarize: return "Replace older turns with one compact memory entry when continuity matters."
-        case .spotlight: return "Mark untrusted tool output so the model treats it as data, not instructions."
-        case .redact: return "Remove secrets before transcript entries cross a privacy boundary."
-        case .dropTools: return "Remove stale tool-call chatter once the user-visible result has been captured."
+        case .trim: return String(localized: "Keep the most recent entries when the model needs short-term continuity.")
+        case .summarize: return String(localized: "Replace older turns with one compact memory entry when continuity matters.")
+        case .spotlight: return String(localized: "Mark untrusted tool output so the model treats it as data, not instructions.")
+        case .redact: return String(localized: "Remove secrets before transcript entries cross a privacy boundary.")
+        case .dropTools: return String(localized: "Remove stale tool-call chatter once the user-visible result has been captured.")
         }
     }
 
@@ -202,18 +208,18 @@ private enum HistoryTransformExample: String, CaseIterable, Identifiable {
 
     var policy: String {
         switch self {
-        case .trim: return "recency"
-        case .summarize: return "memory"
-        case .spotlight: return "trust"
-        case .redact: return "privacy"
-        case .dropTools: return "cleanup"
+        case .trim: return String(localized: "recency")
+        case .summarize: return String(localized: "memory")
+        case .spotlight: return String(localized: "trust")
+        case .redact: return String(localized: "privacy")
+        case .dropTools: return String(localized: "cleanup")
         }
     }
 
     var safety: String {
         switch self {
-        case .spotlight, .redact: return "high"
-        default: return "medium"
+        case .spotlight, .redact: return String(localized: "high")
+        default: return String(localized: "medium")
         }
     }
 

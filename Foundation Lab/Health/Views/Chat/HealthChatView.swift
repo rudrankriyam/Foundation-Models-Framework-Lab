@@ -274,16 +274,18 @@ struct ToolCallView: View {
         }
         .padding(.horizontal)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Reading your \(formatToolName(toolName))")
+        .accessibilityLabel(
+            String(localized: "Reading your \(formatToolName(toolName))")
+        )
         .accessibilityAddTraits(.updatesFrequently)
     }
 
     private func formatToolName(_ name: String) -> String {
         switch name {
         case "fetchHealthData":
-            return "health data"
+            return String(localized: "health data")
         default:
-            return "data"
+            return String(localized: "data")
         }
     }
 }

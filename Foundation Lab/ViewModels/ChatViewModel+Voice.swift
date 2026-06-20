@@ -201,15 +201,17 @@ extension ChatViewModel {
             return handledMessage
         }
         if opaqueFailure {
-            return """
-            PCC request failed. Private Cloud Compute is available, but this app may be missing \
-            the PCC entitlement or a matching provisioning profile.
+            return String(
+                localized: """
+                PCC request failed. Private Cloud Compute is available, but this app may be missing \
+                the PCC entitlement or a matching provisioning profile.
 
-            Confirm com.apple.developer.private-cloud-compute is present, then try again. \
-            Details: \(handledMessage)
-            """
+                Confirm com.apple.developer.private-cloud-compute is present, then try again. \
+                Details: \(handledMessage)
+                """
+            )
         }
-        return "PCC request failed. \(handledMessage)"
+        return String(localized: "PCC request failed. \(handledMessage)")
     }
 
     func observeSpeechState() async {

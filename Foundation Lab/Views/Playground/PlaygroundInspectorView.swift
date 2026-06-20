@@ -341,9 +341,9 @@ private struct ToolSelectionLabel: View {
                 .foregroundStyle(isSelected ? Color.accentColor : .secondary)
 
             VStack(alignment: .leading, spacing: Spacing.xSmall) {
-                Text(tool.displayName)
+                Text(LocalizedStringKey(tool.displayName))
                     .foregroundStyle(.primary)
-                Text(tool.summary)
+                Text(LocalizedStringKey(tool.summary))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -357,6 +357,8 @@ private struct ToolSelectionLabel: View {
         .frame(minHeight: 44)
         .contentShape(.rect)
         .accessibilityElement(children: .combine)
-        .accessibilityValue(isSelected ? "Selected" : "Not selected")
+        .accessibilityValue(
+            isSelected ? String(localized: "Selected") : String(localized: "Not selected")
+        )
     }
 }

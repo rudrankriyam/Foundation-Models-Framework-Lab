@@ -60,16 +60,21 @@ struct RunRowView: View {
     }
 
     private var experimentName: String {
-        run.configuration.name.isEmpty ? "Untitled Experiment" : run.configuration.name
+        run.configuration.name.isEmpty ? String(localized: "Untitled Experiment") : run.configuration.name
     }
 
     private var promptSummary: String {
-        run.prompt.isEmpty ? "No prompt was recorded" : run.prompt
+        run.prompt.isEmpty ? String(localized: "No prompt was recorded") : run.prompt
     }
 
     private var durationText: String {
-        let value = run.duration.formatted(.number.precision(.fractionLength(2)))
-        return "\(value) seconds"
+        Measurement(value: run.duration, unit: UnitDuration.seconds).formatted(
+            .measurement(
+                width: .wide,
+                usage: .asProvided,
+                numberFormatStyle: .number.precision(.fractionLength(2))
+            )
+        )
     }
 
     @ViewBuilder

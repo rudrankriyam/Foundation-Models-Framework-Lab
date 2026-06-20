@@ -104,7 +104,7 @@ enum HealthDataManagerError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .notAuthorized:
-            return "HealthKit authorization is required to fetch health data"
+            return String(localized: "HealthKit authorization is required to fetch health data")
         }
     }
 }

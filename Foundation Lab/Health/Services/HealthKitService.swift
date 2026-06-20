@@ -323,9 +323,9 @@ enum HealthKitError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .unavailable:
-            return "HealthKit is not available on this device"
+            return String(localized: "HealthKit is not available on this device")
         case .typesUnavailable:
-            return "Required HealthKit types are not available"
+            return String(localized: "Required HealthKit types are not available")
         }
     }
 }

@@ -223,7 +223,7 @@ struct ProductionLanguageExampleView: View {
             nutritionResult = response.analysis
 
         } catch {
-            errorMessage = "Analysis failed: \(error.localizedDescription)"
+            errorMessage = String(localized: "Analysis failed: \(error.localizedDescription)")
         }
 
         isRunning = false

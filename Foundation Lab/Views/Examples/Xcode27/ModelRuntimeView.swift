@@ -18,8 +18,8 @@ struct ModelRuntimeView: View {
 
     var body: some View {
         ExampleViewBase(
-            title: "System Model",
-            description: "Inspect this device's model and tokenize the prompt",
+            title: String(localized: "System Model"),
+            description: String(localized: "Inspect this device's model and tokenize the prompt"),
             currentPrompt: $currentPrompt,
             isRunning: isInspecting,
             errorMessage: errorMessage,
@@ -29,10 +29,10 @@ struct ModelRuntimeView: View {
         ) {
             VStack(spacing: Spacing.large) {
                 if let report {
-                    Xcode27Section("Current Device") {
+                    Xcode27Section(String(localized: "Current Device")) {
                         VStack(spacing: 0) {
                             Xcode27StatusRow(
-                                title: "Availability",
+                                title: String(localized: "Availability"),
                                 value: report.availability,
                                 systemImage: report.isAvailable ? "checkmark.circle.fill" : "exclamationmark.circle.fill",
                                 tint: report.isAvailable ? .green : .orange
@@ -41,7 +41,7 @@ struct ModelRuntimeView: View {
                             Divider()
 
                             Xcode27StatusRow(
-                                title: "Context size",
+                                title: String(localized: "Context size"),
                                 value: tokenLabel(report.contextSize),
                                 systemImage: "text.page"
                             )
@@ -49,14 +49,14 @@ struct ModelRuntimeView: View {
                             Divider()
 
                             Xcode27StatusRow(
-                                title: "This prompt",
+                                title: String(localized: "This prompt"),
                                 value: report.promptTokenDescription,
                                 systemImage: "number"
                             )
                         }
                     }
 
-                    Xcode27Section("Model Capabilities") {
+                    Xcode27Section(String(localized: "Model Capabilities")) {
                         VStack(alignment: .leading, spacing: 0) {
                             ForEach(report.capabilities) { capability in
                                 Xcode27InfoRow(
@@ -81,10 +81,14 @@ struct ModelRuntimeView: View {
                     }
                 }
 
-                Xcode27Section("Scope") {
+                Xcode27Section(String(localized: "Scope")) {
                     Text(
-                        "These values describe SystemLanguageModel.default on this device. Private Cloud Compute is a separate " +
-                        "language model with its own availability, quota, supported languages, and asynchronous context size."
+                        String(
+                            localized: """
+                            These values describe SystemLanguageModel.default on this device. Private Cloud Compute is a separate \
+                            language model with its own availability, quota, supported languages, and asynchronous context size.
+                            """
+                        )
                     )
                     .font(.callout)
                     .foregroundStyle(.secondary)
@@ -120,11 +124,13 @@ struct ModelRuntimeView: View {
                 return
             } catch {
                 guard inspectionID == id else { return }
-                promptTokenDescription = "Tokenization failed"
-                errorMessage = "The runtime was inspected, but the prompt could not be tokenized: \(error.localizedDescription)"
+                promptTokenDescription = String(localized: "Tokenization failed")
+                errorMessage = String(
+                    localized: "The runtime was inspected, but the prompt could not be tokenized: \(error.localizedDescription)"
+                )
             }
         } else {
-            promptTokenDescription = "Requires OS 26.4"
+            promptTokenDescription = String(localized: "Requires OS 26.4")
         }
 
         guard inspectionID == id else { return }
@@ -150,7 +156,7 @@ struct ModelRuntimeView: View {
     ) -> (text: String, isAvailable: Bool) {
         switch availability {
         case .available:
-            ("Available", true)
+            (String(localized: "Available"), true)
         case .unavailable(let reason):
             (unavailableReasonDescription(reason), false)
         }
@@ -161,13 +167,13 @@ struct ModelRuntimeView: View {
     ) -> String {
         switch reason {
         case .deviceNotEligible:
-            "Device not eligible"
+            String(localized: "Device not eligible")
         case .appleIntelligenceNotEnabled:
-            "Apple Intelligence not enabled"
+            String(localized: "Apple Intelligence not enabled")
         case .modelNotReady:
-            "Model not ready"
+            String(localized: "Model not ready")
         @unknown default:
-            "Unavailable"
+            String(localized: "Unavailable")
         }
     }
 
@@ -176,24 +182,24 @@ struct ModelRuntimeView: View {
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) {
             let capabilities = model.capabilities
             return [
-                ModelCapabilityRow(name: "Vision", isSupported: capabilities.contains(.vision)),
-                ModelCapabilityRow(name: "Guided generation", isSupported: capabilities.contains(.guidedGeneration)),
-                ModelCapabilityRow(name: "Reasoning", isSupported: capabilities.contains(.reasoning)),
-                ModelCapabilityRow(name: "Tool calling", isSupported: capabilities.contains(.toolCalling))
+                ModelCapabilityRow(name: String(localized: "Vision"), isSupported: capabilities.contains(.vision)),
+                ModelCapabilityRow(name: String(localized: "Guided generation"), isSupported: capabilities.contains(.guidedGeneration)),
+                ModelCapabilityRow(name: String(localized: "Reasoning"), isSupported: capabilities.contains(.reasoning)),
+                ModelCapabilityRow(name: String(localized: "Tool calling"), isSupported: capabilities.contains(.toolCalling))
             ]
         }
         #endif
 
         return [
-            ModelCapabilityRow(name: "Vision", isSupported: nil),
-            ModelCapabilityRow(name: "Guided generation", isSupported: nil),
-            ModelCapabilityRow(name: "Reasoning", isSupported: nil),
-            ModelCapabilityRow(name: "Tool calling", isSupported: nil)
+            ModelCapabilityRow(name: String(localized: "Vision"), isSupported: nil),
+            ModelCapabilityRow(name: String(localized: "Guided generation"), isSupported: nil),
+            ModelCapabilityRow(name: String(localized: "Reasoning"), isSupported: nil),
+            ModelCapabilityRow(name: String(localized: "Tool calling"), isSupported: nil)
         ]
     }
 
     private func tokenLabel(_ count: Int) -> String {
-        count.formatted() + (count == 1 ? " token" : " tokens")
+        count == 1 ? String(localized: "\(count) token") : String(localized: "\(count) tokens")
     }
 
     private var codeExample: String {
@@ -229,11 +235,11 @@ private struct ModelCapabilityRow: Identifiable {
     var detail: String {
         switch isSupported {
         case true:
-            "Reported by this model."
+            String(localized: "Reported by this model.")
         case false:
-            "Not reported by this model."
+            String(localized: "Not reported by this model.")
         case nil:
-            "Capability inspection requires the Xcode 27 SDK and an OS 27 runtime."
+            String(localized: "Capability inspection requires the Xcode 27 SDK and an OS 27 runtime.")
         }
     }
 

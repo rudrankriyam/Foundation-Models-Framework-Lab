@@ -14,8 +14,12 @@ struct EvaluationsLabView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.large) {
                 Text(
-                    "Evaluations are repeatable tests you run against a dataset. This guide describes the real test workflow; " +
-                    "it does not invent scores for a single prompt."
+                    String(
+                        localized: """
+                        Evaluations are repeatable tests you run against a dataset. This guide describes the real test workflow; it \
+                        does not invent scores for a single prompt.
+                        """
+                    )
                 )
                     .font(.body)
                     .foregroundStyle(.secondary)
@@ -37,23 +41,27 @@ struct EvaluationsLabView: View {
                     }
                 }
 
-                Xcode27Section("What makes a result real") {
+                Xcode27Section(String(localized: "What makes a result real")) {
                     VStack(alignment: .leading, spacing: 0) {
                         EvaluationEvidenceRow(
-                            title: "Known inputs",
-                            detail: "Versioned samples cover success, challenge, adversarial, and past-failure cases.",
+                            title: String(localized: "Known inputs"),
+                            detail: String(localized: "Versioned samples cover success, challenge, adversarial, and past-failure cases."),
                             systemImage: "tray.full"
                         )
                         Divider()
                         EvaluationEvidenceRow(
-                            title: "Declared criteria",
-                            detail: "Each metric has a rule, scale, threshold, or rubric before the suite runs.",
+                            title: String(localized: "Declared criteria"),
+                            detail: String(localized: "Each metric has a rule, scale, threshold, or rubric before the suite runs."),
                             systemImage: "checklist"
                         )
                         Divider()
                         EvaluationEvidenceRow(
-                            title: "Generated report",
-                            detail: "The Evaluations framework records per-sample measurements and aggregate results in the test report.",
+                            title: String(localized: "Generated report"),
+                            detail: String(
+                                localized: """
+                                The Evaluations framework records per-sample measurements and aggregate results in the test report.
+                                """
+                            ),
                             systemImage: "chart.bar.doc.horizontal"
                         )
                     }
@@ -97,29 +105,29 @@ private enum EvaluationLayer: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .dataset: "Dataset"
-        case .metric: "Metrics"
-        case .judge: "Model judge"
+        case .dataset: String(localized: "Dataset")
+        case .metric: String(localized: "Metrics")
+        case .judge: String(localized: "Model judge")
         }
     }
 
     var explanation: String {
         switch self {
         case .dataset:
-            """
+            String(localized: """
             A representative dataset is the foundation of an evaluation. A synthetic-data pass can expand coverage, but generated \
             samples still need validation before they become test evidence.
-            """
+            """)
         case .metric:
-            """
+            String(localized: """
             Use deterministic rules for objective requirements, ground truth when a correct answer exists, and semantic or \
             model-based measurements only when the criterion requires them.
-            """
+            """)
         case .judge:
-            """
+            String(localized: """
             A model judge scores qualitative dimensions such as relevance or tone. Calibrate its rubric against human judgment; \
             the judge model and its rubric are part of the test configuration.
-            """
+            """)
         }
     }
 
@@ -127,24 +135,24 @@ private enum EvaluationLayer: String, CaseIterable, Identifiable {
         switch self {
         case .dataset:
             [
-                ("Defines", "Test inputs"),
-                ("Include", "Common, edge, adversarial"),
-                ("Review", "Synthetic samples"),
-                ("Lives in", "Evaluation test target")
+                (String(localized: "Defines"), String(localized: "Test inputs")),
+                (String(localized: "Include"), String(localized: "Common, edge, adversarial")),
+                (String(localized: "Review"), String(localized: "Synthetic samples")),
+                (String(localized: "Lives in"), String(localized: "Evaluation test target"))
             ]
         case .metric:
             [
-                ("Rule based", "Objective checks"),
-                ("Ground truth", "Known answer"),
-                ("Semantic", "Meaning similarity"),
-                ("Output", "Per-sample measurement")
+                (String(localized: "Rule based"), String(localized: "Objective checks")),
+                (String(localized: "Ground truth"), String(localized: "Known answer")),
+                (String(localized: "Semantic"), String(localized: "Meaning similarity")),
+                (String(localized: "Output"), String(localized: "Per-sample measurement"))
             ]
         case .judge:
             [
-                ("Use for", "Qualitative criteria"),
-                ("Requires", "Explicit scale and rubric"),
-                ("Validate with", "Human ratings"),
-                ("Model", "Configured by the test")
+                (String(localized: "Use for"), String(localized: "Qualitative criteria")),
+                (String(localized: "Requires"), String(localized: "Explicit scale and rubric")),
+                (String(localized: "Validate with"), String(localized: "Human ratings")),
+                (String(localized: "Model"), String(localized: "Configured by the test"))
             ]
         }
     }

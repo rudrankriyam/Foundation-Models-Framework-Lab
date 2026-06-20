@@ -34,7 +34,11 @@ struct AdapterStudioResponseColumn: View {
                                 .controlSize(.small)
                         }
 
-                        Text(isActive ? "Waiting for the first token" : "No response yet")
+                        Text(
+                            isActive
+                                ? String(localized: "Waiting for the first token")
+                                : String(localized: "No response yet")
+                        )
                             .font(.callout)
                             .foregroundStyle(.secondary)
                     }
@@ -78,14 +82,20 @@ struct AdapterStudioResponseColumn: View {
 
     private func durationLabel(_ duration: TimeInterval?) -> String {
         guard let duration else { return "--" }
-        return "\(duration.formatted(.number.precision(.fractionLength(2))))s"
+        return Measurement(value: duration, unit: UnitDuration.seconds).formatted(
+            .measurement(
+                width: .abbreviated,
+                usage: .asProvided,
+                numberFormatStyle: .number.precision(.fractionLength(2))
+            )
+        )
     }
 }
 
 #Preview {
     AdapterStudioResponseColumn(
-        title: "Base Model",
-        subtitle: "System language model",
+        title: String(localized: "Base Model"),
+        subtitle: String(localized: "System language model"),
         column: AdapterStudioColumnState(text: "Example response"),
         isActive: false
     )

@@ -34,7 +34,7 @@ final class ExampleExecutor {
         guardrails: FoundationLabGuardrails = .default
     ) async {
         guard !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            errorMessage = "Please enter a valid prompt"
+            errorMessage = String(localized: "Please enter a valid prompt")
             return
         }
 
@@ -82,7 +82,7 @@ final class ExampleExecutor {
         formatter: @escaping (T) -> String
     ) async {
         guard !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            errorMessage = "Please enter a valid prompt"
+            errorMessage = String(localized: "Please enter a valid prompt")
             return
         }
 
@@ -123,7 +123,7 @@ final class ExampleExecutor {
         systemPrompt: String? = nil
     ) async {
         guard !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            errorMessage = "Please enter a valid prompt"
+            errorMessage = String(localized: "Please enter a valid prompt")
             return
         }
 
@@ -173,7 +173,7 @@ final class ExampleExecutor {
         onPartialResult: @escaping @MainActor @Sendable (String) -> Void
     ) async {
         guard !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            errorMessage = "Please enter a valid prompt"
+            errorMessage = String(localized: "Please enter a valid prompt")
             return
         }
 

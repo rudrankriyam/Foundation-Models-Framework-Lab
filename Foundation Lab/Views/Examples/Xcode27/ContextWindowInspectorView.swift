@@ -33,8 +33,8 @@ struct ContextWindowInspectorView: View {
 
     var body: some View {
         ExampleViewBase(
-            title: "Context Window",
-            description: "Inspect the pieces that consume a session budget",
+            title: String(localized: "Context Window"),
+            description: String(localized: "Inspect the pieces that consume a session budget"),
             currentPrompt: $currentPrompt,
             codeExample: codeExample,
             onRun: rebalance,
@@ -42,8 +42,8 @@ struct ContextWindowInspectorView: View {
         ) {
             VStack(spacing: Spacing.medium) {
                 Xcode27StatusRow(
-                    title: "Current Budget",
-                    value: "\(totalTokens) / \(maxContextSize) tokens",
+                    title: String(localized: "Current Budget"),
+                    value: String(localized: "\(totalTokens) / \(maxContextSize) tokens"),
                     systemImage: "chart.bar.xaxis",
                     tint: usageFraction > 0.9 ? .red : usageFraction > 0.75 ? .orange : .green
                 )
@@ -54,51 +54,51 @@ struct ContextWindowInspectorView: View {
                     tokenUsageFraction: usageFraction
                 )
 
-                Xcode27Section("Token Sources") {
+                Xcode27Section(String(localized: "Token Sources")) {
                     VStack(spacing: Spacing.large) {
                         Xcode27ValueSlider(
-                            title: "Instructions",
-                            valueText: "\(Int(instructionsTokens)) tokens",
+                            title: String(localized: "Instructions"),
+                            valueText: String(localized: "\(Int(instructionsTokens)) tokens"),
                             systemImage: "text.quote",
                             value: $instructionsTokens,
                             range: 0...2_000,
                             step: 20
                         )
                         Xcode27ValueSlider(
-                            title: "Prompt",
-                            valueText: "\(Int(promptTokens)) tokens",
+                            title: String(localized: "Prompt"),
+                            valueText: String(localized: "\(Int(promptTokens)) tokens"),
                             systemImage: "text.cursor",
                             value: $promptTokens,
                             range: 0...2_000,
                             step: 20
                         )
                         Xcode27ValueSlider(
-                            title: "Schemas",
-                            valueText: "\(Int(schemaTokens)) tokens",
+                            title: String(localized: "Schemas"),
+                            valueText: String(localized: "\(Int(schemaTokens)) tokens"),
                             systemImage: "curlybraces",
                             value: $schemaTokens,
                             range: 0...2_000,
                             step: 20
                         )
                         Xcode27ValueSlider(
-                            title: "Tools",
-                            valueText: "\(Int(toolTokens)) tokens",
+                            title: String(localized: "Tools"),
+                            valueText: String(localized: "\(Int(toolTokens)) tokens"),
                             systemImage: "hammer",
                             value: $toolTokens,
                             range: 0...2_000,
                             step: 20
                         )
                         Xcode27ValueSlider(
-                            title: "History",
-                            valueText: "\(Int(historyTokens)) tokens",
+                            title: String(localized: "History"),
+                            valueText: String(localized: "\(Int(historyTokens)) tokens"),
                             systemImage: "clock.arrow.circlepath",
                             value: $historyTokens,
                             range: 0...2_000,
                             step: 20
                         )
                         Xcode27ValueSlider(
-                            title: "Response reserve",
-                            valueText: "\(Int(responseReserveTokens)) tokens",
+                            title: String(localized: "Response reserve"),
+                            valueText: String(localized: "\(Int(responseReserveTokens)) tokens"),
                             systemImage: "arrow.down.doc",
                             value: $responseReserveTokens,
                             range: 0...2_000,
@@ -107,7 +107,7 @@ struct ContextWindowInspectorView: View {
                     }
                 }
 
-                Xcode27Section("Compaction Trigger") {
+                Xcode27Section(String(localized: "Compaction Trigger")) {
                     Text(compactionAdvice)
                         .font(.callout)
                         .foregroundStyle(.secondary)
@@ -119,11 +119,19 @@ struct ContextWindowInspectorView: View {
     private var compactionAdvice: String {
         switch usageFraction {
         case ..<0.65:
-            return "The session has plenty of room. Keep the transcript intact."
+            return String(localized: "The session has plenty of room. Keep the transcript intact.")
         case ..<0.85:
-            return "The session is getting warm. Consider summarizing older turns before adding large schemas or tool output."
+            return String(
+                localized: """
+                The session is getting warm. Consider summarizing older turns before adding large schemas or tool output.
+                """
+            )
         default:
-            return "The session is close to the context limit. Compact history or start a fresh session before asking for a long response."
+            return String(
+                localized: """
+                The session is close to the context limit. Compact history or start a fresh session before asking for a long response.
+                """
+            )
         }
     }
 

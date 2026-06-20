@@ -14,13 +14,17 @@ struct AgentFlowInspectorView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.large) {
                 Text(
-                    "Foundation Models does not expose a generic agent dashboard. An agentic turn is built from profiles, sessions, " +
-                    "tools, transcript entries, and app-owned policy. Inspect live timing and token behavior with Instruments."
+                    String(
+                        localized: """
+                        Foundation Models does not expose a generic agent dashboard. An agentic turn is built from profiles, sessions, \
+                        tools, transcript entries, and app-owned policy. Inspect live timing and token behavior with Instruments.
+                        """
+                    )
                 )
                     .font(.body)
                     .foregroundStyle(.secondary)
 
-                Xcode27Section("Framework map") {
+                Xcode27Section(String(localized: "Framework map")) {
                     VStack(spacing: 0) {
                         ForEach(AgentTurnPhase.allCases) { phase in
                             Button {
@@ -48,12 +52,12 @@ struct AgentFlowInspectorView: View {
                     }
                 }
 
-                Xcode27Section("Ownership boundary") {
+                Xcode27Section(String(localized: "Ownership boundary")) {
                     Xcode27KeyValueList(items: [
-                        ("Framework", "Profiles, generation, transcript"),
-                        ("Your app", "Routing, permissions, confirmation"),
-                        ("Evaluator", "Quality and regression checks"),
-                        ("Instruments", "Tokens, latency, control flow")
+                        (String(localized: "Framework"), String(localized: "Profiles, generation, transcript")),
+                        (String(localized: "Your app"), String(localized: "Routing, permissions, confirmation")),
+                        (String(localized: "Evaluator"), String(localized: "Quality and regression checks")),
+                        (String(localized: "Instruments"), String(localized: "Tokens, latency, control flow"))
                     ])
                 }
 
@@ -113,51 +117,51 @@ private enum AgentTurnPhase: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .profile: "Dynamic profile"
-        case .generation: "Session request"
-        case .tools: "Tool lifecycle"
-        case .transcript: "Transcript"
-        case .instruments: "Runtime trace"
+        case .profile: String(localized: "Dynamic profile")
+        case .generation: String(localized: "Session request")
+        case .tools: String(localized: "Tool lifecycle")
+        case .transcript: String(localized: "Transcript")
+        case .instruments: String(localized: "Runtime trace")
         }
     }
 
     var summary: String {
         switch self {
-        case .profile: "Select instructions, tools, model, and options"
-        case .generation: "Generate through LanguageModelSession"
-        case .tools: "Observe calls and outputs around app code"
-        case .transcript: "Read the linear history of the session"
-        case .instruments: "Measure live latency, tokens, and control flow"
+        case .profile: String(localized: "Select instructions, tools, model, and options")
+        case .generation: String(localized: "Generate through LanguageModelSession")
+        case .tools: String(localized: "Observe calls and outputs around app code")
+        case .transcript: String(localized: "Read the linear history of the session")
+        case .instruments: String(localized: "Measure live latency, tokens, and control flow")
         }
     }
 
     var detail: String {
         switch self {
         case .profile:
-            """
+            String(localized: """
             LanguageModelSession.Profile binds dynamic instructions to session configuration. DynamicProfile can change that \
             configuration from app state before requests.
-            """
+            """)
         case .generation:
-            """
+            String(localized: """
             LanguageModelSession owns the interaction with a LanguageModel. Respond and streamResponse are the generation boundary; \
             GenerationOptions and ContextOptions configure a request.
-            """
+            """)
         case .tools:
-            """
+            String(localized: """
             A Tool exposes app code to the model. Tool-calling mode controls whether tools are allowed, required, or disallowed. \
             Profile lifecycle callbacks observe calls and outputs; your app still owns authorization and side-effect policy.
-            """
+            """)
         case .transcript:
-            """
+            String(localized: """
             The transcript is the inspectable session history. It contains instructions, prompts, responses, tool calls, and tool \
             outputs. It does not promise fabricated cache or latency fields.
-            """
+            """)
         case .instruments:
-            """
+            String(localized: """
             Use the Foundation Models Instrument to inspect live prompts, response timing, token consumption, tool activity, and control \
             flow. Those measurements come from a recorded trace, not a SwiftUI sample screen.
-            """
+            """)
         }
     }
 
@@ -165,38 +169,38 @@ private enum AgentTurnPhase: String, CaseIterable, Identifiable {
         switch self {
         case .profile:
             [
-                ("API", "DynamicProfile"),
-                ("Concrete type", "Profile"),
-                ("Content", "DynamicInstructions"),
-                ("Re-evaluates", "From app state")
+                (String(localized: "API"), "DynamicProfile"),
+                (String(localized: "Concrete type"), "Profile"),
+                (String(localized: "Content"), "DynamicInstructions"),
+                (String(localized: "Re-evaluates"), String(localized: "From app state"))
             ]
         case .generation:
             [
-                ("API", "LanguageModelSession"),
-                ("Model", "Any LanguageModel"),
-                ("One shot", "respond"),
-                ("Streaming", "streamResponse")
+                (String(localized: "API"), "LanguageModelSession"),
+                (String(localized: "Model"), String(localized: "Any LanguageModel")),
+                (String(localized: "One shot"), "respond"),
+                (String(localized: "Streaming"), "streamResponse")
             ]
         case .tools:
             [
-                ("API", "Tool"),
-                ("Modes", "Allowed, required, disallowed"),
-                ("Before call", "onToolCall"),
-                ("After output", "onToolOutput")
+                (String(localized: "API"), "Tool"),
+                (String(localized: "Modes"), String(localized: "Allowed, required, disallowed")),
+                (String(localized: "Before call"), "onToolCall"),
+                (String(localized: "After output"), "onToolOutput")
             ]
         case .transcript:
             [
-                ("API", "Transcript"),
-                ("Order", "Linear entries"),
-                ("Includes", "Calls and outputs"),
-                ("Use", "History and diagnostics")
+                (String(localized: "API"), "Transcript"),
+                (String(localized: "Order"), String(localized: "Linear entries")),
+                (String(localized: "Includes"), String(localized: "Calls and outputs")),
+                (String(localized: "Use"), String(localized: "History and diagnostics"))
             ]
         case .instruments:
             [
-                ("Tool", "Foundation Models Instrument"),
-                ("Source", "Recorded runtime trace"),
-                ("Shows", "Timing and token use"),
-                ("Use", "Debug and optimize")
+                (String(localized: "Tool"), "Foundation Models Instrument"),
+                (String(localized: "Source"), String(localized: "Recorded runtime trace")),
+                (String(localized: "Shows"), String(localized: "Timing and token use")),
+                (String(localized: "Use"), String(localized: "Debug and optimize"))
             ]
         }
     }

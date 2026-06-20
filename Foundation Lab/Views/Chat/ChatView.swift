@@ -10,7 +10,7 @@ import FoundationLabCore
 import FoundationModels
 
 struct ChatView: View {
-    let title: String
+    let title: LocalizedStringKey
     let showsDoneButton: Bool
     let tearsDownOnDisappear: Bool
 
@@ -22,7 +22,7 @@ struct ChatView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dismiss) private var dismiss
 
-    init(title: String = "Chat", showsDoneButton: Bool = true, tearsDownOnDisappear: Bool = true) {
+    init(title: LocalizedStringKey = "Chat", showsDoneButton: Bool = true, tearsDownOnDisappear: Bool = true) {
         self.title = title
         self.showsDoneButton = showsDoneButton
         self.tearsDownOnDisappear = tearsDownOnDisappear
@@ -45,7 +45,7 @@ struct ChatView: View {
             )
         }
         .environment(viewModel)
-        .navigationTitle(viewModel.voiceState.isActive ? "Voice" : title)
+        .navigationTitle(viewModel.voiceState.isActive ? Text("Voice") : Text(title))
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
@@ -74,7 +74,13 @@ struct ChatView: View {
             "Error",
             isPresented: $viewModel.showError,
             actions: { Button("OK") { viewModel.dismissError() } },
-            message: { Text(viewModel.errorMessage ?? "An unknown error occurred") }
+            message: {
+                if let message = viewModel.errorMessage {
+                    Text(message)
+                } else {
+                    Text("An unknown error occurred")
+                }
+            }
         )
         .task {
             try? await Task.sleep(for: .milliseconds(500))
@@ -115,9 +121,11 @@ struct ChatView: View {
         }
 #endif
     }
+}
 
-    // MARK: - View Components
+// MARK: - View Components
 
+private extension ChatView {
     private var messagesView: some View {
         ScrollViewReader { proxy in
             ScrollView {

@@ -14,8 +14,12 @@ struct ModelRouterDashboardView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.large) {
                 Text(
-                    "Foundation Models provides model surfaces, not an automatic router. Your app chooses a model after evaluating " +
-                    "quality, capabilities, availability, privacy, and fallback behavior."
+                    String(
+                        localized: """
+                        Foundation Models provides model surfaces, not an automatic router. Your app chooses a model after evaluating \
+                        quality, capabilities, availability, privacy, and fallback behavior.
+                        """
+                    )
                 )
                     .font(.body)
                     .foregroundStyle(.secondary)
@@ -27,10 +31,10 @@ struct ModelRouterDashboardView: View {
                 }
                 .pickerStyle(.segmented)
 
-                Xcode27Section("Example app policy") {
+                Xcode27Section(String(localized: "Example app policy")) {
                     VStack(alignment: .leading, spacing: Spacing.medium) {
                         Xcode27StatusRow(
-                            title: "Start with",
+                            title: String(localized: "Start with"),
                             value: requirement.recommendation,
                             systemImage: requirement.icon,
                             tint: requirement.tint
@@ -41,15 +45,19 @@ struct ModelRouterDashboardView: View {
                             .foregroundStyle(.secondary)
 
                         Text(
-                            "This is a design recommendation, not a runtime selection. Check availability and capabilities before " +
-                            "creating the session."
+                            String(
+                                localized: """
+                                This is a design recommendation, not a runtime selection. Check availability and capabilities before \
+                                creating the session.
+                                """
+                            )
                         )
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
                 }
 
-                Xcode27Section("Actual model surfaces") {
+                Xcode27Section(String(localized: "Actual model surfaces")) {
                     VStack(spacing: 0) {
                         ForEach(ModelSurface.allCases) { surface in
                             ModelSurfaceRow(surface: surface)
@@ -61,12 +69,12 @@ struct ModelRouterDashboardView: View {
                     }
                 }
 
-                Xcode27Section("Selection order") {
+                Xcode27Section(String(localized: "Selection order")) {
                     Xcode27KeyValueList(items: [
-                        ("1", "Evaluate feature quality"),
-                        ("2", "Match required capabilities"),
-                        ("3", "Check runtime availability"),
-                        ("4", "Apply a documented fallback")
+                        ("1", String(localized: "Evaluate feature quality")),
+                        ("2", String(localized: "Match required capabilities")),
+                        ("3", String(localized: "Check runtime availability")),
+                        ("4", String(localized: "Apply a documented fallback"))
                     ])
                 }
 
@@ -121,19 +129,24 @@ private enum ModelSurface: String, CaseIterable, Identifiable {
         switch self {
         case .system: "SystemLanguageModel"
         case .pcc: "PrivateCloudComputeLanguageModel"
-        case .custom: "LanguageModel conformance"
+        case .custom: String(localized: "LanguageModel conformance")
         }
     }
 
     var detail: String {
         switch self {
-        case .system: "Apple's on-device model. It works offline and has no daily usage quota."
+        case .system: String(localized: "Apple's on-device model. It works offline and has no daily usage quota.")
         case .pcc:
-            """
+            String(localized: """
             Apple's server model for more reasoning and context. It requires availability, network access, entitlement eligibility, \
             and has usage limits.
-            """
-        case .custom: "A bridge your app or package implements for another model provider through LanguageModel and LanguageModelExecutor."
+            """)
+        case .custom:
+            String(
+                localized: """
+                A bridge your app or package implements for another model provider through LanguageModel and LanguageModelExecutor.
+                """
+            )
         }
     }
 
@@ -163,30 +176,35 @@ private enum ModelRequirement: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .offline: "Offline"
-        case .reasoning: "Reasoning"
-        case .provider: "Custom"
+        case .offline: String(localized: "Offline")
+        case .reasoning: String(localized: "Reasoning")
+        case .provider: String(localized: "Custom")
         }
     }
 
     var recommendation: String {
         switch self {
-        case .offline: "System model"
-        case .reasoning: "Evaluate PCC"
-        case .provider: "Custom model"
+        case .offline: String(localized: "System model")
+        case .reasoning: String(localized: "Evaluate PCC")
+        case .provider: String(localized: "Custom model")
         }
     }
 
     var reason: String {
         switch self {
-        case .offline: "Choose the on-device system model when the feature must work without a network connection."
+        case .offline:
+            String(localized: "Choose the on-device system model when the feature must work without a network connection.")
         case .reasoning:
-            "Start on device, evaluate the feature, then choose PCC if measured quality requires its reasoning or larger context."
+            String(
+                localized: """
+                Start on device, evaluate the feature, then choose PCC if measured quality requires its reasoning or larger context.
+                """
+            )
         case .provider:
-            """
+            String(localized: """
             Adopt LanguageModel when the product requires a model that Apple does not provide directly. Your executor owns provider \
             translation and streaming.
-            """
+            """)
         }
     }
 

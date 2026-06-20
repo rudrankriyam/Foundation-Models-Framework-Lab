@@ -10,13 +10,15 @@ struct RunStatusLabel: View {
 
     var body: some View {
         Label {
-            Text(succeeded ? "Succeeded" : "Failed")
+            Text(succeeded ? String(localized: "Succeeded") : String(localized: "Failed"))
                 .foregroundStyle(.secondary)
         } icon: {
             Image(systemName: succeeded ? "checkmark.circle.fill" : "xmark.octagon.fill")
                 .foregroundStyle(succeeded ? Color.green : Color.red)
         }
-        .accessibilityLabel(succeeded ? "Run succeeded" : "Run failed")
+        .accessibilityLabel(
+            succeeded ? String(localized: "Run succeeded") : String(localized: "Run failed")
+        )
     }
 }
 

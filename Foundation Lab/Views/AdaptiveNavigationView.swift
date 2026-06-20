@@ -69,7 +69,11 @@ struct AdaptiveNavigationView: View {
             }
             Button("Dismiss", role: .cancel, action: experimentStore.clearPersistenceError)
         } message: {
-            Text(experimentStore.persistenceErrorMessage ?? "The latest changes could not be saved.")
+            if let message = experimentStore.persistenceErrorMessage {
+                Text(message)
+            } else {
+                Text("The latest changes could not be saved.")
+            }
         }
     }
 

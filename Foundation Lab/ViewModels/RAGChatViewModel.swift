@@ -87,7 +87,7 @@ final class RAGChatViewModel {
             config = try RAGConfig.makeDefault()
         } catch {
             config = nil
-            errorMessage = "Failed to initialize RAG configuration: \(error.localizedDescription)"
+            errorMessage = String(localized: "Failed to initialize RAG configuration: \(error.localizedDescription)")
             showError = true
         }
     }
@@ -103,7 +103,7 @@ extension RAGChatViewModel {
         }
 
         guard let config = config else {
-            errorMessage = errorMessage ?? "RAG configuration is not available"
+            errorMessage = errorMessage ?? String(localized: "RAG configuration is not available")
             showError = true
             return
         }
@@ -128,7 +128,7 @@ extension RAGChatViewModel {
 
         let urlKey = url.absoluteString
         guard !indexedURLs.contains(urlKey) else {
-            errorMessage = "This document has already been indexed"
+            errorMessage = String(localized: "This document has already been indexed")
             showError = true
             return
         }
@@ -143,7 +143,7 @@ extension RAGChatViewModel {
             indexedDocumentCount += 1
             hasIndexedContent = true
         } catch {
-            errorMessage = "Failed to index document: \(error.localizedDescription)"
+            errorMessage = String(localized: "Failed to index document: \(error.localizedDescription)")
             showError = true
         }
         isSearching = false
@@ -158,7 +158,7 @@ extension RAGChatViewModel {
 
         let urlKey = "text://\(title)"
         guard !indexedURLs.contains(urlKey) else {
-            errorMessage = "A document with this title already exists"
+            errorMessage = String(localized: "A document with this title already exists")
             showError = true
             return
         }
@@ -173,7 +173,7 @@ extension RAGChatViewModel {
             indexedDocumentCount += 1
             hasIndexedContent = true
         } catch {
-            errorMessage = "Failed to index text: \(error.localizedDescription)"
+            errorMessage = String(localized: "Failed to index text: \(error.localizedDescription)")
             showError = true
         }
         isSearching = false
@@ -195,7 +195,7 @@ extension RAGChatViewModel {
             indexedDocumentCount = 0
             hasIndexedContent = false
         } catch {
-            errorMessage = "Failed to reset database: \(error.localizedDescription)"
+            errorMessage = String(localized: "Failed to reset database: \(error.localizedDescription)")
             showError = true
         }
     }
@@ -237,7 +237,7 @@ extension RAGChatViewModel {
         }
 
         if let error = firstError {
-            errorMessage = "Failed to load samples: \(error.localizedDescription)"
+            errorMessage = String(localized: "Failed to load samples: \(error.localizedDescription)")
             showError = true
         }
         isSearching = false
@@ -258,7 +258,7 @@ extension RAGChatViewModel {
         guard !trimmedContent.isEmpty else { return }
 
         guard hasIndexedContent || indexedDocumentCount > 0 else {
-            errorMessage = "Index documents before asking a question."
+            errorMessage = String(localized: "Index documents before asking a question.")
             showError = true
             return
         }
@@ -270,7 +270,11 @@ extension RAGChatViewModel {
         onSources(topChunks)
 
         guard !topChunks.isEmpty else {
-            onUpdate("No sources found for that question. Try asking about a specific section or rephrase your question.")
+            onUpdate(
+                String(
+                    localized: "No sources found for that question. Try asking about a specific section or rephrase your question."
+                )
+            )
             return
         }
 
@@ -326,13 +330,13 @@ private extension RAGChatViewModel {
             return
         } catch {
             guard initializationID == id else { return }
-            errorMessage = "Failed to initialize RAG: \(error.localizedDescription)"
+            errorMessage = String(localized: "Failed to initialize RAG: \(error.localizedDescription)")
             showError = true
         }
     }
 
     func showServiceUnavailableError() {
-        errorMessage = "RAG service is not available. Please restart the app."
+        errorMessage = String(localized: "RAG service is not available. Please restart the app.")
         showError = true
     }
 
@@ -361,7 +365,7 @@ private extension RAGChatViewModel {
                 )
             }
         } catch {
-            errorMessage = "Search failed: \(error.localizedDescription)"
+            errorMessage = String(localized: "Search failed: \(error.localizedDescription)")
             showError = true
         }
 
@@ -370,9 +374,9 @@ private extension RAGChatViewModel {
 
     func fallbackSourceTitle() -> String {
         if sourceTitles.count == 1 {
-            return sourceTitles.values.first ?? "Source"
+            return sourceTitles.values.first ?? String(localized: "Source")
         }
-        return "Source"
+        return String(localized: "Source")
     }
 
     func generateAnswer(query: String, chunks: [RAGChunk], onUpdate: @escaping @MainActor (String) -> Void) async {
@@ -410,7 +414,7 @@ private extension RAGChatViewModel {
                 return
             }
         } catch {
-            onUpdate("Failed to answer: \(error.localizedDescription)")
+            onUpdate(String(localized: "Failed to answer: \(error.localizedDescription)"))
         }
     }
 

@@ -91,16 +91,12 @@ private extension LibraryView {
 
             if shouldShowLibraryIntroduction {
                 Section {
-                    Text(
-                        "Recipes open in Playground so you can edit, run, and save them. "
-                            + "Guided labs and workspaces provide focused interfaces for specialized APIs."
-                    )
+                    Text("""
+                    Recipes open in Playground so you can edit, run, and save them. Guided labs and workspaces provide \
+                    focused interfaces for specialized APIs.
+                    """)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                        .accessibilityLabel(
-                            "Recipes open in Playground so you can edit, run, and save them. "
-                                + "Guided labs and workspaces provide focused interfaces for specialized APIs."
-                        )
                 }
             }
 
@@ -164,10 +160,15 @@ private extension LibraryView {
                 }
             }
         } label: {
-            Label(
-                selectedLevel?.displayName ?? "All Levels",
-                systemImage: selectedLevel?.systemImage ?? "line.3.horizontal.decrease"
-            )
+            Label {
+                if let selectedLevel {
+                    Text(selectedLevel.displayName)
+                } else {
+                    Text("All Levels")
+                }
+            } icon: {
+                Image(systemName: selectedLevel?.systemImage ?? "line.3.horizontal.decrease")
+            }
         }
         .accessibilityLabel("Filter by experience level")
     }

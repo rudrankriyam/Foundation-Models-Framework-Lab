@@ -15,10 +15,10 @@ struct RAGChatView: View {
     @State private var sources: [RAGChunk] = []
 
     private let suggestions = [
-        "Summarize the main points of this document.",
-        "What does the document say about its goals?",
-        "List the key takeaways in bullets.",
-        "Where does it mention requirements or constraints?"
+        String(localized: "Summarize the main points of this document."),
+        String(localized: "What does the document say about its goals?"),
+        String(localized: "List the key takeaways in bullets."),
+        String(localized: "Where does it mention requirements or constraints?")
     ]
 
     var body: some View {
@@ -69,7 +69,13 @@ struct RAGChatView: View {
             "Error",
             isPresented: $viewModel.showError,
             actions: { Button("OK") { viewModel.dismissError() } },
-            message: { Text(viewModel.errorMessage ?? "An unknown error occurred") }
+            message: {
+                if let message = viewModel.errorMessage {
+                    Text(message)
+                } else {
+                    Text("An unknown error occurred")
+                }
+            }
         )
     }
 
@@ -161,22 +167,24 @@ struct RAGChatView: View {
 
     private var documentStatusTitle: String {
         if viewModel.indexedDocumentCount > 0 {
-            return "\(viewModel.indexedDocumentCount) sources indexed"
+            return String(localized: "\(viewModel.indexedDocumentCount) sources indexed")
         }
         if viewModel.hasIndexedContent {
-            return "Indexed content available"
+            return String(localized: "Indexed content available")
         }
-        return "No documents indexed"
+        return String(localized: "No documents indexed")
     }
 
     private var documentStatusSubtitle: String {
         hasDocuments
-            ? "Ask a question and we'll cite the top sources."
-            : "Import a PDF or text file to get started."
+            ? String(localized: "Ask a question and we'll cite the top sources.")
+            : String(localized: "Import a PDF or text file to get started.")
     }
 
     private var statusText: String {
-        viewModel.isSearching ? "Processing..." : "Generating answer..."
+        viewModel.isSearching
+            ? String(localized: "Processing...")
+            : String(localized: "Generating answer...")
     }
 
     private var trimmedQuestion: String {

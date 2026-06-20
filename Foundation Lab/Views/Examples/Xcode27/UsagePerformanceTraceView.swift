@@ -18,8 +18,8 @@ struct UsagePerformanceTraceView: View {
 
     var body: some View {
         ExampleViewBase(
-            title: "Response Usage",
-            description: "Run a real streamed response and inspect its reported usage",
+            title: String(localized: "Response Usage"),
+            description: String(localized: "Run a real streamed response and inspect its reported usage"),
             currentPrompt: $currentPrompt,
             isRunning: isRunning,
             errorMessage: errorMessage,
@@ -29,24 +29,24 @@ struct UsagePerformanceTraceView: View {
         ) {
             VStack(spacing: Spacing.large) {
                 if let report {
-                    Xcode27Section("Framework-Reported Usage") {
+                    Xcode27Section(String(localized: "Framework-Reported Usage")) {
                         Xcode27KeyValueList(items: [
-                            ("Input", tokenLabel(report.inputTokens)),
-                            ("Cached input", tokenLabel(report.cachedInputTokens)),
-                            ("Output", tokenLabel(report.outputTokens)),
-                            ("Reasoning output", tokenLabel(report.reasoningTokens)),
-                            ("Total", tokenLabel(report.totalTokens))
+                            (String(localized: "Input"), tokenLabel(report.inputTokens)),
+                            (String(localized: "Cached input"), tokenLabel(report.cachedInputTokens)),
+                            (String(localized: "Output"), tokenLabel(report.outputTokens)),
+                            (String(localized: "Reasoning output"), tokenLabel(report.reasoningTokens)),
+                            (String(localized: "Total"), tokenLabel(report.totalTokens))
                         ])
                     }
 
-                    Xcode27Section("App-Observed Timing") {
+                    Xcode27Section(String(localized: "App-Observed Timing")) {
                         Xcode27KeyValueList(items: [
-                            ("First stream update", durationLabel(report.timeToFirstUpdate)),
-                            ("End to end", durationLabel(report.totalDuration))
+                            (String(localized: "First stream update"), durationLabel(report.timeToFirstUpdate)),
+                            (String(localized: "End to end"), durationLabel(report.totalDuration))
                         ])
                     }
 
-                    Xcode27Section("Response") {
+                    Xcode27Section(String(localized: "Response")) {
                         Text(report.response)
                             .font(.body)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -60,10 +60,14 @@ struct UsagePerformanceTraceView: View {
                     }
                 }
 
-                Xcode27Section("What These Numbers Mean") {
+                Xcode27Section(String(localized: "What These Numbers Mean")) {
                     Text(
-                        "Token counts come from LanguageModelSession.Response.Usage. Timing is measured by this app with " +
-                        "ContinuousClock; Foundation Models does not attribute latency to prompts, tools, caching, or reasoning."
+                        String(
+                            localized: """
+                            Token counts come from LanguageModelSession.Response.Usage. Timing is measured by this app with \
+                            ContinuousClock; Foundation Models does not attribute latency to prompts, tools, caching, or reasoning.
+                            """
+                        )
                     )
                     .font(.callout)
                     .foregroundStyle(.secondary)
@@ -89,7 +93,7 @@ struct UsagePerformanceTraceView: View {
         #if compiler(>=6.4)
         guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else {
             guard runID == id else { return }
-            errorMessage = "Response usage requires an OS 27 runtime."
+            errorMessage = String(localized: "Response usage requires an OS 27 runtime.")
             return
         }
 
@@ -131,7 +135,7 @@ struct UsagePerformanceTraceView: View {
         }
         #else
         guard runID == id else { return }
-        errorMessage = "Response usage requires the Xcode 27 SDK."
+        errorMessage = String(localized: "Response usage requires the Xcode 27 SDK.")
         #endif
     }
 
@@ -144,14 +148,14 @@ struct UsagePerformanceTraceView: View {
     }
 
     private func tokenLabel(_ count: Int) -> String {
-        count.formatted() + (count == 1 ? " token" : " tokens")
+        count == 1 ? String(localized: "\(count) token") : String(localized: "\(count) tokens")
     }
 
     private func durationLabel(_ duration: Duration?) -> String {
-        guard let duration else { return "No update received" }
+        guard let duration else { return String(localized: "No update received") }
         let components = duration.components
         let seconds = Double(components.seconds) + Double(components.attoseconds) / 1e18
-        return seconds.formatted(.number.precision(.fractionLength(2))) + " s"
+        return String(localized: "\(seconds.formatted(.number.precision(.fractionLength(2)))) s")
     }
 
     private var codeExample: String {

@@ -9,13 +9,13 @@ public enum FoundationLabCoreError: LocalizedError, Sendable, Equatable {
     public var errorDescription: String? {
         switch self {
         case .invalidRequest(let message):
-            return "Invalid request: \(message)"
+            return String(localized: "Invalid request: \(message)")
         case .unavailableCapability(let message):
-            return "Unavailable capability: \(message)"
+            return String(localized: "Unavailable capability: \(message)")
         case .providerFailure(let message):
-            return "Provider failure: \(message)"
+            return String(localized: "Provider failure: \(message)")
         case .unsupportedEnvironment(let message):
-            return "Unsupported environment: \(message)"
+            return String(localized: "Unsupported environment: \(message)")
         }
     }
 }

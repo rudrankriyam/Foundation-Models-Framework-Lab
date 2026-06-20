@@ -15,9 +15,9 @@ struct ContextBudgetSimulation {
 
             var title: String {
                 switch self {
-                case .kept: "Kept"
-                case .summarized: "Summary"
-                case .dropped: "Dropped"
+                case .kept: String(localized: "Kept")
+                case .summarized: String(localized: "Summary")
+                case .dropped: String(localized: "Dropped")
                 }
             }
 
@@ -54,8 +54,8 @@ struct ContextBudgetSimulation {
     static let sampleEntries: [SourceEntry] = [
         SourceEntry(
             id: "instructions",
-            title: "System instructions",
-            kind: "Instructions",
+            title: String(localized: "System instructions"),
+            kind: String(localized: "Instructions"),
             transcriptEntry: .instructions(
                 Transcript.Instructions(
                     segments: [.text(Transcript.TextSegment(content: longInstructions))],
@@ -65,16 +65,16 @@ struct ContextBudgetSimulation {
         ),
         SourceEntry(
             id: "old-plan",
-            title: "Early architecture discussion",
-            kind: "Prompt",
+            title: String(localized: "Early architecture discussion"),
+            kind: String(localized: "Prompt"),
             transcriptEntry: .prompt(
                 Transcript.Prompt(segments: [.text(Transcript.TextSegment(content: earlyArchitecturePrompt))])
             )
         ),
         SourceEntry(
             id: "draft",
-            title: "Discarded implementation draft",
-            kind: "Response",
+            title: String(localized: "Discarded implementation draft"),
+            kind: String(localized: "Response"),
             transcriptEntry: .response(
                 Transcript.Response(
                     assetIDs: [],
@@ -84,8 +84,8 @@ struct ContextBudgetSimulation {
         ),
         SourceEntry(
             id: "tools",
-            title: "Completed research output",
-            kind: "Tool output",
+            title: String(localized: "Completed research output"),
+            kind: String(localized: "Tool output"),
             transcriptEntry: .toolOutput(
                 Transcript.ToolOutput(
                     id: "sample-research",
@@ -96,8 +96,8 @@ struct ContextBudgetSimulation {
         ),
         SourceEntry(
             id: "latest",
-            title: "Latest decision and constraints",
-            kind: "Prompt",
+            title: String(localized: "Latest decision and constraints"),
+            kind: String(localized: "Prompt"),
             transcriptEntry: .prompt(
                 Transcript.Prompt(segments: [.text(Transcript.TextSegment(content: latestConstraints))])
             )
@@ -106,8 +106,8 @@ struct ContextBudgetSimulation {
 
     static let summaryEntry = SourceEntry(
         id: "summary",
-        title: "Summary of earlier conversation",
-        kind: "App-generated prompt context",
+        title: String(localized: "Summary of earlier conversation"),
+        kind: String(localized: "App-generated prompt context"),
         transcriptEntry: .prompt(
             Transcript.Prompt(segments: [.text(Transcript.TextSegment(content: compactedSummary))])
         )
@@ -185,19 +185,17 @@ struct ContextBudgetSimulation {
 
     var budgetEquation: String {
         guard let historyTokensAfterPolicy, let promptTokens else {
-            return "Waiting for tokenizer"
+            return String(localized: "Waiting for tokenizer")
         }
-        return "\(historyTokensAfterPolicy) history + \(promptTokens) prompt + \(responseReserve) response"
-    }
-
-    var fitsAfterPolicy: Bool? {
-        totalAfterPolicy.map { $0 <= contextSize }
+        return String(localized: "\(historyTokensAfterPolicy) history + \(promptTokens) prompt + \(responseReserve) response")
     }
 
     var outcomeTitle: String {
-        guard let totalAfterPolicy else { return "Not measured" }
+        guard let totalAfterPolicy else { return String(localized: "Not measured") }
         let difference = contextSize - totalAfterPolicy
-        return difference >= 0 ? "Fits with \(difference) tokens free" : "Over by \(-difference) tokens"
+        return difference >= 0
+            ? String(localized: "Fits with \(difference) tokens free")
+            : String(localized: "Over by \(-difference) tokens")
     }
 
     var outcomeIcon: String {
@@ -207,22 +205,39 @@ struct ContextBudgetSimulation {
 
     var recommendation: String {
         guard let fitsAfterPolicy else {
-            return "Measure the prompt and sample transcript before comparing policies."
+            return String(localized: "Measure the prompt and sample transcript before comparing policies.")
         }
         if fitsAfterPolicy {
-            return "Create the next LanguageModelSession with the prepared transcript, then send the prompt with the response limit."
+            return String(
+                localized: """
+                Create the next LanguageModelSession with the prepared transcript, then send the prompt with the response limit.
+                """
+            )
         }
         if policy == .preserveAll {
-            return "This request can trigger exceededContextWindowSize. Choose an app policy that reduces history before calling respond."
+            return String(
+                localized: """
+                This request can trigger exceededContextWindowSize. Choose an app policy that reduces history before calling respond.
+                """
+            )
         }
-        return "Reduce the response reserve, compact more history, or start a fresh session."
+        return String(localized: "Reduce the response reserve, compact more history, or start a fresh session.")
     }
 
-    private var combinedEarlierTokens: Int? {
+}
+
+extension ContextBudgetSimulation {
+    var fitsAfterPolicy: Bool? {
+        totalAfterPolicy.map { $0 <= contextSize }
+    }
+}
+
+private extension ContextBudgetSimulation {
+    var combinedEarlierTokens: Int? {
         sum([historyTokenCounts?["old-plan"], historyTokenCounts?["draft"], historyTokenCounts?["tools"]])
     }
 
-    private func sum(_ values: [Int?]) -> Int? {
+    func sum(_ values: [Int?]) -> Int? {
         guard values.allSatisfy({ $0 != nil }) else { return nil }
         return values.compactMap { $0 }.reduce(0, +)
     }

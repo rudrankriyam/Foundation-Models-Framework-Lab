@@ -12,10 +12,12 @@ struct TranscriptExplorerView: View {
 
     var body: some View {
         ReferenceExampleView(
-            title: "Transcript Explorer",
-            description: "Inspect reasoning, attachment, and custom transcript cases",
+            title: String(localized: "Transcript Explorer"),
+            description: String(localized: "Inspect reasoning, attachment, and custom transcript cases"),
             codeExample: codeExample,
-            referenceNote: "Choose a segment to inspect its API case and code path. This page does not create a session or transcript."
+            referenceNote: String(
+                localized: "Choose a segment to inspect its API case and code path. This page does not create a session or transcript."
+            )
         ) {
             VStack(spacing: Spacing.medium) {
                 Picker("Segment", selection: $selectedSegment) {
@@ -40,13 +42,13 @@ struct TranscriptExplorerView: View {
                     }
                 }
 
-                Xcode27Section("Why this matters") {
+                Xcode27Section(String(localized: "Why this matters")) {
                     VStack(alignment: .leading, spacing: 0) {
                         Xcode27InfoRow(
-                            title: "Switches need new cases",
-                            detail: """
+                            title: String(localized: "Switches need new cases"),
+                            detail: String(localized: """
                             Code that walked transcript entries or segments in Xcode 26 should explicitly handle the new Xcode 27 cases.
-                            """,
+                            """),
                             systemImage: "switch.2"
                         )
                         .padding(.vertical, Spacing.small)
@@ -54,11 +56,11 @@ struct TranscriptExplorerView: View {
                         Divider()
 
                         Xcode27InfoRow(
-                            title: "Debug views get richer",
-                            detail: """
+                            title: String(localized: "Debug views get richer"),
+                            detail: String(localized: """
                             A transcript debugger can now show reasoning, image attachments, generated references, and app-defined \
                             custom content.
-                            """,
+                            """),
                             systemImage: "ladybug"
                         )
                         .padding(.vertical, Spacing.small)
@@ -103,11 +105,11 @@ private enum TranscriptSegmentExample: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .reasoning:
-            return "Reasoning"
+            return String(localized: "Reasoning")
         case .attachment:
-            return "Attachment"
+            return String(localized: "Attachment")
         case .custom:
-            return "Custom"
+            return String(localized: "Custom")
         }
     }
 
@@ -125,11 +127,15 @@ private enum TranscriptSegmentExample: String, CaseIterable, Identifiable {
     var detail: String {
         switch self {
         case .reasoning:
-            return "Xcode 27 adds transcript reasoning entries so developer tools can separate reasoning from ordinary assistant text."
+            return String(
+                localized: """
+                Xcode 27 adds transcript reasoning entries so developer tools can separate reasoning from ordinary assistant text.
+                """
+            )
         case .attachment:
-            return "Attachment segments let image inputs and generated image references travel through the transcript."
+            return String(localized: "Attachment segments let image inputs and generated image references travel through the transcript.")
         case .custom:
-            return "Custom segments give framework and app integrations room to preserve extra typed transcript content."
+            return String(localized: "Custom segments give framework and app integrations room to preserve extra typed transcript content.")
         }
     }
 

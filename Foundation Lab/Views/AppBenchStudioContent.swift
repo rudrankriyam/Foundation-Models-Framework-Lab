@@ -59,10 +59,7 @@ struct AppBenchStudioContent: View {
 
             section(title: "Physical Device") {
                 VStack(alignment: .leading, spacing: Spacing.medium) {
-                    Text(
-                        "Open the AppBenchDeviceRunner project, select a physical Apple Intelligence device, "
-                            + "and run its scheme."
-                    )
+                    Text("Open the AppBenchDeviceRunner project, select a physical Apple Intelligence device, and run its scheme.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
 
@@ -113,10 +110,10 @@ struct AppBenchStudioContent: View {
                 }
             }
 
-            Text(
-                "Workloads cover task parsing, workout generation, summarization, classification, grounded explanation, "
-                    + "exercise substitution, document Q&A, citation extraction, creative writing, and visual recommendation."
-            )
+            Text("""
+            Workloads cover task parsing, workout generation, summarization, classification, grounded explanation, \
+            exercise substitution, document Q&A, citation extraction, creative writing, and visual recommendation.
+            """)
             .font(.callout)
             .foregroundStyle(.secondary)
         }
@@ -143,7 +140,7 @@ struct AppBenchStudioContent: View {
     }
 
     private func section<Content: View>(
-        title: String,
+        title: LocalizedStringKey,
         @ViewBuilder content: () -> Content
     ) -> some View {
         VStack(alignment: .leading, spacing: Spacing.large) {
@@ -154,7 +151,7 @@ struct AppBenchStudioContent: View {
         }
     }
 
-    private func detailRow(title: String, value: String) -> some View {
+    private func detailRow(title: LocalizedStringKey, value: LocalizedStringKey) -> some View {
         LabeledContent {
             Text(value)
                 .foregroundStyle(.secondary)
@@ -174,7 +171,7 @@ struct AppBenchStudioContent: View {
             .background(Color.tertiaryBackgroundColor, in: .rect(cornerRadius: CornerRadius.small))
     }
 
-    private func note(title: String, detail: String) -> some View {
+    private func note(title: LocalizedStringKey, detail: LocalizedStringKey) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
             Text(detail)

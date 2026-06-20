@@ -18,8 +18,12 @@ struct SpotlightRAGExplorerView: View {
                         Text("Architecture walkthrough")
                             .bold()
                         Text(
-                            "This screen does not query Spotlight or a language model. "
-                                + "It explains how SpotlightSearchTool grounds a real session in content your app has indexed."
+                            String(
+                                localized: """
+                                This screen does not query Spotlight or a language model. It explains how SpotlightSearchTool grounds \
+                                a real session in content your app has indexed.
+                                """
+                            )
                         )
                             .foregroundStyle(.secondary)
                     }
@@ -32,13 +36,13 @@ struct SpotlightRAGExplorerView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(.blue.opacity(0.08), in: .rect(cornerRadius: CornerRadius.medium))
 
-                Xcode27Section("Example Question") {
+                Xcode27Section(String(localized: "Example Question")) {
                     Text("“What did I decide about the Kyoto itinerary?”")
                         .font(.callout)
                         .textSelection(.enabled)
                 }
 
-                Xcode27Section("Pipeline") {
+                Xcode27Section(String(localized: "Pipeline")) {
                     VStack(spacing: 0) {
                         ForEach(SpotlightRAGStage.allCases) { stage in
                             Button {
@@ -115,36 +119,52 @@ private enum SpotlightRAGStage: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .index: return "Index Content"
-        case .tool: return "Add Search Tool"
-        case .prompt: return "Prompt Session"
-        case .evaluate: return "Evaluate"
+        case .index: return String(localized: "Index Content")
+        case .tool: return String(localized: "Add Search Tool")
+        case .prompt: return String(localized: "Prompt Session")
+        case .evaluate: return String(localized: "Evaluate")
         }
     }
 
     var detail: String {
         switch self {
-        case .index: return "Maintain a Core Spotlight index for your app's content."
-        case .tool: return "Make that index available to LanguageModelSession."
-        case .prompt: return "Ask a question that requires indexed knowledge."
-        case .evaluate: return "Test retrieval relevance and answer quality."
+        case .index: return String(localized: "Maintain a Core Spotlight index for your app's content.")
+        case .tool: return String(localized: "Make that index available to LanguageModelSession.")
+        case .prompt: return String(localized: "Ask a question that requires indexed knowledge.")
+        case .evaluate: return String(localized: "Test retrieval relevance and answer quality.")
         }
     }
 
     var explanation: String {
         switch self {
         case .index:
-            return "SpotlightSearchTool searches content already indexed by your app. "
-                + "Index useful metadata and keep the index synchronized as content changes."
+            return String(
+                localized: """
+                SpotlightSearchTool searches content already indexed by your app. Index useful metadata and keep the index \
+                synchronized as content changes.
+                """
+            )
         case .tool:
-            return "Add SpotlightSearchTool to the tools passed to LanguageModelSession. "
-                + "The model can then search the local index when a prompt requires app-specific knowledge."
+            return String(
+                localized: """
+                Add SpotlightSearchTool to the tools passed to LanguageModelSession. The model can then search the local index when a \
+                prompt requires app-specific knowledge.
+                """
+            )
         case .prompt:
-            return "Call respond on the session as usual. Tool calling lets the model retrieve relevant indexed content "
-                + "and use it as additional context for the answer."
+            return String(
+                localized: """
+                Call respond on the session as usual. Tool calling lets the model retrieve relevant indexed content and use it as \
+                additional context for the answer.
+                """
+            )
         case .evaluate:
-            return "Use representative questions and verify retrieval relevance, honest handling of missing evidence, "
-                + "and answers that stay grounded in the index."
+            return String(
+                localized: """
+                Use representative questions and verify retrieval relevance, honest handling of missing evidence, and answers that \
+                stay grounded in the index.
+                """
+            )
         }
     }
 

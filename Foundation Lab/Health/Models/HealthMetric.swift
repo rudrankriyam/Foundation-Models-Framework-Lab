@@ -37,6 +37,48 @@ enum MetricType: String, Codable, CaseIterable, Sendable {
     case bloodPressure = "Blood Pressure"
     case bloodOxygen = "Blood Oxygen"
 
+    var localizedName: String {
+        switch self {
+        case .steps: String(localized: "Steps")
+        case .heartRate: String(localized: "Heart Rate")
+        case .sleep: String(localized: "Sleep")
+        case .activeEnergy: String(localized: "Active Energy")
+        case .distance: String(localized: "Distance")
+        case .weight: String(localized: "Weight")
+        case .bloodPressure: String(localized: "Blood Pressure")
+        case .bloodOxygen: String(localized: "Blood Oxygen")
+        }
+    }
+
+    func formattedValue(_ value: Double) -> String {
+        switch self {
+        case .steps:
+            String(localized: "\(Int(value)) steps")
+        case .activeEnergy:
+            Measurement(value: value, unit: UnitEnergy.kilocalories).formatted(
+                .measurement(width: .abbreviated, usage: .asProvided)
+            )
+        case .heartRate:
+            String(localized: "\(Int(value)) bpm")
+        case .sleep:
+            Measurement(value: value, unit: UnitDuration.hours).formatted(
+                .measurement(width: .abbreviated, usage: .asProvided)
+            )
+        case .distance:
+            Measurement(value: value, unit: UnitLength.kilometers).formatted(
+                .measurement(width: .abbreviated, usage: .asProvided)
+            )
+        case .weight:
+            Measurement(value: value, unit: UnitMass.kilograms).formatted(
+                .measurement(width: .abbreviated, usage: .asProvided)
+            )
+        case .bloodPressure:
+            String(localized: "\(Int(value)) mmHg")
+        case .bloodOxygen:
+            (value / 100).formatted(.percent.precision(.fractionLength(0)))
+        }
+    }
+
     nonisolated var icon: String {
         switch self {
         case .steps: return "figure.walk"

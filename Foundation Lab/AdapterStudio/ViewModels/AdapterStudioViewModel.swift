@@ -73,22 +73,22 @@ final class AdapterStudioViewModel {
         switch state {
         case .idle:
             if let adapterContext {
-                "Ready with \(adapterContext.metadata.fileName)"
+                String(localized: "Ready with \(adapterContext.metadata.fileName)")
             } else {
-                "Import an adapter to begin"
+                String(localized: "Import an adapter to begin")
             }
         case .running(let prompt):
-            "Comparing \"\(prompt.prefix(48))\""
+            String(localized: "Comparing \"\(prompt.prefix(48))\"")
         case .failed(let message):
-            "Comparison failed: \(message)"
+            String(localized: "Comparison failed: \(message)")
         case .completed:
-            "Comparison complete"
+            String(localized: "Comparison complete")
         }
     }
 
     func importAdapter() {
         guard let provider else {
-            present(error: "The adapter directory is unavailable.")
+            present(error: String(localized: "The adapter directory is unavailable."))
             return
         }
 
@@ -102,7 +102,7 @@ final class AdapterStudioViewModel {
 
     func loadAdapter(at url: URL) {
         guard let provider else {
-            present(error: "The adapter directory is unavailable.")
+            present(error: String(localized: "The adapter directory is unavailable."))
             return
         }
 

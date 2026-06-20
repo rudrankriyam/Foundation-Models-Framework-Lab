@@ -107,7 +107,7 @@ extension ExampleExecutor {
             }
             return String(describing: jsonObject)
         } catch {
-            return "Error formatting content: \(error.localizedDescription)"
+            return String(localized: "Error formatting content: \(error.localizedDescription)")
         }
     }
 

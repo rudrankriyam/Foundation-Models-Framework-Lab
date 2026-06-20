@@ -58,7 +58,7 @@ struct ResultDisplay: View {
   }
 
   private var statusTitle: String {
-    isSuccess ? "Result" : "Error"
+    isSuccess ? String(localized: "Result") : String(localized: "Error")
   }
 
   private var statusImage: String {

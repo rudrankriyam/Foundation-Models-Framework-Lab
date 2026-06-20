@@ -17,7 +17,9 @@ struct ContextBudgetVisualizerView: View {
     @State private var responseReserve = 640.0
     @State private var measuredPromptTokens: Int?
     @State private var measuredHistoryTokens: [String: Int]?
-    @State private var measurementNote = "Measure the prompt and sample transcript with the model tokenizer."
+    @State private var measurementNote = String(
+        localized: "Measure the prompt and sample transcript with the model tokenizer."
+    )
     @State private var isRunning = false
     @State private var activeMeasurementID: UUID?
 
@@ -33,12 +35,12 @@ struct ContextBudgetVisualizerView: View {
 
     var body: some View {
         ExampleViewBase(
-            title: "Transcript Budget Lab",
-            description: "Decide what your app keeps before a session runs out of context",
+            title: String(localized: "Transcript Budget Lab"),
+            description: String(localized: "Decide what your app keeps before a session runs out of context"),
             currentPrompt: $currentPrompt,
             isRunning: isRunning,
             codeExample: codeExample,
-            runLabel: "Measure Budget",
+            runLabel: String(localized: "Measure Budget"),
             onRun: runSimulation,
             onReset: reset
         ) {
@@ -47,11 +49,15 @@ struct ContextBudgetVisualizerView: View {
                 policyControls
                 ContextBudgetUsageView(simulation: simulation, measurementNote: measurementNote)
 
-                Xcode27Section("Sample transcript after policy") {
+                Xcode27Section(String(localized: "Sample transcript after policy")) {
                     VStack(alignment: .leading, spacing: Spacing.small) {
                         Text(
-                            "This is a synthetic long conversation for comparing app-owned policies. "
-                            + "Its displayed counts come from the same model tokenizer as your prompt."
+                            String(
+                                localized: """
+                                This is a synthetic long conversation for comparing app-owned policies. Its displayed counts come \
+                                from the same model tokenizer as your prompt.
+                                """
+                            )
                         )
                             .font(.footnote)
                             .foregroundStyle(.secondary)
@@ -68,7 +74,7 @@ struct ContextBudgetVisualizerView: View {
                     }
                 }
 
-                Xcode27Section("What happens next") {
+                Xcode27Section(String(localized: "What happens next")) {
                     Label(simulation.recommendation, systemImage: simulation.outcomeIcon)
                         .font(.callout)
                         .foregroundStyle(simulation.fitsAfterPolicy == false ? Color.red : Color.primary)
@@ -81,11 +87,15 @@ struct ContextBudgetVisualizerView: View {
     }
 
     private var frameworkBoundary: some View {
-        Xcode27Section("Framework boundary") {
+        Xcode27Section(String(localized: "Framework boundary")) {
             VStack(alignment: .leading, spacing: Spacing.small) {
                 Text(
-                    "Foundation Models can report the context limit and count tokens. "
-                    + "It does not choose a ‘balanced’ or ‘aggressive’ compaction strategy for your app."
+                    String(
+                        localized: """
+                        Foundation Models can report the context limit and count tokens. It does not choose a ‘balanced’ or \
+                        ‘aggressive’ compaction strategy for your app.
+                        """
+                    )
                 )
                     .font(.callout)
 
@@ -98,7 +108,7 @@ struct ContextBudgetVisualizerView: View {
     }
 
     private var policyControls: some View {
-        Xcode27Section("App-owned policy") {
+        Xcode27Section(String(localized: "App-owned policy")) {
             VStack(alignment: .leading, spacing: Spacing.medium) {
                 LabeledContent("Transcript policy") {
                     Picker("Transcript policy", selection: $policy) {
@@ -116,8 +126,8 @@ struct ContextBudgetVisualizerView: View {
                     .foregroundStyle(.secondary)
 
                 Xcode27ValueSlider(
-                    title: "Response reserve",
-                    valueText: "\(Int(responseReserve)) tokens",
+                    title: String(localized: "Response reserve"),
+                    valueText: String(localized: "\(Int(responseReserve)) tokens"),
                     systemImage: "arrow.down.doc",
                     value: $responseReserve,
                     range: 256...1_024,
@@ -138,7 +148,7 @@ struct ContextBudgetVisualizerView: View {
         isRunning = true
         measuredPromptTokens = nil
         measuredHistoryTokens = nil
-        measurementNote = "Measuring prompt and sample transcript…"
+        measurementNote = String(localized: "Measuring prompt and sample transcript…")
 
         defer {
             if activeMeasurementID == measurementID {
@@ -163,14 +173,16 @@ struct ContextBudgetVisualizerView: View {
 
                 measuredPromptTokens = promptTokens
                 measuredHistoryTokens = historyTokens
-                measurementNote = "Measured with SystemLanguageModel.tokenCount(for:)."
+                measurementNote = String(localized: "Measured with SystemLanguageModel.tokenCount(for:).")
             } else {
-                measurementNote = "Model token counting requires version 26.4 or later; no estimates are shown."
+                measurementNote = String(
+                    localized: "Model token counting requires version 26.4 or later; no estimates are shown."
+                )
             }
         } catch is CancellationError {
             return
         } catch {
-            measurementNote = "The model tokenizer is unavailable; no estimates are shown."
+            measurementNote = String(localized: "The model tokenizer is unavailable; no estimates are shown.")
         }
     }
 
@@ -182,7 +194,7 @@ struct ContextBudgetVisualizerView: View {
         responseReserve = 640
         measuredPromptTokens = nil
         measuredHistoryTokens = nil
-        measurementNote = "Enter a prompt, then measure it with the sample transcript."
+        measurementNote = String(localized: "Enter a prompt, then measure it with the sample transcript.")
     }
 
     private func invalidatePromptMeasurement() {
@@ -191,8 +203,8 @@ struct ContextBudgetVisualizerView: View {
         measuredPromptTokens = nil
         measuredHistoryTokens = nil
         measurementNote = currentPrompt.isEmpty
-            ? "Enter a prompt, then measure it with the sample transcript."
-            : "Prompt changed. Measure again to update the budget."
+            ? String(localized: "Enter a prompt, then measure it with the sample transcript.")
+            : String(localized: "Prompt changed. Measure again to update the budget.")
     }
 
     private var codeExample: String {

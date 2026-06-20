@@ -10,23 +10,23 @@ struct ContextBudgetUsageView: View {
     let measurementNote: String
 
     var body: some View {
-        Xcode27Section("Budget result") {
+        Xcode27Section(String(localized: "Budget result")) {
             VStack(alignment: .leading, spacing: Spacing.medium) {
                 Xcode27StatusRow(
-                    title: "After app policy",
+                    title: String(localized: "After app policy"),
                     value: simulation.outcomeTitle,
                     systemImage: simulation.outcomeIcon,
                     tint: outcomeColor
                 )
 
                 usageRow(
-                    title: "Before",
+                    title: String(localized: "Before"),
                     usedTokens: simulation.totalBeforePolicy,
                     tint: .secondary
                 )
 
                 usageRow(
-                    title: "After",
+                    title: String(localized: "After"),
                     usedTokens: simulation.totalAfterPolicy,
                     tint: outcomeColor
                 )

@@ -74,7 +74,7 @@ struct RAGDocumentPickerView: View {
                         }
                     }
                 case .failure(let error):
-                    viewModel.errorMessage = "Failed to access file: \(error.localizedDescription)"
+                    viewModel.errorMessage = String(localized: "Failed to access file: \(error.localizedDescription)")
                     viewModel.showError = true
                 }
             }

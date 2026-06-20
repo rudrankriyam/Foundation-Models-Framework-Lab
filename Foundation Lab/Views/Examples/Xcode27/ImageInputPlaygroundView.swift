@@ -12,22 +12,22 @@ struct ImageInputPlaygroundView: View {
 
     var body: some View {
         ReferenceExampleView(
-            title: "Image Input Reference",
-            description: "Inspect image attachment recipes and measured resolution boundaries",
+            title: String(localized: "Image Input Reference"),
+            description: String(localized: "Inspect image attachment recipes and measured resolution boundaries"),
             codeExample: selectedRecipe.code,
-            referenceNote: """
+            referenceNote: String(localized: """
             Choose a recipe to update the sample prompt and code. No image is attached and no model request is sent on this page.
-            """
+            """)
         ) {
             VStack(spacing: Spacing.medium) {
-                Xcode27Section("Attachment Flow") {
+                Xcode27Section(String(localized: "Attachment Flow")) {
                     VStack(alignment: .leading, spacing: 0) {
                         Xcode27InfoRow(
-                            title: "Attach an image",
-                            detail: """
+                            title: String(localized: "Attach an image"),
+                            detail: String(localized: """
                             Create Attachment<ImageAttachmentContent> from a CGImage, CIImage, pixel buffer, or image URL. On supported \
                             platforms, UIImage and NSImage also work.
-                            """,
+                            """),
                             systemImage: "1.circle"
                         )
                         .padding(.vertical, Spacing.small)
@@ -35,10 +35,10 @@ struct ImageInputPlaygroundView: View {
                         Divider()
 
                         Xcode27InfoRow(
-                            title: "Label it",
-                            detail: """
+                            title: String(localized: "Label it"),
+                            detail: String(localized: """
                             Use a short label so generated ImageReference values can resolve back to the right transcript attachment.
-                            """,
+                            """),
                             systemImage: "2.circle"
                         )
                         .padding(.vertical, Spacing.small)
@@ -46,8 +46,12 @@ struct ImageInputPlaygroundView: View {
                         Divider()
 
                         Xcode27InfoRow(
-                            title: "Resolve references",
-                            detail: "Generated ImageReference can resolve in the transcript, which is useful for multimodal follow-ups.",
+                            title: String(localized: "Resolve references"),
+                            detail: String(
+                                localized: """
+                                Generated ImageReference can resolve in the transcript, which is useful for multimodal follow-ups.
+                                """
+                            ),
                             systemImage: "3.circle"
                         )
                         .padding(.vertical, Spacing.small)
@@ -56,7 +60,7 @@ struct ImageInputPlaygroundView: View {
 
                 ImageInputResolutionFindingsView()
 
-                Xcode27Section("Recipes") {
+                Xcode27Section(String(localized: "Recipes")) {
                     Picker("Recipe", selection: $selectedRecipe) {
                         ForEach(ImageInputRecipe.allCases) { recipe in
                             Text(recipe.title).tag(recipe)
@@ -70,7 +74,7 @@ struct ImageInputPlaygroundView: View {
                         .padding(.top, Spacing.small)
                 }
 
-                Xcode27Section("Response focus") {
+                Xcode27Section(String(localized: "Response focus")) {
                     Text(selectedRecipe.responseFocus)
                         .font(.callout)
                         .foregroundStyle(.secondary)
@@ -90,11 +94,11 @@ private enum ImageInputRecipe: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .altText:
-            return "Alt Text"
+            return String(localized: "Alt Text")
         case .screenshotBug:
-            return "Bug Report"
+            return String(localized: "Bug Report")
         case .uiAudit:
-            return "UI Audit"
+            return String(localized: "UI Audit")
         }
     }
 
@@ -112,11 +116,11 @@ private enum ImageInputRecipe: String, CaseIterable, Identifiable {
     var responseFocus: String {
         switch self {
         case .altText:
-            return "Ask for a compact description suitable for accessibility labels and summaries."
+            return String(localized: "Ask for a compact description suitable for accessibility labels and summaries.")
         case .screenshotBug:
-            return "Ask for a title, observed behavior, expected behavior, visible evidence, and reproduction hints."
+            return String(localized: "Ask for a title, observed behavior, expected behavior, visible evidence, and reproduction hints.")
         case .uiAudit:
-            return "Ask the model to inspect layout, hierarchy, contrast, spacing, text clipping, and actionable fixes."
+            return String(localized: "Ask the model to inspect layout, hierarchy, contrast, spacing, text clipping, and actionable fixes.")
         }
     }
 
