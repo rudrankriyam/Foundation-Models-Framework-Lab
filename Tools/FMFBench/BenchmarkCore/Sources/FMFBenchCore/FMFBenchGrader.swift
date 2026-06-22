@@ -133,17 +133,22 @@ public enum FMFBenchGrader {
             detail =
                 passed ? nil : "Observed tools: \(toolCalls.map(\.name).joined(separator: ", "))."
         case .toolArgumentEquals(let tool, let argument, let expected):
-            let actual = toolCalls.first(where: { $0.name == tool })?.arguments[argument]
-            passed = actual == expected
-            detail = passed ? nil : "Actual value: \(String(describing: actual))."
+            let actualValues = toolCalls
+                .filter { $0.name == tool }
+                .map { $0.arguments[argument] }
+            passed = !actualValues.isEmpty && actualValues.allSatisfy { $0 == expected }
+            detail = passed ? nil : "Actual values: \(actualValues.map(String.init(describing:)))."
         case .toolArgumentContains(let tool, let argument, let expected):
-            let actual = toolCalls.first(where: { $0.name == tool })?.arguments[argument]
-            if case .string(let value)? = actual {
-                passed = value.localizedCaseInsensitiveContains(expected)
-            } else {
-                passed = false
+            let actualValues = toolCalls
+                .filter { $0.name == tool }
+                .map { $0.arguments[argument] }
+            passed = !actualValues.isEmpty && actualValues.allSatisfy { actual in
+                guard case .string(let value)? = actual else {
+                    return false
+                }
+                return value.localizedCaseInsensitiveContains(expected)
             }
-            detail = passed ? nil : "Actual value: \(String(describing: actual))."
+            detail = passed ? nil : "Actual values: \(actualValues.map(String.init(describing:)))."
         case .toolCallSequence(let expected, let allowsAdditionalCalls):
             let actual = toolCalls.map(\.name)
             passed =

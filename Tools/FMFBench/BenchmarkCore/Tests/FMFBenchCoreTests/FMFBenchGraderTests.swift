@@ -96,6 +96,38 @@ struct FMFBenchGraderTests {
     }
 
     @Test
+    func toolArgumentChecksInspectEveryMatchingCall() {
+        let checks: [FMFBenchCheck] = [
+            .toolArgumentEquals(
+                tool: "searchContacts", argument: "name", value: .string("Maya Chen")),
+            .toolArgumentContains(tool: "searchContacts", argument: "name", value: "Maya")
+        ]
+        let correctCall = FMFBenchToolCall(
+            name: "searchContacts",
+            arguments: ["name": .string("Maya Chen")]
+        )
+        let incorrectCall = FMFBenchToolCall(
+            name: "searchContacts",
+            arguments: ["name": .string("Liam Patel")]
+        )
+
+        let passingGrade = FMFBenchGrader.grade(
+            response: "Retried.",
+            checks: checks,
+            toolCalls: [correctCall, correctCall]
+        )
+        let failingGrade = FMFBenchGrader.grade(
+            response: "Retried.",
+            checks: checks,
+            toolCalls: [correctCall, incorrectCall]
+        )
+
+        #expect(passingGrade.promptPassed)
+        #expect(!failingGrade.promptPassed)
+        #expect(failingGrade.passedChecks == 0)
+    }
+
+    @Test
     func gradesOrderedAgentTrajectoryAndFinalState() {
         let sample = FMFBenchScenarioCatalog.personalOrganizer.samples[0]
         let finalState = FMFBenchStateSnapshot(

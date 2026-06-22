@@ -62,6 +62,8 @@ public actor FMFBenchRunner {
         case imageFixtureUnavailable
         case emptyResponse
         case offlineConnectivityNotObserved(String)
+        case unknownSampleIDs([String])
+        case noSamplesSelected
 
         public var errorDescription: String? {
             switch self {
@@ -82,6 +84,10 @@ public actor FMFBenchRunner {
                 Offline mode requires no active network path, but FMFBench observed \(observation). \
                 Disable Wi-Fi and cellular connectivity, then rerun the experiment.
                 """
+            case .unknownSampleIDs(let sampleIDs):
+                "Unknown sample IDs: \(sampleIDs.joined(separator: ", "))."
+            case .noSamplesSelected:
+                "The configuration did not select any FMFBench samples."
             }
         }
     }
@@ -101,6 +107,7 @@ public actor FMFBenchRunner {
     }
 
     public func run() async throws -> FMFBenchRunResult {
+        let workItems = try workItems()
         offlineConnectivityVerified = try await verifyConnectivity()
 
         if configuration.model == .onDevice || configuration.fallbackMode == .onDevice {
@@ -133,7 +140,7 @@ public actor FMFBenchRunner {
         }
 
         var trials: [FMFBenchTrialResult] = []
-        for item in workItems() {
+        for item in workItems {
             do {
                 trials.append(try await run(item: item, contextSize: contextSize))
             } catch {
@@ -176,7 +183,17 @@ public actor FMFBenchRunner {
         )
     }
 
-    private func workItems() -> [WorkItem] {
+    private func workItems() throws -> [WorkItem] {
+        if let sampleIDs = configuration.sampleIDs {
+            let availableSampleIDs = Set(
+                configuration.scenarios.flatMap(\.samples).map(\.id)
+            )
+            let unknownSampleIDs = sampleIDs.subtracting(availableSampleIDs).sorted()
+            guard unknownSampleIDs.isEmpty else {
+                throw Error.unknownSampleIDs(unknownSampleIDs)
+            }
+        }
+
         var items = configuration.scenarios.flatMap { scenario in
             let selectedSamples = configuration.sampleIDs.map { sampleIDs in
                 scenario.samples.filter { sampleIDs.contains($0.id) }
@@ -192,6 +209,9 @@ public actor FMFBenchRunner {
         if configuration.randomizeOrder {
             var generator = SeededGenerator(seed: configuration.randomSeed)
             items.shuffle(using: &generator)
+        }
+        guard !items.isEmpty else {
+            throw Error.noSamplesSelected
         }
         return items
     }
