@@ -90,6 +90,33 @@ func chatRequestJSONSchemaResponseFormat() throws {
     )
 }
 
+@Test("Chat requests decode and generate root schemas inferred from object keywords")
+func chatRequestInferredRootObjectSchema() throws {
+    let request = try decodeChatRequest(
+        responseFormatRequestJSON(
+            jsonSchema: #"{"name":"answer","schema":{"properties":{"answer":{"type":"string"}},"required":["answer"]}}"#
+        )
+    )
+
+    guard case .jsonSchema(let responseSchema) = request.responseFormat else {
+        Issue.record("Expected a JSON schema response format")
+        return
+    }
+    #expect(responseSchema.schema.type == nil)
+    #expect(try responseSchema.schema.resolvedType() == .object)
+    #expect(try responseSchema.generationSchema().debugDescription.contains("answer"))
+}
+
+@Test("Chat requests reject explicitly scalar root response schemas")
+func chatRequestExplicitScalarRootSchema() {
+    expectChatValidationError(
+        jsonSchemaRequestJSON(#"{"name":"answer","schema":{"type":"string"}}"#),
+        parameter: "response_format.json_schema.schema.type",
+        code: "invalid_field",
+        message: "The root response schema must have type 'object'."
+    )
+}
+
 @Test("Chat requests decode strict JSON schema response formats")
 func chatRequestStrictJSONSchemaResponseFormat() throws {
     let request = try decodeChatRequest(
@@ -220,11 +247,6 @@ func chatRequestJSONSchemaWrapperValidation(json: String, parameter: String, cod
 @Test(
     "JSON schemas preserve precise prefixed validation paths",
     arguments: [
-        (
-            #"{"name":"answer","schema":{"type":"string"}}"#,
-            "response_format.json_schema.schema.type",
-            "invalid_field"
-        ),
         (
             #"{"name":"answer","schema":{"type":"object","properties":{"answer":{"type":"string","format":"date"}}}}"#,
             "response_format.json_schema.schema.properties.answer.format",

@@ -73,7 +73,7 @@ extension AFMChatJSONSchema: Decodable {
             throw Self.requestValidationError(for: error)
         }
 
-        guard schema.type == "object" else {
+        guard try schema.resolvedType() == .object else {
             throw AFMChatRequestValidationError.invalidField(
                 "\(Self.schemaParameter).type",
                 message: "The root response schema must have type 'object'."
