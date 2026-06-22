@@ -30,6 +30,26 @@ final class FMFBenchEvaluationsTests: XCTestCase {
     )
   }
 
+  func testAgenticScenarioPreservesOrderedTrajectoryExpectations() throws {
+    let samples = try FMFBenchEvaluationsAdapter.samples(
+      for: FMFBenchScenarioCatalog.personalOrganizer
+    )
+    let expectation = try XCTUnwrap(samples[0].output.expectations)
+
+    XCTAssertEqual(
+      expectation.ordered.map(\.name),
+      ["searchContacts", "listReminders", "createReminder"]
+    )
+    XCTAssertFalse(expectation.allowsAdditionalCalls)
+
+    let missingContactExpectation = try XCTUnwrap(samples[10].output.expectations)
+    XCTAssertEqual(missingContactExpectation.ordered.map(\.name), ["searchContacts"])
+    XCTAssertEqual(
+      Set(missingContactExpectation.disallowed.map(\.name)),
+      Set(["createReminder"])
+    )
+  }
+
   func testLoadsCurrentFMFBenchResult() throws {
     let run = makeCurrentRun()
     let data = try XCTUnwrap(
@@ -106,6 +126,92 @@ final class FMFBenchEvaluationsTests: XCTestCase {
 
     XCTAssertEqual(failure.safetyExpectation, .mustProtect)
     XCTAssertEqual(failure.safetyOutcome, .guardrailViolation)
+  }
+
+  func testCurrentFailurePreservesToolCallsAndFinalState() throws {
+    let scenario = FMFBenchScenarioCatalog.personalOrganizer
+    let sample = scenario.samples[0]
+    let finalState = FMFBenchStateSnapshot(
+      values: ["reminders.count": .integer(1)]
+    )
+    let run = makeCurrentRun(
+      scenario: scenario,
+      failures: [
+        FMFBenchFailure(
+          scenarioID: scenario.id,
+          sampleID: sample.id,
+          iteration: 2,
+          kind: "generation",
+          message: "Response was empty",
+          toolCalls: [
+            FMFBenchToolCall(
+              name: "createReminder",
+              arguments: ["title": .string("Call Maya Chen")]
+            )
+          ],
+          finalState: finalState
+        )
+      ]
+    )
+    let data = try XCTUnwrap(
+      FMFBenchReport(result: run).json().data(using: .utf8)
+    )
+
+    let recorded = try FMFBenchRecordedRunLoader.decode(data)
+    let failure = try XCTUnwrap(
+      recorded.records.first { !$0.executionSucceeded }
+    )
+
+    XCTAssertEqual(failure.toolCalls.map(\.name), ["createReminder"])
+    XCTAssertEqual(
+      failure.toolCalls[0].arguments["title"],
+      .string("Call Maya Chen")
+    )
+    XCTAssertEqual(failure.finalState, finalState)
+  }
+
+  func testLiveStatefulEvaluatorsUseSuppliedFinalState() async throws {
+    let scenario = makeStatefulEvaluationScenario()
+    let sample = try XCTUnwrap(
+      FMFBenchEvaluationsAdapter.samples(for: scenario).first
+    )
+    let subject = ModelSubject(
+      value: "Created",
+      transcript: StructuredTranscript()
+    )
+    let finalState = FMFBenchStateSnapshot(
+      values: ["reminders.count": .integer(1)]
+    )
+    let provider: FMFBenchFinalStateProvider = { _ in finalState }
+
+    let promptMetrics = try await FMFBenchEvaluationsAdapter.promptPassEvaluator(
+      for: scenario,
+      finalStateProvider: provider
+    ).metrics(subject: subject, input: sample)
+    let constraintMetrics = try await FMFBenchEvaluationsAdapter.constraintScoreEvaluator(
+      for: scenario,
+      finalStateProvider: provider
+    ).metrics(subject: subject, input: sample)
+
+    XCTAssertEqual(promptMetrics.first?.value, .passing)
+    XCTAssertEqual(constraintMetrics.first?.value, .scoring(1))
+  }
+
+  func testLiveStatefulEvaluatorsIgnoreMissingFinalState() async throws {
+    let scenario = makeStatefulEvaluationScenario()
+    let sample = try XCTUnwrap(
+      FMFBenchEvaluationsAdapter.samples(for: scenario).first
+    )
+    let subject = ModelSubject(
+      value: "Created",
+      transcript: StructuredTranscript()
+    )
+
+    let metrics = try await FMFBenchEvaluationsAdapter.promptPassEvaluator(
+      for: scenario
+    ).metrics(subject: subject, input: sample)
+
+    XCTAssertEqual(metrics.first?.value, .ignore)
   }
 
   func testLoadsLegacyFMFBenchResult() throws {
@@ -398,6 +504,24 @@ final class FMFBenchEvaluationsTests: XCTestCase {
     )
   }
 
+}
+
+private func makeStatefulEvaluationScenario() -> FMFBenchScenario {
+  FMFBenchScenario(
+    id: "stateful-evaluation",
+    title: "Stateful evaluation",
+    summary: "Verifies final-state evaluation plumbing.",
+    category: .agenticToolUse,
+    inspiredBy: ["FMFBench"],
+    instructions: "Create the requested reminder.",
+    prompt: "Create a reminder.",
+    outputMode: .text,
+    maximumResponseTokens: 32,
+    checks: [
+      .contains("Created"),
+      .stateEquals(path: "reminders.count", value: .integer(1))
+    ]
+  )
 }
 
 private func makeCurrentRun(

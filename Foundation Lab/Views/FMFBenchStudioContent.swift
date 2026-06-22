@@ -31,6 +31,8 @@ struct FMFBenchStudioContent: View {
                 VStack(spacing: 0) {
                     detailRow(title: "Mac", value: "fmfbench CLI")
                     Divider()
+                    detailRow(title: "Private Cloud Compute", value: "Signed FMFBenchDeviceRunner")
+                    Divider()
                     detailRow(title: "iPhone and iPad", value: "Signed FMFBenchDeviceRunner")
                     Divider()
                     detailRow(title: "Simulator", value: "Build and interface validation only")
@@ -101,6 +103,11 @@ struct FMFBenchStudioContent: View {
                     detailRow(title: "Practical Quick", value: "Fast development pass")
                     Divider()
                     detailRow(title: "Practical Full", value: "10 workloads, 25 samples each")
+                    Divider()
+                    detailRow(
+                        title: "Agentic Tools",
+                        value: "Ordered tool calls, typed arguments, and final world state."
+                    )
                     Divider()
                     detailRow(title: "Safety Guardrails", value: "False positives and expected protection")
                     Divider()

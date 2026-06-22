@@ -18,6 +18,7 @@ always remain separate metrics.
 ```bash
 swift run fmfbench list
 swift run fmfbench --suite quick --model on-device --repetitions 3
+swift run fmfbench --suite agentic --warmups 0 --repetitions 1
 swift test --filter FMFBench
 
 DEVELOPER_DIR=/Users/rudrank/Downloads/Xcode-beta.app/Contents/Developer \
@@ -29,11 +30,12 @@ DEVELOPER_DIR=/Users/rudrank/Downloads/Xcode-beta.app/Contents/Developer \
 ## Architecture
 
 - `Tools/FMFBench/BenchmarkCore/Sources/FMFBenchCore`: scenarios, deterministic
-  graders, model runner, metrics, statistics, environment capture, and reports.
+  graders, mocked agent worlds, model runner, metrics, statistics, environment
+  capture, and reports.
 - `Tools/FMFBench/BenchmarkCore/Sources/FMFBenchCLI`: canonical runner for official
-  Mac results.
-- `Tools/FMFBench/FMFBenchDeviceRunner/FMFBenchDeviceRunner`: signed iOS harness for
-  physical-device iPhone and iPad results.
+  on-device Mac results.
+- `Tools/FMFBench/FMFBenchDeviceRunner/FMFBenchDeviceRunner`: signed iOS and macOS
+  harness for Mac PCC and physical-device iPhone and iPad results.
 - `Tools/FMFBench/BenchmarkCore/Tests/FMFBenchCoreTests`: offline grading/statistics
   tests.
 - `Tools/FMFBench/FMFBenchDeviceRunner/FMFBenchDeviceRunnerTests`: live model smoke
@@ -50,8 +52,9 @@ DEVELOPER_DIR=/Users/rudrank/Downloads/Xcode-beta.app/Contents/Developer \
 - Include OS build, thermal state, Low Power Mode, and timestamp.
 - PCC results are service measurements, not device inference measurements.
 - Add new scenarios using synthetic fixtures, clear provenance, and inspectable checks.
-- Never publish simulator results. Use the CLI on Mac and the device runner on a
-  physical iPhone or iPad.
+- Keep agentic tools deterministic and isolated from real user data and side effects.
+- Never publish simulator results. Use the CLI for Mac on-device runs and the signed
+  runner for Mac PCC and physical iPhone or iPad runs.
 - Do not commit raw `.trace` bundles.
 
 Read `docs/METHODOLOGY.md` before changing metrics or evaluation behavior.

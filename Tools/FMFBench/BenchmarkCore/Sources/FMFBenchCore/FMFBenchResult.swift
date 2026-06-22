@@ -13,6 +13,7 @@ public struct FMFBenchTrialResult: Codable, Identifiable, Sendable {
     public let fallbackReason: String?
     public let offlineSuccess: Bool
     public let toolCalls: [FMFBenchToolCall]
+    public let finalState: FMFBenchStateSnapshot?
     public let safetyOutcome: FMFBenchSafetyOutcome
     public let safetyDetail: String?
     public let response: String
@@ -31,6 +32,7 @@ public struct FMFBenchTrialResult: Codable, Identifiable, Sendable {
         fallbackReason: String? = nil,
         offlineSuccess: Bool = false,
         toolCalls: [FMFBenchToolCall] = [],
+        finalState: FMFBenchStateSnapshot? = nil,
         safetyOutcome: FMFBenchSafetyOutcome = .notApplicable,
         safetyDetail: String? = nil,
         response: String,
@@ -50,6 +52,7 @@ public struct FMFBenchTrialResult: Codable, Identifiable, Sendable {
         self.fallbackReason = fallbackReason
         self.offlineSuccess = offlineSuccess
         self.toolCalls = toolCalls
+        self.finalState = finalState
         self.safetyOutcome = safetyOutcome
         self.safetyDetail = safetyDetail
         self.response = response
@@ -77,6 +80,8 @@ public struct FMFBenchFailure: Codable, Identifiable, Sendable {
     public let iteration: Int
     public let kind: String
     public let message: String
+    public let toolCalls: [FMFBenchToolCall]?
+    public let finalState: FMFBenchStateSnapshot?
 
     public init(
         id: UUID = UUID(),
@@ -84,7 +89,9 @@ public struct FMFBenchFailure: Codable, Identifiable, Sendable {
         sampleID: String,
         iteration: Int,
         kind: String,
-        message: String
+        message: String,
+        toolCalls: [FMFBenchToolCall]? = nil,
+        finalState: FMFBenchStateSnapshot? = nil
     ) {
         self.id = id
         self.scenarioID = scenarioID
@@ -92,6 +99,8 @@ public struct FMFBenchFailure: Codable, Identifiable, Sendable {
         self.iteration = iteration
         self.kind = kind
         self.message = message
+        self.toolCalls = toolCalls
+        self.finalState = finalState
     }
 }
 
@@ -132,6 +141,13 @@ public struct FMFBenchScenarioSummary: Codable, Identifiable, Sendable {
     public let timeToFirstToken: FMFBenchDistribution
     public let outputTokensPerSecond: FMFBenchDistribution
     public let peakObservedResidentMemoryBytes: FMFBenchDistribution
+
+    public var endToEndPassRate: Double {
+        let attemptCount = trialCount + failureCount
+        guard attemptCount > 0 else { return 0 }
+        let passingTrialCount = promptPassRate * Double(trialCount)
+        return passingTrialCount / Double(attemptCount)
+    }
 
     init(scenario: FMFBenchScenario, trials: [FMFBenchTrialResult], failureCount: Int) {
         id = scenario.id

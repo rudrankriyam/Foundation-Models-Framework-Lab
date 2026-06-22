@@ -41,11 +41,18 @@ public enum FMFBenchGrader {
     public static func grade(
         response: String,
         checks: [FMFBenchCheck],
-        toolCalls: [FMFBenchToolCall] = []
+        toolCalls: [FMFBenchToolCall] = [],
+        finalState: FMFBenchStateSnapshot? = nil
     ) -> FMFBenchGrade {
         let json = parseJSONObject(from: response)
         let results = checks.map { check in
-            evaluate(check, response: response, json: json, toolCalls: toolCalls)
+            evaluate(
+                check,
+                response: response,
+                json: json,
+                toolCalls: toolCalls,
+                finalState: finalState
+            )
         }
         return FMFBenchGrade(checks: results)
     }
@@ -54,7 +61,25 @@ public enum FMFBenchGrader {
         _ check: FMFBenchCheck,
         response: String,
         json: Any?,
-        toolCalls: [FMFBenchToolCall]
+        toolCalls: [FMFBenchToolCall],
+        finalState: FMFBenchStateSnapshot?
+    ) -> FMFBenchCheckResult {
+        if check.isToolCheck {
+            return evaluateToolCheck(check, toolCalls: toolCalls)
+        }
+
+        switch check {
+        case .stateEquals, .stateContains:
+            return evaluateStateCheck(check, finalState: finalState)
+        default:
+            return evaluateResponseCheck(check, response: response, json: json)
+        }
+    }
+
+    private static func evaluateResponseCheck(
+        _ check: FMFBenchCheck,
+        response: String,
+        json: Any?
     ) -> FMFBenchCheckResult {
         let passed: Bool
         let detail: String?
@@ -63,6 +88,9 @@ public enum FMFBenchGrader {
         case .contains(let value):
             passed = response.localizedCaseInsensitiveContains(value)
             detail = passed ? nil : "Missing required text."
+        case .containsAny(let values):
+            passed = values.contains { response.localizedCaseInsensitiveContains($0) }
+            detail = passed ? nil : "Missing every accepted text alternative."
         case .excludes(let value):
             passed = !response.localizedCaseInsensitiveContains(value)
             detail = passed ? nil : "Found forbidden text."
@@ -85,14 +113,81 @@ public enum FMFBenchGrader {
                 flattened.contains { $0.localizedCaseInsensitiveContains(expected) }
             }
             detail = passed ? nil : "Actual values: \(flattened.joined(separator: ", "))."
+        default:
+            preconditionFailure("Expected a response check.")
+        }
+
+        return FMFBenchCheckResult(label: check.label, passed: passed, detail: detail)
+    }
+
+    private static func evaluateToolCheck(
+        _ check: FMFBenchCheck,
+        toolCalls: [FMFBenchToolCall]
+    ) -> FMFBenchCheckResult {
+        let passed: Bool
+        let detail: String?
+
+        switch check {
         case .toolCalled(let name):
             passed = toolCalls.contains { $0.name == name }
             detail =
                 passed ? nil : "Observed tools: \(toolCalls.map(\.name).joined(separator: ", "))."
         case .toolArgumentEquals(let tool, let argument, let expected):
-            let actual = toolCalls.first(where: { $0.name == tool })?.arguments[argument]
+            let actualValues = toolCalls
+                .filter { $0.name == tool }
+                .map { $0.arguments[argument] }
+            passed = !actualValues.isEmpty && actualValues.allSatisfy { $0 == expected }
+            detail = passed ? nil : "Actual values: \(actualValues.map(String.init(describing:)))."
+        case .toolArgumentContains(let tool, let argument, let expected):
+            let actualValues = toolCalls
+                .filter { $0.name == tool }
+                .map { $0.arguments[argument] }
+            passed = !actualValues.isEmpty && actualValues.allSatisfy { actual in
+                guard case .string(let value)? = actual else {
+                    return false
+                }
+                return value.localizedCaseInsensitiveContains(expected)
+            }
+            detail = passed ? nil : "Actual values: \(actualValues.map(String.init(describing:)))."
+        case .toolCallSequence(let expected, let allowsAdditionalCalls):
+            let actual = toolCalls.map(\.name)
+            passed =
+                allowsAdditionalCalls
+                ? actual.containsOrderedSubsequence(expected)
+                : actual == expected
+            detail = passed ? nil : "Observed sequence: \(actual.joined(separator: " → "))."
+        case .toolNotCalled(let name):
+            passed = !toolCalls.contains { $0.name == name }
+            detail = passed ? nil : "Observed forbidden tool call."
+        default:
+            preconditionFailure("Expected a tool check.")
+        }
+
+        return FMFBenchCheckResult(label: check.label, passed: passed, detail: detail)
+    }
+
+    private static func evaluateStateCheck(
+        _ check: FMFBenchCheck,
+        finalState: FMFBenchStateSnapshot?
+    ) -> FMFBenchCheckResult {
+        let passed: Bool
+        let detail: String?
+
+        switch check {
+        case .stateEquals(let path, let expected):
+            let actual = finalState?.values[path]
             passed = actual == expected
             detail = passed ? nil : "Actual value: \(String(describing: actual))."
+        case .stateContains(let path, let expected):
+            let actual = finalState?.values[path]
+            if case .string(let value)? = actual {
+                passed = value.localizedCaseInsensitiveContains(expected)
+            } else {
+                passed = false
+            }
+            detail = passed ? nil : "Actual value: \(String(describing: actual))."
+        default:
+            preconditionFailure("Expected a state check.")
         }
 
         return FMFBenchCheckResult(label: check.label, passed: passed, detail: detail)
@@ -156,5 +251,19 @@ public enum FMFBenchGrader {
 
     private static func describe(_ value: Any?) -> String {
         value.map { String(describing: $0) } ?? "missing"
+    }
+}
+
+extension [String] {
+    fileprivate func containsOrderedSubsequence(_ expected: [String]) -> Bool {
+        guard !expected.isEmpty else { return true }
+        var expectedIndex = expected.startIndex
+        for value in self where value == expected[expectedIndex] {
+            expected.formIndex(after: &expectedIndex)
+            if expectedIndex == expected.endIndex {
+                return true
+            }
+        }
+        return false
     }
 }

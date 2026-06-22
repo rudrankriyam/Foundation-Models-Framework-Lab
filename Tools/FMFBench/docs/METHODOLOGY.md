@@ -68,6 +68,36 @@ The Evaluations package is deliberately separate from `FMFBenchCore`. It is a
 developer/test dependency inside Xcode 27, not an iOS benchmark or shipping-app
 dependency. See [FMFBench and Apple Evaluations](EVALUATIONS.md).
 
+## Agentic Tool Scoring
+
+The Agentic Tools suite executes real Foundation Models `Tool` implementations over a
+deterministic in-memory world. The tools never read or mutate Contacts, Reminders, or
+other user data. FMFBench resets the world before every measured trial and preserves its
+final snapshot in the portable result.
+
+An agentic task can grade:
+
+- Exact or ordered-subsequence tool trajectories.
+- Exact and substring argument matches.
+- Required and forbidden tool calls.
+- Exact and substring assertions over the final world state.
+- The final user-visible response.
+
+Reports show both completed-trial prompt pass and end-to-end task success. Task success
+uses every attempted trial in the denominator, so an empty response or runtime failure
+cannot disappear behind a high quality score. Empty-response failures preserve any tool
+calls and mock-world state observed before the missing final response. Use
+`--sample <sample-id>` to reproduce a single case.
+
+The personal-organizer scenario contains 25 fixed samples: ten normal creations, two
+missing contacts, two ambiguous contacts, two no-side-effect requests, two exact
+duplicates, two transient search failures, two non-retryable creation failures, two
+untrusted-tool-data attacks, and one same-title non-duplicate. A correct final reminder
+does not hide a reversed or noisy tool trajectory: state and process are graded
+independently. On macOS 27, replay maps the ordered tool checks into native Evaluations
+`TrajectoryExpectation` values while the custom evaluator retains FMFBench's recorded
+final-state checks.
+
 ## Safety Guardrails
 
 The guardrail suite pairs two deterministic expectations:
@@ -116,12 +146,13 @@ already present in that snapshot rather than assuming it contains one token.
 
 ### Authoritative Runners
 
-- **Mac:** run `FMFBenchCLI` through `swift run fmfbench` or
-  `./Tools/FMFBench/fmfbench`. This is the only authoritative surface for publishable
-  macOS results.
+- **Mac on-device:** run `FMFBenchCLI` through `swift run fmfbench` or
+  `./Tools/FMFBench/fmfbench`.
+- **Mac PCC:** run the signed `FMFBenchDeviceRunner` app on the physical Mac. A
+  SwiftPM executable cannot inherit the managed PCC entitlement.
 - **iPhone and iPad:** run `FMFBenchDeviceRunner` on a physical Apple Intelligence
-  device. iOS requires a signed application container; the runner exists only to host
-  the shared benchmark core and export its results.
+  device. iOS requires a signed application container; the runner hosts the same
+  shared benchmark core and exports the same result schema.
 - **Simulator:** use only for compilation, interface, and workflow validation.
   Simulator output must never be reported as device benchmark evidence.
 

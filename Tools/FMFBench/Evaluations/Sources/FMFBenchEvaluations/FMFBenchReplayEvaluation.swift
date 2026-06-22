@@ -114,7 +114,8 @@ public struct FMFBenchReplayEvaluation: Evaluation {
         let grade = FMFBenchGrader.grade(
           response: response,
           checks: record.checks,
-          toolCalls: record.toolCalls
+          toolCalls: record.toolCalls,
+          finalState: record.finalState
         )
         return grade.promptPassed
           ? promptPass.passing()
@@ -135,7 +136,8 @@ public struct FMFBenchReplayEvaluation: Evaluation {
         let grade = FMFBenchGrader.grade(
           response: response,
           checks: record.checks,
-          toolCalls: record.toolCalls
+          toolCalls: record.toolCalls,
+          finalState: record.finalState
         )
         return constraintScore.scoring(
           grade.score,

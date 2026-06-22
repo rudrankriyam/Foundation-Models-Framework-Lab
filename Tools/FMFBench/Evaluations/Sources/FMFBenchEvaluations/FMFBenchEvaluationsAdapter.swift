@@ -3,6 +3,11 @@ import Evaluations
 import FoundationModels
 
 @available(macOS 27.0, *)
+public typealias FMFBenchFinalStateProvider = @Sendable (
+  FMFBenchEvaluationSample
+) async throws -> FMFBenchStateSnapshot?
+
+@available(macOS 27.0, *)
 public enum FMFBenchEvaluationsAdapter {
   public static let promptPassMetric = Metric("FMFBench Prompt Pass")
   public static let constraintScoreMetric = Metric("FMFBench Constraint Score")
@@ -32,17 +37,25 @@ public enum FMFBenchEvaluationsAdapter {
   }
 
   public static func promptPassEvaluator(
-    for scenario: FMFBenchScenario
+    for scenario: FMFBenchScenario,
+    finalStateProvider: FMFBenchFinalStateProvider? = nil
   ) -> Evaluator<FMFBenchEvaluationSample> {
     let checks = checksBySampleID(scenario)
     return Evaluator { input, subject in
       guard let sampleChecks = checks[input.recordID] else {
         return promptPassMetric.ignore(rationale: "Missing FMFBench sample metadata.")
       }
+      let finalState = try await finalStateProvider?(input)
+      if requiresFinalState(sampleChecks), finalState == nil {
+        return promptPassMetric.ignore(
+          rationale: "Final state was not supplied for this stateful sample."
+        )
+      }
       let grade = FMFBenchGrader.grade(
         response: subject.value,
         checks: sampleChecks,
-        toolCalls: subject.fmfBenchToolCalls
+        toolCalls: subject.fmfBenchToolCalls,
+        finalState: finalState
       )
       return grade.promptPassed
         ? promptPassMetric.passing()
@@ -51,7 +64,8 @@ public enum FMFBenchEvaluationsAdapter {
   }
 
   public static func constraintScoreEvaluator(
-    for scenario: FMFBenchScenario
+    for scenario: FMFBenchScenario,
+    finalStateProvider: FMFBenchFinalStateProvider? = nil
   ) -> Evaluator<FMFBenchEvaluationSample> {
     let checks = checksBySampleID(scenario)
     return Evaluator { input, subject in
@@ -60,10 +74,17 @@ public enum FMFBenchEvaluationsAdapter {
           rationale: "Missing FMFBench sample metadata."
         )
       }
+      let finalState = try await finalStateProvider?(input)
+      if requiresFinalState(sampleChecks), finalState == nil {
+        return constraintScoreMetric.ignore(
+          rationale: "Final state was not supplied for this stateful sample."
+        )
+      }
       let grade = FMFBenchGrader.grade(
         response: subject.value,
         checks: sampleChecks,
-        toolCalls: subject.fmfBenchToolCalls
+        toolCalls: subject.fmfBenchToolCalls,
+        finalState: finalState
       )
       return constraintScoreMetric.scoring(
         grade.score,
@@ -88,42 +109,80 @@ public enum FMFBenchEvaluationsAdapter {
   static func trajectoryExpectation(
     for checks: [FMFBenchCheck]
   ) -> TrajectoryExpectation? {
-    var toolNames: [String] = []
+    var unorderedToolNames: [String] = []
+    var orderedToolNames: [String] = []
+    var disallowedToolNames: [String] = []
+    var allowsAdditionalToolCalls = true
     var argumentsByTool: [String: [ArgumentMatcher]] = [:]
 
     for check in checks {
       switch check {
       case .toolCalled(let name):
-        if !toolNames.contains(name) {
-          toolNames.append(name)
+        if !unorderedToolNames.contains(name) {
+          unorderedToolNames.append(name)
         }
       case .toolArgumentEquals(let tool, let argument, let value):
-        if !toolNames.contains(tool) {
-          toolNames.append(tool)
+        if !unorderedToolNames.contains(tool) {
+          unorderedToolNames.append(tool)
         }
         argumentsByTool[tool, default: []].append(
           .exact(argumentName: argument, value: argumentValue(value))
         )
+      case .toolArgumentContains(let tool, let argument, let value):
+        if !unorderedToolNames.contains(tool) {
+          unorderedToolNames.append(tool)
+        }
+        argumentsByTool[tool, default: []].append(
+          .contains(argumentName: argument, substring: value)
+        )
+      case .toolCallSequence(let names, let allowsAdditionalCalls):
+        orderedToolNames = names
+        allowsAdditionalToolCalls = allowsAdditionalCalls
+      case .toolNotCalled(let name):
+        if !disallowedToolNames.contains(name) {
+          disallowedToolNames.append(name)
+        }
       default:
         break
       }
     }
 
-    guard !toolNames.isEmpty else { return nil }
-    let expectations = toolNames.map { name in
+    unorderedToolNames.removeAll { orderedToolNames.contains($0) }
+    guard !orderedToolNames.isEmpty || !unorderedToolNames.isEmpty || !disallowedToolNames.isEmpty
+    else {
+      return nil
+    }
+    let ordered = orderedToolNames.map { name in
       ToolExpectation(name, arguments: argumentsByTool[name] ?? [])
     }
-    return TrajectoryExpectation(
-      ordered: [],
-      unordered: expectations,
-      allowsAdditionalToolCalls: true
+    let unordered = unorderedToolNames.map { name in
+      ToolExpectation(name, arguments: argumentsByTool[name] ?? [])
+    }
+    let disallowed = disallowedToolNames.map { ToolExpectation($0) }
+    var expectation = TrajectoryExpectation(
+      ordered: ordered,
+      unordered: unordered,
+      allowsAdditionalToolCalls: allowsAdditionalToolCalls
     )
+    expectation.disallowed = disallowed
+    return expectation
   }
 
   private static func checksBySampleID(
     _ scenario: FMFBenchScenario
   ) -> [String: [FMFBenchCheck]] {
     Dictionary(uniqueKeysWithValues: scenario.samples.map { ($0.id, $0.checks) })
+  }
+
+  private static func requiresFinalState(_ checks: [FMFBenchCheck]) -> Bool {
+    checks.contains { check in
+      switch check {
+      case .stateEquals, .stateContains:
+        true
+      default:
+        false
+      }
+    }
   }
 
   private static func argumentValue(_ value: FMFBenchJSONValue) -> ArgumentValue {

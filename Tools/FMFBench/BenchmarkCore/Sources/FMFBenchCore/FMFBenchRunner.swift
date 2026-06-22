@@ -12,6 +12,7 @@ public struct FMFBenchRunConfiguration: Sendable {
     public let warmupCount: Int
     public let repetitions: Int
     public let sampleLimit: Int?
+    public let sampleIDs: Set<String>?
     public let sessionMode: FMFBenchSessionMode
     public let reasoningLevel: FMFBenchReasoningLevel
     public let fallbackMode: FMFBenchFallbackMode
@@ -26,6 +27,7 @@ public struct FMFBenchRunConfiguration: Sendable {
         warmupCount: Int = 5,
         repetitions: Int = 20,
         sampleLimit: Int? = nil,
+        sampleIDs: Set<String>? = nil,
         useAllSamples: Bool = false,
         sessionMode: FMFBenchSessionMode = .cold,
         reasoningLevel: FMFBenchReasoningLevel = .none,
@@ -39,8 +41,9 @@ public struct FMFBenchRunConfiguration: Sendable {
         self.model = model
         self.warmupCount = max(0, warmupCount)
         self.repetitions = max(1, repetitions)
-        self.sampleLimit =
-            useAllSamples ? nil : sampleLimit.map { max(1, $0) } ?? suite.defaultSampleLimit
+        self.sampleLimit = sampleIDs?.count
+            ?? (useAllSamples ? nil : sampleLimit.map { max(1, $0) } ?? suite.defaultSampleLimit)
+        self.sampleIDs = sampleIDs
         self.sessionMode = sessionMode
         self.reasoningLevel = reasoningLevel
         self.fallbackMode = fallbackMode
@@ -59,6 +62,8 @@ public actor FMFBenchRunner {
         case imageFixtureUnavailable
         case emptyResponse
         case offlineConnectivityNotObserved(String)
+        case unknownSampleIDs([String])
+        case noSamplesSelected
 
         public var errorDescription: String? {
             switch self {
@@ -79,6 +84,10 @@ public actor FMFBenchRunner {
                 Offline mode requires no active network path, but FMFBench observed \(observation). \
                 Disable Wi-Fi and cellular connectivity, then rerun the experiment.
                 """
+            case .unknownSampleIDs(let sampleIDs):
+                "Unknown sample IDs: \(sampleIDs.joined(separator: ", "))."
+            case .noSamplesSelected:
+                "The configuration did not select any FMFBench samples."
             }
         }
     }
@@ -98,6 +107,7 @@ public actor FMFBenchRunner {
     }
 
     public func run() async throws -> FMFBenchRunResult {
+        let workItems = try workItems()
         offlineConnectivityVerified = try await verifyConnectivity()
 
         if configuration.model == .onDevice || configuration.fallbackMode == .onDevice {
@@ -114,30 +124,36 @@ public actor FMFBenchRunner {
             do {
                 try await warmUp()
             } catch {
+                let evidence = error as? FMFBenchExecutionEvidenceError
                 failures.append(
                     FMFBenchFailure(
                         scenarioID: "__warmup__",
                         sampleID: "__warmup__-\(index + 1)",
                         iteration: index + 1,
-                        kind: failureKind(error),
-                        message: detailedMessage(for: error)
+                        kind: evidence?.kind ?? failureKind(error),
+                        message: evidence?.message ?? detailedMessage(for: error),
+                        toolCalls: evidence?.toolCalls,
+                        finalState: evidence?.finalState
                     )
                 )
             }
         }
 
         var trials: [FMFBenchTrialResult] = []
-        for item in workItems() {
+        for item in workItems {
             do {
                 trials.append(try await run(item: item, contextSize: contextSize))
             } catch {
+                let evidence = error as? FMFBenchExecutionEvidenceError
                 failures.append(
                     FMFBenchFailure(
                         scenarioID: item.scenario.id,
                         sampleID: item.sample.id,
                         iteration: item.iteration,
-                        kind: failureKind(error),
-                        message: detailedMessage(for: error)
+                        kind: evidence?.kind ?? failureKind(error),
+                        message: evidence?.message ?? detailedMessage(for: error),
+                        toolCalls: evidence?.toolCalls,
+                        finalState: evidence?.finalState
                     )
                 )
             }
@@ -167,11 +183,23 @@ public actor FMFBenchRunner {
         )
     }
 
-    private func workItems() -> [WorkItem] {
+    private func workItems() throws -> [WorkItem] {
+        if let sampleIDs = configuration.sampleIDs {
+            let availableSampleIDs = Set(
+                configuration.scenarios.flatMap(\.samples).map(\.id)
+            )
+            let unknownSampleIDs = sampleIDs.subtracting(availableSampleIDs).sorted()
+            guard unknownSampleIDs.isEmpty else {
+                throw Error.unknownSampleIDs(unknownSampleIDs)
+            }
+        }
+
         var items = configuration.scenarios.flatMap { scenario in
-            let samples =
-                configuration.sampleLimit.map { Array(scenario.samples.prefix($0)) }
-                ?? scenario.samples
+            let selectedSamples = configuration.sampleIDs.map { sampleIDs in
+                scenario.samples.filter { sampleIDs.contains($0.id) }
+            } ?? scenario.samples
+            let samples = configuration.sampleLimit.map { Array(selectedSamples.prefix($0)) }
+                ?? selectedSamples
             return samples.flatMap { sample in
                 (1...configuration.repetitions).map {
                     WorkItem(scenario: scenario, sample: sample, iteration: $0)
@@ -181,6 +209,9 @@ public actor FMFBenchRunner {
         if configuration.randomizeOrder {
             var generator = SeededGenerator(seed: configuration.randomSeed)
             items.shuffle(using: &generator)
+        }
+        guard !items.isEmpty else {
+            throw Error.noSamplesSelected
         }
         return items
     }
@@ -298,6 +329,7 @@ public actor FMFBenchRunner {
         try ensureScenarioAvailability(item.scenario)
         let bundle = try sessionBundle(for: item.scenario, model: model)
         await bundle.recorder.reset()
+        await bundle.mockWorld?.reset(for: item.sample.id)
         let transcriptStartIndex = bundle.session.transcript.endIndex
 
         let options = generationOptions(
@@ -460,8 +492,15 @@ public actor FMFBenchRunner {
             resources.append(.capture())
         }
 
+        let toolCalls = await bundle.recorder.snapshot()
+        let finalState = await bundle.mockWorld?.snapshot()
         guard !response.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            throw Error.emptyResponse
+            throw FMFBenchExecutionEvidenceError(
+                kind: "generation",
+                message: detailedMessage(for: Error.emptyResponse),
+                toolCalls: toolCalls,
+                finalState: finalState
+            )
         }
 
         resources.append(.capture())
@@ -479,7 +518,6 @@ public actor FMFBenchRunner {
             firstStreamUpdate: usageFirstOutputTokens ?? estimatedCounts.firstStreamUpdate,
             source: usageOutputTokens == nil ? estimatedCounts.source : .sessionUsage
         )
-        let toolCalls = await bundle.recorder.snapshot()
         let safetyOutcome = FMFBenchSafetyClassifier.outcome(
             for: response,
             expectation: item.sample.safetyExpectation
@@ -509,12 +547,14 @@ public actor FMFBenchRunner {
             fallbackReason: fallbackReason,
             offlineSuccess: isVerifiedOfflineExecution(model: model),
             toolCalls: toolCalls,
+            finalState: finalState,
             safetyOutcome: safetyOutcome,
             response: response,
             grade: FMFBenchGrader.grade(
                 response: response,
                 checks: item.sample.checks,
-                toolCalls: toolCalls
+                toolCalls: toolCalls,
+                finalState: finalState
             ),
             metrics: metrics,
             environment: EnvironmentSnapshot.capture()
@@ -531,7 +571,7 @@ public actor FMFBenchRunner {
         }
 
         let recorder = FMFBenchToolRecorder()
-        let tools = fmfBenchTools(for: scenario.toolSet, recorder: recorder)
+        let toolRuntime = fmfBenchToolRuntime(for: scenario.toolSet, recorder: recorder)
         let session: LanguageModelSession
         switch model {
         case .onDevice:
@@ -541,7 +581,7 @@ public actor FMFBenchRunner {
             )
             session = LanguageModelSession(
                 model: systemModel,
-                tools: tools,
+                tools: toolRuntime.tools,
                 instructions: Instructions(scenario.instructions)
             )
         case .privateCloudCompute:
@@ -553,7 +593,7 @@ public actor FMFBenchRunner {
                     }
                     session = LanguageModelSession(
                         model: pcc,
-                        tools: tools,
+                        tools: toolRuntime.tools,
                         instructions: Instructions(scenario.instructions)
                     )
                 } else {
@@ -564,7 +604,11 @@ public actor FMFBenchRunner {
             #endif
         }
 
-        let bundle = FMFBenchSessionBundle(session: session, recorder: recorder)
+        let bundle = FMFBenchSessionBundle(
+            session: session,
+            recorder: recorder,
+            mockWorld: toolRuntime.mockWorld
+        )
         if configuration.sessionMode == .warm {
             warmSessions[key] = bundle
         }
@@ -759,6 +803,15 @@ private func detailedMessage(for error: any Swift.Error) -> String {
     let userInfo = nsError.userInfo.isEmpty ? "" : " userInfo=\(nsError.userInfo)"
     return
         "\(error.localizedDescription) [\(reflected); domain=\(nsError.domain) code=\(nsError.code)\(userInfo)]"
+}
+
+private struct FMFBenchExecutionEvidenceError: Swift.Error, LocalizedError, Sendable {
+    let kind: String
+    let message: String
+    let toolCalls: [FMFBenchToolCall]
+    let finalState: FMFBenchStateSnapshot?
+
+    var errorDescription: String? { message }
 }
 
 private func failureKind(_ error: any Swift.Error) -> String {

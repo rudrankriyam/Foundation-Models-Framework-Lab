@@ -24,7 +24,9 @@ struct ContentView: View {
                 }
             }
             .navigationTitle("FMFBench")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .alert("FMFBench Failed", isPresented: $viewModel.showError) {
                 Button("OK", role: .cancel) {}
             } message: {

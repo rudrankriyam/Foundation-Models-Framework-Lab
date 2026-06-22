@@ -24,6 +24,7 @@ public struct FMFBenchEvaluationRecord: Sendable {
   public let checks: [FMFBenchCheck]
   public let response: String?
   public let toolCalls: [FMFBenchToolCall]
+  public let finalState: FMFBenchStateSnapshot?
   public let safetyExpectation: FMFBenchSafetyExpectation?
   public let safetyOutcome: FMFBenchSafetyOutcome
   public let iteration: Int
@@ -46,6 +47,7 @@ public struct FMFBenchEvaluationRecord: Sendable {
     checks: [FMFBenchCheck],
     response: String?,
     toolCalls: [FMFBenchToolCall] = [],
+    finalState: FMFBenchStateSnapshot? = nil,
     safetyExpectation: FMFBenchSafetyExpectation? = nil,
     safetyOutcome: FMFBenchSafetyOutcome = .notApplicable,
     iteration: Int = 1,
@@ -67,6 +69,7 @@ public struct FMFBenchEvaluationRecord: Sendable {
     self.checks = checks
     self.response = response
     self.toolCalls = toolCalls
+    self.finalState = finalState
     self.safetyExpectation = safetyExpectation
     self.safetyOutcome = safetyOutcome
     self.iteration = iteration
@@ -209,6 +212,7 @@ public enum FMFBenchRecordedRunLoader {
       checks: trial.sample.checks,
       response: trial.response,
       toolCalls: trial.toolCalls,
+      finalState: trial.finalState,
       safetyExpectation: trial.sample.safetyExpectation,
       safetyOutcome: trial.safetyOutcome,
       iteration: trial.iteration,
@@ -239,6 +243,8 @@ public enum FMFBenchRecordedRunLoader {
       instructions: scenario?.instructions ?? "",
       checks: sample?.checks ?? [],
       response: nil,
+      toolCalls: failure.toolCalls ?? [],
+      finalState: failure.finalState,
       safetyExpectation: sample?.safetyExpectation,
       safetyOutcome: safetyOutcome(forFailureKind: failure.kind),
       iteration: failure.iteration,

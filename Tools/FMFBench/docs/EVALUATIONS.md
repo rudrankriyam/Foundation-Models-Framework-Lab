@@ -30,7 +30,7 @@ original FMFBench trial.
 Apple makes Evaluations available on macOS, iOS, watchOS, and visionOS 27, with
 tvOS unavailable. FMFBench’s macOS-only boundary is an intentional product and
 tooling decision, not a claim that Apple lacks other platform binaries. The
-shipping iOS device runner continues to use only `FMFBenchCore`.
+shipping signed runner continues to use only `FMFBenchCore` on iOS and macOS.
 
 ## Data Flow
 
@@ -263,6 +263,8 @@ and safety separate:
 - Deterministic FMFBench constraint score.
 - Safety pass where a safety expectation exists.
 - Native tool-call all-pass and percentage metrics where tool expectations exist.
+- Ordered agentic trajectories, with mocked final-state checks replayed by FMFBench's
+  deterministic evaluator.
 - Original duration and TTFT.
 - Original output tokens per second.
 - Original peak resident memory when recorded.

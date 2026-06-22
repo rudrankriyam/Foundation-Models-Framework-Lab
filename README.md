@@ -165,13 +165,17 @@ See [`Tools/AdapterStudio`](Tools/AdapterStudio) for the full workflow.
 
 ### FMFBench
 
-FMFBench is the repository's repeatable quality, safety, and performance suite.
-The in-app workspace explains the protocol and artifacts; canonical results come
-from the CLI on Mac or the signed device runner on physical iPhone and iPad hardware.
+FMFBench is the repository's repeatable quality, agentic-tool, safety, and performance
+suite. Its agentic corpus includes 25 deterministic cases covering multi-tool execution,
+ambiguity, failures, duplicate prevention, and untrusted tool data.
+The in-app workspace explains the protocol and artifacts. Canonical on-device Mac
+results come from the CLI; PCC on Mac and all iPhone and iPad measurements use the
+signed runner on physical Apple Intelligence hardware.
 
 ```bash
 swift run fmfbench list
 swift run fmfbench --suite quick --model on-device
+swift run fmfbench --suite agentic --warmups 0 --repetitions 1
 swift run fmfbench --suite full --warmups 5 --repetitions 20 \
   --json Tools/FMFBench/Results/run.json \
   --markdown Tools/FMFBench/Results/run.md
@@ -205,7 +209,7 @@ AFM releases use `afm-vx.y.z` tags so CLI releases remain independent from app r
 | FoundationLabCore | [`FoundationLabCore`](FoundationLabCore) | UI-independent requests, results, use cases, providers, and experiment models |
 | FoundationModelsKit | [`Packages/FoundationModelsKit`](Packages/FoundationModelsKit) | Transcript, context, history, and system-tool packages |
 | AFM CLI | [`Tools/AFMCLI`](Tools/AFMCLI) | Scriptable Foundation Models workflows |
-| FMFBench | [`Tools/FMFBench`](Tools/FMFBench) | Quality, safety, and performance evaluation |
+| FMFBench | [`Tools/FMFBench`](Tools/FMFBench) | Quality, agentic-tool, safety, and performance evaluation |
 | Adapter tooling | [`Tools/AdapterStudio`](Tools/AdapterStudio) | Adapter training and export with `fmas` |
 | Book playgrounds | [`BookPlaygrounds`](BookPlaygrounds) | Chapter-oriented `#Playground` examples |
 

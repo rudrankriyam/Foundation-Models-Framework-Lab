@@ -58,5 +58,5 @@ swift run fmfbench list
 swift test --filter FMFBench
 ```
 
-Official Mac results still come from the CLI. Official iPhone and iPad results still
-require `FMFBenchDeviceRunner` on a physical Apple Intelligence device.
+Official on-device Mac results still come from the CLI. Mac PCC and all iPhone and
+iPad results require `FMFBenchDeviceRunner` on physical Apple Intelligence hardware.

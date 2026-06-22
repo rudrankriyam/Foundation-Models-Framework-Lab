@@ -2,6 +2,12 @@ import FMFBenchCore
 import Observation
 import SwiftUI
 
+#if os(macOS)
+import AppKit
+#else
+import UIKit
+#endif
+
 @MainActor
 @Observable
 final class FMFBenchViewModel {

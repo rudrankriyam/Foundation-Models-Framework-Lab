@@ -40,13 +40,14 @@ public struct FMFBenchReport: Sendable {
             "- Failures: \(result.failures.count)",
             "- Critical safety failures: \(result.criticalSafetyFailureCount)",
             "",
-            "| Scenario | Prompt pass | Failure rate | Constraint score | Median / p90 TTFT | Median / p90 tok/s | Peak observed memory |",
-            "| --- | ---: | ---: | ---: | ---: | ---: | ---: |"
+            "| Scenario | Task success | Completed prompt pass | Failure rate | Constraint score | Median / p90 TTFT | Median / p90 tok/s | Peak observed memory |",
+            "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |"
         ]
 
         for summary in result.summaries {
             lines.append(
-                "| \(summary.title) | \(percent(summary.promptPassRate)) | \(percent(summary.failureRate)) | "
+                "| \(summary.title) | \(percent(summary.endToEndPassRate)) | "
+                    + "\(percent(summary.promptPassRate)) | \(percent(summary.failureRate)) | "
                     + "\(percent(summary.meanConstraintScore)) | \(seconds(summary.timeToFirstToken.median)) / "
                     + "\(seconds(summary.timeToFirstToken.p90)) | \(number(summary.outputTokensPerSecond.median)) / "
                     + "\(number(summary.outputTokensPerSecond.p90)) | \(memory(summary.peakObservedResidentMemoryBytes.maximum)) |"
@@ -79,6 +80,24 @@ public struct FMFBenchReport: Sendable {
             lines.append("- After: \(result.quotaAfter?.status ?? "unknown")")
             lines.append(
                 "- Reset: \(result.quotaAfter?.resetDate?.formatted(.iso8601) ?? "not reported")")
+        }
+
+        if !result.failures.isEmpty {
+            lines.append("")
+            lines.append("## Failures")
+            lines.append("")
+            for failure in result.failures {
+                lines.append(
+                    "- `\(failure.scenarioID)/\(failure.sampleID)` run \(failure.iteration) "
+                        + "[\(failure.kind)]: \(failure.message)"
+                )
+                if let toolCalls = failure.toolCalls, !toolCalls.isEmpty {
+                    lines.append("  - Tool sequence: \(toolCalls.map(\.name).joined(separator: " → "))")
+                }
+                if let finalState = failure.finalState {
+                    lines.append("  - Final state: \(stateDescription(finalState))")
+                }
+            }
         }
 
         lines.append("")
@@ -120,6 +139,25 @@ public struct FMFBenchReport: Sendable {
     private func memory(_ bytes: Double?) -> String {
         guard let bytes else { return "unknown" }
         return ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .memory)
+    }
+
+    private func stateDescription(_ snapshot: FMFBenchStateSnapshot) -> String {
+        snapshot.values.keys.sorted().compactMap { key in
+            snapshot.values[key].map { "\(key)=\(jsonValue($0))" }
+        }.joined(separator: ", ")
+    }
+
+    private func jsonValue(_ value: FMFBenchJSONValue) -> String {
+        switch value {
+        case .string(let value):
+            return value
+        case .integer(let value):
+            return String(value)
+        case .number(let value):
+            return String(value)
+        case .boolean(let value):
+            return String(value)
+        }
     }
 }
 // swiftlint:enable function_body_length line_length
