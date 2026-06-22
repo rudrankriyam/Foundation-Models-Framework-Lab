@@ -35,3 +35,16 @@ func runtimeReasonDescription(_ reason: ModelRuntimeUnavailableReason?) -> Strin
         return "unknown reason"
     }
 }
+
+func runtimeAuthorizationDescription(_ authorization: ModelRuntimeAuthorization) -> String {
+    switch authorization {
+    case .notRequired:
+        return "current-process authorization is not required"
+    case .granted:
+        return "current-process authorization is granted"
+    case .missing:
+        return "current process lacks the managed PCC entitlement"
+    case .unknown:
+        return "current-process authorization is unknown"
+    }
+}

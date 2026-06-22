@@ -61,10 +61,14 @@ private struct AvailablePayload: Encodable {
     let models: [Model]
 }
 
-private func availableDescription(_ result: ModelRuntimeStatusResult) -> String {
+func availableDescription(_ result: ModelRuntimeStatusResult) -> String {
     let name = modelDisplayName(for: result.runtime)
     if result.isRunnableInCurrentProcess {
         return "\(name): available"
+    }
+    if result.isAvailable {
+        let authorization = runtimeAuthorizationDescription(result.authorization)
+        return "\(name): available, but not runnable in this process (\(authorization))"
     }
     return "\(name): unavailable (\(runtimeReasonDescription(result.reason)))"
 }
