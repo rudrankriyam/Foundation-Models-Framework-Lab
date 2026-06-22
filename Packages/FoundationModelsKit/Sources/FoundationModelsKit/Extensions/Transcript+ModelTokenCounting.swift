@@ -6,28 +6,38 @@ private let exactTokenSafetyBufferMultiplier = 0.05
 public extension Transcript.Entry {
   /// Returns the model's exact token count when the API is available, otherwise an estimate.
   func tokenCount(using model: SystemLanguageModel = .default) async -> Int {
+    await tokenUsage(using: model).totalTokenCount
+  }
+
+  /// Returns a token count together with whether it was tokenized or estimated.
+  func tokenUsage(using model: SystemLanguageModel = .default) async -> ModelTokenUsage {
     #if compiler(>=6.3)
     if #available(iOS 26.4, macOS 26.4, visionOS 26.4, *),
        let exactTokenCount = try? await model.tokenCount(for: [self]) {
-      return exactTokenCount
+      return ModelTokenUsage(inputTokenCount: exactTokenCount, measurement: .tokenized)
     }
     #endif
 
-    return estimatedTokenCount
+    return ModelTokenUsage(inputTokenCount: estimatedTokenCount, measurement: .estimated)
   }
 }
 
 public extension Transcript {
   /// Returns the model's exact token count when the API is available, otherwise an estimate.
   func tokenCount(using model: SystemLanguageModel = .default) async -> Int {
+    await tokenUsage(using: model).totalTokenCount
+  }
+
+  /// Returns a token count together with whether it was tokenized or estimated.
+  func tokenUsage(using model: SystemLanguageModel = .default) async -> ModelTokenUsage {
     #if compiler(>=6.3)
     if #available(iOS 26.4, macOS 26.4, visionOS 26.4, *),
        let exactTokenCount = try? await model.tokenCount(for: Array(self)) {
-      return exactTokenCount
+      return ModelTokenUsage(inputTokenCount: exactTokenCount, measurement: .tokenized)
     }
     #endif
 
-    return estimatedTokenCount
+    return ModelTokenUsage(inputTokenCount: estimatedTokenCount, measurement: .estimated)
   }
 
   /// Returns an exact token count with a small buffer, or the conservative estimated count.

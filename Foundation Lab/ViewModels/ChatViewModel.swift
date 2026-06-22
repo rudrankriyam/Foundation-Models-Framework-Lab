@@ -8,6 +8,7 @@
 import Foundation
 import FoundationLabCore
 import FoundationModels
+import FoundationModelsKit
 import Observation
 import Speech
 
@@ -50,6 +51,7 @@ final class ChatViewModel {
     // MARK: - Token Usage Tracking
 
     private(set) var currentTokenCount: Int = 0
+    private(set) var currentTokenUsage: ModelTokenUsage?
     private(set) var maxContextSize: Int = AppConfiguration.TokenManagement.defaultMaxTokens
 
     var tokenUsageFraction: Double {
@@ -323,6 +325,7 @@ extension ChatViewModel {
         selectedModelRuntime = conversationEngine.modelRuntime
         selectedReasoningLevel = conversationEngine.reasoningLevel
         currentTokenCount = conversationEngine.currentTokenCount
+        currentTokenUsage = conversationEngine.currentTokenUsage
         maxContextSize = conversationEngine.maxContextSize
         isSummarizing = conversationEngine.isSummarizing
         isApplyingWindow = conversationEngine.isApplyingWindow

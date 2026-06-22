@@ -2,6 +2,7 @@ import ArgumentParser
 import Foundation
 import FoundationLabCore
 import FoundationModels
+import FoundationModelsKit
 
 struct SessionCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -27,6 +28,7 @@ struct SessionResponsePayload: Encodable {
     let exchanges: [AFMConversationExchange]?
     let sessionCount: Int
     let tokenCount: Int
+    let tokenUsage: ModelTokenUsage?
     let transcript: [CLITranscriptEntry]?
 }
 
@@ -329,13 +331,12 @@ private func emitRespondResult(
         exchanges: nil,
         sessionCount: snapshot.sessionCount,
         tokenCount: snapshot.tokenCount,
+        tokenUsage: snapshot.tokenUsage,
         transcript: snapshot.transcript
     )
     let human = humanReadableSessionResponse(
         response: response,
-        transcript: snapshot.transcript,
-        sessionCount: snapshot.sessionCount,
-        tokenCount: snapshot.tokenCount,
+        snapshot: snapshot,
         verbose: context.verbose
     )
     try CLIOutput.emit(payload: payload, human: human, options: context.output)
@@ -358,6 +359,7 @@ private func emitStreamResult(
         exchanges: nil,
         sessionCount: snapshot.sessionCount,
         tokenCount: snapshot.tokenCount,
+        tokenUsage: snapshot.tokenUsage,
         transcript: snapshot.transcript
     )
     if context.streamsToJSON {
@@ -369,6 +371,7 @@ private func emitStreamResult(
                     response: response,
                     sessionCount: snapshot.sessionCount,
                     tokenCount: snapshot.tokenCount,
+                    tokenUsage: snapshot.tokenUsage,
                     transcript: snapshot.transcript
                 )
             )
@@ -379,9 +382,7 @@ private func emitStreamResult(
     let humanResponse = context.streamsToConsole ? "" : response
     let human = humanReadableSessionResponse(
         response: humanResponse,
-        transcript: snapshot.transcript,
-        sessionCount: snapshot.sessionCount,
-        tokenCount: snapshot.tokenCount,
+        snapshot: snapshot,
         verbose: context.verbose
     )
     try CLIOutput.emit(payload: payload, human: human, options: context.output)
@@ -404,6 +405,7 @@ private func emitChatResult(
         exchanges: exchanges,
         sessionCount: snapshot.sessionCount,
         tokenCount: snapshot.tokenCount,
+        tokenUsage: snapshot.tokenUsage,
         transcript: snapshot.transcript
     )
     if context.streamsToJSON {
@@ -414,6 +416,7 @@ private func emitChatResult(
                     exchanges: exchanges,
                     sessionCount: snapshot.sessionCount,
                     tokenCount: snapshot.tokenCount,
+                    tokenUsage: snapshot.tokenUsage,
                     transcript: snapshot.transcript
                 )
             )
@@ -427,6 +430,7 @@ private func emitChatResult(
             transcript: snapshot.transcript,
             sessionCount: snapshot.sessionCount,
             tokenCount: snapshot.tokenCount,
+            tokenUsage: snapshot.tokenUsage,
             verbose: context.verbose,
             streamed: context.streamsToConsole
         )

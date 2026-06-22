@@ -8,6 +8,7 @@
 import Foundation
 import FoundationLabCore
 import FoundationModels
+import FoundationModelsKit
 import Observation
 import OSLog
 import SwiftData
@@ -34,6 +35,7 @@ final class HealthChatViewModel {
     // MARK: - Token Usage Tracking
 
     private(set) var currentTokenCount: Int = 0
+    private(set) var currentTokenUsage: ModelTokenUsage?
     private(set) var maxContextSize: Int = AppConfiguration.TokenManagement.defaultMaxTokens
 
     var tokenUsageFraction: Double {
@@ -198,6 +200,7 @@ private extension HealthChatViewModel {
     func syncConversationState() {
         session = conversationEngine.session
         currentTokenCount = conversationEngine.currentTokenCount
+        currentTokenUsage = conversationEngine.currentTokenUsage
         maxContextSize = conversationEngine.maxContextSize
         isSummarizing = conversationEngine.isSummarizing
         sessionCount = conversationEngine.sessionCount

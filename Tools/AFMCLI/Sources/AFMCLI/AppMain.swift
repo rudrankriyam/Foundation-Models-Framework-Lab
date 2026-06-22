@@ -18,7 +18,9 @@ struct AFMEntryPoint {
         let firstArgument = arguments[1]
         guard !firstArgument.hasPrefix("-") else { return nil }
 
-        let rootCommands = ["model", "tag", "session", "schema", "tool", "transcript", "feedback", "help", "version"]
+        let rootCommands = [
+            "model", "token-count", "tag", "session", "schema", "tool", "transcript", "feedback", "help", "version"
+        ]
         if !rootCommands.contains(firstArgument) {
             if let suggestion = suggestRootCommand(for: firstArgument) {
                 return "Unknown command '\(firstArgument)'. Did you mean '\(suggestion)'?"

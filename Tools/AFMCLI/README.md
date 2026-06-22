@@ -36,6 +36,7 @@ To run live model commands, you still need a supported Apple Intelligence Mac. F
 - It is built for real terminal use: explicit flags, readable help, file-based inputs, and clean JSON output.
 - It works well in automation and agent flows with dry-runs, stdin support, schema and tool directories, and NDJSON-style streaming events.
 - It keeps important runtime controls close at hand, including adapters, use cases, guardrails, schema prompting, and feedback issues.
+- It reports token provenance instead of presenting tokenized, estimated, and observed usage as if they were interchangeable.
 
 ## First Commands
 
@@ -43,6 +44,8 @@ These are good starting points after install:
 
 ```bash
 afm model status
+afm token-count "What is Swift?"
+afm token-count -i @instructions.md --prompt @prompt.md --breakdown
 afm session respond --prompt "Summarize Foundation Models in one paragraph."
 afm session respond --adapter ~/MyAdapter.fmadapter --prompt "Rewrite this in my house style."
 afm session stream --prompt "Write a short poem about rain."
@@ -64,6 +67,42 @@ afm model languages
 afm model use-cases
 afm model guardrails
 ```
+
+### Count and budget tokens
+
+`afm token-count` accepts the same core text inputs as Apple's `fm token-count`
+and adds files, JSON provenance, context-window budgeting, estimator comparison,
+schemas, and file-backed tool definitions:
+
+```bash
+afm token-count "What is Swift?"
+afm token-count -i "You are a helpful assistant" "What is Swift?"
+afm token-count --text "First segment" --text "Second segment"
+cat prompt.md | afm token-count --output json --pretty
+afm token-count --schema person-card --tool demo-weather --breakdown
+afm token-count --quiet "Print only the integer"
+```
+
+Measurement is explicit:
+
+- `tokenized` means `SystemLanguageModel.tokenCount(for:)` succeeded on macOS 26.4 or later.
+- `estimated` means the calibrated FoundationModelsKit fallback was used, including when the tokenizer was unavailable.
+- `observed` is reserved for usage reported by an actual model response on macOS 27 or later.
+
+JSON output includes input/output structure, scope, per-component counts, cached
+and reasoning counts when the runtime supplies them, the model context limit,
+remaining capacity, and calibrated and conservative estimates. Missing cached or
+reasoning counts are omitted rather than reported as zero.
+
+The standalone total is the sum of the individually tokenized supplied
+components: instructions, prompt segments, schema, and tool definitions. It does
+not invent an unattributed runtime overhead value. Runtime framing is available
+only from `observed` generation usage.
+
+Standalone counting measures only the context supplied to the command. A real
+generation can consume more input tokens because Foundation Models adds runtime
+and session framing. The legacy `tokenCount` field in generation commands remains
+available; richer `tokenUsage` is additive.
 
 ### Try prompts and chat
 
@@ -147,6 +186,7 @@ afm feedback export --prompt "What is the capital of France?" --sentiment positi
 ```bash
 afm session respond --prompt @prompt.md
 cat prompt.md | afm session respond --output json
+cat prompt.md | afm token-count --output json
 afm schema run custom --schema person-card --schema-dir .afm/schemas --input @person.txt
 afm tool call --tool echo-json --tool-dir .afm/tools --args @args.json
 ```

@@ -8,6 +8,7 @@ public final class FoundationLabConversationEngine {
     public private(set) var session: LanguageModelSession
     public private(set) var sessionCount: Int = 1
     public private(set) var currentTokenCount: Int = 0
+    public private(set) var currentTokenUsage: ModelTokenUsage?
     public private(set) var maxContextSize: Int
     public private(set) var isSummarizing: Bool = false
     public private(set) var isApplyingWindow: Bool = false
@@ -224,6 +225,7 @@ private extension FoundationLabConversationEngine {
         cancelActiveResponse()
         sessionCount = 1
         currentTokenCount = 0
+        currentTokenUsage = nil
         isSummarizing = false
         isApplyingWindow = false
         session = FoundationLabSessionFactory.makeSession(
@@ -263,19 +265,21 @@ private extension FoundationLabConversationEngine {
 
         session = LanguageModelSession(model: model, transcript: transcript)
         sessionCount += 1
-        await updateTokenCount()
+        await updateTokenCount(usageSource: .context)
 
         isApplyingWindow = false
         notifyStateChange()
     }
 
-    func updateTokenCount() async {
-        switch configuration.modelRuntime {
-        case .onDevice:
-            currentTokenCount = await session.transcript.tokenCount(using: model)
-        case .privateCloudCompute:
-            currentTokenCount = session.transcript.estimatedTokenCount
-        }
+    func updateTokenCount(usageSource: FoundationLabConversationTokenUsageSource = .accumulatedSession) async {
+        let snapshot = await foundationLabConversationTokenSnapshot(
+            session: session,
+            model: model,
+            runtime: configuration.modelRuntime,
+            usageSource: usageSource
+        )
+        currentTokenCount = snapshot.legacyTokenCount
+        currentTokenUsage = snapshot.usage
         notifyStateChange()
     }
 
@@ -550,6 +554,7 @@ private extension FoundationLabConversationEngine {
         )
         sessionCount += 1
         currentTokenCount = 0
+        currentTokenUsage = nil
         notifyStateChange()
     }
 
@@ -562,6 +567,7 @@ private extension FoundationLabConversationEngine {
         )
         sessionCount += 1
         currentTokenCount = 0
+        currentTokenUsage = nil
         notifyStateChange()
     }
 

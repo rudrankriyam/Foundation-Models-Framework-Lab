@@ -195,6 +195,7 @@ brew install afm
 
 swift run afm --help
 swift run afm model status
+swift run afm token-count -i @instructions.md --prompt @prompt.md --breakdown
 swift run afm session respond --prompt "Summarize Foundation Models."
 ```
 
@@ -218,8 +219,9 @@ archived in favor of this shared implementation.
 
 ## Swift Package Products
 
-- `FoundationModelsKit` provides transcript history transforms, token estimation,
-  and context-budget utilities.
+- `FoundationModelsKit` provides transcript history transforms, provenance-aware
+  token accounting shared by the app and CLI, calibrated estimation, and
+  context-budget utilities.
 - `FoundationModelsTools` provides calendar, contacts, health, location, music,
   reminders, weather, web search, and web metadata tools.
 - `FoundationLabCore` provides the shared capability and experiment runtime.

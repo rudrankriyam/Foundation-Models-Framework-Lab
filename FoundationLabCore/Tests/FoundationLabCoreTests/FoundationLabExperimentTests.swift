@@ -97,7 +97,13 @@ final class FoundationLabExperimentTests: XCTestCase {
             duration: 0.75,
             provider: "Apple",
             modelIdentifier: "system-language-model",
-            tokenCount: 11
+            tokenCount: 11,
+            tokenUsage: .init(
+                input: .init(totalTokenCount: 8, cachedTokenCount: 2),
+                output: .init(totalTokenCount: 3, reasoningTokenCount: 1),
+                measurement: .observed,
+                scope: .response
+            )
         )
         let failedRun = FoundationLabExperimentRun(
             configuration: configuration,
@@ -118,6 +124,8 @@ final class FoundationLabExperimentTests: XCTestCase {
         let data = try JSONEncoder().encode(successfulRun)
         let decoded = try JSONDecoder().decode(FoundationLabExperimentRun.self, from: data)
         XCTAssertEqual(decoded, successfulRun)
+        XCTAssertEqual(decoded.tokenUsage?.input.cachedTokenCount, 2)
+        XCTAssertEqual(decoded.tokenUsage?.output?.reasoningTokenCount, 1)
     }
 
     func testCancelledRunRoundTripAndLegacyStatusInference() throws {

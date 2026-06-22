@@ -678,8 +678,19 @@ FoundationModelsTools provides comprehensive token counting and context window m
 #### Features
 
 **Estimation Methods:**
-- `estimatedTokenCount` - Basic token counting using Apple's 4.5 characters per token ratio
+- `estimatedTokenCount` - Calibrated token estimation using 4.75 characters per token
 - `safeEstimatedTokenCount` - Conservative estimate with 25% buffer + 100 token overhead
+- `tokenUsage(using:)` - Exact tokenization on OS 26.4+, with an explicitly labeled estimate fallback
+
+`ModelTokenUsage` is the stable `Codable`, `Hashable`, and `Sendable` projection
+used for automation and persisted evidence. Its measurement is `observed`,
+`tokenized`, or `estimated`; its scope is `response`, `session`, or `context`.
+Cached-input and reasoning-output counts remain optional because older APIs do
+not expose them.
+
+On systems that need the estimator fallback, instruction counts include tool
+definition names, descriptions, and conservative framing overhead. Generation
+schema internals are left to Apple's tokenizer where that API is available.
 
 **Context Management:**
 - `isApproachingLimit(threshold:maxTokens:)` - Check if approaching context limits
@@ -717,6 +728,18 @@ let transcript = Transcript(entries: [
 // Get token estimate
 let tokens = transcript.estimatedTokenCount
 print("Estimated tokens: \(tokens)")
+
+// Prefer exact model tokenization on OS 26.4+, with provenance-aware fallback.
+let usage = await transcript.tokenUsage()
+print("\(usage.totalTokenCount) tokens (\(usage.measurement.rawValue))")
+
+#if compiler(>=6.4)
+if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) {
+    let response = try await LanguageModelSession().respond(to: "Hello")
+    let observed = ModelTokenUsage(observing: response.usage)
+    print("\(observed.input.totalTokenCount) in, \(observed.output?.totalTokenCount ?? 0) out")
+}
+#endif
 
 // Get safe estimate with buffer
 let safeTokens = transcript.safeEstimatedTokenCount
