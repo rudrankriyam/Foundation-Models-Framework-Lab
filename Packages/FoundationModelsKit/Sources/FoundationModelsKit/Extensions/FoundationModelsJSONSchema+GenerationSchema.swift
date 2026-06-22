@@ -53,7 +53,7 @@ extension FoundationModelsJSONSchema {
       case .string:
         if let choices = document.enumValues {
           return DynamicGenerationSchema(
-            name: allocateName(for: components),
+            name: allocateName(for: components, title: document.title),
             description: document.description,
             anyOf: choices
           )
@@ -72,6 +72,7 @@ extension FoundationModelsJSONSchema {
       for document: FoundationModelsJSONSchema,
       components: [String]
     ) throws -> DynamicGenerationSchema {
+      let schemaName = allocateName(for: components, title: document.title)
       let properties = document.properties ?? [:]
       let requiredProperties = Set(document.required ?? [])
       var convertedProperties: [DynamicGenerationSchema.Property] = []
@@ -91,17 +92,20 @@ extension FoundationModelsJSONSchema {
       }
 
       return DynamicGenerationSchema(
-        name: allocateName(for: components),
+        name: schemaName,
         description: components.isEmpty ? rootDescription ?? document.description : document.description,
         properties: convertedProperties
       )
     }
 
-    private mutating func allocateName(for components: [String]) -> String {
+    private mutating func allocateName(for components: [String], title: String?) -> String {
       let suffix = components
         .map { FoundationModelsJSONSchema.convertedSchemaName($0, fallback: "Field") }
         .joined()
-      let preferredName = "\(rootName)\(suffix)"
+      let fallbackName = "\(rootName)\(suffix)"
+      let preferredName = title.map {
+        FoundationModelsJSONSchema.convertedSchemaName($0, fallback: fallbackName)
+      } ?? fallbackName
       guard !allocatedNames.contains(preferredName) else {
         var nextSuffix = nextSuffixByName[preferredName, default: 2]
         var candidate = "\(preferredName)\(nextSuffix)"

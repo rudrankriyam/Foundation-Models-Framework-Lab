@@ -63,6 +63,61 @@ struct JSONSchemaGenerationTests {
     #expect(generationSchema.debugDescription.contains("Schema123ResponseFormat"))
   }
 
+  @Test("Document titles take precedence over caller root names")
+  func documentTitleTakesPrecedence() throws {
+    let objectSchema = FoundationModelsJSONSchema(
+      title: "Echo Payload",
+      type: "object",
+      properties: [:]
+    )
+    let enumSchema = FoundationModelsJSONSchema(
+      title: "Delivery State",
+      type: "string",
+      enumValues: ["queued", "sent"]
+    )
+
+    let objectGenerationSchema = try objectSchema.generationSchema(rootName: "caller object")
+    let enumGenerationSchema = try enumSchema.generationSchema(rootName: "caller enum")
+
+    #expect(objectGenerationSchema.debugDescription.contains("EchoPayload"))
+    #expect(!objectGenerationSchema.debugDescription.contains("CallerObject"))
+    #expect(enumGenerationSchema.debugDescription.contains("DeliveryState"))
+    #expect(!enumGenerationSchema.debugDescription.contains("CallerEnum"))
+  }
+
+  @Test("Nested titles retain deterministic collision-safe identities")
+  func nestedTitlesResolveCollisions() throws {
+    let schema = FoundationModelsJSONSchema(
+      title: "Echo Payload",
+      type: "object",
+      properties: [
+        "details": FoundationModelsJSONSchema(
+          title: "Echo-Payload",
+          type: "object",
+          properties: [:]
+        ),
+        "state": FoundationModelsJSONSchema(
+          title: "Echo_Payload",
+          type: "string",
+          enumValues: ["ready", "done"]
+        ),
+        "zeta": FoundationModelsJSONSchema(
+          title: "Echo Payload",
+          type: "object",
+          properties: [:]
+        )
+      ]
+    )
+
+    let generationSchema = try schema.generationSchema(rootName: "caller root")
+
+    #expect(generationSchema.debugDescription.contains("EchoPayload"))
+    #expect(generationSchema.debugDescription.contains("EchoPayload2"))
+    // Apple omits nested enum names from this JSON; the following object proves the enum reserved suffix 3.
+    #expect(generationSchema.debugDescription.contains("EchoPayload4"))
+    #expect(!generationSchema.debugDescription.contains("CallerRoot"))
+  }
+
   @Test("Converted nested name collisions receive deterministic suffixes")
   func nestedNameCollisionsAreResolved() throws {
     let child = FoundationModelsJSONSchema(type: "object", properties: [:])
