@@ -170,7 +170,7 @@ public final class FoundationLabConversationEngine {
             )
             await updateTokenCount()
             return response
-        } catch LanguageModelSession.GenerationError.exceededContextWindowSize {
+        } catch where FoundationLabModelErrorProjection.isContextOverflow(error) {
             return try await recoverFromContextOverflow(
                 userMessage: prompt,
                 generationOptions: generationOptions,
@@ -196,7 +196,7 @@ public final class FoundationLabConversationEngine {
             )
             await updateTokenCount()
             return response
-        } catch LanguageModelSession.GenerationError.exceededContextWindowSize {
+        } catch where FoundationLabModelErrorProjection.isContextOverflow(error) {
             return try await recoverFromContextOverflow(
                 userMessage: prompt,
                 generationOptions: generationOptions,
