@@ -167,16 +167,19 @@ private extension AgentBridgeController {
 
     private func reconcileEnabledState() async {
         while true {
-            if isEnabled, server == nil {
+            if isEnabled, !hasActiveResources {
                 await start()
-                guard server != nil else { return }
+                guard server != nil else {
+                    if !isEnabled {
+                        resetDisabledStatus()
+                    }
+                    return
+                }
             } else if !isEnabled, hasActiveResources {
                 await stop()
+                guard !hasActiveResources else { return }
             } else {
-                if !isEnabled, status != .notConfigured {
-                    status = bookmarkStore.hasBookmark ? .off : .notConfigured
-                    errorMessage = nil
-                }
+                if !isEnabled { resetDisabledStatus() }
                 return
             }
         }
@@ -288,17 +291,18 @@ private extension AgentBridgeController {
     }
 
     private func cleanFailedStart(server: AFMHTTPServer?, baseDirectory: URL) async -> [String] {
-        var failures: [String] = []
         if let server {
             do {
                 try await server.stop()
             } catch {
-                failures.append(error.localizedDescription)
+                self.server = server
+                activeBaseDirectory = baseDirectory
+                return [error.localizedDescription]
             }
         }
         baseDirectory.stopAccessingSecurityScopedResource()
         releaseProcessLifetimeProtection()
-        return failures
+        return []
     }
 
     private func stop() async {
@@ -308,25 +312,27 @@ private extension AgentBridgeController {
         if let descriptorLease {
             do {
                 try descriptorLease.cleanup()
+                self.descriptorLease = nil
+                descriptorPath = nil
             } catch {
                 failures.append(error.localizedDescription)
             }
         }
-        descriptorLease = nil
-        descriptorPath = nil
 
         if let server {
             do {
                 try await server.stop()
+                self.server = nil
             } catch {
                 failures.append(error.localizedDescription)
             }
         }
-        server = nil
 
-        activeBaseDirectory?.stopAccessingSecurityScopedResource()
-        activeBaseDirectory = nil
-        releaseProcessLifetimeProtection()
+        if server == nil, descriptorLease == nil {
+            activeBaseDirectory?.stopAccessingSecurityScopedResource()
+            activeBaseDirectory = nil
+            releaseProcessLifetimeProtection()
+        }
 
         if failures.isEmpty {
             status = bookmarkStore.hasBookmark ? .off : .notConfigured
@@ -340,9 +346,7 @@ private extension AgentBridgeController {
     }
 
     private func failStart(_ error: any Swift.Error, cleanupFailures: [String] = []) {
-        server = nil
         descriptorLease = nil
-        activeBaseDirectory = nil
         descriptorPath = nil
         status = .failed
 
@@ -353,6 +357,11 @@ private extension AgentBridgeController {
                 localized: "The bridge could not start: \(error.localizedDescription) Cleanup: \(cleanupFailures.joined(separator: " "))"
             )
         }
+    }
+
+    private func resetDisabledStatus() {
+        status = bookmarkStore.hasBookmark ? .off : .notConfigured
+        errorMessage = nil
     }
 
     private func protectProcessLifetime() {
