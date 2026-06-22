@@ -32,7 +32,7 @@ To run live model commands, you still need a supported Apple Intelligence Mac. F
 
 ## Why `afm`
 
-- It gives Foundation Models a direct command-line workflow for prompting, tagging, schemas, tools, transcripts, and feedback.
+- It gives Foundation Models a direct workflow for prompting, tagging, schemas, tools, transcripts, feedback, and local services.
 - It is built for real terminal use: explicit flags, readable help, file-based inputs, and clean JSON output.
 - It works well in automation and agent flows with dry-runs, stdin support, schema and tool directories, and NDJSON-style streaming events.
 - It keeps important runtime controls close at hand, including adapters, use cases, guardrails, schema prompting, and feedback issues.
@@ -52,6 +52,7 @@ afm session stream --prompt "Write a short poem about rain."
 afm tag run --prompt "A joyful dog playing in a sunny park."
 afm schema run typed-person --input "Alex Rivera is a designer in Berlin."
 afm schema run custom --schema person-card --schema-dir .afm/schemas --input @person.txt
+afm serve
 ```
 
 ## Sample Workflows
@@ -169,6 +170,31 @@ Use export commands when you want artifacts you can keep, diff, or send elsewher
 afm transcript export --message "Hello" --message "Summarize our conversation." --file transcript.json
 afm feedback export --prompt "What is the capital of France?" --sentiment positive --issue incorrect --file feedback.json
 ```
+
+### Start the local server
+
+`afm serve` starts a transport for local integrations. This first server surface
+provides `GET /health` and `GET /v1/models`; model inference endpoints are added
+separately.
+
+```bash
+afm serve
+curl http://127.0.0.1:1976/health
+curl http://127.0.0.1:1976/v1/models
+```
+
+The default listener is loopback-only. Cross-site requests are rejected unless
+their exact origin is passed with `--allow-origin`. Add bearer authentication
+with `--token` or the `AFM_SERVER_TOKEN` environment variable:
+
+```bash
+AFM_SERVER_TOKEN="$(openssl rand -hex 32)" afm serve
+afm serve --socket /tmp/afm.sock
+```
+
+A non-loopback binding requires both `--allow-network` and a bearer token. Unix
+sockets are created with mode `0600`, and `afm` refuses to replace regular files,
+symlinks, or active sockets at the requested path.
 
 ## Files, Pipes, And Automation
 

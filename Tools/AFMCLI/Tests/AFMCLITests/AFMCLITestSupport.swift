@@ -90,7 +90,7 @@ private func decodedOutput(_ data: Data) -> String {
         .trimmingCharacters(in: .whitespacesAndNewlines)
 }
 
-private func findAFMBinary() throws -> URL {
+func findAFMBinary() throws -> URL {
     let root = packageRoot()
     let directCandidates = [
         root.appending(path: ".build/debug/afm"),
@@ -114,7 +114,7 @@ private func findAFMBinary() throws -> URL {
     throw TestFailure("Could not find built afm executable under \(buildRoot.path())")
 }
 
-private func packageRoot() -> URL {
+func packageRoot() -> URL {
     var directory = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
 
     while directory.path != "/" {

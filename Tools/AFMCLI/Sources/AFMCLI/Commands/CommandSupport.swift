@@ -397,6 +397,9 @@ enum HelpText {
       transcript   Export transcript data from a session flow.
       feedback     Export Foundation Models feedback attachments.
 
+    SERVER COMMANDS
+      serve        Serve local HTTP endpoints over TCP or a Unix-domain socket.
+
     QUICK START
       afm model status
       afm model use-cases
@@ -415,6 +418,7 @@ enum HelpText {
       afm tool inspect --tool demo-weather
       afm transcript export --message "Hello" --message "Summarize this conversation." --file transcript.json
       afm feedback export --prompt "What is the capital of France?" --sentiment positive --file feedback.json
+      afm serve
     """
 
     static let session = """
@@ -434,7 +438,10 @@ enum HelpText {
 }
 
 func suggestRootCommand(for input: String) -> String? {
-    let commands = ["model", "token-count", "tag", "session", "schema", "tool", "transcript", "feedback", "help", "version"]
+    let commands = [
+        "model", "token-count", "tag", "session", "schema", "tool", "transcript", "feedback", "serve", "help",
+        "version"
+    ]
     return suggestCommand(input, in: commands)
 }
 
