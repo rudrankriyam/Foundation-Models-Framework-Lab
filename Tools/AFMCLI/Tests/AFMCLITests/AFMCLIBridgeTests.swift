@@ -299,6 +299,51 @@ func bridgeDescriptorRotationRetryPolicy() async throws {
     #expect(nonRetryingAttempts == 1)
 }
 
+@Test("Bridge descriptor rotation never retries a cancelled operation")
+func bridgeDescriptorRotationCancellation() async throws {
+    let parent = try makeBridgeTemporaryDirectory()
+    defer { try? FileManager.default.removeItem(at: parent) }
+    let descriptor = parent.appending(path: "connection.json")
+    let paths = ResolvedBridgePaths(
+        baseDirectory: nil,
+        bridgeDirectory: parent.path(),
+        descriptorPath: descriptor.path(),
+        descriptorFileName: descriptor.lastPathComponent
+    )
+    try writeBridgeDescriptor(
+        at: descriptor,
+        port: 19_760,
+        token: String(repeating: "c", count: 43),
+        processIdentifier: getpid()
+    )
+
+    var attemptedLaunchIdentifiers: [UUID] = []
+    do {
+        let _: (host: AFMBridgeCommandConnection, response: Int) = try await performBridgeRequest(
+            paths: paths
+        ) { host in
+            attemptedLaunchIdentifiers.append(host.descriptor.launchIdentifier)
+            try writeBridgeDescriptor(
+                at: descriptor,
+                port: 19_761,
+                token: String(repeating: "d", count: 43),
+                processIdentifier: getpid()
+            )
+            throw CancellationError()
+        }
+        Issue.record("Expected cancellation")
+    } catch is CancellationError {
+        // Expected.
+    } catch {
+        Issue.record("Expected CancellationError, got \(error)")
+    }
+
+    #expect(attemptedLaunchIdentifiers.count == 1)
+    let attemptedLaunchIdentifier = try #require(attemptedLaunchIdentifiers.first)
+    let rotatedDescriptor = try paths.readDescriptor()
+    #expect(rotatedDescriptor.launchIdentifier != attemptedLaunchIdentifier)
+}
+
 @Test("Bridge command connections preserve request cancellation")
 func bridgeCommandConnectionCancellation() async throws {
     let token = String(repeating: "c", count: 43)

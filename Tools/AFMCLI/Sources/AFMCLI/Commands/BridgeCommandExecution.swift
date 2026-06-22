@@ -23,7 +23,10 @@ func performBridgeRequest<Response: Sendable>(
     let firstHost = try AFMBridgeCommandConnection.connect(paths: paths)
     do {
         return (firstHost, try await operation(firstHost))
+    } catch is CancellationError {
+        throw CancellationError()
     } catch {
+        try Task.checkCancellation()
         guard retryAfterDescriptorRotation,
               let replacementDescriptor = try? paths.readDescriptor(),
               replacementDescriptor.launchIdentifier != firstHost.descriptor.launchIdentifier,
