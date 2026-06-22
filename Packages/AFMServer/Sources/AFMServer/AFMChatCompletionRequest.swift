@@ -51,6 +51,7 @@ public struct AFMChatGenerationRequest: Sendable, Equatable {
     public let temperature: Double?
     public let topP: Double?
     public let maximumCompletionTokens: Int?
+    public let responseFormat: AFMChatResponseFormat?
     public let tools: [AFMChatToolDefinition]
     public let toolChoice: AFMChatToolChoice
     public let parallelToolCalls: Bool
@@ -63,6 +64,7 @@ public struct AFMChatGenerationRequest: Sendable, Equatable {
         temperature: Double? = nil,
         topP: Double? = nil,
         maximumCompletionTokens: Int? = nil,
+        responseFormat: AFMChatResponseFormat? = nil,
         tools: [AFMChatToolDefinition] = [],
         parallelToolCalls: Bool = true
     ) {
@@ -74,6 +76,7 @@ public struct AFMChatGenerationRequest: Sendable, Equatable {
             temperature: temperature,
             topP: topP,
             maximumCompletionTokens: maximumCompletionTokens,
+            responseFormat: responseFormat,
             tools: tools,
             toolChoice: tools.isEmpty ? .none : .auto,
             parallelToolCalls: parallelToolCalls
@@ -88,6 +91,7 @@ public struct AFMChatGenerationRequest: Sendable, Equatable {
         temperature: Double? = nil,
         topP: Double? = nil,
         maximumCompletionTokens: Int? = nil,
+        responseFormat: AFMChatResponseFormat? = nil,
         tools: [AFMChatToolDefinition] = [],
         toolChoice: AFMChatToolChoice,
         parallelToolCalls: Bool = true
@@ -99,6 +103,7 @@ public struct AFMChatGenerationRequest: Sendable, Equatable {
         self.temperature = temperature
         self.topP = topP
         self.maximumCompletionTokens = maximumCompletionTokens
+        self.responseFormat = responseFormat
         self.tools = tools
         self.toolChoice = toolChoice
         self.parallelToolCalls = parallelToolCalls
@@ -115,7 +120,6 @@ extension AFMChatGenerationRequest: Decodable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: AFMJSONKey.self)
         try rejectUnknownFields(in: container, allowed: Self.allowedFields, decoder: decoder)
-        try rejectUnsupportedFields(["response_format"], in: container, decoder: decoder)
 
         let model = try container.decodeIfPresent(String.self, forKey: .init("model")) ?? "system"
         guard container.contains(.init("messages")) else {
@@ -134,11 +138,12 @@ extension AFMChatGenerationRequest: Decodable {
             forKey: .init("max_completion_tokens")
         )
         let legacyMaximumTokens = try container.decodeIfPresent(Int.self, forKey: .init("max_tokens"))
-        let tools = try container.decodeIfPresent([AFMChatToolDefinition].self, forKey: .init("tools")) ?? []
-        let explicitToolChoice = try container.decodeIfPresent(
-            AFMChatToolChoice.self,
-            forKey: .init("tool_choice")
+        let responseFormat = try container.decodeIfPresent(
+            AFMChatResponseFormat.self,
+            forKey: .init("response_format")
         )
+        let tools = try container.decodeIfPresent([AFMChatToolDefinition].self, forKey: .init("tools")) ?? []
+        let explicitToolChoice = try container.decodeIfPresent(AFMChatToolChoice.self, forKey: .init("tool_choice"))
         let toolChoice = explicitToolChoice ?? (tools.isEmpty ? .none : .auto)
         let parallelToolCalls = try container.decodeIfPresent(
             Bool.self,
@@ -169,6 +174,7 @@ extension AFMChatGenerationRequest: Decodable {
             temperature: temperature,
             topP: topP,
             maximumCompletionTokens: maximumCompletionTokens ?? legacyMaximumTokens,
+            responseFormat: responseFormat,
             tools: tools,
             toolChoice: toolChoice,
             parallelToolCalls: parallelToolCalls

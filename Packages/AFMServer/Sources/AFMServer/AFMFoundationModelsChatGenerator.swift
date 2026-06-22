@@ -36,16 +36,15 @@ public struct AFMFoundationModelsChatGenerator: AFMChatCompletionGenerating {
         let session = try sessionBuilder(request.model, toolRuntime.tools, prepared.transcript)
 
         do {
-            let response = try await session.respond(to: prepared.prompt, options: prepared.options)
+            let result = try await generationResult(
+                for: request,
+                prepared: prepared,
+                session: session
+            )
             guard !request.toolChoice.requiresInvocation else {
                 throw AFMChatGenerationError.requiredToolNotCalled
             }
-            let usage = await responseUsage(response, prepared: prepared)
-            return AFMChatGenerationResult(
-                content: response.content,
-                finishReason: finishReason(for: request, usage: usage),
-                usage: usage
-            )
+            return result
         } catch let error as LanguageModelSession.ToolCallError where error.isAFMChatToolCapture {
             return try await toolCallResult(runtime: toolRuntime, prepared: prepared)
         } catch {
@@ -66,38 +65,23 @@ public struct AFMFoundationModelsChatGenerator: AFMChatCompletionGenerating {
             toolDefinitions: toolRuntime.transcriptDefinitions
         )
         let session = try sessionBuilder(request.model, toolRuntime.tools, prepared.transcript)
-        let responseStream = session.streamResponse(to: prepared.prompt, options: prepared.options)
-        var accumulator = AFMSnapshotDeltaAccumulator()
 
         do {
-            for try await snapshot in responseStream {
-                try Task.checkCancellation()
-                let delta = try accumulator.append(snapshot: snapshot.content)
-                if !toolRuntime.isActive, !delta.isEmpty {
-                    try await event(.contentDelta(delta))
-                }
+            if prepared.responseSchema != nil {
+                return try await streamStructuredResponse(
+                    request: request,
+                    prepared: prepared,
+                    session: session,
+                    emitting: event
+                )
             }
-
-            try Task.checkCancellation()
-            let response = try await responseStream.collect()
-            let finalDelta = try accumulator.append(snapshot: response.content)
-            if !toolRuntime.isActive, !finalDelta.isEmpty {
-                try await event(.contentDelta(finalDelta))
-            }
-            if toolRuntime.isActive, !response.content.isEmpty {
-                try await event(.contentDelta(response.content))
-            }
-            try Task.checkCancellation()
-            guard !request.toolChoice.requiresInvocation else {
-                throw AFMChatGenerationError.requiredToolNotCalled
-            }
-            let usage = await responseUsage(response, prepared: prepared)
-            let result = AFMChatGenerationResult(
-                content: response.content,
-                finishReason: finishReason(for: request, usage: usage),
-                usage: usage
+            return try await streamTextResponse(
+                request: request,
+                prepared: prepared,
+                session: session,
+                toolRuntime: toolRuntime,
+                emitting: event
             )
-            return result
         } catch let error as LanguageModelSession.ToolCallError where error.isAFMChatToolCapture {
             return try await toolCallResult(runtime: toolRuntime, prepared: prepared)
         } catch {
@@ -107,22 +91,125 @@ public struct AFMFoundationModelsChatGenerator: AFMChatCompletionGenerating {
             throw Self.mappedError(error)
         }
     }
+}
 
-    private func responseUsage(
-        _ response: LanguageModelSession.Response<String>,
-        prepared: AFMPreparedChatGeneration
-    ) async -> ModelTokenUsage {
+private extension AFMFoundationModelsChatGenerator {
+    func streamStructuredResponse(
+        request: AFMChatGenerationRequest,
+        prepared: AFMPreparedChatGeneration,
+        session: LanguageModelSession,
+        emitting event: @escaping @Sendable (AFMChatGenerationEvent) async throws -> Void
+    ) async throws -> AFMChatGenerationResult {
+        let result = try await generationResult(for: request, prepared: prepared, session: session)
+        try Task.checkCancellation()
+        if let content = result.content, !content.isEmpty {
+            try await event(.contentDelta(content))
+        }
+        guard !request.toolChoice.requiresInvocation else {
+            throw AFMChatGenerationError.requiredToolNotCalled
+        }
+        return result
+    }
+
+    func streamTextResponse(
+        request: AFMChatGenerationRequest,
+        prepared: AFMPreparedChatGeneration,
+        session: LanguageModelSession,
+        toolRuntime: AFMChatToolRuntime,
+        emitting event: @escaping @Sendable (AFMChatGenerationEvent) async throws -> Void
+    ) async throws -> AFMChatGenerationResult {
+        let responseStream = session.streamResponse(to: prepared.prompt, options: prepared.options)
+        var accumulator = AFMSnapshotDeltaAccumulator()
+        for try await snapshot in responseStream {
+            try Task.checkCancellation()
+            let delta = try accumulator.append(snapshot: snapshot.content)
+            if !toolRuntime.isActive, !delta.isEmpty {
+                try await event(.contentDelta(delta))
+            }
+        }
+
+        try Task.checkCancellation()
+        let response = try await responseStream.collect()
+        let finalDelta = try accumulator.append(snapshot: response.content)
+        if !toolRuntime.isActive, !finalDelta.isEmpty {
+            try await event(.contentDelta(finalDelta))
+        }
+        if toolRuntime.isActive, !response.content.isEmpty {
+            try await event(.contentDelta(response.content))
+        }
+        try Task.checkCancellation()
+        guard !request.toolChoice.requiresInvocation else {
+            throw AFMChatGenerationError.requiredToolNotCalled
+        }
+        let usage = await responseUsage(
+            response,
+            prepared: prepared,
+            fallbackOutput: outputEntry(response.content)
+        )
+        return AFMChatGenerationResult(
+            content: response.content,
+            finishReason: finishReason(for: request, usage: usage),
+            usage: usage
+        )
+    }
+
+    func generationResult(
+        for request: AFMChatGenerationRequest,
+        prepared: AFMPreparedChatGeneration,
+        session: LanguageModelSession
+    ) async throws -> AFMChatGenerationResult {
+        if let responseSchema = prepared.responseSchema {
+            let response = try await session.respond(
+                to: prepared.prompt,
+                schema: responseSchema.generationSchema,
+                includeSchemaInPrompt: true,
+                options: prepared.options
+            )
+            let content = response.content.jsonString
+            let usage = await responseUsage(
+                response,
+                prepared: prepared,
+                fallbackOutput: structuredOutputEntry(
+                    response.content,
+                    source: responseSchema.name
+                )
+            )
+            return AFMChatGenerationResult(
+                content: content,
+                finishReason: finishReason(for: request, usage: usage),
+                usage: usage
+            )
+        }
+
+        let response = try await session.respond(to: prepared.prompt, options: prepared.options)
+        let usage = await responseUsage(
+            response,
+            prepared: prepared,
+            fallbackOutput: outputEntry(response.content)
+        )
+        return AFMChatGenerationResult(
+            content: response.content,
+            finishReason: finishReason(for: request, usage: usage),
+            usage: usage
+        )
+    }
+
+    private func responseUsage<Content>(
+        _ response: LanguageModelSession.Response<Content>,
+        prepared: AFMPreparedChatGeneration,
+        fallbackOutput: Transcript.Entry
+    ) async -> ModelTokenUsage where Content: Generable {
         #if compiler(>=6.4)
         if #available(iOS 27.0, macOS 27.0, *) {
             return ModelTokenUsage(observing: response.usage)
         }
         #endif
 
-        return await fallbackUsage(input: prepared.inputTranscript, output: response.content)
+        return await fallbackUsage(prepared: prepared, output: fallbackOutput)
     }
 
     private func refusalResult(prepared: AFMPreparedChatGeneration) async -> AFMChatGenerationResult {
-        let inputUsage = await prepared.inputTranscript.tokenUsage(using: .default)
+        let inputUsage = await fallbackInputUsage(prepared: prepared)
         let usage = ModelTokenUsage(
             input: .init(totalTokenCount: inputUsage.totalTokenCount),
             output: .init(totalTokenCount: 0),
@@ -146,7 +233,7 @@ public struct AFMFoundationModelsChatGenerator: AFMChatCompletionGenerating {
             throw AFMChatGenerationError.unsupportedInput
         }
         let output = try toolCallsEntry(calls)
-        let usage = await fallbackUsage(input: prepared.inputTranscript, output: output)
+        let usage = await fallbackUsage(prepared: prepared, output: output)
         return AFMChatGenerationResult(
             content: nil,
             finishReason: .toolCalls,
@@ -168,23 +255,26 @@ public struct AFMFoundationModelsChatGenerator: AFMChatCompletionGenerating {
         return .length
     }
 
-    private func fallbackUsage(input: Transcript, output: String) async -> ModelTokenUsage {
-        await fallbackUsage(input: input, output: outputEntry(output))
-    }
-
-    private func fallbackUsage(input: Transcript, output: Transcript.Entry) async -> ModelTokenUsage {
-        async let inputUsage = input.tokenUsage(using: .default)
+    private func fallbackUsage(
+        prepared: AFMPreparedChatGeneration,
+        output: Transcript.Entry
+    ) async -> ModelTokenUsage {
+        async let inputUsage = fallbackInputUsage(prepared: prepared)
         async let outputUsage = output.tokenUsage(using: .default)
         let (resolvedInput, resolvedOutput) = await (inputUsage, outputUsage)
-        let measurement: ModelTokenUsage.Measurement =
-            resolvedInput.measurement == .tokenized && resolvedOutput.measurement == .tokenized
-            ? .tokenized
-            : .estimated
-        return ModelTokenUsage(
-            input: .init(totalTokenCount: resolvedInput.totalTokenCount),
-            output: .init(totalTokenCount: resolvedOutput.totalTokenCount),
-            measurement: measurement,
-            scope: .response
+        return Self.responseScopedFallbackUsage(
+            input: resolvedInput,
+            output: resolvedOutput
+        )
+    }
+
+    private func fallbackInputUsage(
+        prepared: AFMPreparedChatGeneration
+    ) async -> ModelTokenUsage {
+        let usage = await prepared.inputTranscript.tokenUsage(using: .default)
+        return Self.schemaAwareFallbackInputUsage(
+            transcriptUsage: usage,
+            schemaText: prepared.responseSchema?.fallbackTokenText
         )
     }
 
@@ -202,179 +292,51 @@ public struct AFMFoundationModelsChatGenerator: AFMChatCompletionGenerating {
         }
         return .toolCalls(.init(transcriptCalls))
     }
+
+    private func structuredOutputEntry(
+        _ content: GeneratedContent,
+        source: String
+    ) -> Transcript.Entry {
+        .response(
+            .init(
+                assetIDs: [],
+                segments: [.structure(.init(source: source, content: content))]
+            )
+        )
+    }
 }
 
-struct AFMPreparedChatGeneration {
-    let transcript: Transcript
-    let prompt: Prompt
-    let inputTranscript: Transcript
-    let options: GenerationOptions
-}
-
-enum AFMChatTranscriptBuilder {
-    static func prepare(
-        _ request: AFMChatGenerationRequest,
-        toolDefinitions: [Transcript.ToolDefinition] = []
-    ) throws -> AFMPreparedChatGeneration {
-        guard !request.messages.isEmpty else {
-            throw AFMChatGenerationError.unsupportedInput
+extension AFMFoundationModelsChatGenerator {
+    static func schemaAwareFallbackInputUsage(
+        transcriptUsage: ModelTokenUsage,
+        schemaText: String?
+    ) -> ModelTokenUsage {
+        // Apple's tokenizer receives the prompt responseFormat in the transcript.
+        // Only the text estimator needs the schema added separately.
+        guard transcriptUsage.measurement == .estimated, let schemaText else {
+            return transcriptUsage
         }
-        let finalMessage = request.messages[request.messages.index(before: request.messages.endIndex)]
-        let history = finalMessage.role == .user ? request.messages.dropLast() : request.messages[...]
-        let entries = try transcriptEntries(for: history)
-        let promptContent = activePromptContent(for: finalMessage)
-        let prompt = Prompt(promptContent)
-        let inputPrompt = Transcript.Prompt(segments: segments(promptContent))
-        let inputEntries = adding(toolDefinitions, to: entries) + [.prompt(inputPrompt)]
-        let inputTranscript = Transcript(entries: inputEntries)
-        let transcript = Transcript(entries: entries)
-        return AFMPreparedChatGeneration(
-            transcript: transcript,
-            prompt: prompt,
-            inputTranscript: inputTranscript,
-            options: try generationOptions(for: request)
+        return ModelTokenUsage(
+            inputTokenCount: transcriptUsage.input.totalTokenCount + estimateTokens(from: schemaText),
+            measurement: .estimated,
+            scope: transcriptUsage.scope
         )
     }
 
-    private static func adding(
-        _ toolDefinitions: [Transcript.ToolDefinition],
-        to entries: [Transcript.Entry]
-    ) -> [Transcript.Entry] {
-        guard !toolDefinitions.isEmpty else { return entries }
-        var result = entries
-        if let first = result.first, case .instructions(let instructions) = first {
-            result[0] = .instructions(
-                .init(
-                    id: instructions.id,
-                    segments: instructions.segments,
-                    toolDefinitions: instructions.toolDefinitions + toolDefinitions
-                )
-            )
-        } else {
-            result.insert(
-                .instructions(.init(segments: [], toolDefinitions: toolDefinitions)),
-                at: 0
-            )
-        }
-        return result
-    }
-
-    static func segments(_ content: [String]) -> [Transcript.Segment] {
-        content.map { .text(.init(content: $0)) }
-    }
-
-    private static func transcriptEntries(
-        for messages: ArraySlice<AFMChatMessage>
-    ) throws -> [Transcript.Entry] {
-        var entries: [Transcript.Entry] = []
-        var toolNames: [String: String] = [:]
-        let instructionMessages = messages.prefix { $0.role == .system || $0.role == .developer }
-        let instructionSegments = instructionMessages.flatMap { segments($0.contentSegments ?? []) }
-        if !instructionSegments.isEmpty {
-            entries.append(.instructions(.init(segments: instructionSegments, toolDefinitions: [])))
-        }
-
-        for message in messages.dropFirst(instructionMessages.count) {
-            try append(message, to: &entries, toolNames: &toolNames)
-        }
-        return entries
-    }
-
-    private static func append(
-        _ message: AFMChatMessage,
-        to entries: inout [Transcript.Entry],
-        toolNames: inout [String: String]
-    ) throws {
-        switch message.role {
-        case .system, .developer:
-            break
-        case .user:
-            entries.append(.prompt(.init(segments: segments(message.contentSegments ?? []))))
-        case .assistant:
-            try appendAssistant(message, to: &entries, toolNames: &toolNames)
-        case .tool:
-            try appendToolOutput(message, to: &entries, toolNames: toolNames)
-        }
-    }
-
-    private static func appendAssistant(
-        _ message: AFMChatMessage,
-        to entries: inout [Transcript.Entry],
-        toolNames: inout [String: String]
-    ) throws {
-        if let content = message.contentSegments {
-            entries.append(.response(.init(assetIDs: [], segments: segments(content))))
-        }
-        guard !message.toolCalls.isEmpty else { return }
-        let calls = try message.toolCalls.map { call in
-            toolNames[call.id] = call.name
-            return Transcript.ToolCall(
-                id: call.id,
-                toolName: call.name,
-                arguments: try GeneratedContent(json: call.arguments)
-            )
-        }
-        entries.append(.toolCalls(.init(calls)))
-    }
-
-    private static func appendToolOutput(
-        _ message: AFMChatMessage,
-        to entries: inout [Transcript.Entry],
-        toolNames: [String: String]
-    ) throws {
-        guard let identifier = message.toolCallID,
-              let toolName = message.name ?? toolNames[identifier] else {
-            throw AFMChatGenerationError.unsupportedInput
-        }
-        entries.append(
-            .toolOutput(
-                .init(
-                    id: identifier,
-                    toolName: toolName,
-                    segments: segments(message.contentSegments ?? [])
-                )
-            )
+    static func responseScopedFallbackUsage(
+        input: ModelTokenUsage,
+        output: ModelTokenUsage
+    ) -> ModelTokenUsage {
+        let measurement: ModelTokenUsage.Measurement =
+            input.measurement == .tokenized && output.measurement == .tokenized
+            ? .tokenized
+            : .estimated
+        return ModelTokenUsage(
+            input: .init(totalTokenCount: input.totalTokenCount),
+            output: .init(totalTokenCount: output.totalTokenCount),
+            measurement: measurement,
+            scope: .response
         )
-    }
-
-    private static func activePromptContent(for finalMessage: AFMChatMessage) -> [String] {
-        if finalMessage.role == .user {
-            return finalMessage.contentSegments ?? []
-        }
-        return [""]
-    }
-
-    private static func generationOptions(for request: AFMChatGenerationRequest) throws -> GenerationOptions {
-        let sampling = request.topP.map { GenerationOptions.SamplingMode.random(probabilityThreshold: $0) }
-        #if compiler(>=6.4)
-        var options = GenerationOptions(
-            samplingMode: sampling,
-            temperature: request.temperature,
-            maximumResponseTokens: request.maximumCompletionTokens
-        )
-        if #available(iOS 27.0, macOS 27.0, *) {
-            switch request.toolChoice {
-            case .auto:
-                options.toolCallingMode = .allowed
-            case .none:
-                options.toolCallingMode = .disallowed
-            case .required, .function:
-                options.toolCallingMode = .required
-            }
-        } else if request.toolChoice.requiresInvocation {
-            throw AFMChatGenerationError.unsupportedToolChoice
-        }
-        return options
-        #else
-        guard !request.toolChoice.requiresInvocation else {
-            throw AFMChatGenerationError.unsupportedToolChoice
-        }
-        return GenerationOptions(
-            sampling: sampling,
-            temperature: request.temperature,
-            maximumResponseTokens: request.maximumCompletionTokens
-        )
-        #endif
     }
 }
 

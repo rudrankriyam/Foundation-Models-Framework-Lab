@@ -195,6 +195,9 @@ curl -N http://127.0.0.1:1976/v1/chat/completions \
   -d '{"model":"system","messages":[{"role":"user","content":"Hello"}],"stream":true,"stream_options":{"include_usage":true},"tools":[],"tool_choice":"auto"}'
 curl http://127.0.0.1:1976/v1/chat/completions \
   -H 'Content-Type: application/json' \
+  -d '{"model":"system","messages":[{"role":"user","content":"Extract a name from Ada Lovelace."}],"response_format":{"type":"json_schema","json_schema":{"name":"person","strict":true,"schema":{"type":"object","properties":{"name":{"type":"string"}},"required":["name"],"additionalProperties":false}}}}'
+curl http://127.0.0.1:1976/v1/chat/completions \
+  -H 'Content-Type: application/json' \
   -d '{"model":"system","messages":[{"role":"user","content":"What is the weather in Paris?"}],"tools":[{"type":"function","function":{"name":"get_weather","description":"Report a weather lookup request.","parameters":{"type":"object","properties":{"city":{"type":"string"}},"required":["city"],"additionalProperties":false}}}],"tool_choice":"auto"}'
 ```
 
@@ -221,19 +224,21 @@ optional or required properties, nested objects, arrays, strings, string enums,
 integers, numbers, and booleans. Unsupported JSON Schema keywords receive a
 field-specific `400`. `strict: true` additionally requires every object to set
 `additionalProperties: false` and list every property as required, recursively.
-Requests are capped at 16 definitions, 64 KiB per schema,
-and 128 KiB combined; one response may report at most 32 calls. Tool-enabled
-streams are buffered until the runtime either finishes normally or reports tool
-calls, preventing Foundation Models' internal tool representation from appearing
-as content deltas.
+Requests are capped at 16 definitions, 64 KiB per schema, and 128 KiB combined;
+one response may report at most 32 calls. Tool-enabled streams are buffered until
+the runtime either finishes normally or reports tool calls, preventing Foundation
+Models' internal tool representation from appearing as content deltas.
 
-Image parts and unsupported response formats return a precise `400`. Responses
-include input/output usage plus an `afm_measurement`
-value of `observed`, `tokenized`, or `estimated` so fallback counts are never
-presented as runtime observation. Sentinel-stopped tool calls are counted from
-the input transcript (including active definitions) and a synthetic tool-call
-output entry, so they are reported as `tokenized` or `estimated`, never
-`observed`.
+`response_format` accepts `text` and `json_schema`; structured responses return
+JSON text in `message.content`, and structured streams emit the complete JSON
+document as one content delta. The older `json_object` mode is not supported.
+Properties omitted from `required` are optional. Image parts and unsupported
+response formats return a precise `400`. Responses include input/output usage
+plus an `afm_measurement` value of `observed`, `tokenized`, or `estimated` so
+fallback counts are never presented as runtime observation. Sentinel-stopped
+tool calls are counted from the input transcript (including active definitions)
+and a synthetic tool-call output entry, so they are reported as `tokenized` or
+`estimated`, never `observed`.
 
 Generation concurrency defaults to one and excess requests receive `429`
 without being queued. Configure it with `--max-concurrent-generations`; use

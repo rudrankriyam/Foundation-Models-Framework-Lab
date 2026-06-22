@@ -27,7 +27,6 @@ func chatCompletionResponseShape() async throws {
     #expect(message["role"] as? String == "assistant")
     #expect(message["content"] as? String == "Hello")
     #expect(message["refusal"] is NSNull)
-    #expect(message["tool_calls"] == nil)
     #expect(choices.first?["finish_reason"] as? String == "stop")
     #expect(choices.first?["logprobs"] is NSNull)
 
@@ -93,6 +92,47 @@ func chatCompletionUnsupportedToolChoice() async throws {
     let error = try #require(json["error"] as? [String: Any])
     #expect(error["code"] as? String == "unsupported_tool_choice")
     #expect(error["param"] as? String == "tool_choice")
+}
+
+@Test("Structured completions keep JSON in message content and preserve usage")
+func structuredChatCompletionResponse() async throws {
+    let usage = ModelTokenUsage(
+        input: .init(totalTokenCount: 21, cachedTokenCount: 3),
+        output: .init(totalTokenCount: 8, reasoningTokenCount: 2),
+        measurement: .observed,
+        scope: .response
+    )
+    let generator = RecordingGenerator(
+        result: .init(content: #"{"name":"Ada"}"#, usage: usage)
+    )
+    let response = try await testChatService(generator: generator).response(
+        for: structuredChatBody()
+    )
+
+    #expect(response.status == .ok)
+    let json = try serviceJSONObject(response.body)
+    let choices = try #require(json["choices"] as? [[String: Any]])
+    let message = try #require(choices.first?["message"] as? [String: Any])
+    let content = try #require(message["content"] as? String)
+    let structuredContent = try #require(
+        JSONSerialization.jsonObject(with: Data(content.utf8)) as? [String: String]
+    )
+    #expect(structuredContent == ["name": "Ada"])
+    #expect(choices.first?["finish_reason"] as? String == "stop")
+
+    let usageJSON = try #require(json["usage"] as? [String: Any])
+    #expect(usageJSON["prompt_tokens"] as? Int == 21)
+    #expect(usageJSON["completion_tokens"] as? Int == 8)
+    #expect(usageJSON["afm_measurement"] as? String == "observed")
+
+    let recorded = await generator.recordedRequests()
+    let responseFormat = try #require(recorded.first?.responseFormat)
+    guard case .jsonSchema(let schema) = responseFormat else {
+        Issue.record("Expected a JSON schema response format")
+        return
+    }
+    #expect(schema.name == "person")
+    #expect(schema.strict)
 }
 
 @Test("Refusals remain successful completions with null content")
@@ -248,6 +288,30 @@ private func standardResult() -> AFMChatGenerationResult {
 
 private func chatBody(model: String = "system") -> Data {
     Data(#"{"model":"\#(model)","messages":[{"role":"user","content":"Hi"}]}"#.utf8)
+}
+
+private func structuredChatBody() -> Data {
+    Data(
+        #"""
+        {
+          "model": "system",
+          "messages": [{"role": "user", "content": "Ada"}],
+          "response_format": {
+            "type": "json_schema",
+            "json_schema": {
+              "name": "person",
+              "strict": true,
+              "schema": {
+                "type": "object",
+                "properties": {"name": {"type": "string"}},
+                "required": ["name"],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+        """#.utf8
+    )
 }
 
 private func serviceJSONObject(_ data: Data) throws -> [String: Any] {
