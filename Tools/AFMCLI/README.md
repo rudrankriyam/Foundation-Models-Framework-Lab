@@ -53,6 +53,10 @@ afm tag run --prompt "A joyful dog playing in a sunny park."
 afm schema run typed-person --input "Alex Rivera is a designer in Berlin."
 afm schema run custom --schema person-card --schema-dir .afm/schemas --input @person.txt
 afm serve
+afm bridge prepare
+afm bridge ensure
+afm bridge status
+afm bridge chat --model pcc --prompt "Explain this change."
 ```
 
 ## Sample Workflows
@@ -210,6 +214,47 @@ afm serve --socket /tmp/afm.sock
 A non-loopback binding requires both `--allow-network` and a bearer token. Unix
 sockets are created with mode `0600`, and `afm` refuses to replace regular files,
 symlinks, or active sockets at the requested path.
+
+### Use the signed Agent Bridge
+
+`afm bridge` lets terminals, scripts, and coding agents use Foundation Lab as a
+signed local host. The client itself needs no TTY and does not need to inherit
+the app's entitlements. Foundation Lab performs the model request and exposes
+only an authenticated local endpoint.
+
+Prepare the shared directory once, choose `~/.afm` in Foundation Lab's Agent
+Bridge settings, and start the bridge:
+
+```bash
+afm bridge prepare
+afm bridge ensure
+afm bridge models
+afm bridge chat --prompt "Summarize this repository."
+afm bridge chat --model pcc --max-tokens 512 --temperature 0.2 --prompt @prompt.md
+```
+
+The default descriptor is `~/.afm/bridge/connection.json`. Use `--base` to
+prepare or inspect another shared base directory, or `--descriptor` to read a
+specific descriptor file:
+
+```bash
+afm bridge status --descriptor /absolute/path/to/connection.json
+```
+
+`afm bridge ensure` (also available as `afm bridge launch`) first checks the
+authenticated health endpoint. If the host is not reachable, it launches
+Foundation Lab in the background with `/usr/bin/open -gj` and waits up to 20
+seconds for the bridge. Use `--app /path/to/Foundation Lab.app` for a specific
+build and `--timeout` to adjust the bounded wait.
+
+The descriptor is validated as a current-user-only regular file. Its bearer
+credential is used internally and is never included in text, JSON, verbose, or
+dry-run output. Missing, stale, and unreachable hosts fail with instructions to
+restart Agent Bridge instead of waiting for terminal interaction.
+
+Preparation never changes permissions on an existing base directory. Existing
+directories must already be owned by the current user with mode `0700`; unsafe
+or overly broad modes are rejected without modification.
 
 ## Files, Pipes, And Automation
 

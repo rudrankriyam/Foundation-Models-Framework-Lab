@@ -22,7 +22,8 @@ struct AFMRootCommand: AsyncParsableCommand {
             ToolCommand.self,
             TranscriptCommand.self,
             FeedbackCommand.self,
-            ServeCommand.self
+            ServeCommand.self,
+            BridgeCommand.self
         ]
     )
 
@@ -43,7 +44,8 @@ struct AFMRootCommand: AsyncParsableCommand {
             name: Self.configuration.commandName ?? "afm",
             summary: "Workflow-first CLI for Foundation Models sessions, schemas, tools, exports, and local services.",
             commands: [
-                "model", "token-count", "tag", "session", "schema", "tool", "transcript", "feedback", "serve"
+                "model", "token-count", "tag", "session", "schema", "tool", "transcript", "feedback", "serve",
+                "bridge"
             ]
         )
         let human: String

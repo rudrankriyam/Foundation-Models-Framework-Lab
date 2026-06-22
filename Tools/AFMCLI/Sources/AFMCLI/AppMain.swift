@@ -20,7 +20,7 @@ struct AFMEntryPoint {
 
         let rootCommands = [
             "model", "token-count", "tag", "session", "schema", "tool", "transcript", "feedback", "serve",
-            "help", "version"
+            "bridge", "help", "version"
         ]
         if !rootCommands.contains(firstArgument) {
             if let suggestion = suggestRootCommand(for: firstArgument) {
@@ -40,7 +40,8 @@ struct AFMEntryPoint {
             "schema": ["list", "run"],
             "tool": ["inspect", "validate", "call"],
             "transcript": ["export"],
-            "feedback": ["export"]
+            "feedback": ["export"],
+            "bridge": ["prepare", "ensure", "launch", "status", "models", "chat"]
         ]
 
         guard let knownSubcommands = subcommands[firstArgument],

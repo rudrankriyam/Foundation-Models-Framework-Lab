@@ -400,6 +400,9 @@ enum HelpText {
     SERVER COMMANDS
       serve        Serve local HTTP endpoints over TCP or a Unix-domain socket.
 
+    AGENT BRIDGE COMMANDS
+      bridge       Use a signed Foundation Lab host from agents and automation.
+
     QUICK START
       afm model status
       afm model use-cases
@@ -419,6 +422,10 @@ enum HelpText {
       afm transcript export --message "Hello" --message "Summarize this conversation." --file transcript.json
       afm feedback export --prompt "What is the capital of France?" --sentiment positive --file feedback.json
       afm serve
+      afm bridge prepare
+      afm bridge ensure
+      afm bridge status
+      afm bridge chat --model pcc --prompt "Summarize this repository."
     """
 
     static let session = """
@@ -439,8 +446,8 @@ enum HelpText {
 
 func suggestRootCommand(for input: String) -> String? {
     let commands = [
-        "model", "token-count", "tag", "session", "schema", "tool", "transcript", "feedback", "serve", "help",
-        "version"
+        "model", "token-count", "tag", "session", "schema", "tool", "transcript", "feedback", "serve", "bridge",
+        "help", "version"
     ]
     return suggestCommand(input, in: commands)
 }
