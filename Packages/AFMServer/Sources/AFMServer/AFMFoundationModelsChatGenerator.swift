@@ -25,7 +25,51 @@ public struct AFMFoundationModelsChatGenerator: AFMChatCompletionGenerating {
         do {
             let response = try await session.respond(to: prepared.prompt, options: prepared.options)
             let usage = await responseUsage(response, prepared: prepared)
-            return AFMChatGenerationResult(content: response.content, usage: usage)
+            return AFMChatGenerationResult(
+                content: response.content,
+                finishReason: finishReason(for: request, usage: usage),
+                usage: usage
+            )
+        } catch {
+            if Self.isRefusal(error) {
+                return await refusalResult(prepared: prepared)
+            }
+            throw Self.mappedError(error)
+        }
+    }
+
+    public func stream(
+        _ request: AFMChatGenerationRequest,
+        emitting event: @escaping @Sendable (AFMChatGenerationEvent) async throws -> Void
+    ) async throws -> AFMChatGenerationResult {
+        let prepared = try AFMChatTranscriptBuilder.prepare(request)
+        let session = try sessionBuilder(request.model, prepared.transcript)
+        let responseStream = session.streamResponse(to: prepared.prompt, options: prepared.options)
+        var accumulator = AFMSnapshotDeltaAccumulator()
+
+        do {
+            for try await snapshot in responseStream {
+                try Task.checkCancellation()
+                let delta = try accumulator.append(snapshot: snapshot.content)
+                if !delta.isEmpty {
+                    try await event(.contentDelta(delta))
+                }
+            }
+
+            try Task.checkCancellation()
+            let response = try await responseStream.collect()
+            let finalDelta = try accumulator.append(snapshot: response.content)
+            if !finalDelta.isEmpty {
+                try await event(.contentDelta(finalDelta))
+            }
+            try Task.checkCancellation()
+            let usage = await responseUsage(response, prepared: prepared)
+            let result = AFMChatGenerationResult(
+                content: response.content,
+                finishReason: finishReason(for: request, usage: usage),
+                usage: usage
+            )
+            return result
         } catch {
             if Self.isRefusal(error) {
                 return await refusalResult(prepared: prepared)
@@ -61,6 +105,19 @@ public struct AFMFoundationModelsChatGenerator: AFMChatCompletionGenerating {
             finishReason: .contentFilter,
             usage: usage
         )
+    }
+
+    private func finishReason(
+        for request: AFMChatGenerationRequest,
+        usage: ModelTokenUsage
+    ) -> AFMChatFinishReason {
+        guard let limit = request.maximumCompletionTokens,
+              let output = usage.output,
+              output.totalTokenCount >= limit,
+              output.totalTokenCount > 0 else {
+            return .stop
+        }
+        return .length
     }
 
     private func fallbackUsage(input: Transcript, output: String) async -> ModelTokenUsage {

@@ -178,7 +178,8 @@ afm feedback export --prompt "What is the capital of France?" --sentiment positi
 ### Start the local server
 
 `afm serve` starts a transport for local integrations. It provides `GET /health`,
-`GET /v1/models`, and non-streaming `POST /v1/chat/completions`.
+`GET /v1/models`, and OpenAI-compatible `POST /v1/chat/completions`, including
+incremental server-sent event streaming.
 
 ```bash
 afm serve
@@ -187,14 +188,20 @@ curl http://127.0.0.1:1976/v1/models
 curl http://127.0.0.1:1976/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -d '{"model":"system","messages":[{"role":"user","content":"Hello"}]}'
+curl -N http://127.0.0.1:1976/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"system","messages":[{"role":"user","content":"Hello"}],"stream":true,"stream_options":{"include_usage":true},"tools":[],"tool_choice":"auto"}'
 ```
 
 Chat requests are stateless: send the complete system, developer, user,
 assistant, and tool history each time. String content and typed text parts are
 supported, along with `temperature`, `top_p`, `max_completion_tokens`, and the
-legacy `max_tokens` alias. Streaming, image parts, response formats, and
-client-defined tools return a precise `400` until their dedicated endpoints are
-implemented. Responses include input/output usage plus an `afm_measurement`
+legacy `max_tokens` alias. Streaming emits assistant role and content deltas,
+a terminal finish reason, and `[DONE]`. Set `stream_options.include_usage` to
+receive a final empty-choices usage chunk. The empty `tools: []` and
+`tool_choice: "auto"` sentinels used by Apple's client are accepted; client-defined
+tools, image parts, and response formats return a precise `400` until their
+dedicated endpoints are implemented. Responses include input/output usage plus an `afm_measurement`
 value of `observed`, `tokenized`, or `estimated` so fallback counts are never
 presented as runtime observation.
 

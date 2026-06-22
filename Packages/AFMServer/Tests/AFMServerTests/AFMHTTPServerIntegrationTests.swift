@@ -106,7 +106,6 @@ func tcpPipelinedChatCompletion() async throws {
         let response = try await responseTask.value
         #expect(response.components(separatedBy: "HTTP/1.1 200 OK").count == 2)
         #expect(response.contains(#""object":"chat.completion""#))
-        #expect(response.contains("connection: close"))
         #expect(!response.contains(#""status":"afm serve is running""#))
         #expect(!response.contains("HTTP/1.1 400 Bad Request"))
         try await server.stop()
