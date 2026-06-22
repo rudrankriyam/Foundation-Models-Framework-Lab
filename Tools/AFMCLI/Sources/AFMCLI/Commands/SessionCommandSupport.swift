@@ -2,6 +2,7 @@ import ArgumentParser
 import Foundation
 import FoundationLabCore
 import FoundationModels
+import FoundationModelsKit
 
 struct SessionStreamingEventPayload: Encodable {
     let event: String
@@ -16,6 +17,7 @@ struct SessionStreamingEventPayload: Encodable {
     let exchanges: [AFMConversationExchange]?
     let sessionCount: Int?
     let tokenCount: Int?
+    let tokenUsage: ModelTokenUsage?
     let transcript: [CLITranscriptEntry]?
 }
 
@@ -27,6 +29,7 @@ struct SessionStreamingEventContent {
     var exchanges: [AFMConversationExchange]?
     var sessionCount: Int?
     var tokenCount: Int?
+    var tokenUsage: ModelTokenUsage?
     var transcript: [CLITranscriptEntry]?
 }
 
@@ -70,6 +73,7 @@ struct SessionCommandContext {
             exchanges: content.exchanges,
             sessionCount: content.sessionCount,
             tokenCount: content.tokenCount,
+            tokenUsage: content.tokenUsage,
             transcript: content.transcript
         )
     }
@@ -101,6 +105,7 @@ struct SessionSnapshot {
     let transcript: [CLITranscriptEntry]?
     let sessionCount: Int
     let tokenCount: Int
+    let tokenUsage: ModelTokenUsage?
 }
 
 struct ConversationRenderContext {
@@ -108,6 +113,7 @@ struct ConversationRenderContext {
     let transcript: [CLITranscriptEntry]?
     let sessionCount: Int
     let tokenCount: Int
+    let tokenUsage: ModelTokenUsage?
     let verbose: Bool
     let streamed: Bool
 }
@@ -191,22 +197,21 @@ func captureSessionSnapshot(
     SessionSnapshot(
         transcript: includeTranscript ? transcriptPayload(engine.session.transcript) : nil,
         sessionCount: engine.sessionCount,
-        tokenCount: engine.currentTokenCount
+        tokenCount: engine.currentTokenCount,
+        tokenUsage: engine.currentTokenUsage
     )
 }
 
 func humanReadableSessionResponse(
     response: String,
-    transcript: [CLITranscriptEntry]?,
-    sessionCount: Int,
-    tokenCount: Int,
+    snapshot: SessionSnapshot,
     verbose: Bool
 ) -> String {
     var lines: [String] = []
     if !response.isEmpty {
         lines.append(response)
     }
-    if let transcript, !transcript.isEmpty {
+    if let transcript = snapshot.transcript, !transcript.isEmpty {
         if !lines.isEmpty { lines.append("") }
         lines.append("Transcript")
         lines.append(
@@ -215,8 +220,12 @@ func humanReadableSessionResponse(
     }
     if verbose {
         if !lines.isEmpty { lines.append("") }
-        lines.append("Sessions: \(sessionCount)")
-        lines.append("Token count: \(tokenCount)")
+        lines.append("Sessions: \(snapshot.sessionCount)")
+        appendTokenAccounting(
+            tokenCount: snapshot.tokenCount,
+            tokenUsage: snapshot.tokenUsage,
+            to: &lines
+        )
     }
     return lines.joined(separator: "\n")
 }
@@ -341,9 +350,35 @@ func humanReadableConversation(_ context: ConversationRenderContext) -> String {
     if context.verbose {
         if !lines.isEmpty { lines.append("") }
         lines.append("Sessions: \(context.sessionCount)")
-        lines.append("Token count: \(context.tokenCount)")
+        appendTokenAccounting(
+            tokenCount: context.tokenCount,
+            tokenUsage: context.tokenUsage,
+            to: &lines
+        )
     }
     return lines.joined(separator: "\n")
+}
+
+private func appendTokenAccounting(
+    tokenCount: Int,
+    tokenUsage: ModelTokenUsage?,
+    to lines: inout [String]
+) {
+    lines.append("Context token count: \(tokenCount)")
+    guard let tokenUsage else { return }
+
+    lines.append("Input tokens: \(tokenUsage.input.totalTokenCount)")
+    if let cachedTokenCount = tokenUsage.input.cachedTokenCount {
+        lines.append("Cached input tokens: \(cachedTokenCount)")
+    }
+    if let output = tokenUsage.output {
+        lines.append("Output tokens: \(output.totalTokenCount)")
+        if let reasoningTokenCount = output.reasoningTokenCount {
+            lines.append("Reasoning output tokens: \(reasoningTokenCount)")
+        }
+    }
+    lines.append("Accounted tokens: \(tokenUsage.totalTokenCount)")
+    lines.append("Measurement: \(tokenUsage.measurement.rawValue) (\(tokenUsage.scope.rawValue))")
 }
 
 struct ResolvedToolSet {

@@ -3,7 +3,7 @@
 //  FoundationModelsTools
 //
 //  Token counting and context window management utilities for Foundation Models transcripts.
-//  Uses Apple's guidance of 4.5 characters per token for estimation.
+//  Uses the package's calibrated character-ratio estimator.
 //
 
 import Foundation
@@ -28,6 +28,9 @@ private let systemOverheadTokens = 100
 
 /// Tool call overhead in tokens
 private let toolCallOverheadTokens = 5
+
+/// Tool definition framing overhead in tokens
+private let toolDefinitionOverheadTokens = 8
 
 /// Tool output overhead in tokens
 private let toolOutputOverheadTokens = 3
@@ -63,7 +66,12 @@ extension Transcript.Entry {
   public var estimatedTokenCount: Int {
     switch self {
     case .instructions(let instructions):
-      return instructions.segments.totalEstimatedTokenCount
+      let definitionTokens = instructions.toolDefinitions.reduce(0) { total, definition in
+        total + estimateTokensConservative(from: definition.name) +
+        estimateTokensConservative(from: definition.description) +
+        toolDefinitionOverheadTokens
+      }
+      return instructions.segments.totalEstimatedTokenCount + definitionTokens
 
     case .prompt(let prompt):
       return prompt.segments.totalEstimatedTokenCount
@@ -96,10 +104,10 @@ extension Transcript.Segment {
   /// Estimates the token count for this transcript segment.
   ///
   /// Calculates tokens based on segment type:
-  /// - Text segments: Character count divided by 4.5
-  /// - Structured segments: JSON representation length divided by 4.5
+  /// - Text segments: Character count divided by the calibrated ratio
+  /// - Structured segments: JSON representation length divided by the calibrated ratio
   ///
-  /// Uses Apple's guidance of 4.5 characters per token.
+  /// Uses the package's calibrated estimate.
   public var estimatedTokenCount: Int {
     switch self {
     case .text(let textSegment):
@@ -127,7 +135,7 @@ extension Transcript {
   /// Estimates the total token count for all entries in this transcript.
   ///
   /// Returns the sum of estimated tokens across all transcript entries.
-  /// Uses Apple's guidance of 4.5 characters per token.
+  /// Uses the package's calibrated estimate.
   ///
   /// Example:
   /// ```swift

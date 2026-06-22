@@ -105,6 +105,7 @@ final class FoundationLabExperimentResilienceTests: XCTestCase {
         XCTAssertEqual(run.configuration.prompt, "Hello")
         XCTAssertEqual(run.duration, 0)
         XCTAssertEqual(run.provider, "Apple Foundation Models")
+        XCTAssertNil(run.tokenUsage)
         XCTAssertEqual(run.events.map(\.role), [.user, .assistant])
     }
 

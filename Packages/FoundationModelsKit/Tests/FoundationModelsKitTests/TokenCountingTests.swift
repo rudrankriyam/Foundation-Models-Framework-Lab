@@ -91,6 +91,43 @@ struct TokenCountingTests {
 
     #expect(trimmed == [instruction])
   }
+
+  @Test("Instruction estimates include tool definitions")
+  func instructionEstimatesIncludeToolDefinitions() throws {
+    let schema = try GenerationSchema(
+      root: DynamicGenerationSchema(
+        name: "WeatherArguments",
+        properties: [
+          .init(name: "city", schema: .init(type: String.self))
+        ]
+      ),
+      dependencies: []
+    )
+    let segments: [Transcript.Segment] = [
+      .text(Transcript.TextSegment(content: "Use tools when helpful."))
+    ]
+    let textOnly: Transcript.Entry = .instructions(
+      Transcript.Instructions(segments: segments, toolDefinitions: [])
+    )
+    let withTool: Transcript.Entry = .instructions(
+      Transcript.Instructions(
+        segments: segments,
+        toolDefinitions: [
+          Transcript.ToolDefinition(
+            name: "weather",
+            description: "Looks up current weather for a city.",
+            parameters: schema
+          )
+        ]
+      )
+    )
+
+    #expect(withTool.estimatedTokenCount > textOnly.estimatedTokenCount)
+    #expect(
+      withTool.estimatedTokenCount - textOnly.estimatedTokenCount >=
+      estimateTokensConservative(from: "weatherLooks up current weather for a city.")
+    )
+  }
 }
 
 @Suite("Token Estimation Accuracy Tests")

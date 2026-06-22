@@ -378,6 +378,9 @@ enum HelpText {
     MODEL COMMANDS
       model        Inspect model readiness and supported languages.
 
+    TOKEN COMMANDS
+      token-count  Count prompt context with exact provenance and breakdowns.
+
     TAG COMMANDS
       tag          Try the content tagging system model.
 
@@ -398,6 +401,8 @@ enum HelpText {
       afm model status
       afm model use-cases
       afm model guardrails
+      afm token-count "What is Swift?"
+      afm token-count -i @instructions.md --prompt @prompt.md --breakdown
       afm session respond --prompt "Summarize Foundation Models in one paragraph."
       afm session respond --adapter ~/MyAdapter.fmadapter --prompt "Rewrite this in my style."
       afm session stream --prompt "Write a short poem about rain"
@@ -429,7 +434,7 @@ enum HelpText {
 }
 
 func suggestRootCommand(for input: String) -> String? {
-    let commands = ["model", "tag", "session", "schema", "tool", "transcript", "feedback", "help", "version"]
+    let commands = ["model", "token-count", "tag", "session", "schema", "tool", "transcript", "feedback", "help", "version"]
     return suggestCommand(input, in: commands)
 }
 

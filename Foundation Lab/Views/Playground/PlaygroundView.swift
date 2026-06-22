@@ -198,6 +198,7 @@ private extension PlaygroundView {
             provider: "Apple Foundation Models",
             modelIdentifier: modelIdentifier(for: configuration.modelRuntime),
             tokenCount: viewModel.currentTokenCount,
+            tokenUsage: viewModel.currentTokenUsage,
             errorMessage: errorMessage,
             status: status,
             events: events
@@ -265,6 +266,7 @@ private extension PlaygroundView {
                 provider: "Apple Foundation Models",
                 modelIdentifier: modelIdentifier(for: configuration.modelRuntime),
                 tokenCount: viewModel.currentTokenCount,
+                tokenUsage: viewModel.currentTokenUsage,
                 events: capturedRunEvents()
             )
         )

@@ -7,6 +7,7 @@ func rootHelpShowsGroupedCommands() throws {
 
     #expect(result.status == 0)
     #expect(result.stdout.contains("MODEL COMMANDS"))
+    #expect(result.stdout.contains("TOKEN COMMANDS"))
     #expect(result.stdout.contains("SESSION COMMANDS"))
     #expect(result.stdout.contains("SCHEMA COMMANDS"))
     #expect(result.stdout.contains("TOOL COMMANDS"))
@@ -31,6 +32,7 @@ func leafCommandHelpCoverage() throws {
         ["model", "languages", "--help"],
         ["model", "use-cases", "--help"],
         ["model", "guardrails", "--help"],
+        ["token-count", "--help"],
         ["tag", "run", "--help"],
         ["session", "respond", "--help"],
         ["session", "stream", "--help"],
@@ -428,11 +430,26 @@ func streamingJSONEmitsEvents() throws {
     #expect((streamEvents.first?["event"] as? String) == "started")
     #expect(streamEvents.contains { ($0["event"] as? String) == "delta" })
     #expect((streamEvents.last?["event"] as? String) == "completed")
+    let streamUsage = try #require(streamEvents.last?["tokenUsage"] as? [String: Any])
+    expectValidRuntimeTokenUsage(streamUsage)
+    #expect((streamUsage["totalTokenCount"] as? Int) ?? 0 > 0)
 
     #expect(chatEvents.contains { ($0["event"] as? String) == "message_started" })
     #expect(chatEvents.contains { ($0["event"] as? String) == "message_delta" })
     #expect(chatEvents.contains { ($0["event"] as? String) == "message_completed" })
     #expect((chatEvents.last?["event"] as? String) == "session_completed")
+    let chatUsage = try #require(chatEvents.last?["tokenUsage"] as? [String: Any])
+    expectValidRuntimeTokenUsage(chatUsage)
+}
+
+private func expectValidRuntimeTokenUsage(_ usage: [String: Any]) {
+    let measurement = usage["measurement"] as? String
+    #expect(["observed", "tokenized", "estimated"].contains { $0 == measurement })
+    if measurement == "observed" {
+        #expect(usage["scope"] as? String == "session")
+    } else {
+        #expect(usage["scope"] as? String == "context")
+    }
 }
 
 @Test("Unknown commands suggest the closest valid command")

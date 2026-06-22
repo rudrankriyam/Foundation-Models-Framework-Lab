@@ -1,4 +1,5 @@
 import Foundation
+import FoundationModelsKit
 
 public struct FoundationLabExperimentRun: Codable, Hashable, Sendable, Identifiable {
     public enum Status: String, Codable, Hashable, Sendable {
@@ -17,6 +18,7 @@ public struct FoundationLabExperimentRun: Codable, Hashable, Sendable, Identifia
         case provider
         case modelIdentifier
         case tokenCount
+        case tokenUsage
         case errorMessage
         case status
         case events
@@ -31,6 +33,7 @@ public struct FoundationLabExperimentRun: Codable, Hashable, Sendable, Identifia
     public let provider: String
     public let modelIdentifier: String
     public let tokenCount: Int?
+    public let tokenUsage: ModelTokenUsage?
     public let errorMessage: String?
     public let status: Status
     public let events: [FoundationLabExperimentEvent]
@@ -49,6 +52,7 @@ public struct FoundationLabExperimentRun: Codable, Hashable, Sendable, Identifia
         provider: String,
         modelIdentifier: String,
         tokenCount: Int? = nil,
+        tokenUsage: ModelTokenUsage? = nil,
         errorMessage: String? = nil,
         status: Status? = nil,
         events: [FoundationLabExperimentEvent]? = nil
@@ -69,6 +73,7 @@ public struct FoundationLabExperimentRun: Codable, Hashable, Sendable, Identifia
             ? Self.defaultModelIdentifier(for: configurationSnapshot.modelRuntime)
             : modelIdentifier
         self.tokenCount = tokenCount.flatMap { $0 >= 0 ? $0 : nil }
+        self.tokenUsage = tokenUsage
         self.errorMessage = errorMessage
         self.status = status ?? (errorMessage == nil ? .succeeded : .failed)
         self.events = events ?? Self.defaultEvents(
@@ -97,6 +102,7 @@ public struct FoundationLabExperimentRun: Codable, Hashable, Sendable, Identifia
             modelIdentifier: (try? container.decode(String.self, forKey: .modelIdentifier))
                 ?? Self.defaultModelIdentifier(for: configuration.modelRuntime),
             tokenCount: try? container.decode(Int.self, forKey: .tokenCount),
+            tokenUsage: try? container.decode(ModelTokenUsage.self, forKey: .tokenUsage),
             errorMessage: try? container.decode(String.self, forKey: .errorMessage),
             status: try? container.decode(Status.self, forKey: .status),
             events: try? container.decode([FoundationLabExperimentEvent].self, forKey: .events)
