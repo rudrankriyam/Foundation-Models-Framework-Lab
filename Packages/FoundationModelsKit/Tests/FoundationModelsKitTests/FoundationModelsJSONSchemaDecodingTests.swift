@@ -17,10 +17,9 @@ struct FoundationModelsJSONSchemaDecodingTests {
     let json = try schema.jsonString()
     let decoded = try JSONDecoder().decode(FoundationModelsJSONSchema.self, from: Data(json.utf8))
 
-    #expect(
-      json ==
-        #"{"additionalProperties":false,"properties":{"name":{"type":"string"}},"required":["name"],"title":"Person","type":"object"}"#
-    )
+    let expectedJSON = #"{"additionalProperties":false,"properties":{"name":{"type":"string"}},"#
+      + #""required":["name"],"title":"Person","type":"object"}"#
+    #expect(json == expectedJSON)
     #expect(decoded == schema)
   }
 
@@ -43,9 +42,9 @@ struct FoundationModelsJSONSchemaDecodingTests {
 
   @Test("Unsupported nested keywords report their complete schema path")
   func unsupportedNestedKeyword() throws {
-    let data = Data(
-      #"{"type":"object","properties":{"profile":{"type":"object","properties":{"name":{"type":"string","pattern":"^[A-Z]"}}}}}"#.utf8
-    )
+    let json = #"{"type":"object","properties":{"profile":{"type":"object","#
+      + #""properties":{"name":{"type":"string","pattern":"^[A-Z]"}}}}}"#
+    let data = Data(json.utf8)
 
     #expect(
       throws: FoundationModelsJSONSchemaError(

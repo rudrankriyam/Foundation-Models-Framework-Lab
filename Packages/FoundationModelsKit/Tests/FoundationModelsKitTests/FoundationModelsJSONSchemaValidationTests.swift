@@ -2,7 +2,7 @@ import Testing
 @testable import FoundationModelsKit
 
 @Suite("Foundation Models JSON Schema Validation")
-struct FoundationModelsJSONSchemaValidationTests {
+struct JSONSchemaValidationTests {
   @Test("String enums must be nonempty and unique")
   func stringEnumsAreValidated() {
     let empty = FoundationModelsJSONSchema(type: "string", enumValues: [])

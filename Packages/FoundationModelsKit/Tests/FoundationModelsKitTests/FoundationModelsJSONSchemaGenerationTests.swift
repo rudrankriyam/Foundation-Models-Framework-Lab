@@ -4,7 +4,7 @@ import Testing
 @testable import FoundationModelsKit
 
 @Suite("Foundation Models JSON Schema Generation")
-struct FoundationModelsJSONSchemaGenerationTests {
+struct JSONSchemaGenerationTests {
   @Test("The complete supported dialect converts to a generation schema")
   func supportedDialectConverts() throws {
     let schema = FoundationModelsJSONSchema(
