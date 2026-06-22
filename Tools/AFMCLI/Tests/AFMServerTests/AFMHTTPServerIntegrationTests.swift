@@ -78,8 +78,9 @@ func failedUnixChannelAdoptionCleanup() throws {
     defer { try? FileManager.default.removeItem(at: directory) }
     let path = directory.appending(path: "afm.sock").path()
     let boundSocket = try AFMUnixSocketManager.makeBoundSocket(path: path)
+    let socketIdentity = try fileIdentity(of: boundSocket.descriptor)
     defer {
-        if Darwin.fcntl(boundSocket.descriptor, F_GETFD) >= 0 {
+        if descriptor(boundSocket.descriptor, stillRefersTo: socketIdentity) {
             Darwin.close(boundSocket.descriptor)
         }
         Darwin.unlink(path)
@@ -87,9 +88,7 @@ func failedUnixChannelAdoptionCleanup() throws {
 
     try AFMUnixSocketManager.cleanupAfterFailedAdoption(boundSocket)
 
-    errno = 0
-    #expect(Darwin.fcntl(boundSocket.descriptor, F_GETFD) == -1)
-    #expect(errno == EBADF)
+    #expect(!descriptor(boundSocket.descriptor, stillRefersTo: socketIdentity))
     var status = stat()
     #expect(Darwin.lstat(path, &status) == -1)
     #expect(errno == ENOENT)
@@ -295,6 +294,25 @@ private func testServer(configuration: AFMServerConfiguration) throws -> AFMHTTP
 
 private struct IntegrationTestClock: AFMServerClock {
     func unixTime() -> Int64 { 123 }
+}
+
+private struct FileIdentity: Equatable {
+    let device: dev_t
+    let inode: ino_t
+}
+
+private func fileIdentity(of descriptor: CInt) throws -> FileIdentity {
+    var status = stat()
+    guard Darwin.fstat(descriptor, &status) == 0 else {
+        throw POSIXTestError(operation: "inspect Unix socket", code: errno)
+    }
+    return FileIdentity(device: status.st_dev, inode: status.st_ino)
+}
+
+private func descriptor(_ descriptor: CInt, stillRefersTo identity: FileIdentity) -> Bool {
+    var status = stat()
+    guard Darwin.fstat(descriptor, &status) == 0 else { return false }
+    return status.st_dev == identity.device && status.st_ino == identity.inode
 }
 
 private func makeTemporaryDirectory() throws -> URL {
