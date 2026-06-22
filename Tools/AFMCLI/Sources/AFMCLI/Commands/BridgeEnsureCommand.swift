@@ -91,17 +91,19 @@ private func waitForBridge(
 ) async throws {
     let clock = ContinuousClock()
     let deadline = clock.now.advanced(by: .seconds(timeoutSeconds))
-    while clock.now < deadline {
-        if let launched = try await reachableBridge(paths: paths) {
-            try emitBridgeEnsureResult(
-                status: "launched",
-                host: launched.host,
-                health: launched.response,
-                output: output
-            )
-            return
-        }
-        try await clock.sleep(for: .milliseconds(200))
+    if let launched = try await pollForBridge(
+        clock: clock,
+        deadline: deadline,
+        interval: .milliseconds(200),
+        operation: { try await reachableBridge(paths: paths) }
+    ) {
+        try emitBridgeEnsureResult(
+            status: "launched",
+            host: launched.host,
+            health: launched.response,
+            output: output
+        )
+        return
     }
 
     throw AFMBridgeCommandError.launchTimedOut(
@@ -109,6 +111,23 @@ private func waitForBridge(
         timeoutSeconds: timeoutSeconds,
         descriptorPath: paths.descriptorPath
     )
+}
+
+func pollForBridge<ClockType: Clock, Response>(
+    clock: ClockType,
+    deadline: ClockType.Instant,
+    interval: ClockType.Duration,
+    operation: () async throws -> Response?
+) async throws -> Response? {
+    while true {
+        if let response = try await operation() {
+            return response
+        }
+        let now = clock.now
+        guard now < deadline else { return nil }
+        let nextPoll = min(now.advanced(by: interval), deadline)
+        try await clock.sleep(until: nextPoll, tolerance: nil)
+    }
 }
 
 private func emitBridgeEnsureDryRun(

@@ -254,11 +254,14 @@ func bridgeDescriptorRotationRetryPolicy() async throws {
         descriptorPath: descriptor.path(),
         descriptorFileName: descriptor.lastPathComponent
     )
+    let launchIdentifier = UUID()
+    let token = String(repeating: "r", count: 43)
     try writeBridgeDescriptor(
         at: descriptor,
         port: 19_760,
-        token: String(repeating: "r", count: 43),
-        processIdentifier: getpid()
+        token: token,
+        processIdentifier: getpid(),
+        launchIdentifier: launchIdentifier
     )
 
     var retriedAttempts = 0
@@ -270,8 +273,9 @@ func bridgeDescriptorRotationRetryPolicy() async throws {
             try writeBridgeDescriptor(
                 at: descriptor,
                 port: 19_761,
-                token: String(repeating: "s", count: 43),
-                processIdentifier: getpid()
+                token: token,
+                processIdentifier: getpid(),
+                launchIdentifier: launchIdentifier
             )
             throw BridgeOperationTestError.expectedFailure
         }
@@ -279,6 +283,8 @@ func bridgeDescriptorRotationRetryPolicy() async throws {
     }
     #expect(retried.response == 42)
     #expect(retriedAttempts == 2)
+    #expect(retried.host.descriptor.endpoint == .loopbackTCP(host: "127.0.0.1", port: 19_761))
+    #expect(retried.host.descriptor.launchIdentifier == launchIdentifier)
 
     var nonRetryingAttempts = 0
     await #expect(throws: BridgeOperationTestError.expectedFailure) {
@@ -297,6 +303,28 @@ func bridgeDescriptorRotationRetryPolicy() async throws {
         }
     }
     #expect(nonRetryingAttempts == 1)
+}
+
+@Test("Bridge polling clamps its last sleep and checks the deadline")
+func bridgePollingFinalDeadlineCheck() async throws {
+    let clock = BridgePollingTestClock()
+    let deadline = clock.now.advanced(by: .milliseconds(250))
+    var attempts = 0
+
+    let result: Int? = try await pollForBridge(
+        clock: clock,
+        deadline: deadline,
+        interval: .milliseconds(100)
+    ) {
+        attempts += 1
+        return attempts == 4 ? 42 : nil
+    }
+
+    #expect(result == 42)
+    #expect(attempts == 4)
+    #expect(clock.now == deadline)
+    #expect(clock.recordedSleepDeadlines().last == deadline)
+    #expect(clock.recordedSleepDeadlines().allSatisfy { $0 <= deadline })
 }
 
 @Test("Bridge descriptor rotation never retries a cancelled operation")
@@ -454,6 +482,52 @@ private enum BridgeTestError: Error {
     case posix(String, CInt)
 }
 
+private final class BridgePollingTestClock: Clock, @unchecked Sendable {
+    struct Instant: InstantProtocol {
+        typealias Duration = Swift.Duration
+
+        let offset: Duration
+
+        func advanced(by duration: Duration) -> Self {
+            Self(offset: offset + duration)
+        }
+
+        func duration(to other: Self) -> Duration {
+            other.offset - offset
+        }
+
+        static func < (lhs: Self, rhs: Self) -> Bool {
+            lhs.offset < rhs.offset
+        }
+    }
+
+    typealias Duration = Swift.Duration
+
+    private let lock = NSLock()
+    private var current = Instant(offset: .zero)
+    private var sleepDeadlines: [Instant] = []
+
+    var now: Instant {
+        lock.withLock { current }
+    }
+
+    var minimumResolution: Duration { .nanoseconds(1) }
+
+    func sleep(until deadline: Instant, tolerance: Duration?) async throws {
+        try Task.checkCancellation()
+        lock.withLock {
+            sleepDeadlines.append(deadline)
+            if current < deadline {
+                current = deadline
+            }
+        }
+    }
+
+    func recordedSleepDeadlines() -> [Instant] {
+        lock.withLock { sleepDeadlines }
+    }
+}
+
 private func withBridgeTemporaryDirectory<Result>(
     _ operation: (URL) throws -> Result
 ) throws -> Result {
@@ -483,14 +557,15 @@ private func writeBridgeDescriptor(
     at url: URL,
     port: Int,
     token: String,
-    processIdentifier: Int32
+    processIdentifier: Int32,
+    launchIdentifier: UUID = UUID()
 ) throws {
     let object: [String: Any] = [
         "version": 1,
         "endpoint": ["loopbackTCP": ["host": "127.0.0.1", "port": port]],
         "bearerToken": token,
         "processIdentifier": processIdentifier,
-        "launchIdentifier": UUID().uuidString,
+        "launchIdentifier": launchIdentifier.uuidString,
         "modelIdentifiers": ["system", "pcc"],
         "startedAt": 0
     ]
