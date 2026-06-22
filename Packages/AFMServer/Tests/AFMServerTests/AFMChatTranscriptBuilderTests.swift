@@ -89,6 +89,35 @@ func finalToolOutputReconstruction() throws {
     #expect(text(activePrompt.segments) == [""])
 }
 
+@Test("Structured response formats reach generation and transcript token accounting")
+func structuredResponseFormatPreparation() throws {
+    let request = try AFMChatGenerationRequest.decode(Data(structuredRequestJSON.utf8))
+    let prepared = try AFMChatTranscriptBuilder.prepare(request)
+
+    #expect(prepared.responseSchema?.name == "person")
+    #expect(prepared.responseSchema?.fallbackTokenText.contains("Structured person guidance") == true)
+    guard case .prompt(let activePrompt) = Array(prepared.inputTranscript).last else {
+        Issue.record("Expected the active structured prompt")
+        return
+    }
+    #expect(activePrompt.responseFormat != nil)
+}
+
+@Test("Text response formats keep schema guidance out of the transcript")
+func textResponseFormatPreparation() throws {
+    let request = try AFMChatGenerationRequest.decode(
+        Data(#"{"messages":[{"role":"user","content":"Hi"}],"response_format":{"type":"text"}}"#.utf8)
+    )
+    let prepared = try AFMChatTranscriptBuilder.prepare(request)
+
+    #expect(prepared.responseSchema == nil)
+    guard case .prompt(let activePrompt) = Array(prepared.inputTranscript).last else {
+        Issue.record("Expected the active text prompt")
+        return
+    }
+    #expect(activePrompt.responseFormat == nil)
+}
+
 private func text(_ segments: [Transcript.Segment]) -> [String] {
     segments.compactMap { segment in
         guard case .text(let text) = segment else { return nil }
@@ -120,5 +149,25 @@ private let finalToolRequestJSON = #"""
     ]},
     {"role":"tool","tool_call_id":"call_1","content":"Sunny"}
   ]
+}
+"""#
+
+private let structuredRequestJSON = #"""
+{
+  "messages": [{"role":"user","content":"Ada Lovelace"}],
+  "response_format": {
+    "type": "json_schema",
+    "json_schema": {
+      "name": "person",
+      "description": "Structured person guidance",
+      "strict": true,
+      "schema": {
+        "type": "object",
+        "properties": {"name": {"type": "string"}},
+        "required": ["name"],
+        "additionalProperties": false
+      }
+    }
+  }
 }
 """#

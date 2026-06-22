@@ -388,7 +388,7 @@ func unixSocketRejectsInsecureParent() async throws {
     await expectStartFailure(server, matching: .insecureParentDirectory)
 }
 
-private func testServer(
+func testServer(
     configuration: AFMServerConfiguration,
     generator: any AFMChatCompletionGenerating = IntegrationImmediateGenerator()
 ) throws -> AFMHTTPServer {
@@ -495,7 +495,7 @@ private enum IntegrationProbeError: Error {
     case timedOut
 }
 
-private func chatHTTPRequest(body: String, port: Int, close: Bool) -> String {
+func chatHTTPRequest(body: String, port: Int, close: Bool) -> String {
     var request = "POST /v1/chat/completions HTTP/1.1\r\n"
     request += "Host: 127.0.0.1:\(port)\r\n"
     request += "Content-Type: application/json\r\n"
@@ -569,7 +569,7 @@ private func expectStartFailure(
     }
 }
 
-private func sendRawHTTPRequest(_ request: String, port: Int) throws -> String {
+func sendRawHTTPRequest(_ request: String, port: Int) throws -> String {
     let descriptor = try connectTCPSocket(port: port)
     defer { Darwin.close(descriptor) }
 

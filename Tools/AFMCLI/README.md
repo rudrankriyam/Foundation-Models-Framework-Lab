@@ -193,6 +193,9 @@ curl http://127.0.0.1:1976/v1/chat/completions \
 curl -N http://127.0.0.1:1976/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -d '{"model":"system","messages":[{"role":"user","content":"Hello"}],"stream":true,"stream_options":{"include_usage":true},"tools":[],"tool_choice":"auto"}'
+curl http://127.0.0.1:1976/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"system","messages":[{"role":"user","content":"Extract a name from Ada Lovelace."}],"response_format":{"type":"json_schema","json_schema":{"name":"person","strict":true,"schema":{"type":"object","properties":{"name":{"type":"string"}},"required":["name"],"additionalProperties":false}}}}'
 ```
 
 Chat requests are stateless: send the complete system, developer, user,
@@ -202,10 +205,13 @@ legacy `max_tokens` alias. Streaming emits assistant role and content deltas,
 a terminal finish reason, and `[DONE]`. Set `stream_options.include_usage` to
 receive a final empty-choices usage chunk. The empty `tools: []` and
 `tool_choice: "auto"` sentinels used by Apple's client are accepted; client-defined
-tools, image parts, and response formats return a precise `400` until their
-dedicated endpoints are implemented. Responses include input/output usage plus an `afm_measurement`
-value of `observed`, `tokenized`, or `estimated` so fallback counts are never
-presented as runtime observation.
+tools and image parts return a precise `400` until their dedicated endpoints
+are implemented. `response_format` accepts `text` and `json_schema`; structured
+responses return JSON text in `message.content`, and structured streams emit the
+complete JSON document as one content delta. The older `json_object` mode is not
+supported. Properties omitted from `required` are optional. Responses include
+input/output usage plus an `afm_measurement` value of `observed`, `tokenized`, or
+`estimated` so fallback counts are never presented as runtime observation.
 
 Generation concurrency defaults to one and excess requests receive `429`
 without being queued. Configure it with `--max-concurrent-generations`; use
