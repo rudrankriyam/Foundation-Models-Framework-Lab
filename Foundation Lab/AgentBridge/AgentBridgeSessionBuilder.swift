@@ -5,6 +5,7 @@ import FoundationModels
 nonisolated enum AgentBridgeSessionBuilder {
     static func makeSession(
         requestedModelIdentifier: String,
+        tools: [any Tool],
         transcript: Transcript
     ) throws -> LanguageModelSession {
         switch requestedModelIdentifier {
@@ -13,15 +14,18 @@ nonisolated enum AgentBridgeSessionBuilder {
             guard case .available = model.availability else {
                 throw AFMChatGenerationError.modelUnavailable
             }
-            return LanguageModelSession(model: model, transcript: transcript)
+            return LanguageModelSession(model: model, tools: tools, transcript: transcript)
         case "pcc":
-            return try makePrivateCloudSession(transcript: transcript)
+            return try makePrivateCloudSession(tools: tools, transcript: transcript)
         default:
             throw AFMChatGenerationError.modelUnavailable
         }
     }
 
-    private static func makePrivateCloudSession(transcript: Transcript) throws -> LanguageModelSession {
+    private static func makePrivateCloudSession(
+        tools: [any Tool],
+        transcript: Transcript
+    ) throws -> LanguageModelSession {
         #if compiler(>=6.4)
         if #available(macOS 27.0, *) {
             guard AgentBridgePrivateCloudAuthorization.isGranted else {
@@ -34,7 +38,7 @@ nonisolated enum AgentBridgeSessionBuilder {
             guard !model.quotaUsage.isLimitReached else {
                 throw AFMChatGenerationError.rateLimited
             }
-            return LanguageModelSession(model: model, transcript: transcript)
+            return LanguageModelSession(model: model, tools: tools, transcript: transcript)
         }
         #endif
 

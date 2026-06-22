@@ -20,6 +20,18 @@ actor AFMGenerationGate {
     }
 }
 
+private actor AFMToolStreamContentBuffer {
+    private var deltas: [String] = []
+
+    func append(_ delta: String) {
+        deltas.append(delta)
+    }
+
+    func snapshot() -> [String] {
+        deltas
+    }
+}
+
 struct AFMChatCompletionService: Sendable {
     private let catalog: any AFMModelCatalog
     private let generator: any AFMChatCompletionGenerating
@@ -121,18 +133,12 @@ private extension AFMChatCompletionService {
                 emitting: emission
             )
 
-            let result = try await streamWithTimeout(request) { event in
-                switch event {
-                case .contentDelta(let content):
-                    try await writeChunk(
-                        identifier: identifier,
-                        created: created,
-                        content: content,
-                        request: request,
-                        emitting: emission
-                    )
-                }
-            }
+            let result = try await streamAndWriteContent(
+                request,
+                identifier: identifier,
+                created: created,
+                emitting: emission
+            )
             try await writeTerminalChunks(
                 result,
                 identifier: identifier,
@@ -159,6 +165,44 @@ private extension AFMChatCompletionService {
                 try await emission(.fixed(generationErrorResponse(error)))
             }
         }
+    }
+
+    func streamAndWriteContent(
+        _ request: AFMChatGenerationRequest,
+        identifier: String,
+        created: Int64,
+        emitting emission: @escaping @Sendable (AFMHTTPEmission) async throws -> Void
+    ) async throws -> AFMChatGenerationResult {
+        let buffersToolContent = !request.tools.isEmpty && request.toolChoice != .none
+        let contentBuffer = AFMToolStreamContentBuffer()
+        let result = try await streamWithTimeout(request) { event in
+            switch event {
+            case .contentDelta(let content):
+                if buffersToolContent {
+                    await contentBuffer.append(content)
+                } else {
+                    try await writeChunk(
+                        identifier: identifier,
+                        created: created,
+                        content: content,
+                        request: request,
+                        emitting: emission
+                    )
+                }
+            }
+        }
+        if result.toolCalls.isEmpty {
+            for content in await contentBuffer.snapshot() {
+                try await writeChunk(
+                    identifier: identifier,
+                    created: created,
+                    content: content,
+                    request: request,
+                    emitting: emission
+                )
+            }
+        }
+        return result
     }
 
     func validateModel(_ identifier: String) -> AFMHTTPResponse? {
@@ -240,7 +284,11 @@ private extension AFMChatCompletionService {
                 choices: [
                     .init(
                         index: 0,
-                        message: .init(content: result.content, refusal: result.refusal),
+                        message: .init(
+                            content: result.content,
+                            refusal: result.refusal,
+                            toolCalls: result.toolCalls
+                        ),
                         finishReason: result.finishReason
                     )
                 ],
@@ -255,6 +303,7 @@ private extension AFMChatCompletionService {
         role: String? = nil,
         content: String? = nil,
         refusal: String? = nil,
+        toolCalls: [AFMChatToolCall]? = nil,
         finishReason: AFMChatFinishReason? = nil,
         request: AFMChatGenerationRequest,
         emitting emission: @escaping @Sendable (AFMHTTPEmission) async throws -> Void
@@ -266,7 +315,12 @@ private extension AFMChatCompletionService {
             choices: [
                 .init(
                     index: 0,
-                    delta: .init(role: role, content: content, refusal: refusal),
+                    delta: .init(
+                        role: role,
+                        content: content,
+                        refusal: refusal,
+                        toolCalls: toolCalls
+                    ),
                     finishReason: finishReason
                 )
             ],
@@ -299,6 +353,15 @@ private extension AFMChatCompletionService {
         request: AFMChatGenerationRequest,
         emitting emission: @escaping @Sendable (AFMHTTPEmission) async throws -> Void
     ) async throws {
+        if !result.toolCalls.isEmpty {
+            try await writeChunk(
+                identifier: identifier,
+                created: created,
+                toolCalls: result.toolCalls,
+                request: request,
+                emitting: emission
+            )
+        }
         try await writeRefusalChunk(
             result.refusal,
             identifier: identifier,
@@ -351,7 +414,10 @@ private extension AFMChatCompletionService {
     }
 
     func generationErrorResponse(_ error: Error) -> AFMHTTPResponse {
-        switch error {
+        if let toolErrorResponse = toolGenerationErrorResponse(error) {
+            return toolErrorResponse
+        }
+        return switch error {
         case AFMChatServiceError.timedOut:
             .apiError(
                 status: .gatewayTimeout,
@@ -400,6 +466,37 @@ private extension AFMChatCompletionService {
             generationFailure(.gatewayTimeout, "The local model request timed out.", "model_timeout")
         default:
             generationFailure(.internalServerError, "The local model request failed.", "model_error")
+        }
+    }
+
+    func toolGenerationErrorResponse(_ error: Error) -> AFMHTTPResponse? {
+        switch error {
+        case AFMChatGenerationError.unsupportedToolChoice:
+            .apiError(
+                status: .badRequest,
+                message: "This OS cannot guarantee the requested tool_choice semantics.",
+                code: "unsupported_tool_choice",
+                type: "invalid_request_error",
+                parameter: "tool_choice"
+            )
+        case AFMChatGenerationError.requiredToolNotCalled:
+            .apiError(
+                status: .internalServerError,
+                message: "The model did not satisfy the required tool choice.",
+                code: "required_tool_not_called",
+                type: "server_error",
+                parameter: "tool_choice"
+            )
+        case AFMChatGenerationError.toolCallLimitExceeded:
+            .apiError(
+                status: .badRequest,
+                message: "The model exceeded the local tool-call size or count limit.",
+                code: "tool_call_limit_exceeded",
+                type: "invalid_request_error",
+                parameter: "tools"
+            )
+        default:
+            nil
         }
     }
 

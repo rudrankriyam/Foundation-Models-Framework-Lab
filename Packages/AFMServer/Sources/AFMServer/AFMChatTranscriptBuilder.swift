@@ -1,7 +1,10 @@
 import FoundationModels
 
 enum AFMChatTranscriptBuilder {
-    static func prepare(_ request: AFMChatGenerationRequest) throws -> AFMPreparedChatGeneration {
+    static func prepare(
+        _ request: AFMChatGenerationRequest,
+        toolDefinitions: [Transcript.ToolDefinition] = []
+    ) throws -> AFMPreparedChatGeneration {
         guard !request.messages.isEmpty else {
             throw AFMChatGenerationError.unsupportedInput
         }
@@ -10,7 +13,7 @@ enum AFMChatTranscriptBuilder {
         let entries = try transcriptEntries(for: history)
         let promptContent = activePromptContent(for: finalMessage)
         let prompt = Prompt(promptContent)
-        let options = generationOptions(for: request)
+        let options = try generationOptions(for: request)
         let responseSchema = try preparedResponseSchema(for: request.responseFormat)
         let transcriptResponseFormat = responseSchema.map {
             Transcript.ResponseFormat(schema: $0.generationSchema)
@@ -20,7 +23,8 @@ enum AFMChatTranscriptBuilder {
             options: options,
             responseFormat: transcriptResponseFormat
         )
-        let inputTranscript = Transcript(entries: entries + [.prompt(inputPrompt)])
+        let inputEntries = adding(toolDefinitions, to: entries) + [.prompt(inputPrompt)]
+        let inputTranscript = Transcript(entries: inputEntries)
         let transcript = Transcript(entries: entries)
         return AFMPreparedChatGeneration(
             transcript: transcript,
@@ -29,6 +33,29 @@ enum AFMChatTranscriptBuilder {
             options: options,
             responseSchema: responseSchema
         )
+    }
+
+    private static func adding(
+        _ toolDefinitions: [Transcript.ToolDefinition],
+        to entries: [Transcript.Entry]
+    ) -> [Transcript.Entry] {
+        guard !toolDefinitions.isEmpty else { return entries }
+        var result = entries
+        if let first = result.first, case .instructions(let instructions) = first {
+            result[0] = .instructions(
+                .init(
+                    id: instructions.id,
+                    segments: instructions.segments,
+                    toolDefinitions: instructions.toolDefinitions + toolDefinitions
+                )
+            )
+        } else {
+            result.insert(
+                .instructions(.init(segments: [], toolDefinitions: toolDefinitions)),
+                at: 0
+            )
+        }
+        return result
     }
 
     static func segments(_ content: [String]) -> [Transcript.Segment] {
@@ -130,15 +157,31 @@ enum AFMChatTranscriptBuilder {
         )
     }
 
-    private static func generationOptions(for request: AFMChatGenerationRequest) -> GenerationOptions {
+    private static func generationOptions(for request: AFMChatGenerationRequest) throws -> GenerationOptions {
         let sampling = request.topP.map { GenerationOptions.SamplingMode.random(probabilityThreshold: $0) }
         #if compiler(>=6.4)
-        return GenerationOptions(
+        var options = GenerationOptions(
             samplingMode: sampling,
             temperature: request.temperature,
             maximumResponseTokens: request.maximumCompletionTokens
         )
+        if #available(iOS 27.0, macOS 27.0, *) {
+            switch request.toolChoice {
+            case .auto:
+                options.toolCallingMode = .allowed
+            case .none:
+                options.toolCallingMode = .disallowed
+            case .required, .function:
+                options.toolCallingMode = .required
+            }
+        } else if request.toolChoice.requiresInvocation {
+            throw AFMChatGenerationError.unsupportedToolChoice
+        }
+        return options
         #else
+        guard !request.toolChoice.requiresInvocation else {
+            throw AFMChatGenerationError.unsupportedToolChoice
+        }
         return GenerationOptions(
             sampling: sampling,
             temperature: request.temperature,

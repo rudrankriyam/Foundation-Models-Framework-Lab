@@ -213,8 +213,105 @@ struct AFMChatStreamingServiceTests {
         #expect(response.status == .badRequest)
         let json = try #require(JSONSerialization.jsonObject(with: response.body) as? [String: Any])
         let error = try #require(json["error"] as? [String: Any])
-        #expect(error["code"] as? String == "unsupported_field")
-        #expect(error["param"] as? String == "tools")
+        #expect(error["code"] as? String == "missing_field")
+        #expect(error["param"] as? String == "tools[0].type")
+    }
+
+}
+
+extension AFMChatStreamingServiceTests {
+    @Test("Unsupported forced tool choices fail before the SSE response starts")
+    func streamForcedToolChoiceValidation() async throws {
+        #if compiler(>=6.4)
+        if #available(macOS 27.0, *) { return }
+        #endif
+        let generator = StreamingGenerator(deltas: [], result: Self.standardResult())
+        let body = Data(
+            #"""
+            {"messages":[{"role":"user","content":"Call ping"}],"stream":true,
+             "tools":[{"type":"function","function":{"name":"ping"}}],
+             "tool_choice":"required"}
+            """#.utf8
+        )
+        let emissions = try await Self.collect(Self.service(generator: generator), body: body)
+
+        #expect(emissions.count == 1)
+        guard case .fixed(let response) = try #require(emissions.first) else {
+            Issue.record("Expected a fixed JSON validation response")
+            return
+        }
+        #expect(response.status == .badRequest)
+        let json = try #require(JSONSerialization.jsonObject(with: response.body) as? [String: Any])
+        let error = try #require(json["error"] as? [String: Any])
+        #expect(error["code"] as? String == "unsupported_tool_choice")
+        #expect(error["param"] as? String == "tool_choice")
+    }
+
+    @Test("Streaming tool calls emit canonical deltas, finish, usage, and DONE")
+    func streamToolCalls() async throws {
+        let generator = StreamingGenerator(
+            deltas: ["<start_of_turn>", "model:internal-base64"],
+            result: .init(
+                content: nil,
+                finishReason: .toolCalls,
+                usage: .init(
+                    input: .init(totalTokenCount: 8),
+                    output: .init(totalTokenCount: 5),
+                    measurement: .tokenized,
+                    scope: .response
+                ),
+                toolCalls: [
+                    .init(id: "call_1", name: "weather", arguments: #"{"city":"Paris"}"#),
+                    .init(id: "call_2", name: "weather", arguments: #"{"city":"Tokyo"}"#)
+                ]
+            )
+        )
+        let emissions = try await Self.collect(
+            Self.service(generator: generator),
+            body: Self.toolStreamBody(includeUsage: true)
+        )
+        let bodies = Self.streamBodies(emissions)
+        #expect(bodies.last == "data: [DONE]\n\n")
+        let chunks = try bodies.dropLast().map(Self.eventObject)
+        #expect(chunks.count == 4)
+        #expect(!bodies.contains { $0.contains("start_of_turn") || $0.contains("internal-base64") })
+
+        let callChoice = try Self.choice(in: chunks[1])
+        #expect(callChoice["finish_reason"] is NSNull)
+        let delta = try #require(callChoice["delta"] as? [String: Any])
+        #expect(delta["content"] == nil)
+        let calls = try #require(delta["tool_calls"] as? [[String: Any]])
+        #expect(calls.map { $0["index"] as? Int } == [0, 1])
+        #expect(calls.map { $0["id"] as? String } == ["call_1", "call_2"])
+        #expect(calls.allSatisfy { $0["type"] as? String == "function" })
+        let secondFunction = try #require(calls[1]["function"] as? [String: Any])
+        #expect(secondFunction["name"] as? String == "weather")
+        #expect(secondFunction["arguments"] as? String == #"{"city":"Tokyo"}"#)
+
+        #expect(try Self.choice(in: chunks[2])["finish_reason"] as? String == "tool_calls")
+        #expect((chunks[3]["choices"] as? [Any])?.isEmpty == true)
+        let usage = try #require(chunks[3]["usage"] as? [String: Any])
+        #expect(usage["prompt_tokens"] as? Int == 8)
+        #expect(usage["completion_tokens"] as? Int == 5)
+        #expect(usage["afm_measurement"] as? String == "tokenized")
+    }
+
+    @Test("Tool-enabled streams release buffered content after a normal answer")
+    func streamToolEnabledContent() async throws {
+        let generator = StreamingGenerator(
+            deltas: ["No tool", " needed"],
+            result: .init(content: "No tool needed", usage: Self.standardUsage())
+        )
+        let emissions = try await Self.collect(
+            Self.service(generator: generator),
+            body: Self.toolStreamBody()
+        )
+        let chunks = try Self.streamBodies(emissions).dropLast().map(Self.eventObject)
+
+        #expect(chunks.count == 4)
+        #expect(try Self.content(in: chunks[1]) == "No tool")
+        #expect(try Self.content(in: chunks[2]) == " needed")
+        #expect(try Self.choice(in: chunks[3])["finish_reason"] as? String == "stop")
     }
 }
 
@@ -372,6 +469,20 @@ private extension AFMChatStreamingServiceTests {
         return Data(
             #"{"model":"system","messages":[{"role":"user","content":"Hi"}],"stream":true\#(options)}"#.utf8
         )
+    }
+
+    static func toolStreamBody(includeUsage: Bool = false) -> Data {
+        let options = includeUsage ? #", "stream_options":{"include_usage":true}"# : ""
+        let body = """
+        {
+          "model":"system",
+          "messages":[{"role":"user","content":"Call ping"}],
+          "stream":true,
+          "tools":[{"type":"function","function":{"name":"ping"}}],
+          "tool_choice":"auto"\(options)
+        }
+        """
+        return Data(body.utf8)
     }
 
     static func structuredStreamBody() -> Data {
