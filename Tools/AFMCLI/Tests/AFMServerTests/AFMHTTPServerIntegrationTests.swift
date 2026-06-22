@@ -72,6 +72,103 @@ func unixSocketPermissionsAndCleanup() async throws {
     }
 }
 
+@Test("Failed Unix channel adoption closes the descriptor and removes its socket")
+func failedUnixChannelAdoptionCleanup() throws {
+    let directory = try makeTemporaryDirectory()
+    defer { try? FileManager.default.removeItem(at: directory) }
+    let path = directory.appending(path: "afm.sock").path()
+    let boundSocket = try AFMUnixSocketManager.makeBoundSocket(path: path)
+    defer {
+        if Darwin.fcntl(boundSocket.descriptor, F_GETFD) >= 0 {
+            Darwin.close(boundSocket.descriptor)
+        }
+        Darwin.unlink(path)
+    }
+
+    try AFMUnixSocketManager.cleanupAfterFailedAdoption(boundSocket)
+
+    errno = 0
+    #expect(Darwin.fcntl(boundSocket.descriptor, F_GETFD) == -1)
+    #expect(errno == EBADF)
+    var status = stat()
+    #expect(Darwin.lstat(path, &status) == -1)
+    #expect(errno == ENOENT)
+}
+
+@Test("A server can retry after its first TCP bind fails")
+func failedTCPBindCanRetrySameServer() async throws {
+    let blocker = try testServer(configuration: .init(endpoint: .tcp(host: "127.0.0.1", port: 0)))
+    var retryingServer: AFMHTTPServer?
+
+    do {
+        let blockerAddress = try await blocker.start()
+        guard case .tcp(_, let port) = blockerAddress else {
+            Issue.record("Expected a TCP address")
+            try await blocker.stop()
+            return
+        }
+        let server = try testServer(configuration: .init(endpoint: .tcp(host: "127.0.0.1", port: port)))
+        retryingServer = server
+
+        do {
+            _ = try await server.start()
+            Issue.record("Expected the occupied port bind to fail")
+        } catch {
+            #expect(!(error is AFMHTTPServerStateError))
+        }
+
+        try await blocker.stop()
+        let retryAddress = try await server.start()
+        #expect(retryAddress == .tcp(host: "127.0.0.1", port: port))
+        try await server.stop()
+    } catch {
+        try? await blocker.stop()
+        if let retryingServer {
+            try? await retryingServer.stop()
+        }
+        throw error
+    }
+}
+
+@Test("Failed shutdown retains its socket lease until a retry succeeds")
+func failedShutdownCanRetryAndRestart() async throws {
+    let directory = try makeTemporaryDirectory()
+    defer {
+        Darwin.chmod(directory.path(), 0o700)
+        try? FileManager.default.removeItem(at: directory)
+    }
+    let path = directory.appending(path: "afm.sock").path()
+    let server = try testServer(configuration: .init(endpoint: .unixSocket(path: path)))
+
+    do {
+        _ = try await server.start()
+        #expect(Darwin.chmod(directory.path(), 0o500) == 0)
+
+        do {
+            try await server.stop()
+            Issue.record("Expected socket cleanup to fail in a read-only directory")
+        } catch {
+            #expect(error is AFMUnixSocketError)
+        }
+
+        var status = stat()
+        #expect(Darwin.lstat(path, &status) == 0)
+        #expect((status.st_mode & S_IFMT) == S_IFSOCK)
+
+        #expect(Darwin.chmod(directory.path(), 0o700) == 0)
+        try await server.stop()
+        #expect(Darwin.lstat(path, &status) == -1)
+        #expect(errno == ENOENT)
+
+        _ = try await server.start()
+        try await server.stop()
+    } catch {
+        Darwin.chmod(directory.path(), 0o700)
+        try? await server.stop()
+        throw error
+    }
+}
+
 @Test("Graceful shutdown closes accepted keep-alive connections")
 func gracefulShutdownClosesChildChannels() async throws {
     let server = try testServer(configuration: .init(endpoint: .tcp(host: "127.0.0.1", port: 0)))

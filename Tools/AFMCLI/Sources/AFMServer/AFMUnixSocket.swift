@@ -99,6 +99,20 @@ enum AFMUnixSocketManager {
         return AFMBoundUnixSocket(descriptor: descriptor, lease: lease)
     }
 
+    static func cleanupAfterFailedAdoption(_ socket: AFMBoundUnixSocket) throws {
+        let closeResult = Darwin.close(socket.descriptor)
+        let closeError = errno
+
+        try socket.lease.cleanup()
+
+        guard closeResult == 0 || closeError == EBADF else {
+            throw AFMUnixSocketError.posix(
+                operation: "close unadopted Unix socket",
+                code: closeError
+            )
+        }
+    }
+
     private static func validateParentDirectory(of path: String) throws {
         let parentPath = (path as NSString).deletingLastPathComponent
         var status = stat()

@@ -81,18 +81,19 @@ public actor AFMHTTPServer {
                     self.channel = channel
                     return .unixSocket(path: path)
                 } catch {
-                    try? boundSocket.lease.cleanup()
+                    do {
+                        try AFMUnixSocketManager.cleanupAfterFailedAdoption(boundSocket)
+                    } catch {
+                        socketLease = boundSocket.lease
+                    }
                     throw error
                 }
             }
         } catch {
             self.channel = nil
-            if let socketLease {
-                try? socketLease.cleanup()
-                self.socketLease = nil
-            }
-            try? await group.shutdownGracefully()
-            self.group = nil
+            let socketCleanupError = cleanupSocket()
+            let groupShutdownError = await shutdownEventLoopGroup()
+            hasStarted = socketCleanupError != nil || groupShutdownError != nil
             throw error
         }
     }
@@ -112,13 +113,19 @@ public actor AFMHTTPServer {
         if let firstError = errors.compactMap({ $0 }).first {
             throw firstError
         }
+        childChannels.finishShutdown()
+        hasStarted = false
     }
 
     private func closeListeningChannel() async -> Error? {
-        defer { channel = nil }
-        guard let channel, channel.isActive else { return nil }
+        guard let channel else { return nil }
+        guard channel.isActive else {
+            self.channel = nil
+            return nil
+        }
         do {
             try await channel.close().get()
+            self.channel = nil
             return nil
         } catch {
             return error
@@ -127,9 +134,14 @@ public actor AFMHTTPServer {
 
     private func closeChildChannels() async -> Error? {
         var firstError: Error?
-        for childChannel in childChannels.beginShutdown() where childChannel.isActive {
+        for childChannel in childChannels.beginShutdown() {
+            guard childChannel.isActive else {
+                childChannels.remove(childChannel)
+                continue
+            }
             do {
                 try await childChannel.close().get()
+                childChannels.remove(childChannel)
             } catch {
                 if firstError == nil { firstError = error }
             }
@@ -138,10 +150,10 @@ public actor AFMHTTPServer {
     }
 
     private func cleanupSocket() -> Error? {
-        defer { socketLease = nil }
         guard let socketLease else { return nil }
         do {
             try socketLease.cleanup()
+            self.socketLease = nil
             return nil
         } catch {
             return error
@@ -149,10 +161,10 @@ public actor AFMHTTPServer {
     }
 
     private func shutdownEventLoopGroup() async -> Error? {
-        defer { group = nil }
         guard let group else { return nil }
         do {
             try await group.shutdownGracefully()
+            self.group = nil
             return nil
         } catch {
             return error

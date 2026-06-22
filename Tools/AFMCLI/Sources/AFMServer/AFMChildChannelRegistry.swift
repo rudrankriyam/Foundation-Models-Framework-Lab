@@ -28,9 +28,15 @@ final class AFMChildChannelRegistry: @unchecked Sendable {
         lock.lock()
         isShuttingDown = true
         let openChannels = Array(channels.values)
-        channels.removeAll()
         lock.unlock()
         return openChannels
+    }
+
+    func finishShutdown() {
+        lock.lock()
+        precondition(channels.isEmpty, "Cannot finish shutdown with open child channels")
+        isShuttingDown = false
+        lock.unlock()
     }
 }
 
