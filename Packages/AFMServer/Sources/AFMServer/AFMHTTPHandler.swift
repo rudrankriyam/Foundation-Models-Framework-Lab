@@ -177,7 +177,7 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
             } catch is CancellationError {
                 return
             } catch {
-                if !writer.hasStarted {
+                if !(await writer.hasStarted) {
                     try? await writer.write(
                         .fixed(
                             .apiError(

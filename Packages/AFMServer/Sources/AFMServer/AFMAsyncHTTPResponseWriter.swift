@@ -2,7 +2,7 @@ import Foundation
 import NIOCore
 import NIOHTTP1
 
-final class AFMAsyncHTTPResponseWriter: @unchecked Sendable {
+actor AFMAsyncHTTPResponseWriter {
     enum WriterError: Error {
         case invalidEmissionSequence
         case inactiveChannel

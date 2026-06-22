@@ -30,7 +30,8 @@ struct AFMAsyncHTTPResponseWriterTests {
             Issue.record("Unexpected writer error: \(error)")
         }
 
-        #expect(writer.hasStarted)
+        let hasStarted = await writer.hasStarted
+        #expect(hasStarted)
         let outbound = try #require(
             try channel.readOutbound(as: HTTPServerResponsePart.self)
         )
