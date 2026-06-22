@@ -38,9 +38,11 @@ public struct ModelRuntimeStatusResult: CapabilityResult, Sendable, Hashable, Co
         self.runtime = runtime
         self.isSupported = isSupported
         self.isAvailable = isAvailable
+        let hasRequiredAuthorization = authorization == .granted
+            || (runtime == .onDevice && authorization == .notRequired)
         self.isRunnableInCurrentProcess = isSupported
             && isAvailable
-            && authorization != .missing
+            && hasRequiredAuthorization
         self.authorization = authorization
         self.reason = reason
         self.metadata = metadata

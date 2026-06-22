@@ -21,18 +21,62 @@ func quotaInspectionReportsSystemAsNotApplicable() {
     #expect(results.map(\.status) == [.notApplicable, .approachingLimit])
 }
 
-@Test("Missing managed entitlement makes PCC non-runnable")
-func missingEntitlementMakesPCCNonRunnable() {
+@Test(
+    "Unconfirmed managed entitlement makes PCC non-runnable",
+    arguments: [ModelRuntimeAuthorization.missing, .unknown, .notRequired]
+)
+func unconfirmedEntitlementMakesPCCNonRunnable(
+    authorization: ModelRuntimeAuthorization
+) {
     let result = ModelRuntimeStatusResult(
         runtime: .privateCloudCompute,
         isAvailable: true,
-        authorization: .missing,
-        reason: .missingEntitlement
+        authorization: authorization
     )
 
     #expect(result.isSupported)
     #expect(!result.isRunnableInCurrentProcess)
-    #expect(result.authorization == .missing)
+    #expect(result.authorization == authorization)
+}
+
+@Test("Confirmed managed entitlement makes available PCC runnable")
+func grantedEntitlementMakesPCCRunnable() {
+    let result = ModelRuntimeStatusResult(
+        runtime: .privateCloudCompute,
+        isAvailable: true,
+        authorization: .granted
+    )
+
+    #expect(result.isRunnableInCurrentProcess)
+}
+
+@Test("On-device runtime is runnable without managed PCC authorization")
+func onDeviceRuntimeDoesNotRequirePCCAuthorization() {
+    let result = ModelRuntimeStatusResult(
+        runtime: .onDevice,
+        isAvailable: true
+    )
+
+    #expect(result.isRunnableInCurrentProcess)
+    #expect(result.authorization == .notRequired)
+}
+
+@Test("Unsupported or unavailable runtimes remain non-runnable")
+func unsupportedOrUnavailableRuntimesRemainNonRunnable() {
+    let unavailable = ModelRuntimeStatusResult(
+        runtime: .privateCloudCompute,
+        isAvailable: false,
+        authorization: .granted
+    )
+    let unsupported = ModelRuntimeStatusResult(
+        runtime: .privateCloudCompute,
+        isSupported: false,
+        isAvailable: true,
+        authorization: .granted
+    )
+
+    #expect(!unavailable.isRunnableInCurrentProcess)
+    #expect(!unsupported.isRunnableInCurrentProcess)
 }
 
 private struct StubRuntimeInspector: ModelRuntimeInspecting {
