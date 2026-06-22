@@ -45,6 +45,8 @@ public struct AFMChatMessage: Sendable, Equatable {
 public struct AFMChatGenerationRequest: Sendable, Equatable {
     public let model: String
     public let messages: [AFMChatMessage]
+    public let stream: Bool
+    public let streamOptions: AFMChatStreamOptions?
     public let temperature: Double?
     public let topP: Double?
     public let maximumCompletionTokens: Int?
@@ -52,12 +54,16 @@ public struct AFMChatGenerationRequest: Sendable, Equatable {
     public init(
         model: String = "system",
         messages: [AFMChatMessage],
+        stream: Bool = false,
+        streamOptions: AFMChatStreamOptions? = nil,
         temperature: Double? = nil,
         topP: Double? = nil,
         maximumCompletionTokens: Int? = nil
     ) {
         self.model = model
         self.messages = messages
+        self.stream = stream
+        self.streamOptions = streamOptions
         self.temperature = temperature
         self.topP = topP
         self.maximumCompletionTokens = maximumCompletionTokens
@@ -74,21 +80,18 @@ extension AFMChatGenerationRequest: Decodable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: AFMJSONKey.self)
         try rejectUnknownFields(in: container, allowed: Self.allowedFields, decoder: decoder)
-        try rejectUnsupportedFields(
-            ["tools", "tool_choice", "response_format", "stream_options"],
-            in: container,
-            decoder: decoder
-        )
-
-        if try container.decodeIfPresent(Bool.self, forKey: .init("stream")) == true {
-            throw AFMChatRequestValidationError.unsupportedField("stream")
-        }
+        try rejectUnsupportedFields(["response_format"], in: container, decoder: decoder)
 
         let model = try container.decodeIfPresent(String.self, forKey: .init("model")) ?? "system"
         guard container.contains(.init("messages")) else {
             throw AFMChatRequestValidationError.missingField("messages")
         }
         let messages = try container.decode([AFMChatMessage].self, forKey: .init("messages"))
+        let stream = try container.decodeIfPresent(Bool.self, forKey: .init("stream")) ?? false
+        let streamOptions = try container.decodeIfPresent(
+            AFMChatStreamOptions.self,
+            forKey: .init("stream_options")
+        )
         let temperature = try container.decodeIfPresent(Double.self, forKey: .init("temperature"))
         let topP = try container.decodeIfPresent(Double.self, forKey: .init("top_p"))
         let maximumCompletionTokens = try container.decodeIfPresent(
@@ -98,6 +101,8 @@ extension AFMChatGenerationRequest: Decodable {
         let legacyMaximumTokens = try container.decodeIfPresent(Int.self, forKey: .init("max_tokens"))
 
         try Self.validateModel(model)
+        try Self.validateStreaming(stream: stream, streamOptions: streamOptions)
+        try Self.validateEmptyToolSentinel(in: container)
         try Self.validateOptions(
             temperature: temperature,
             topP: topP,
@@ -109,6 +114,8 @@ extension AFMChatGenerationRequest: Decodable {
         self.init(
             model: model,
             messages: messages,
+            stream: stream,
+            streamOptions: streamOptions,
             temperature: temperature,
             topP: topP,
             maximumCompletionTokens: maximumCompletionTokens ?? legacyMaximumTokens
@@ -130,6 +137,36 @@ extension AFMChatGenerationRequest: Decodable {
     private static func validateModel(_ model: String) throws {
         guard !model.isEmpty, model == model.trimmingCharacters(in: .whitespacesAndNewlines) else {
             throw AFMChatRequestValidationError.invalidField("model", message: "Model must be a non-empty identifier.")
+        }
+    }
+
+    private static func validateStreaming(
+        stream: Bool,
+        streamOptions: AFMChatStreamOptions?
+    ) throws {
+        guard stream || streamOptions == nil else {
+            throw AFMChatRequestValidationError.invalidField(
+                "stream_options",
+                message: "stream_options may only be used when stream is true."
+            )
+        }
+    }
+
+    private static func validateEmptyToolSentinel(
+        in container: KeyedDecodingContainer<AFMJSONKey>
+    ) throws {
+        let toolsKey = AFMJSONKey("tools")
+        if container.contains(toolsKey), try !container.decodeNil(forKey: toolsKey) {
+            let tools = try container.nestedUnkeyedContainer(forKey: toolsKey)
+            guard tools.isAtEnd else {
+                throw AFMChatRequestValidationError.unsupportedField("tools")
+            }
+        }
+
+        let toolChoiceKey = AFMJSONKey("tool_choice")
+        if let toolChoice = try container.decodeIfPresent(String.self, forKey: toolChoiceKey),
+           toolChoice != "auto" {
+            throw AFMChatRequestValidationError.unsupportedField("tool_choice")
         }
     }
 
@@ -182,7 +219,7 @@ struct AFMChatRequestValidationError: Error, Equatable, Sendable {
 
     static func unsupportedField(_ parameter: String) -> Self {
         .init(
-            message: "Field '\(parameter)' is not supported by non-streaming chat completions yet.",
+            message: "Field '\(parameter)' is not supported by this chat completions endpoint.",
             parameter: parameter,
             code: "unsupported_field"
         )

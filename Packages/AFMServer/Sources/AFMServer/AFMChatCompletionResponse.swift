@@ -3,6 +3,7 @@ import FoundationModelsKit
 
 public enum AFMChatFinishReason: String, Sendable, Equatable, Encodable {
     case stop
+    case length
     case contentFilter = "content_filter"
 }
 
@@ -27,6 +28,24 @@ public struct AFMChatGenerationResult: Sendable, Equatable {
 
 public protocol AFMChatCompletionGenerating: Sendable {
     func generate(_ request: AFMChatGenerationRequest) async throws -> AFMChatGenerationResult
+
+    func stream(
+        _ request: AFMChatGenerationRequest,
+        emitting event: @escaping @Sendable (AFMChatGenerationEvent) async throws -> Void
+    ) async throws -> AFMChatGenerationResult
+}
+
+public extension AFMChatCompletionGenerating {
+    func stream(
+        _ request: AFMChatGenerationRequest,
+        emitting event: @escaping @Sendable (AFMChatGenerationEvent) async throws -> Void
+    ) async throws -> AFMChatGenerationResult {
+        let result = try await generate(request)
+        if let content = result.content, !content.isEmpty {
+            try await event(.contentDelta(content))
+        }
+        return result
+    }
 }
 
 public enum AFMChatGenerationError: Error, Sendable, Equatable {

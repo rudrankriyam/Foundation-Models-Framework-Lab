@@ -89,16 +89,27 @@ struct AFMRequestRouter: Sendable {
         return route.addingOrigin(originResult.origin)
     }
 
-    func chatCompletionResponse(body: Data, origin: String?) async throws -> AFMHTTPResponse {
+    func writeChatCompletionResponse(
+        body: Data,
+        origin: String?,
+        emitting emission: @escaping @Sendable (AFMHTTPEmission) async throws -> Void
+    ) async throws {
         guard let chatCompletions else {
-            return AFMHTTPResponse.apiError(
-                status: .notImplemented,
-                message: "Chat completions are not configured for this server.",
-                code: "not_implemented",
-                type: "server_error"
-            ).addingOrigin(origin)
+            try await emission(
+                .fixed(
+                    AFMHTTPResponse.apiError(
+                        status: .notImplemented,
+                        message: "Chat completions are not configured for this server.",
+                        code: "not_implemented",
+                        type: "server_error"
+                    ).addingOrigin(origin)
+                )
+            )
+            return
         }
-        return try await chatCompletions.response(for: body).addingOrigin(origin)
+        try await chatCompletions.writeResponse(for: body) { response in
+            try await emission(response.addingOrigin(origin))
+        }
     }
 
     func requiresJSONBody(_ request: HTTPRequestHead) -> Bool {
@@ -211,6 +222,22 @@ private extension AFMHTTPResponse {
         updatedHeaders.add(name: "access-control-allow-origin", value: origin)
         updatedHeaders.add(name: "vary", value: "Origin")
         return .init(status: status, headers: updatedHeaders, body: body)
+    }
+}
+
+private extension AFMHTTPEmission {
+    func addingOrigin(_ origin: String?) -> Self {
+        guard let origin else { return self }
+        switch self {
+        case .fixed(let response):
+            return .fixed(response.addingOrigin(origin))
+        case .streamHead(let status, var headers):
+            headers.add(name: "access-control-allow-origin", value: origin)
+            headers.add(name: "vary", value: "Origin")
+            return .streamHead(status: status, headers: headers)
+        case .streamBody, .streamEnd:
+            return self
+        }
     }
 }
 

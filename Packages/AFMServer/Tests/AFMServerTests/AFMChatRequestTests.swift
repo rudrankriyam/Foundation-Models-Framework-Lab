@@ -28,6 +28,40 @@ func chatRequestContentAndAlias() throws {
     #expect(request.maximumCompletionTokens == 42)
     #expect(request.temperature == 0.5)
     #expect(request.topP == 0.9)
+    #expect(!request.stream)
+    #expect(request.streamOptions == nil)
+}
+
+@Test("Chat requests accept Apple's streaming tool sentinel and usage option")
+func chatRequestAppleStreamingShape() throws {
+    let request = try decodeChatRequest(
+        """
+        {
+          "model": "system",
+          "messages": [{"role": "user", "content": "Hi"}],
+          "stream": true,
+          "stream_options": {"include_usage": true},
+          "tools": [],
+          "tool_choice": "auto"
+        }
+        """
+    )
+
+    #expect(request.stream)
+    #expect(request.streamOptions == .init(includeUsage: true))
+}
+
+@Test("Chat requests accept omitted and null tool sentinels")
+func chatRequestNullToolSentinels() throws {
+    let omitted = try decodeChatRequest(
+        #"{"messages":[{"role":"user","content":"Hi"}],"stream":true}"#
+    )
+    let null = try decodeChatRequest(
+        #"{"messages":[{"role":"user","content":"Hi"}],"stream":true,"tools":null,"tool_choice":null}"#
+    )
+
+    #expect(omitted.stream)
+    #expect(null.stream)
 }
 
 @Test("Chat requests reconstruct assistant tool calls and matching tool outputs")
@@ -44,8 +78,26 @@ func chatRequestToolHistory() throws {
 @Test(
     "Unsupported and unknown chat fields return precise validation errors",
     arguments: [
-        (#"{"messages":[{"role":"user","content":"Hi"}],"stream":true}"#, "stream", "unsupported_field"),
-        (#"{"messages":[{"role":"user","content":"Hi"}],"tools":[]}"#, "tools", "unsupported_field"),
+        (
+            #"{"messages":[{"role":"user","content":"Hi"}],"tools":[{"type":"function"}]}"#,
+            "tools",
+            "unsupported_field"
+        ),
+        (
+            #"{"messages":[{"role":"user","content":"Hi"}],"tool_choice":"required"}"#,
+            "tool_choice",
+            "unsupported_field"
+        ),
+        (
+            #"{"messages":[{"role":"user","content":"Hi"}],"stream_options":{"include_usage":true}}"#,
+            "stream_options",
+            "invalid_field"
+        ),
+        (
+            #"{"messages":[{"role":"user","content":"Hi"}],"stream":true,"stream_options":{"extra":true}}"#,
+            "stream_options.extra",
+            "unknown_field"
+        ),
         (#"{"messages":[{"role":"user","content":"Hi"}],"response_format":{}}"#, "response_format", "unsupported_field"),
         (#"{"messages":[{"role":"user","content":"Hi"}],"surprise":1}"#, "surprise", "unknown_field"),
         (

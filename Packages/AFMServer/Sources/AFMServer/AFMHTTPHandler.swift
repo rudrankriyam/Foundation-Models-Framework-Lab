@@ -82,17 +82,7 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
                 return
             }
             cancelGeneration()
-            responseWasSent = true
-            send(
-                .apiError(
-                    status: .badRequest,
-                    message: "Only one request may be active on a connection.",
-                    code: "invalid_http_request"
-                ),
-                version: head.version,
-                close: true,
-                context: context
-            )
+            context.close(promise: nil)
             return
         }
 
@@ -171,43 +161,61 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
         context: ChannelHandlerContext
     ) {
         let router = router
+        responseWasSent = true
+        let writer = AFMAsyncHTTPResponseWriter(
+            channel: context.channel,
+            version: head.version,
+            closeAfterResponse: !head.isKeepAlive
+        )
         let contextReference = AFMChannelContextReference(context)
         let eventLoop = context.eventLoop
         generationTask = Task { [weak self] in
-            let response: AFMHTTPResponse
             do {
-                response = try await router.chatCompletionResponse(body: body, origin: origin)
+                try await router.writeChatCompletionResponse(body: body, origin: origin) { emission in
+                    try await writer.write(emission)
+                }
             } catch is CancellationError {
                 return
             } catch {
-                response = .apiError(
-                    status: .internalServerError,
-                    message: "The chat completion request failed.",
-                    code: "internal_error",
-                    type: "server_error"
-                )
+                if !writer.hasStarted {
+                    try? await writer.write(
+                        .fixed(
+                            .apiError(
+                                status: .internalServerError,
+                                message: "The chat completion request failed.",
+                                code: "internal_error",
+                                type: "server_error"
+                            )
+                        )
+                    )
+                } else {
+                    await writer.abort()
+                }
             }
             guard !Task.isCancelled else { return }
             eventLoop.execute { [weak self] in
-                self?.completeChatCompletion(
-                    response,
-                    head: head,
-                    context: contextReference.context
-                )
+                self?.completeChatCompletion(context: contextReference.context)
             }
         }
     }
 
-    private func completeChatCompletion(
-        _ response: AFMHTTPResponse,
-        head: HTTPRequestHead,
-        context: ChannelHandlerContext
-    ) {
+    private func completeChatCompletion(context: ChannelHandlerContext) {
         generationTask = nil
-        guard requestHead != nil, !responseWasSent, context.channel.isActive else { return }
-        let shouldClose = !head.isKeepAlive || shouldCloseForPipelinedRequest
+        guard requestHead != nil, context.channel.isActive else { return }
+        let shouldClose = shouldCloseForPipelinedRequest
         resetRequestState()
-        send(response, version: head.version, close: shouldClose, context: context)
+        if shouldClose {
+            isClosingResponse = true
+            context.close(promise: nil)
+        }
+    }
+}
+
+private final class AFMChannelContextReference: @unchecked Sendable {
+    let context: ChannelHandlerContext
+
+    init(_ context: ChannelHandlerContext) {
+        self.context = context
     }
 }
 
@@ -303,13 +311,5 @@ private extension AFMHTTPHandler {
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .lowercased()
         return mediaType == "application/json"
-    }
-}
-
-private final class AFMChannelContextReference: @unchecked Sendable {
-    let context: ChannelHandlerContext
-
-    init(_ context: ChannelHandlerContext) {
-        self.context = context
     }
 }
