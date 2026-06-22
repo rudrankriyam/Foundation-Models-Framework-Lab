@@ -47,7 +47,6 @@ public struct FoundationModelsRuntimeInspector: ModelRuntimeInspecting {
                     runtime: .privateCloudCompute,
                     isAvailable: true,
                     authorization: authorization,
-                    reason: authorization == .missing ? .missingEntitlement : nil,
                     metadata: metadata(for: .privateCloudCompute)
                 )
             case .unavailable(let reason):
@@ -69,21 +68,8 @@ public struct FoundationModelsRuntimeInspector: ModelRuntimeInspecting {
 
     private func privateCloudQuotaUsage() -> ModelQuotaUsageResult {
         let status = privateCloudStatus()
-        guard status.isSupported else {
-            return ModelQuotaUsageResult(
-                runtime: .privateCloudCompute,
-                status: .unsupported,
-                unavailableReason: status.reason,
-                metadata: metadata(for: .privateCloudCompute)
-            )
-        }
-        guard status.isRunnableInCurrentProcess else {
-            return ModelQuotaUsageResult(
-                runtime: .privateCloudCompute,
-                status: .unavailable,
-                unavailableReason: status.reason,
-                metadata: metadata(for: .privateCloudCompute)
-            )
+        if let unavailableResult = privateCloudUnavailableQuotaResult(for: status) {
+            return unavailableResult
         }
 
         #if compiler(>=6.4)
@@ -96,6 +82,19 @@ public struct FoundationModelsRuntimeInspector: ModelRuntimeInspecting {
             runtime: .privateCloudCompute,
             status: .unsupported,
             unavailableReason: .unsupportedToolchain,
+            metadata: metadata(for: .privateCloudCompute)
+        )
+    }
+
+    func privateCloudUnavailableQuotaResult(
+        for status: ModelRuntimeStatusResult
+    ) -> ModelQuotaUsageResult? {
+        guard status.runtime == .privateCloudCompute,
+              !status.isRunnableInCurrentProcess else { return nil }
+        return ModelQuotaUsageResult(
+            runtime: .privateCloudCompute,
+            status: status.isSupported ? .unavailable : .unsupported,
+            unavailableReason: status.reason ?? .unknown,
             metadata: metadata(for: .privateCloudCompute)
         )
     }

@@ -23,10 +23,15 @@ func quotaInspectionReportsSystemAsNotApplicable() {
 
 @Test(
     "Unconfirmed managed entitlement makes PCC non-runnable",
-    arguments: [ModelRuntimeAuthorization.missing, .unknown, .notRequired]
+    arguments: [
+        (ModelRuntimeAuthorization.missing, ModelRuntimeUnavailableReason.missingEntitlement),
+        (.unknown, .unknown),
+        (.notRequired, .unknown)
+    ]
 )
 func unconfirmedEntitlementMakesPCCNonRunnable(
-    authorization: ModelRuntimeAuthorization
+    authorization: ModelRuntimeAuthorization,
+    expectedReason: ModelRuntimeUnavailableReason
 ) {
     let result = ModelRuntimeStatusResult(
         runtime: .privateCloudCompute,
@@ -37,6 +42,32 @@ func unconfirmedEntitlementMakesPCCNonRunnable(
     #expect(result.isSupported)
     #expect(!result.isRunnableInCurrentProcess)
     #expect(result.authorization == authorization)
+    #expect(result.reason == expectedReason)
+}
+
+@Test(
+    "Skipped PCC quota preserves the authorization failure reason",
+    arguments: [
+        (ModelRuntimeAuthorization.missing, ModelRuntimeUnavailableReason.missingEntitlement),
+        (.unknown, .unknown)
+    ]
+)
+func skippedPCCQuotaPreservesAuthorizationReason(
+    authorization: ModelRuntimeAuthorization,
+    expectedReason: ModelRuntimeUnavailableReason
+) throws {
+    let runtimeStatus = ModelRuntimeStatusResult(
+        runtime: .privateCloudCompute,
+        isAvailable: true,
+        authorization: authorization
+    )
+
+    let result = try #require(
+        FoundationModelsRuntimeInspector().privateCloudUnavailableQuotaResult(for: runtimeStatus)
+    )
+
+    #expect(result.status == .unavailable)
+    #expect(result.unavailableReason == expectedReason)
 }
 
 @Test("Confirmed managed entitlement makes available PCC runnable")

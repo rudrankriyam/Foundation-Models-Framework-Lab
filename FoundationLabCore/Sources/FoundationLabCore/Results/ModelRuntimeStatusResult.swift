@@ -44,7 +44,25 @@ public struct ModelRuntimeStatusResult: CapabilityResult, Sendable, Hashable, Co
             && isAvailable
             && hasRequiredAuthorization
         self.authorization = authorization
-        self.reason = reason
+        self.reason = reason ?? Self.authorizationReason(
+            runtime: runtime,
+            authorization: authorization
+        )
         self.metadata = metadata
+    }
+
+    private static func authorizationReason(
+        runtime: FoundationLabModelRuntime,
+        authorization: ModelRuntimeAuthorization
+    ) -> ModelRuntimeUnavailableReason? {
+        guard runtime == .privateCloudCompute else { return nil }
+        switch authorization {
+        case .missing:
+            return .missingEntitlement
+        case .unknown, .notRequired:
+            return .unknown
+        case .granted:
+            return nil
+        }
     }
 }
