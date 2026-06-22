@@ -34,3 +34,22 @@ func availableTextDistinguishesAvailabilityFromAuthorization() {
                 + "(current-process authorization is unknown)"
     )
 }
+
+@Test("Runtime commands expose truthful structured status")
+func runtimeCommandsExposeStructuredStatus() throws {
+    let available = try runAFM("available", "--output", "json")
+    let quota = try runAFM("quota-usage", "--output", "json")
+
+    #expect(available.status == 0)
+    #expect(quota.status == 0)
+
+    let availableJSON = try parseJSONObject(available.stdout)
+    let availableModels = try #require(availableJSON["models"] as? [[String: Any]])
+    #expect(availableModels.compactMap { $0["id"] as? String } == ["system", "pcc"])
+    #expect(availableModels.allSatisfy { $0["isRunnableInCurrentProcess"] is Bool })
+
+    let quotaJSON = try parseJSONObject(quota.stdout)
+    let quotaModels = try #require(quotaJSON["models"] as? [[String: Any]])
+    #expect(quotaModels.compactMap { $0["id"] as? String } == ["system", "pcc"])
+    #expect(quotaModels.first?["status"] as? String == "notApplicable")
+}
