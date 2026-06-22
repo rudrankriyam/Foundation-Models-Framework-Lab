@@ -3,11 +3,24 @@ import FoundationModels
 import FoundationModelsKit
 
 public struct AFMFoundationModelsChatGenerator: AFMChatCompletionGenerating {
-    public init() {}
+    private let sessionBuilder: AFMFoundationModelsSessionBuilder
+
+    public init() {
+        sessionBuilder = { requestedModelIdentifier, transcript in
+            guard requestedModelIdentifier == "system" else {
+                throw AFMChatGenerationError.modelUnavailable
+            }
+            return LanguageModelSession(model: .default, transcript: transcript)
+        }
+    }
+
+    public init(sessionBuilder: @escaping AFMFoundationModelsSessionBuilder) {
+        self.sessionBuilder = sessionBuilder
+    }
 
     public func generate(_ request: AFMChatGenerationRequest) async throws -> AFMChatGenerationResult {
         let prepared = try AFMChatTranscriptBuilder.prepare(request)
-        let session = LanguageModelSession(model: .default, transcript: prepared.transcript)
+        let session = try sessionBuilder(request.model, prepared.transcript)
 
         do {
             let response = try await session.respond(to: prepared.prompt, options: prepared.options)

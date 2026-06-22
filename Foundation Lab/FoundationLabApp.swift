@@ -14,6 +14,9 @@ import SwiftData
 struct FoundationLabApp: App {
     @State private var unavailabilityReason: ModelAvailabilityUnavailableReason?
     @State private var showModelUnavailableWarning = false
+#if os(macOS)
+    @State private var agentBridgeController = AgentBridgeController()
+#endif
 
     var body: some Scene {
         WindowGroup {
@@ -21,6 +24,10 @@ struct FoundationLabApp: App {
                 .modelContainer(for: [HealthMetric.self, HealthSession.self])
 #if os(macOS)
                 .frame(minWidth: 800, minHeight: 600)
+                .environment(agentBridgeController)
+                .task {
+                    agentBridgeController.activatePersistedPreference()
+                }
 #endif
                 .onAppear {
                     FoundationLabAppShortcuts.updateAppShortcutParameters()
@@ -35,6 +42,7 @@ struct FoundationLabApp: App {
         Settings {
             SettingsView()
                 .frame(minWidth: 520, minHeight: 420)
+                .environment(agentBridgeController)
         }
 #endif
     }

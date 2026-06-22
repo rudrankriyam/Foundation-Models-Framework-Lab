@@ -10,6 +10,7 @@
 		0A5454AB2E1148A8002C2152 /* Foundation Lab.icon in Resources */ = {isa = PBXBuildFile; fileRef = 0A5454A72E1148A8002C2152 /* Foundation Lab.icon */; };
 		0A979E842E1E5921008CFA37 /* FoundationModelsKit in Frameworks */ = {isa = PBXBuildFile; productRef = 0A979E832E1E5921008CFA37 /* FoundationModelsKit */; };
 		0B0A11132ECB100100000001 /* FoundationLabCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0B0A11122ECB100100000001 /* FoundationLabCore */; };
+		0B0A11332ECB200100000001 /* AFMServer in Frameworks */ = {isa = PBXBuildFile; platformFilter = macos; productRef = 0B0A11322ECB200100000001 /* AFMServer */; };
 		F1B8C56E2E5B5A1C00XYZ123 /* LumoKit in Frameworks */ = {isa = PBXBuildFile; productRef = F1B8C56D2E5B5A1C00XYZ123 /* LumoKit */; };
 		FA43F9412E13A16E00F24BCC /* HighlightSwift in Frameworks */ = {isa = PBXBuildFile; productRef = FA43F9402E13A16E00F24BCC /* HighlightSwift */; };
 /* End PBXBuildFile section */
@@ -54,6 +55,7 @@
 				FA43F9412E13A16E00F24BCC /* HighlightSwift in Frameworks */,
 				0A979E842E1E5921008CFA37 /* FoundationModelsKit in Frameworks */,
 				0B0A11132ECB100100000001 /* FoundationLabCore in Frameworks */,
+				0B0A11332ECB200100000001 /* AFMServer in Frameworks */,
 				F1B8C56E2E5B5A1C00XYZ123 /* LumoKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -111,6 +113,7 @@
 				FA43F9402E13A16E00F24BCC /* HighlightSwift */,
 				0A979E832E1E5921008CFA37 /* FoundationModelsKit */,
 				0B0A11122ECB100100000001 /* FoundationLabCore */,
+				0B0A11322ECB200100000001 /* AFMServer */,
 				F1B8C56D2E5B5A1C00XYZ123 /* LumoKit */,
 			);
 			productName = FoundationLab;
@@ -145,6 +148,7 @@
 				0AC6037E2E1D5288002106F9 /* XCRemoteSwiftPackageReference "HighlightSwift" */,
 				0A979E822E1E5921008CFA37 /* XCLocalSwiftPackageReference "FoundationModelsKit" */,
 				0B0A11112ECB100100000001 /* XCLocalSwiftPackageReference "FoundationLabCore" */,
+				0B0A11312ECB200100000001 /* XCLocalSwiftPackageReference "AFMServer" */,
 				F1B8C56C2E5B5A1C00XYZ123 /* XCRemoteSwiftPackageReference "LumoKit" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -310,6 +314,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_ENTITLEMENTS = "Foundation Lab/FoundationLab.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Foundation Lab/FoundationLab-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
@@ -392,6 +397,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_ENTITLEMENTS = "Foundation Lab/FoundationLab.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Foundation Lab/FoundationLab-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
@@ -498,6 +504,10 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = FoundationLabCore;
 		};
+		0B0A11312ECB200100000001 /* XCLocalSwiftPackageReference "AFMServer" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/AFMServer;
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
@@ -529,6 +539,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0B0A11112ECB100100000001 /* XCLocalSwiftPackageReference "FoundationLabCore" */;
 			productName = FoundationLabCore;
+		};
+		0B0A11322ECB200100000001 /* AFMServer */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0B0A11312ECB200100000001 /* XCLocalSwiftPackageReference "AFMServer" */;
+			productName = AFMServer;
 		};
 		F1B8C56D2E5B5A1C00XYZ123 /* LumoKit */ = {
 			isa = XCSwiftPackageProductDependency;
