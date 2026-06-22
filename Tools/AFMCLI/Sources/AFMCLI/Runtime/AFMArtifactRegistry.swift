@@ -27,6 +27,9 @@ enum AFMArtifactRegistry {
             do {
                 return try YAMLDecoder().decode(type, from: text)
             } catch {
+                if let schemaError = AFMSchemaValidationError.find(in: error) {
+                    throw ValidationError("Schema validation failed in \(path): \(schemaError.localizedDescription)")
+                }
                 throw ValidationError("Could not decode \(path) as YAML: \(error.localizedDescription)")
             }
         default:
@@ -34,6 +37,9 @@ enum AFMArtifactRegistry {
                 let data = Data(text.utf8)
                 return try JSONDecoder().decode(type, from: data)
             } catch {
+                if let schemaError = AFMSchemaValidationError.find(in: error) {
+                    throw ValidationError("Schema validation failed in \(path): \(schemaError.localizedDescription)")
+                }
                 throw ValidationError("Could not decode \(path) as JSON: \(error.localizedDescription)")
             }
         }
@@ -50,8 +56,9 @@ struct AFMSchemaDocument: Sendable, Codable {
     let minimumItems: Int?
     let maximumItems: Int?
     let enumValues: [String]?
+    let additionalProperties: Bool?
 
-    enum CodingKeys: String, CodingKey {
+    private enum SchemaCodingKeys: String, CodingKey {
         case title
         case description
         case type
@@ -61,6 +68,67 @@ struct AFMSchemaDocument: Sendable, Codable {
         case minimumItems = "minItems"
         case maximumItems = "maxItems"
         case enumValues = "enum"
+        case definitions = "$defs"
+        case reference = "$ref"
+        case anyOf
+        case propertyOrder = "x-order"
+        case additionalProperties
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: SchemaCodingKeys.self)
+
+        try Self.rejectUnsupportedKeyword(.definitions, in: container, decoder: decoder)
+        try Self.rejectUnsupportedKeyword(.reference, in: container, decoder: decoder)
+        try Self.rejectUnsupportedKeyword(.anyOf, in: container, decoder: decoder)
+        try Self.rejectUnsupportedKeyword(.propertyOrder, in: container, decoder: decoder)
+
+        if container.contains(.additionalProperties) {
+            let value: Bool
+            do {
+                value = try container.decode(Bool.self, forKey: .additionalProperties)
+            } catch {
+                throw AFMSchemaValidationError.unsupportedKeyword(
+                    SchemaCodingKeys.additionalProperties.rawValue,
+                    codingPath: decoder.codingPath,
+                    detail: "Only the boolean value false is supported."
+                )
+            }
+            guard !value else {
+                throw AFMSchemaValidationError.unsupportedKeyword(
+                    SchemaCodingKeys.additionalProperties.rawValue,
+                    codingPath: decoder.codingPath,
+                    detail: "Only the boolean value false is supported."
+                )
+            }
+            additionalProperties = value
+        } else {
+            additionalProperties = nil
+        }
+
+        title = try container.decodeIfPresent(String.self, forKey: .title)
+        description = try container.decodeIfPresent(String.self, forKey: .description)
+        type = try container.decodeIfPresent(String.self, forKey: .type)
+        properties = try container.decodeIfPresent([String: AFMSchemaDocumentBox].self, forKey: .properties)
+        required = try container.decodeIfPresent([String].self, forKey: .required)
+        items = try container.decodeIfPresent(AFMSchemaDocumentBox.self, forKey: .items)
+        minimumItems = try container.decodeIfPresent(Int.self, forKey: .minimumItems)
+        maximumItems = try container.decodeIfPresent(Int.self, forKey: .maximumItems)
+        enumValues = try container.decodeIfPresent([String].self, forKey: .enumValues)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: SchemaCodingKeys.self)
+        try container.encodeIfPresent(title, forKey: .title)
+        try container.encodeIfPresent(description, forKey: .description)
+        try container.encodeIfPresent(type, forKey: .type)
+        try container.encodeIfPresent(properties, forKey: .properties)
+        try container.encodeIfPresent(required, forKey: .required)
+        try container.encodeIfPresent(items, forKey: .items)
+        try container.encodeIfPresent(minimumItems, forKey: .minimumItems)
+        try container.encodeIfPresent(maximumItems, forKey: .maximumItems)
+        try container.encodeIfPresent(enumValues, forKey: .enumValues)
+        try container.encodeIfPresent(additionalProperties, forKey: .additionalProperties)
     }
 
     func generationSchema(fallbackName: String = "RootSchema") throws -> GenerationSchema {
@@ -133,6 +201,68 @@ struct AFMSchemaDocument: Sendable, Codable {
             return "string"
         }
         return "object"
+    }
+
+    private static func rejectUnsupportedKeyword(
+        _ key: SchemaCodingKeys,
+        in container: KeyedDecodingContainer<SchemaCodingKeys>,
+        decoder: Decoder
+    ) throws {
+        guard container.contains(key) else {
+            return
+        }
+        throw AFMSchemaValidationError.unsupportedKeyword(
+            key.rawValue,
+            codingPath: decoder.codingPath
+        )
+    }
+}
+
+private struct AFMSchemaValidationError: LocalizedError {
+    let keyword: String
+    let jsonPointer: String
+    let detail: String
+
+    static func unsupportedKeyword(
+        _ keyword: String,
+        codingPath: [any CodingKey],
+        detail: String = "This keyword is not supported."
+    ) -> Self {
+        let components = codingPath.map(\.stringValue) + [keyword]
+        let pointer = "/" + components.map(jsonPointerEscaped).joined(separator: "/")
+        return Self(keyword: keyword, jsonPointer: pointer, detail: detail)
+    }
+
+    var errorDescription: String? {
+        "Unsupported schema keyword '\(keyword)' at JSON pointer '\(jsonPointer)'. \(detail)"
+    }
+
+    static func find(in error: any Error) -> Self? {
+        if let schemaError = error as? Self {
+            return schemaError
+        }
+
+        let underlyingError: (any Error)?
+        switch error {
+        case DecodingError.dataCorrupted(let context),
+             DecodingError.keyNotFound(_, let context),
+             DecodingError.typeMismatch(_, let context),
+             DecodingError.valueNotFound(_, let context):
+            underlyingError = context.underlyingError
+        default:
+            underlyingError = nil
+        }
+
+        guard let underlyingError else {
+            return nil
+        }
+        return find(in: underlyingError)
+    }
+
+    private static func jsonPointerEscaped(_ component: String) -> String {
+        component
+            .replacingOccurrences(of: "~", with: "~0")
+            .replacingOccurrences(of: "/", with: "~1")
     }
 }
 
