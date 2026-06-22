@@ -1,0 +1,59 @@
+{
+  "title" : "Deep",
+  "properties" : {
+    "customer" : {
+      "$ref" : "#\/$defs\/Customer"
+    }
+  },
+  "$defs" : {
+    "Billing" : {
+      "type" : "object",
+      "properties" : {
+        "zip" : {
+          "type" : "integer"
+        },
+        "street" : {
+          "type" : "string"
+        }
+      },
+      "x-order" : [
+        "street",
+        "zip"
+      ],
+      "title" : "Billing",
+      "required" : [
+        "street"
+      ],
+      "additionalProperties" : false
+    },
+    "Customer" : {
+      "required" : [
+        "active",
+        "billing"
+      ],
+      "type" : "object",
+      "properties" : {
+        "active" : {
+          "type" : "boolean"
+        },
+        "billing" : {
+          "$ref" : "#\/$defs\/Billing"
+        }
+      },
+      "title" : "Customer",
+      "additionalProperties" : false,
+      "x-order" : [
+        "active",
+        "billing"
+      ]
+    }
+  },
+  "required" : [
+    "customer"
+  ],
+  "x-order" : [
+    "customer"
+  ],
+  "type" : "object",
+  "additionalProperties" : false
+}

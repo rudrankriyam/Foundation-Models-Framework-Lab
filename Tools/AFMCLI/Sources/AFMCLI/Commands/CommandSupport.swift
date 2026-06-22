@@ -404,6 +404,7 @@ enum HelpText {
       afm session chat --message "Hello" --message "Now answer in French."
       afm tag run --prompt "A joyful dog playing in a sunny park."
       afm session respond --prompt @prompt.txt --tool demo-weather
+      afm schema object --name Person --string name --integer age --optional
       afm schema list
       afm schema run typed-person --input "Alex Rivera is a designer in Berlin."
       afm schema run custom --schema demo-person --input @input.txt
@@ -423,6 +424,7 @@ enum HelpText {
 
     static let schema = """
     SCHEMA COMMANDS
+      object      Generate a runnable JSON or YAML schema artifact.
       list        Show available typed and dynamic schema workflows.
       run         Execute one schema workflow.
     """

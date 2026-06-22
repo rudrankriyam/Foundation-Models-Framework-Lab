@@ -1,0 +1,43 @@
+{
+  "additionalProperties" : false,
+  "title" : "Basket",
+  "properties" : {
+    "items" : {
+      "description" : "Line items",
+      "type" : "array",
+      "items" : {
+        "$ref" : "#\/$defs\/Item"
+      }
+    }
+  },
+  "type" : "object",
+  "$defs" : {
+    "Item" : {
+      "additionalProperties" : false,
+      "type" : "object",
+      "title" : "Item",
+      "x-order" : [
+        "id",
+        "price"
+      ],
+      "properties" : {
+        "price" : {
+          "type" : "number"
+        },
+        "id" : {
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "id",
+        "price"
+      ]
+    }
+  },
+  "required" : [
+    "items"
+  ],
+  "x-order" : [
+    "items"
+  ]
+}
