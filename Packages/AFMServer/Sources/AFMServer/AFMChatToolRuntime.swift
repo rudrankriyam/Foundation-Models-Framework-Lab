@@ -12,25 +12,24 @@ struct AFMChatToolRuntime {
     }
 
     init(request: AFMChatGenerationRequest) throws {
-        let selectedDefinitions: [(offset: Int, element: AFMChatToolDefinition)]
+        let selectedDefinitions: [AFMChatToolDefinition]
         switch request.toolChoice {
         case .none:
             selectedDefinitions = []
         case .auto, .required:
-            selectedDefinitions = Array(request.tools.enumerated())
+            selectedDefinitions = request.tools
         case .function(let name):
-            selectedDefinitions = request.tools.enumerated().filter { $0.element.name == name }
+            selectedDefinitions = request.tools.filter { $0.name == name }
         }
 
         let recorder = AFMChatToolCallRecorder()
-        let captureTools = try selectedDefinitions.map { index, definition in
+        let captureTools = try selectedDefinitions.map { definition in
             AFMChatCaptureTool(
                 name: definition.name,
                 description: definition.description,
                 parameters: try definition.parameters.generationSchema(
                     rootName: "\(definition.name)Arguments"
                 ),
-                definitionIndex: index,
                 recorder: recorder
             )
         }
@@ -53,16 +52,8 @@ struct AFMChatToolRuntime {
         guard !snapshot.invalidArguments else {
             throw AFMChatGenerationError.unsupportedInput
         }
-        let sortedCalls = snapshot.calls.sorted { left, right in
-            if left.definitionIndex != right.definitionIndex {
-                return left.definitionIndex < right.definitionIndex
-            }
-            if left.arguments != right.arguments {
-                return left.arguments < right.arguments
-            }
-            return left.sequence < right.sequence
-        }
-        return sortedCalls.map { call in
+        let orderedCalls = snapshot.calls.sorted { $0.sequence < $1.sequence }
+        return orderedCalls.map { call in
             AFMChatToolCall(
                 id: "call_\(UUID().uuidString)",
                 name: call.name,

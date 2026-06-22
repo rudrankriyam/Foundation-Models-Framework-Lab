@@ -2,7 +2,6 @@ import Foundation
 
 actor AFMChatToolCallRecorder {
     struct RecordedCall: Sendable {
-        let definitionIndex: Int
         let sequence: Int
         let name: String
         let arguments: String
@@ -19,7 +18,7 @@ actor AFMChatToolCallRecorder {
     private var invalidArguments = false
     private var totalArgumentBytes = 0
 
-    func record(definitionIndex: Int, name: String, arguments: String) {
+    func record(name: String, arguments: String) {
         guard let canonicalArguments = Self.canonicalJSONObject(arguments) else {
             invalidArguments = true
             return
@@ -35,7 +34,6 @@ actor AFMChatToolCallRecorder {
         }
         calls.append(
             .init(
-                definitionIndex: definitionIndex,
                 sequence: calls.count,
                 name: name,
                 arguments: canonicalArguments

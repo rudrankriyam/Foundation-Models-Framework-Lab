@@ -4,7 +4,7 @@ import FoundationModelsKit
 import Testing
 @testable import AFMServer
 
-@Test("Capture tools report canonical calls in declaration order without executing a registry")
+@Test("Capture tools report canonical calls in invocation order without executing a registry")
 func captureToolReportsCalls() async throws {
     let request = AFMChatGenerationRequest(
         messages: [.init(role: .user, contentSegments: ["Use both tools"])],
@@ -18,15 +18,17 @@ func captureToolReportsCalls() async throws {
     let second = try #require(runtime.tools[1] as? AFMChatCaptureTool)
 
     await invoke(second, arguments: #"{"z":2,"a":"second"}"#)
-    await invoke(first, arguments: #"{"z":1,"a":"first"}"#)
+    await invoke(first, arguments: #"{"z":1,"a":"z-last"}"#)
+    await invoke(first, arguments: #"{"z":3,"a":"a-first"}"#)
 
     let calls = try await runtime.capturedCalls()
-    #expect(calls.map(\.name) == ["first_tool", "second_tool"])
+    #expect(calls.map(\.name) == ["second_tool", "first_tool", "first_tool"])
     #expect(calls.map(\.arguments) == [
-        #"{"a":"first","z":1}"#,
-        #"{"a":"second","z":2}"#
+        #"{"a":"second","z":2}"#,
+        #"{"a":"z-last","z":1}"#,
+        #"{"a":"a-first","z":3}"#
     ])
-    #expect(Set(calls.map(\.id)).count == 2)
+    #expect(Set(calls.map(\.id)).count == 3)
     #expect(calls.allSatisfy { $0.id.hasPrefix("call_") })
 }
 
