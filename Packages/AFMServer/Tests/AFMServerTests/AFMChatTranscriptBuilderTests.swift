@@ -103,6 +103,39 @@ func structuredResponseFormatPreparation() throws {
     #expect(activePrompt.responseFormat != nil)
 }
 
+@Test("Tools and structured response formats survive request preparation together")
+func toolAndStructuredResponseFormatPreparation() throws {
+    let request = try AFMChatGenerationRequest.decode(Data(toolAndStructuredRequestJSON.utf8))
+
+    #expect(request.tools.map(\.name) == ["lookup_weather"])
+    #expect(request.toolChoice == .auto)
+    guard case .jsonSchema(let responseFormat) = request.responseFormat else {
+        Issue.record("Expected a JSON schema response format")
+        return
+    }
+    #expect(responseFormat.name == "weather_report")
+
+    let toolRuntime = try AFMChatToolRuntime(request: request)
+    #expect(toolRuntime.tools.map(\.name) == ["lookup_weather"])
+    let prepared = try AFMChatTranscriptBuilder.prepare(
+        request,
+        toolDefinitions: toolRuntime.transcriptDefinitions
+    )
+
+    #expect(prepared.responseSchema?.name == "weather_report")
+    let inputEntries = Array(prepared.inputTranscript)
+    guard case .instructions(let instructions) = inputEntries.first else {
+        Issue.record("Expected active tool definitions in the input transcript")
+        return
+    }
+    #expect(instructions.toolDefinitions.map(\.name) == ["lookup_weather"])
+    guard case .prompt(let activePrompt) = inputEntries.last else {
+        Issue.record("Expected the active structured prompt")
+        return
+    }
+    #expect(activePrompt.responseFormat != nil)
+}
+
 @Test("Text response formats keep schema guidance out of the transcript")
 func textResponseFormatPreparation() throws {
     let request = try AFMChatGenerationRequest.decode(
@@ -165,6 +198,40 @@ private let structuredRequestJSON = #"""
         "type": "object",
         "properties": {"name": {"type": "string"}},
         "required": ["name"],
+        "additionalProperties": false
+      }
+    }
+  }
+}
+"""#
+
+private let toolAndStructuredRequestJSON = #"""
+{
+  "messages": [{"role": "user", "content": "Plan for Paris"}],
+  "tools": [{
+    "type": "function",
+    "function": {
+      "name": "lookup_weather",
+      "description": "Look up the weather for a city.",
+      "strict": true,
+      "parameters": {
+        "type": "object",
+        "properties": {"city": {"type": "string"}},
+        "required": ["city"],
+        "additionalProperties": false
+      }
+    }
+  }],
+  "tool_choice": "auto",
+  "response_format": {
+    "type": "json_schema",
+    "json_schema": {
+      "name": "weather_report",
+      "strict": true,
+      "schema": {
+        "type": "object",
+        "properties": {"summary": {"type": "string"}},
+        "required": ["summary"],
         "additionalProperties": false
       }
     }
