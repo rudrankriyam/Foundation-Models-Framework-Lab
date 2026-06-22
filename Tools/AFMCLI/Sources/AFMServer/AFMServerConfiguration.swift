@@ -40,24 +40,41 @@ public struct AFMServerSecurity: Sendable, Equatable {
     }
 }
 
+public struct AFMServerGenerationPolicy: Sendable, Equatable {
+    public var maximumConcurrentGenerations: Int
+    public var timeoutSeconds: Double
+
+    public init(
+        maximumConcurrentGenerations: Int = 1,
+        timeoutSeconds: Double = 120
+    ) {
+        self.maximumConcurrentGenerations = maximumConcurrentGenerations
+        self.timeoutSeconds = timeoutSeconds
+    }
+}
+
 public struct AFMServerConfiguration: Sendable, Equatable {
     public var endpoint: AFMServerEndpoint
     public var limits: AFMServerLimits
     public var security: AFMServerSecurity
+    public var generation: AFMServerGenerationPolicy
 
     public init(
         endpoint: AFMServerEndpoint = .tcp(host: "127.0.0.1", port: 1976),
         limits: AFMServerLimits = .init(),
-        security: AFMServerSecurity = .init()
+        security: AFMServerSecurity = .init(),
+        generation: AFMServerGenerationPolicy = .init()
     ) {
         self.endpoint = endpoint
         self.limits = limits
         self.security = security
+        self.generation = generation
     }
 
     public func validated() throws -> Self {
         try validateLimits()
         try validateSecurity()
+        try validateGenerationPolicy()
 
         var validatedConfiguration = self
         validatedConfiguration.endpoint = try validatedEndpoint()
@@ -80,6 +97,15 @@ public struct AFMServerConfiguration: Sendable, Equatable {
         }
         if security.allowedOrigins.contains(where: { !Self.isValidOrigin($0) }) {
             throw AFMServerConfigurationError.invalidAllowedOrigin
+        }
+    }
+
+    private func validateGenerationPolicy() throws {
+        guard generation.maximumConcurrentGenerations > 0 else {
+            throw AFMServerConfigurationError.invalidGenerationConcurrency
+        }
+        guard generation.timeoutSeconds.isFinite, generation.timeoutSeconds > 0 else {
+            throw AFMServerConfigurationError.invalidGenerationTimeout
         }
     }
 
@@ -148,6 +174,8 @@ public enum AFMServerConfigurationError: Error, Equatable, LocalizedError {
     case emptyBearerToken
     case invalidAllowedOrigin
     case invalidSocketPath
+    case invalidGenerationConcurrency
+    case invalidGenerationTimeout
     case networkOptInRequired(String)
     case networkAuthenticationRequired(String)
 
@@ -165,6 +193,10 @@ public enum AFMServerConfigurationError: Error, Equatable, LocalizedError {
             "Allowed origins must be exact, non-empty origins; wildcards are not accepted."
         case .invalidSocketPath:
             "The Unix-domain socket path must be an absolute path."
+        case .invalidGenerationConcurrency:
+            "The maximum concurrent generation count must be greater than zero."
+        case .invalidGenerationTimeout:
+            "The model timeout must be a finite number greater than zero."
         case .networkOptInRequired(let host):
             "Binding to non-loopback host '\(host)' requires explicit network opt-in."
         case .networkAuthenticationRequired(let host):

@@ -1,68 +1,124 @@
 import Foundation
 import NIOHTTP1
 
+enum AFMRequestRoute {
+    case immediate(AFMHTTPResponse)
+    case chatCompletion(origin: String?)
+}
+
 struct AFMRequestRouter: Sendable {
     private let configuration: AFMServerConfiguration
     private let catalog: any AFMModelCatalog
     private let clock: any AFMServerClock
+    private let chatCompletions: AFMChatCompletionService?
 
     init(
         configuration: AFMServerConfiguration,
         catalog: any AFMModelCatalog,
-        clock: any AFMServerClock
+        clock: any AFMServerClock,
+        chatCompletions: AFMChatCompletionService? = nil
     ) {
         self.configuration = configuration
         self.catalog = catalog
         self.clock = clock
+        self.chatCompletions = chatCompletions
     }
 
     func response(for request: HTTPRequestHead) -> AFMHTTPResponse {
+        switch route(for: request) {
+        case .immediate(let response):
+            return response
+        case .chatCompletion:
+            return .apiError(
+                status: .internalServerError,
+                message: "This route requires asynchronous request handling.",
+                code: "internal_error",
+                type: "server_error"
+            )
+        }
+    }
+
+    func route(for request: HTTPRequestHead) -> AFMRequestRoute {
         if case .tcp(let host, _) = configuration.endpoint,
            AFMHostPolicy.isLoopbackBinding(host),
            !AFMHostPolicy.validatesLoopbackHostHeader(request.headers, bindingHost: host) {
-            return .apiError(
+            return .immediate(.apiError(
                 status: .forbidden,
                 message: "The Host header is not allowed for this loopback server.",
                 code: "forbidden_host"
-            )
+            ))
         }
 
         let originResult = validateOrigin(request.headers)
         guard originResult.isAllowed else {
-            return .apiError(
+            return .immediate(.apiError(
                 status: .forbidden,
                 message: "Cross-site requests are not allowed.",
                 code: "origin_not_allowed"
-            )
+            ))
         }
 
         guard validatesAuthorization(request.headers) else {
             var headers = HTTPHeaders()
             headers.add(name: "www-authenticate", value: "Bearer")
-            return AFMHTTPResponse.apiError(
+            return .immediate(AFMHTTPResponse.apiError(
                 status: .unauthorized,
                 message: "A valid bearer token is required.",
                 code: "invalid_api_key",
                 type: "authentication_error",
                 headers: headers
-            ).addingOrigin(originResult.origin)
+            ).addingOrigin(originResult.origin))
         }
 
         let path = request.uri.split(separator: "?", maxSplits: 1).first.map(String.init) ?? request.uri
-        let response: AFMHTTPResponse
+        let route: AFMRequestRoute
         switch path {
         case "/health":
-            response = responseForKnownRoute(request, body: healthResponse)
+            route = .immediate(responseForKnownRoute(request, body: healthResponse))
         case "/v1/models":
-            response = responseForKnownRoute(request, body: modelsResponse)
+            route = .immediate(responseForKnownRoute(request, body: modelsResponse))
+        case "/v1/chat/completions":
+            route = routeChatCompletion(request, origin: originResult.origin)
         default:
-            response = .apiError(
+            route = .immediate(.apiError(
                 status: .notFound,
                 message: "The requested endpoint was not found.",
                 code: "not_found"
+            ))
+        }
+        return route.addingOrigin(originResult.origin)
+    }
+
+    func chatCompletionResponse(body: Data, origin: String?) async throws -> AFMHTTPResponse {
+        guard let chatCompletions else {
+            return AFMHTTPResponse.apiError(
+                status: .notImplemented,
+                message: "Chat completions are not configured for this server.",
+                code: "not_implemented",
+                type: "server_error"
+            ).addingOrigin(origin)
+        }
+        return try await chatCompletions.response(for: body).addingOrigin(origin)
+    }
+
+    func requiresJSONBody(_ request: HTTPRequestHead) -> Bool {
+        request.method == .POST && normalizedPath(request.uri) == "/v1/chat/completions"
+    }
+
+    private func routeChatCompletion(_ request: HTTPRequestHead, origin: String?) -> AFMRequestRoute {
+        guard request.method == .POST else {
+            var headers = HTTPHeaders()
+            headers.add(name: "allow", value: "POST")
+            return .immediate(
+                .apiError(
+                    status: .methodNotAllowed,
+                    message: "This endpoint only accepts POST requests.",
+                    code: "method_not_allowed",
+                    headers: headers
+                )
             )
         }
-        return response.addingOrigin(originResult.origin)
+        return .chatCompletion(origin: origin)
     }
 
     private func responseForKnownRoute<T: Encodable>(
@@ -130,6 +186,21 @@ struct AFMRequestRouter: Sendable {
             difference |= UInt(lhsByte ^ rhsByte)
         }
         return difference == 0
+    }
+
+    private func normalizedPath(_ uri: String) -> String {
+        uri.split(separator: "?", maxSplits: 1).first.map(String.init) ?? uri
+    }
+}
+
+private extension AFMRequestRoute {
+    func addingOrigin(_ origin: String?) -> Self {
+        switch self {
+        case .immediate(let response):
+            return .immediate(response.addingOrigin(origin))
+        case .chatCompletion:
+            return self
+        }
     }
 }
 

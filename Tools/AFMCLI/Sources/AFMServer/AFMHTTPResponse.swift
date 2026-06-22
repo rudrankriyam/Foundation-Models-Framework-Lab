@@ -30,13 +30,14 @@ struct AFMHTTPResponse {
         message: String,
         code: String,
         type: String = "invalid_request_error",
+        parameter: String? = nil,
         headers: HTTPHeaders = .init()
     ) -> Self {
         json(
             status: status,
             headers: headers,
             body: AFMErrorEnvelope(
-                error: .init(message: message, type: type, parameter: nil, code: code)
+                error: .init(message: message, type: type, parameter: parameter, code: code)
             )
         )
     }
@@ -67,10 +68,20 @@ private struct AFMErrorEnvelope: Encodable {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(message, forKey: .message)
             try container.encode(type, forKey: .type)
-            try container.encodeNil(forKey: .parameter)
+            try container.encodeIfPresentOrNil(parameter, forKey: .parameter)
             try container.encode(code, forKey: .code)
         }
     }
 
     let error: Detail
+}
+
+private extension KeyedEncodingContainer {
+    mutating func encodeIfPresentOrNil<T: Encodable>(_ value: T?, forKey key: Key) throws {
+        if let value {
+            try encode(value, forKey: key)
+        } else {
+            try encodeNil(forKey: key)
+        }
+    }
 }

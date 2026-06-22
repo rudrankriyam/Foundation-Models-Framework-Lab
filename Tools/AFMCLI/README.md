@@ -173,15 +173,30 @@ afm feedback export --prompt "What is the capital of France?" --sentiment positi
 
 ### Start the local server
 
-`afm serve` starts a transport for local integrations. This first server surface
-provides `GET /health` and `GET /v1/models`; model inference endpoints are added
-separately.
+`afm serve` starts a transport for local integrations. It provides `GET /health`,
+`GET /v1/models`, and non-streaming `POST /v1/chat/completions`.
 
 ```bash
 afm serve
 curl http://127.0.0.1:1976/health
 curl http://127.0.0.1:1976/v1/models
+curl http://127.0.0.1:1976/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"system","messages":[{"role":"user","content":"Hello"}]}'
 ```
+
+Chat requests are stateless: send the complete system, developer, user,
+assistant, and tool history each time. String content and typed text parts are
+supported, along with `temperature`, `top_p`, `max_completion_tokens`, and the
+legacy `max_tokens` alias. Streaming, image parts, response formats, and
+client-defined tools return a precise `400` until their dedicated endpoints are
+implemented. Responses include input/output usage plus an `afm_measurement`
+value of `observed`, `tokenized`, or `estimated` so fallback counts are never
+presented as runtime observation.
+
+Generation concurrency defaults to one and excess requests receive `429`
+without being queued. Configure it with `--max-concurrent-generations`; use
+`--model-timeout` to change the default 120-second timeout.
 
 The default listener is loopback-only. Cross-site requests are rejected unless
 their exact origin is passed with `--allow-origin`. Add bearer authentication

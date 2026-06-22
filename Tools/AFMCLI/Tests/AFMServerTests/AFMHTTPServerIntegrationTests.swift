@@ -1,5 +1,6 @@
 import Darwin
 import Foundation
+import FoundationModelsKit
 import Testing
 @testable import AFMServer
 
@@ -42,6 +43,71 @@ func tcpTransportAndLimits() async throws {
         #expect(oversizedBody.hasPrefix("HTTP/1.1 413 Payload Too Large"))
         #expect(oversizedBody.contains("\"code\":\"request_too_large\""))
 
+        try await server.stop()
+    } catch {
+        try? await server.stop()
+        throw error
+    }
+}
+
+@Test("TCP transport serves an injected non-streaming chat completion")
+func tcpChatCompletion() async throws {
+    let server = try testServer(
+        configuration: .init(endpoint: .tcp(host: "127.0.0.1", port: 0)),
+        generator: IntegrationImmediateGenerator()
+    )
+
+    do {
+        let address = try await server.start()
+        guard case .tcp(_, let port) = address else {
+            Issue.record("Expected a TCP address")
+            try await server.stop()
+            return
+        }
+        let body = #"{"messages":[{"role":"user","content":"Hi"}]}"#
+        let request = chatHTTPRequest(body: body, port: port, close: true)
+        let response = try sendRawHTTPRequest(request, port: port)
+        #expect(response.hasPrefix("HTTP/1.1 200 OK"))
+        #expect(response.contains("\"content\":\"From TCP\""))
+        #expect(response.contains("\"afm_measurement\":\"estimated\""))
+        try await server.stop()
+    } catch {
+        try? await server.stop()
+        throw error
+    }
+}
+
+@Test("A TCP disconnect cancels its in-flight model generation")
+func tcpDisconnectCancelsChat() async throws {
+    let probe = IntegrationCancellationProbe()
+    let server = try testServer(
+        configuration: .init(endpoint: .tcp(host: "127.0.0.1", port: 0)),
+        generator: IntegrationPausingGenerator(probe: probe)
+    )
+
+    do {
+        let address = try await server.start()
+        guard case .tcp(_, let port) = address else {
+            Issue.record("Expected a TCP address")
+            try await server.stop()
+            return
+        }
+        let descriptor = try connectTCPSocket(port: port)
+        let body = #"{"messages":[{"role":"user","content":"Hi"}]}"#
+        try writeRawHTTPRequest(chatHTTPRequest(body: body, port: port, close: false), to: descriptor)
+        await probe.waitUntilStarted()
+        var reset = linger(l_onoff: 1, l_linger: 0)
+        #expect(
+            setsockopt(
+                descriptor,
+                SOL_SOCKET,
+                SO_LINGER,
+                &reset,
+                socklen_t(MemoryLayout<linger>.size)
+            ) == 0
+        )
+        #expect(Darwin.close(descriptor) == 0)
+        await probe.waitUntilCancelled()
         try await server.stop()
     } catch {
         try? await server.stop()
@@ -284,12 +350,87 @@ func unixSocketRejectsInsecureParent() async throws {
     await expectStartFailure(server, matching: .insecureParentDirectory)
 }
 
-private func testServer(configuration: AFMServerConfiguration) throws -> AFMHTTPServer {
+private func testServer(
+    configuration: AFMServerConfiguration,
+    generator: any AFMChatCompletionGenerating = AFMFoundationModelsChatGenerator()
+) throws -> AFMHTTPServer {
     try AFMHTTPServer(
         configuration: configuration,
         catalog: AFMStaticModelCatalog(models: [.init(id: "system", isAvailable: true)]),
-        clock: IntegrationTestClock()
+        clock: IntegrationTestClock(),
+        generator: generator
     )
+}
+
+private struct IntegrationImmediateGenerator: AFMChatCompletionGenerating {
+    func generate(_ request: AFMChatGenerationRequest) async throws -> AFMChatGenerationResult {
+        .init(
+            content: "From TCP",
+            usage: .init(inputTokenCount: 2, measurement: .estimated, scope: .response)
+        )
+    }
+}
+
+private struct IntegrationPausingGenerator: AFMChatCompletionGenerating {
+    let probe: IntegrationCancellationProbe
+
+    func generate(_ request: AFMChatGenerationRequest) async throws -> AFMChatGenerationResult {
+        await probe.markStarted()
+        return try await withTaskCancellationHandler {
+            try await ContinuousClock().sleep(for: .seconds(30))
+            return .init(
+                content: "Unexpected",
+                usage: .init(inputTokenCount: 1, measurement: .estimated, scope: .response)
+            )
+        } onCancel: {
+            Task { await probe.markCancelled() }
+        }
+    }
+}
+
+private actor IntegrationCancellationProbe {
+    private var started = false
+    private var cancelled = false
+
+    func markStarted() { started = true }
+    func markCancelled() { cancelled = true }
+
+    func waitUntilStarted() async {
+        while !started { await Task.yield() }
+    }
+
+    func waitUntilCancelled() async {
+        while !cancelled { await Task.yield() }
+    }
+}
+
+private func chatHTTPRequest(body: String, port: Int, close: Bool) -> String {
+    var request = "POST /v1/chat/completions HTTP/1.1\r\n"
+    request += "Host: 127.0.0.1:\(port)\r\n"
+    request += "Content-Type: application/json\r\n"
+    request += "Content-Length: \(body.utf8.count)\r\n"
+    if close {
+        request += "Connection: close\r\n"
+    }
+    return request + "\r\n" + body
+}
+
+private func writeRawHTTPRequest(_ request: String, to descriptor: CInt) throws {
+    let requestBytes = Array(request.utf8)
+    try requestBytes.withUnsafeBytes { buffer in
+        var sent = 0
+        while sent < buffer.count {
+            let result = Darwin.write(
+                descriptor,
+                buffer.baseAddress?.advanced(by: sent),
+                buffer.count - sent
+            )
+            guard result > 0 else {
+                throw POSIXTestError(operation: "write TCP request", code: errno)
+            }
+            sent += result
+        }
+    }
 }
 
 private struct IntegrationTestClock: AFMServerClock {
@@ -341,19 +482,7 @@ private func sendRawHTTPRequest(_ request: String, port: Int) throws -> String {
     let descriptor = try connectTCPSocket(port: port)
     defer { Darwin.close(descriptor) }
 
-    let requestBytes = Array(request.utf8)
-    try requestBytes.withUnsafeBytes { buffer in
-        var sent = 0
-        while sent < buffer.count {
-            let result = Darwin.write(
-                descriptor,
-                buffer.baseAddress?.advanced(by: sent),
-                buffer.count - sent
-            )
-            guard result > 0 else { throw POSIXTestError(operation: "write TCP request", code: errno) }
-            sent += result
-        }
-    }
+    try writeRawHTTPRequest(request, to: descriptor)
 
     var response = Data()
     var buffer = [UInt8](repeating: 0, count: 4_096)

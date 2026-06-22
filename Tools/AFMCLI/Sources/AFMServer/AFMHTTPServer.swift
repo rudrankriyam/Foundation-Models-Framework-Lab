@@ -47,11 +47,23 @@ public actor AFMHTTPServer {
     public init(
         configuration: AFMServerConfiguration = .init(),
         catalog: any AFMModelCatalog,
-        clock: any AFMServerClock = AFMSystemServerClock()
+        clock: any AFMServerClock = AFMSystemServerClock(),
+        generator: any AFMChatCompletionGenerating = AFMFoundationModelsChatGenerator()
     ) throws {
         let configuration = try configuration.validated()
         self.configuration = configuration
-        router = AFMRequestRouter(configuration: configuration, catalog: catalog, clock: clock)
+        let chatCompletions = AFMChatCompletionService(
+            catalog: catalog,
+            generator: generator,
+            clock: clock,
+            policy: configuration.generation
+        )
+        router = AFMRequestRouter(
+            configuration: configuration,
+            catalog: catalog,
+            clock: clock,
+            chatCompletions: chatCompletions
+        )
     }
 
     public func start() async throws -> AFMServerBoundAddress {
@@ -183,9 +195,10 @@ public actor AFMHTTPServer {
         let childChannels = childChannels
         return ServerBootstrap(group: group)
             .serverChannelOption(ChannelOptions.backlog, value: 256)
+            .childChannelOption(ChannelOptions.allowRemoteHalfClosure, value: false)
             .childChannelInitializer { channel in
                 channel.pipeline.configureHTTPServerPipeline(
-                    withPipeliningAssistance: true,
+                    withPipeliningAssistance: false,
                     withErrorHandling: false,
                     withDecoderLimitConfiguration: configuredDecoderLimits
                 ).flatMap {

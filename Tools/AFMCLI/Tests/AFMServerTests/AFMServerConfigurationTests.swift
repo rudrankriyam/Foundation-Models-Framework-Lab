@@ -78,3 +78,20 @@ func transportLimitValidation() throws {
         _ = try nullSocket.validated()
     }
 }
+
+@Test("Generation limits validate before the server starts")
+func generationLimitValidation() {
+    let invalidConcurrency = AFMServerConfiguration(
+        generation: .init(maximumConcurrentGenerations: 0)
+    )
+    #expect(throws: AFMServerConfigurationError.invalidGenerationConcurrency) {
+        _ = try invalidConcurrency.validated()
+    }
+
+    for timeout in [0, -1, .infinity, .nan] {
+        let invalidTimeout = AFMServerConfiguration(generation: .init(timeoutSeconds: timeout))
+        #expect(throws: AFMServerConfigurationError.invalidGenerationTimeout) {
+            _ = try invalidTimeout.validated()
+        }
+    }
+}

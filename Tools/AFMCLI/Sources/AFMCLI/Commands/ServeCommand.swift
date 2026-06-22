@@ -36,6 +36,18 @@ struct ServeCommand: AsyncParsableCommand {
     )
     var allowedOrigins: [String] = []
 
+    @Option(
+        name: .customLong("max-concurrent-generations"),
+        help: "Maximum in-flight model generations. Defaults to 1."
+    )
+    var maximumConcurrentGenerations = 1
+
+    @Option(
+        name: .customLong("model-timeout"),
+        help: "Model generation timeout in seconds. Defaults to 120."
+    )
+    var modelTimeoutSeconds: Double = 120
+
     mutating func run() async throws {
         let output = try options.resolvedOutput()
         let serverConfiguration = try resolvedServerConfiguration()
@@ -115,6 +127,10 @@ struct ServeCommand: AsyncParsableCommand {
                 allowNetwork: allowNetwork,
                 bearerToken: bearerToken ?? environmentToken,
                 allowedOrigins: Set(allowedOrigins)
+            ),
+            generation: .init(
+                maximumConcurrentGenerations: maximumConcurrentGenerations,
+                timeoutSeconds: modelTimeoutSeconds
             )
         )
         do {
@@ -148,6 +164,8 @@ private struct ServeDryRunPayload: Encodable {
     let endpoint: String
     let authenticationEnabled: Bool
     let allowedOrigins: [String]
+    let maximumConcurrentGenerations: Int
+    let modelTimeoutSeconds: Double
 
     init(configuration: AFMServerConfiguration) {
         switch configuration.endpoint {
@@ -158,6 +176,8 @@ private struct ServeDryRunPayload: Encodable {
         }
         authenticationEnabled = configuration.security.bearerToken != nil
         allowedOrigins = configuration.security.allowedOrigins.sorted()
+        maximumConcurrentGenerations = configuration.generation.maximumConcurrentGenerations
+        modelTimeoutSeconds = configuration.generation.timeoutSeconds
     }
 }
 
@@ -169,6 +189,8 @@ private struct ServeStartedPayload: Encodable {
     let authenticationEnabled: Bool
     let allowedOrigins: [String]
     let networkExposed: Bool
+    let maximumConcurrentGenerations: Int
+    let modelTimeoutSeconds: Double
 
     init(address: AFMServerBoundAddress, configuration: AFMServerConfiguration) {
         switch address {
@@ -182,6 +204,8 @@ private struct ServeStartedPayload: Encodable {
         }
         authenticationEnabled = configuration.security.bearerToken != nil
         allowedOrigins = configuration.security.allowedOrigins.sorted()
+        maximumConcurrentGenerations = configuration.generation.maximumConcurrentGenerations
+        modelTimeoutSeconds = configuration.generation.timeoutSeconds
         if case .tcp(let host, _) = configuration.endpoint {
             let normalizedHost = host.lowercased()
             networkExposed = !normalizedHost.hasPrefix("127.")

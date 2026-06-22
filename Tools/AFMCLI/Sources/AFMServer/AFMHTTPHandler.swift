@@ -10,7 +10,9 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
     private let limits: AFMServerLimits
     private var requestHead: HTTPRequestHead?
     private var receivedBodyBytes = 0
+    private var requestBody = Data()
     private var responseWasSent = false
+    private var generationTask: Task<Void, Never>?
 
     init(router: AFMRequestRouter, limits: AFMServerLimits) {
         self.router = router
@@ -29,6 +31,7 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
     }
 
     func errorCaught(context: ChannelHandlerContext, error: Error) {
+        cancelGeneration()
         guard !responseWasSent else {
             context.close(promise: nil)
             return
@@ -56,8 +59,18 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
         send(response, version: requestHead?.version ?? .http1_1, close: true, context: context)
     }
 
+    func channelInactive(context: ChannelHandlerContext) {
+        cancelGeneration()
+        context.fireChannelInactive()
+    }
+
+    func handlerRemoved(context: ChannelHandlerContext) {
+        cancelGeneration()
+    }
+
     private func receiveHead(_ head: HTTPRequestHead, context: ChannelHandlerContext) {
         guard requestHead == nil, !responseWasSent else {
+            cancelGeneration()
             responseWasSent = true
             send(
                 .apiError(
@@ -74,6 +87,7 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
 
         requestHead = head
         receivedBodyBytes = 0
+        requestBody.removeAll(keepingCapacity: true)
 
         if let contentLength = declaredContentLength(head), contentLength > UInt64(limits.maximumBodyBytes) {
             responseWasSent = true
@@ -81,7 +95,7 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
             return
         }
 
-        if declaresBody(head), !hasJSONContentType(head) {
+        if declaresBody(head) || router.requiresJSONBody(head), !hasJSONContentType(head) {
             responseWasSent = true
             sendUnsupportedMediaType(version: head.version, context: context)
         }
@@ -103,6 +117,9 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
             return
         }
         receivedBodyBytes = newCount
+        if let bytes = buffer.getBytes(at: buffer.readerIndex, length: buffer.readableBytes) {
+            requestBody.append(contentsOf: bytes)
+        }
     }
 
     private func receiveEnd(context: ChannelHandlerContext) {
@@ -124,12 +141,64 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
         }
         guard !responseWasSent else { return }
 
-        let response = router.response(for: head)
+        switch router.route(for: head) {
+        case .immediate(let response):
+            let shouldClose = !head.isKeepAlive
+            send(response, version: head.version, close: shouldClose, context: context)
+            resetRequestState()
+        case .chatCompletion(let origin):
+            startChatCompletion(head: head, body: requestBody, origin: origin, context: context)
+        }
+    }
+
+    private func startChatCompletion(
+        head: HTTPRequestHead,
+        body: Data,
+        origin: String?,
+        context: ChannelHandlerContext
+    ) {
+        let router = router
+        let contextReference = AFMChannelContextReference(context)
+        let eventLoop = context.eventLoop
+        generationTask = Task { [weak self] in
+            let response: AFMHTTPResponse
+            do {
+                response = try await router.chatCompletionResponse(body: body, origin: origin)
+            } catch is CancellationError {
+                return
+            } catch {
+                response = .apiError(
+                    status: .internalServerError,
+                    message: "The chat completion request failed.",
+                    code: "internal_error",
+                    type: "server_error"
+                )
+            }
+            guard !Task.isCancelled else { return }
+            eventLoop.execute { [weak self] in
+                self?.completeChatCompletion(
+                    response,
+                    head: head,
+                    context: contextReference.context
+                )
+            }
+        }
+    }
+
+    private func completeChatCompletion(
+        _ response: AFMHTTPResponse,
+        head: HTTPRequestHead,
+        context: ChannelHandlerContext
+    ) {
+        generationTask = nil
+        guard requestHead != nil, !responseWasSent, context.channel.isActive else { return }
         let shouldClose = !head.isKeepAlive
         send(response, version: head.version, close: shouldClose, context: context)
         resetRequestState()
     }
+}
 
+private extension AFMHTTPHandler {
     private func sendPayloadTooLarge(version: HTTPVersion, context: ChannelHandlerContext) {
         send(
             .apiError(
@@ -191,7 +260,13 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
     private func resetRequestState() {
         requestHead = nil
         receivedBodyBytes = 0
+        requestBody.removeAll(keepingCapacity: true)
         responseWasSent = false
+    }
+
+    private func cancelGeneration() {
+        generationTask?.cancel()
+        generationTask = nil
     }
 
     private func declaredContentLength(_ head: HTTPRequestHead) -> UInt64? {
@@ -211,5 +286,13 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .lowercased()
         return mediaType == "application/json"
+    }
+}
+
+private final class AFMChannelContextReference: @unchecked Sendable {
+    let context: ChannelHandlerContext
+
+    init(_ context: ChannelHandlerContext) {
+        self.context = context
     }
 }

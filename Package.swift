@@ -75,6 +75,7 @@ let package = Package(
         .target(
             name: "AFMServer",
             dependencies: [
+                "FoundationModelsKit",
                 .product(name: "NIOCore", package: "swift-nio"),
                 .product(name: "NIOHTTP1", package: "swift-nio"),
                 .product(name: "NIOPosix", package: "swift-nio")
@@ -114,6 +115,7 @@ let package = Package(
             name: "AFMServerTests",
             dependencies: [
                 "AFMServer",
+                "FoundationModelsKit",
                 .product(name: "NIOEmbedded", package: "swift-nio")
             ],
             path: "Tools/AFMCLI/Tests/AFMServerTests"

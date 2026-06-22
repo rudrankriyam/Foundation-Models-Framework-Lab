@@ -177,6 +177,18 @@ func keepAliveRequests() throws {
     _ = try? channel.finish()
 }
 
+@Test("Chat POST requires JSON even when the body is empty")
+func chatRequiresJSONContentType() throws {
+    let channel = EmbeddedChannel(
+        handler: AFMHTTPHandler(router: testRouter(), limits: .init())
+    )
+    try writeRequest(method: .POST, path: "/v1/chat/completions", to: channel)
+    let response = try readResponse(from: channel)
+    #expect(response.head.status == .unsupportedMediaType)
+    #expect(try errorCode(response.body) == "unsupported_media_type")
+    _ = try? channel.finish()
+}
+
 private struct TestClock: AFMServerClock {
     let value: Int64
 

@@ -11,7 +11,10 @@ func serveHelp() throws {
     #expect(root.stdout.contains("SERVER COMMANDS"))
     #expect(root.stdout.contains("afm serve"))
     #expect(serve.status == 0)
-    for flag in ["--host", "--port", "--socket", "--allow-network", "--token", "--allow-origin"] {
+    for flag in [
+        "--host", "--port", "--socket", "--allow-network", "--token", "--allow-origin",
+        "--max-concurrent-generations", "--model-timeout"
+    ] {
         #expect(serve.stdout.contains(flag))
     }
 }
@@ -27,6 +30,8 @@ func serveDryRun() throws {
     #expect(json["command"] as? String == "serve")
     #expect(json["endpoint"] as? String == "http://127.0.0.1:1976")
     #expect(json["authenticationEnabled"] as? Bool == true)
+    #expect(json["maximumConcurrentGenerations"] as? Int == 1)
+    #expect(json["modelTimeoutSeconds"] as? Double == 120)
 }
 
 @Test("Serve rejects unsafe binding combinations before listening")
@@ -54,6 +59,16 @@ func serveConfigurationValidation() throws {
     let wildcardOrigin = try runAFM("serve", "--dry-run", "--allow-origin", "*")
     #expect(wildcardOrigin.status == 64)
     #expect(wildcardOrigin.stderr.contains("exact, non-empty origins"))
+
+    let invalidConcurrency = try runAFM(
+        "serve", "--dry-run", "--max-concurrent-generations", "0"
+    )
+    #expect(invalidConcurrency.status == 64)
+    #expect(invalidConcurrency.stderr.contains("concurrent generation count"))
+
+    let invalidTimeout = try runAFM("serve", "--dry-run", "--model-timeout", "0")
+    #expect(invalidTimeout.status == 64)
+    #expect(invalidTimeout.stderr.contains("model timeout"))
 }
 
 @Test("SIGTERM gracefully removes a CLI Unix-domain socket")
