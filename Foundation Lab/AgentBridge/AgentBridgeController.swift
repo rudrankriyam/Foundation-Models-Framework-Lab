@@ -270,7 +270,7 @@ private extension AgentBridgeController {
             security: .init(bearerToken: bearerToken)
         )
         let generator = AFMFoundationModelsChatGenerator(
-            sessionBuilder: AgentBridgeSessionBuilder.makeSession
+            toolSessionBuilder: AgentBridgeSessionBuilder.makeSession
         )
         let server = try AFMHTTPServer(
             configuration: configuration,

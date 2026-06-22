@@ -5,6 +5,7 @@ public enum AFMChatFinishReason: String, Sendable, Equatable, Encodable {
     case stop
     case length
     case contentFilter = "content_filter"
+    case toolCalls = "tool_calls"
 }
 
 public struct AFMChatGenerationResult: Sendable, Equatable {
@@ -12,17 +13,20 @@ public struct AFMChatGenerationResult: Sendable, Equatable {
     public let refusal: String?
     public let finishReason: AFMChatFinishReason
     public let usage: ModelTokenUsage
+    public let toolCalls: [AFMChatToolCall]
 
     public init(
         content: String?,
         refusal: String? = nil,
         finishReason: AFMChatFinishReason = .stop,
-        usage: ModelTokenUsage
+        usage: ModelTokenUsage,
+        toolCalls: [AFMChatToolCall] = []
     ) {
         self.content = content
         self.refusal = refusal
         self.finishReason = finishReason
         self.usage = usage
+        self.toolCalls = toolCalls
     }
 }
 
@@ -56,6 +60,9 @@ public enum AFMChatGenerationError: Error, Sendable, Equatable {
     case unsupportedInput
     case concurrentRequest
     case timedOut
+    case unsupportedToolChoice
+    case requiredToolNotCalled
+    case toolCallLimitExceeded
 }
 
 struct AFMChatCompletionPayload: Encodable {
@@ -64,18 +71,27 @@ struct AFMChatCompletionPayload: Encodable {
             let role = "assistant"
             let content: String?
             let refusal: String?
+            let toolCalls: [AFMChatToolCallPayload]?
+
+            init(content: String?, refusal: String?, toolCalls: [AFMChatToolCall]) {
+                self.content = content
+                self.refusal = refusal
+                self.toolCalls = toolCalls.isEmpty ? nil : toolCalls.map(AFMChatToolCallPayload.init)
+            }
 
             func encode(to encoder: Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
                 try container.encode(role, forKey: .role)
                 try container.encodeIfPresentOrNil(content, forKey: .content)
                 try container.encodeIfPresentOrNil(refusal, forKey: .refusal)
+                try container.encodeIfPresent(toolCalls, forKey: .toolCalls)
             }
 
             private enum CodingKeys: String, CodingKey {
                 case role
                 case content
                 case refusal
+                case toolCalls = "tool_calls"
             }
         }
 

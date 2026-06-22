@@ -1,4 +1,5 @@
 import Foundation
+import FoundationModelsKit
 
 public enum AFMChatRole: String, Sendable, Equatable {
     case system
@@ -50,6 +51,9 @@ public struct AFMChatGenerationRequest: Sendable, Equatable {
     public let temperature: Double?
     public let topP: Double?
     public let maximumCompletionTokens: Int?
+    public let tools: [AFMChatToolDefinition]
+    public let toolChoice: AFMChatToolChoice
+    public let parallelToolCalls: Bool
 
     public init(
         model: String = "system",
@@ -58,7 +62,35 @@ public struct AFMChatGenerationRequest: Sendable, Equatable {
         streamOptions: AFMChatStreamOptions? = nil,
         temperature: Double? = nil,
         topP: Double? = nil,
-        maximumCompletionTokens: Int? = nil
+        maximumCompletionTokens: Int? = nil,
+        tools: [AFMChatToolDefinition] = [],
+        parallelToolCalls: Bool = true
+    ) {
+        self.init(
+            model: model,
+            messages: messages,
+            stream: stream,
+            streamOptions: streamOptions,
+            temperature: temperature,
+            topP: topP,
+            maximumCompletionTokens: maximumCompletionTokens,
+            tools: tools,
+            toolChoice: tools.isEmpty ? .none : .auto,
+            parallelToolCalls: parallelToolCalls
+        )
+    }
+
+    public init(
+        model: String = "system",
+        messages: [AFMChatMessage],
+        stream: Bool = false,
+        streamOptions: AFMChatStreamOptions? = nil,
+        temperature: Double? = nil,
+        topP: Double? = nil,
+        maximumCompletionTokens: Int? = nil,
+        tools: [AFMChatToolDefinition] = [],
+        toolChoice: AFMChatToolChoice,
+        parallelToolCalls: Bool = true
     ) {
         self.model = model
         self.messages = messages
@@ -67,6 +99,9 @@ public struct AFMChatGenerationRequest: Sendable, Equatable {
         self.temperature = temperature
         self.topP = topP
         self.maximumCompletionTokens = maximumCompletionTokens
+        self.tools = tools
+        self.toolChoice = toolChoice
+        self.parallelToolCalls = parallelToolCalls
     }
 }
 
@@ -74,7 +109,7 @@ extension AFMChatGenerationRequest: Decodable {
     private static let allowedFields: Set<String> = [
         "model", "messages", "stream", "temperature", "top_p",
         "max_completion_tokens", "max_tokens", "tools", "tool_choice",
-        "response_format", "stream_options"
+        "parallel_tool_calls", "response_format", "stream_options"
     ]
 
     public init(from decoder: Decoder) throws {
@@ -99,10 +134,25 @@ extension AFMChatGenerationRequest: Decodable {
             forKey: .init("max_completion_tokens")
         )
         let legacyMaximumTokens = try container.decodeIfPresent(Int.self, forKey: .init("max_tokens"))
+        let tools = try container.decodeIfPresent([AFMChatToolDefinition].self, forKey: .init("tools")) ?? []
+        let explicitToolChoice = try container.decodeIfPresent(
+            AFMChatToolChoice.self,
+            forKey: .init("tool_choice")
+        )
+        let toolChoice = explicitToolChoice ?? (tools.isEmpty ? .none : .auto)
+        let parallelToolCalls = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .init("parallel_tool_calls")
+        ) ?? true
 
         try Self.validateModel(model)
         try Self.validateStreaming(stream: stream, streamOptions: streamOptions)
-        try Self.validateEmptyToolSentinel(in: container)
+        try Self.validateTools(
+            tools,
+            choice: toolChoice,
+            parallelToolCalls: parallelToolCalls
+        )
+        try Self.validateToolChoiceAvailability(toolChoice)
         try Self.validateOptions(
             temperature: temperature,
             topP: topP,
@@ -118,7 +168,10 @@ extension AFMChatGenerationRequest: Decodable {
             streamOptions: streamOptions,
             temperature: temperature,
             topP: topP,
-            maximumCompletionTokens: maximumCompletionTokens ?? legacyMaximumTokens
+            maximumCompletionTokens: maximumCompletionTokens ?? legacyMaximumTokens,
+            tools: tools,
+            toolChoice: toolChoice,
+            parallelToolCalls: parallelToolCalls
         )
     }
 
@@ -149,24 +202,6 @@ extension AFMChatGenerationRequest: Decodable {
                 "stream_options",
                 message: "stream_options may only be used when stream is true."
             )
-        }
-    }
-
-    private static func validateEmptyToolSentinel(
-        in container: KeyedDecodingContainer<AFMJSONKey>
-    ) throws {
-        let toolsKey = AFMJSONKey("tools")
-        if container.contains(toolsKey), try !container.decodeNil(forKey: toolsKey) {
-            let tools = try container.nestedUnkeyedContainer(forKey: toolsKey)
-            guard tools.isAtEnd else {
-                throw AFMChatRequestValidationError.unsupportedField("tools")
-            }
-        }
-
-        let toolChoiceKey = AFMJSONKey("tool_choice")
-        if let toolChoice = try container.decodeIfPresent(String.self, forKey: toolChoiceKey),
-           toolChoice != "auto" {
-            throw AFMChatRequestValidationError.unsupportedField("tool_choice")
         }
     }
 
@@ -227,5 +262,17 @@ struct AFMChatRequestValidationError: Error, Equatable, Sendable {
 
     static func unknownField(_ parameter: String) -> Self {
         .init(message: "Unknown field '\(parameter)'.", parameter: parameter, code: "unknown_field")
+    }
+
+    static func toolSchema(
+        _ error: FoundationModelsJSONSchemaError,
+        parameter: String
+    ) -> Self {
+        let suffix = error.path == "$" ? "" : String(error.path.dropFirst())
+        return .init(
+            message: error.message,
+            parameter: parameter + suffix,
+            code: error.kind == .unsupportedKeyword ? "unsupported_schema_keyword" : "invalid_tool_schema"
+        )
     }
 }

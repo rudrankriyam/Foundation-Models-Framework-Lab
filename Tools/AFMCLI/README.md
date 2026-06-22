@@ -193,6 +193,9 @@ curl http://127.0.0.1:1976/v1/chat/completions \
 curl -N http://127.0.0.1:1976/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -d '{"model":"system","messages":[{"role":"user","content":"Hello"}],"stream":true,"stream_options":{"include_usage":true},"tools":[],"tool_choice":"auto"}'
+curl http://127.0.0.1:1976/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"system","messages":[{"role":"user","content":"What is the weather in Paris?"}],"tools":[{"type":"function","function":{"name":"get_weather","description":"Report a weather lookup request.","parameters":{"type":"object","properties":{"city":{"type":"string"}},"required":["city"],"additionalProperties":false}}}],"tool_choice":"auto"}'
 ```
 
 Chat requests are stateless: send the complete system, developer, user,
@@ -200,12 +203,37 @@ assistant, and tool history each time. String content and typed text parts are
 supported, along with `temperature`, `top_p`, `max_completion_tokens`, and the
 legacy `max_tokens` alias. Streaming emits assistant role and content deltas,
 a terminal finish reason, and `[DONE]`. Set `stream_options.include_usage` to
-receive a final empty-choices usage chunk. The empty `tools: []` and
-`tool_choice: "auto"` sentinels used by Apple's client are accepted; client-defined
-tools, image parts, and response formats return a precise `400` until their
-dedicated endpoints are implemented. Responses include input/output usage plus an `afm_measurement`
+receive a final empty-choices usage chunk.
+
+Function tools use the public Foundation Models `Tool` protocol, but the server's
+adapter only records the model's proposed name and JSON arguments. It never
+looks up or executes a caller-supplied function. The response finishes with
+`tool_calls`; execute any action in your own process, then send the matching
+assistant and tool messages in the next stateless request. `tool_choice: "auto"`
+and `"none"` work on OS 26. Forced `"required"` and named-function choices use
+the public OS 27 required mode and return `unsupported_tool_choice` on older
+runtimes instead of silently behaving like `auto`. `parallel_tool_calls: false`
+is accepted with `tool_choice: "none"`; it is rejected for enabled tools because
+Foundation Models has no public serial-call mode.
+
+Tool parameter schemas accept the shared dynamic-schema subset: closed objects,
+optional or required properties, nested objects, arrays, strings, string enums,
+integers, numbers, and booleans. Unsupported JSON Schema keywords receive a
+field-specific `400`. `strict: true` additionally requires every object to set
+`additionalProperties: false` and list every property as required, recursively.
+Requests are capped at 16 definitions, 64 KiB per schema,
+and 128 KiB combined; one response may report at most 32 calls. Tool-enabled
+streams are buffered until the runtime either finishes normally or reports tool
+calls, preventing Foundation Models' internal tool representation from appearing
+as content deltas.
+
+Image parts and unsupported response formats return a precise `400`. Responses
+include input/output usage plus an `afm_measurement`
 value of `observed`, `tokenized`, or `estimated` so fallback counts are never
-presented as runtime observation.
+presented as runtime observation. Sentinel-stopped tool calls are counted from
+the input transcript (including active definitions) and a synthetic tool-call
+output entry, so they are reported as `tokenized` or `estimated`, never
+`observed`.
 
 Generation concurrency defaults to one and excess requests receive `429`
 without being queued. Configure it with `--max-concurrent-generations`; use

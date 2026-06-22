@@ -27,6 +27,7 @@ func chatCompletionResponseShape() async throws {
     #expect(message["role"] as? String == "assistant")
     #expect(message["content"] as? String == "Hello")
     #expect(message["refusal"] is NSNull)
+    #expect(message["tool_calls"] == nil)
     #expect(choices.first?["finish_reason"] as? String == "stop")
     #expect(choices.first?["logprobs"] is NSNull)
 
@@ -42,6 +43,56 @@ func chatCompletionResponseShape() async throws {
     #expect(completionDetails["reasoning_tokens"] as? Int == 3)
     let recorded = await generator.recordedRequests()
     #expect(recorded.count == 1)
+}
+
+@Test("Tool calls use canonical OpenAI message fields and finish reason")
+func chatCompletionToolCallShape() async throws {
+    let usage = ModelTokenUsage(
+        input: .init(totalTokenCount: 14),
+        output: .init(totalTokenCount: 9),
+        measurement: .tokenized,
+        scope: .response
+    )
+    let generator = RecordingGenerator(
+        result: .init(
+            content: nil,
+            finishReason: .toolCalls,
+            usage: usage,
+            toolCalls: [
+                .init(id: "call_a", name: "weather", arguments: #"{"city":"Paris"}"#),
+                .init(id: "call_b", name: "calendar", arguments: #"{"day":"Monday"}"#)
+            ]
+        )
+    )
+
+    let response = try await testChatService(generator: generator).response(for: chatBody())
+    let json = try serviceJSONObject(response.body)
+    let choices = try #require(json["choices"] as? [[String: Any]])
+    let choice = try #require(choices.first)
+    let message = try #require(choice["message"] as? [String: Any])
+    #expect(message["content"] is NSNull)
+    #expect(message["refusal"] is NSNull)
+    #expect(choice["finish_reason"] as? String == "tool_calls")
+    let calls = try #require(message["tool_calls"] as? [[String: Any]])
+    #expect(calls.map { $0["id"] as? String } == ["call_a", "call_b"])
+    #expect(calls.allSatisfy { $0["type"] as? String == "function" })
+    let firstFunction = try #require(calls[0]["function"] as? [String: Any])
+    #expect(firstFunction["name"] as? String == "weather")
+    #expect(firstFunction["arguments"] as? String == #"{"city":"Paris"}"#)
+    let usageJSON = try #require(json["usage"] as? [String: Any])
+    #expect(usageJSON["completion_tokens"] as? Int == 9)
+    #expect(usageJSON["afm_measurement"] as? String == "tokenized")
+}
+
+@Test("Unsupported forced tool choices produce a precise API error")
+func chatCompletionUnsupportedToolChoice() async throws {
+    let service = testChatService(generator: FailingGenerator(error: .unsupportedToolChoice))
+    let response = try await service.response(for: chatBody())
+    #expect(response.status == .badRequest)
+    let json = try serviceJSONObject(response.body)
+    let error = try #require(json["error"] as? [String: Any])
+    #expect(error["code"] as? String == "unsupported_tool_choice")
+    #expect(error["param"] as? String == "tool_choice")
 }
 
 @Test("Refusals remain successful completions with null content")
@@ -142,6 +193,14 @@ private struct PausingGenerator: AFMChatCompletionGenerating {
         } onCancel: {
             Task { await probe.markCancelled() }
         }
+    }
+}
+
+private struct FailingGenerator: AFMChatCompletionGenerating {
+    let error: AFMChatGenerationError
+
+    func generate(_ request: AFMChatGenerationRequest) async throws -> AFMChatGenerationResult {
+        throw error
     }
 }
 

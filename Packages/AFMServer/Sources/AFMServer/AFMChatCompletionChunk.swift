@@ -6,18 +6,35 @@ struct AFMChatCompletionChunk: Encodable {
             let role: String?
             let content: String?
             let refusal: String?
+            let toolCalls: [AFMChatToolCallDeltaPayload]?
+
+            init(
+                role: String?,
+                content: String?,
+                refusal: String?,
+                toolCalls: [AFMChatToolCall]?
+            ) {
+                self.role = role
+                self.content = content
+                self.refusal = refusal
+                self.toolCalls = toolCalls?.enumerated().map {
+                    AFMChatToolCallDeltaPayload(index: $0.offset, call: $0.element)
+                }
+            }
 
             func encode(to encoder: Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
                 try container.encodeIfPresent(role, forKey: .role)
                 try container.encodeIfPresent(content, forKey: .content)
                 try container.encodeIfPresent(refusal, forKey: .refusal)
+                try container.encodeIfPresent(toolCalls, forKey: .toolCalls)
             }
 
             private enum CodingKeys: String, CodingKey {
                 case role
                 case content
                 case refusal
+                case toolCalls = "tool_calls"
             }
         }
 
