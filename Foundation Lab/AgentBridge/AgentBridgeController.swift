@@ -60,6 +60,7 @@ final class AgentBridgeController {
     @ObservationIgnored private var protectsProcessLifetime = false
     @ObservationIgnored private var hasActivated = false
     @ObservationIgnored private var reconciliationTask: Task<Void, Never>?
+    @ObservationIgnored private var cleanupFailureContext: String?
 
     private static let enabledPreferenceKey = "agentBridge.isEnabled.v1"
     private static let bridgeDirectoryName = "bridge"
@@ -167,9 +168,17 @@ private extension AgentBridgeController {
 
     private func reconcileEnabledState() async {
         while true {
+            if status == .failed, hasActiveResources {
+                await retryFailedCleanup()
+                return
+            }
+
             if isEnabled, !hasActiveResources {
                 await start()
-                guard server != nil else {
+                guard status == .running else {
+                    if status == .failed, hasActiveResources {
+                        continue
+                    }
                     if !isEnabled {
                         resetDisabledStatus()
                     }
@@ -177,7 +186,9 @@ private extension AgentBridgeController {
                 }
             } else if !isEnabled, hasActiveResources {
                 await stop()
-                guard !hasActiveResources else { return }
+                if hasActiveResources {
+                    continue
+                }
             } else {
                 if !isEnabled { resetDisabledStatus() }
                 return
@@ -192,6 +203,7 @@ private extension AgentBridgeController {
     private func start() async {
         status = .starting
         errorMessage = nil
+        cleanupFailureContext = nil
 
         guard let bearerToken else {
             failStart(Error.secureTokenUnavailable(tokenErrorDescription ?? String(localized: "Unknown error")))
@@ -292,21 +304,50 @@ private extension AgentBridgeController {
 
     private func cleanFailedStart(server: AFMHTTPServer?, baseDirectory: URL) async -> [String] {
         if let server {
-            do {
-                try await server.stop()
-            } catch {
-                self.server = server
-                activeBaseDirectory = baseDirectory
-                return [error.localizedDescription]
-            }
+            self.server = server
         }
-        baseDirectory.stopAccessingSecurityScopedResource()
-        releaseProcessLifetimeProtection()
-        return []
+        activeBaseDirectory = baseDirectory
+        return await cleanActiveResources()
     }
 
     private func stop() async {
         status = .stopping
+        let failures = await cleanActiveResources()
+
+        if failures.isEmpty {
+            cleanupFailureContext = nil
+            status = bookmarkStore.hasBookmark ? .off : .notConfigured
+            errorMessage = nil
+        } else {
+            let context = String(localized: "The bridge could not stop completely.")
+            cleanupFailureContext = context
+            status = .failed
+            errorMessage = cleanupFailureMessage(context: context, failures: failures)
+        }
+    }
+
+    private func retryFailedCleanup() async {
+        let context = cleanupFailureContext
+            ?? errorMessage
+            ?? String(localized: "The bridge cleanup did not finish.")
+        let failures = await cleanActiveResources()
+
+        if failures.isEmpty {
+            cleanupFailureContext = nil
+            if isEnabled {
+                status = .failed
+                errorMessage = context
+            } else {
+                resetDisabledStatus()
+            }
+        } else {
+            cleanupFailureContext = context
+            status = .failed
+            errorMessage = cleanupFailureMessage(context: context, failures: failures)
+        }
+    }
+
+    private func cleanActiveResources() async -> [String] {
         var failures: [String] = []
 
         if let descriptorLease {
@@ -333,33 +374,31 @@ private extension AgentBridgeController {
             activeBaseDirectory = nil
             releaseProcessLifetimeProtection()
         }
-
-        if failures.isEmpty {
-            status = bookmarkStore.hasBookmark ? .off : .notConfigured
-            errorMessage = nil
-        } else {
-            status = .failed
-            errorMessage = String(
-                localized: "The bridge stopped, but cleanup needs attention: \(failures.joined(separator: " "))"
-            )
-        }
+        return failures
     }
 
     private func failStart(_ error: any Swift.Error, cleanupFailures: [String] = []) {
-        descriptorLease = nil
-        descriptorPath = nil
+        if descriptorLease == nil {
+            descriptorPath = nil
+        }
         status = .failed
+        let context = String(localized: "The bridge could not start: \(error.localizedDescription)")
 
         if cleanupFailures.isEmpty {
-            errorMessage = String(localized: "The bridge could not start: \(error.localizedDescription)")
+            cleanupFailureContext = nil
+            errorMessage = context
         } else {
-            errorMessage = String(
-                localized: "The bridge could not start: \(error.localizedDescription) Cleanup: \(cleanupFailures.joined(separator: " "))"
-            )
+            cleanupFailureContext = context
+            errorMessage = cleanupFailureMessage(context: context, failures: cleanupFailures)
         }
     }
 
+    private func cleanupFailureMessage(context: String, failures: [String]) -> String {
+        String(localized: "\(context) Cleanup: \(failures.joined(separator: " "))")
+    }
+
     private func resetDisabledStatus() {
+        cleanupFailureContext = nil
         status = bookmarkStore.hasBookmark ? .off : .notConfigured
         errorMessage = nil
     }
