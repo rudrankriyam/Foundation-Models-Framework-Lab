@@ -1,6 +1,17 @@
 import Foundation
 import Testing
 
+@Test("Test helper can target a provided executable")
+func providedAFMBinaryOverridesBuildSearch() throws {
+    let result = try runAFM(
+        "provided-binary",
+        environment: ["AFM_TEST_BINARY": "/usr/bin/printf"]
+    )
+
+    #expect(result.status == 0)
+    #expect(result.stdout == "provided-binary")
+}
+
 @Test("Root help shows grouped command discovery")
 func rootHelpShowsGroupedCommands() throws {
     let result = try runAFM("--help")
