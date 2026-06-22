@@ -79,6 +79,19 @@ func transportLimitValidation() throws {
     }
 }
 
+@Test("Unix socket paths reserve one sun_path byte for the null terminator")
+func unixSocketPathByteLimit() throws {
+    let maximumPath = "/" + String(repeating: "é", count: 51)
+    let oversizedPath = maximumPath + "a"
+
+    #expect(maximumPath.utf8.count == 103)
+    #expect(oversizedPath.utf8.count == 104)
+    #expect(try AFMServerConfiguration(endpoint: .unixSocket(path: maximumPath)).validated().endpoint == .unixSocket(path: maximumPath))
+    #expect(throws: AFMServerConfigurationError.socketPathTooLong) {
+        _ = try AFMServerConfiguration(endpoint: .unixSocket(path: oversizedPath)).validated()
+    }
+}
+
 @Test("Generation limits validate before the server starts")
 func generationLimitValidation() {
     let invalidConcurrency = AFMServerConfiguration(

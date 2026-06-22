@@ -117,6 +117,9 @@ public struct AFMServerConfiguration: Sendable, Equatable {
             guard path.hasPrefix("/"), path.count > 1, !path.utf8.contains(0) else {
                 throw AFMServerConfigurationError.invalidSocketPath
             }
+            guard AFMUnixSocketPath.fits(path) else {
+                throw AFMServerConfigurationError.socketPathTooLong
+            }
             return .unixSocket(path: path)
         }
     }
@@ -174,6 +177,7 @@ public enum AFMServerConfigurationError: Error, Equatable, LocalizedError {
     case emptyBearerToken
     case invalidAllowedOrigin
     case invalidSocketPath
+    case socketPathTooLong
     case invalidGenerationConcurrency
     case invalidGenerationTimeout
     case networkOptInRequired(String)
@@ -193,6 +197,8 @@ public enum AFMServerConfigurationError: Error, Equatable, LocalizedError {
             "Allowed origins must be exact, non-empty origins; wildcards are not accepted."
         case .invalidSocketPath:
             "The Unix-domain socket path must be an absolute path."
+        case .socketPathTooLong:
+            "The Unix-domain socket path must not exceed \(AFMUnixSocketPath.maximumUTF8ByteCount) UTF-8 bytes."
         case .invalidGenerationConcurrency:
             "The maximum concurrent generation count must be greater than zero."
         case .invalidGenerationTimeout:

@@ -18,14 +18,6 @@ let package = Package(
             targets: ["FMFBenchCLI"]
         ),
         .library(
-            name: "FoundationModelsKit",
-            targets: ["FoundationModelsKit"]
-        ),
-        .library(
-            name: "FoundationModelsTools",
-            targets: ["FoundationModelsTools"]
-        ),
-        .library(
             name: "FoundationLabCore",
             targets: ["FoundationLabCore"]
         ),
@@ -39,48 +31,30 @@ let package = Package(
         )
     ],
     dependencies: [
+        .package(path: "Packages/AFMServer"),
+        .package(path: "Packages/FoundationModelsKit"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
-        .package(url: "https://github.com/apple/swift-nio.git", from: "2.101.0"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "6.0.1")
     ],
     targets: [
         .target(
-            name: "FoundationModelsKit",
-            path: "Packages/FoundationModelsKit/Sources/FoundationModelsKit"
-        ),
-        .target(
-            name: "FoundationModelsTools",
-            dependencies: ["FoundationModelsKit"],
-            path: "Packages/FoundationModelsKit/Sources/FoundationModelsTools"
-        ),
-        .target(
             name: "FoundationLabCore",
             dependencies: [
-                "FoundationModelsKit",
-                "FoundationModelsTools"
+                .product(name: "FoundationModelsKit", package: "FoundationModelsKit"),
+                .product(name: "FoundationModelsTools", package: "FoundationModelsKit")
             ],
             path: "FoundationLabCore/Sources/FoundationLabCore"
         ),
         .executableTarget(
             name: "AFMCLI",
             dependencies: [
-                "AFMServer",
+                .product(name: "AFMServer", package: "AFMServer"),
                 "FoundationLabCore",
-                "FoundationModelsKit",
+                .product(name: "FoundationModelsKit", package: "FoundationModelsKit"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Yams", package: "Yams")
             ],
             path: "Tools/AFMCLI/Sources/AFMCLI"
-        ),
-        .target(
-            name: "AFMServer",
-            dependencies: [
-                "FoundationModelsKit",
-                .product(name: "NIOCore", package: "swift-nio"),
-                .product(name: "NIOHTTP1", package: "swift-nio"),
-                .product(name: "NIOPosix", package: "swift-nio")
-            ],
-            path: "Tools/AFMCLI/Sources/AFMServer"
         ),
         .target(
             name: "FMFBenchCore",
@@ -93,12 +67,16 @@ let package = Package(
         ),
         .testTarget(
             name: "FoundationModelsKitTests",
-            dependencies: ["FoundationModelsKit"],
+            dependencies: [
+                .product(name: "FoundationModelsKit", package: "FoundationModelsKit")
+            ],
             path: "Packages/FoundationModelsKit/Tests/FoundationModelsKitTests"
         ),
         .testTarget(
             name: "FoundationModelsToolsTests",
-            dependencies: ["FoundationModelsTools"],
+            dependencies: [
+                .product(name: "FoundationModelsTools", package: "FoundationModelsKit")
+            ],
             path: "Packages/FoundationModelsKit/Tests/FoundationModelsToolsTests"
         ),
         .testTarget(
@@ -110,15 +88,6 @@ let package = Package(
             name: "AFMCLITests",
             dependencies: ["AFMCLI"],
             path: "Tools/AFMCLI/Tests/AFMCLITests"
-        ),
-        .testTarget(
-            name: "AFMServerTests",
-            dependencies: [
-                "AFMServer",
-                "FoundationModelsKit",
-                .product(name: "NIOEmbedded", package: "swift-nio")
-            ],
-            path: "Tools/AFMCLI/Tests/AFMServerTests"
         ),
         .testTarget(
             name: "FMFBenchCoreTests",

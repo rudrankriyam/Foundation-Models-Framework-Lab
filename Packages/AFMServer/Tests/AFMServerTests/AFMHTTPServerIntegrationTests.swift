@@ -391,7 +391,7 @@ func unixSocketRejectsInsecureParent() async throws {
 
 private func testServer(
     configuration: AFMServerConfiguration,
-    generator: any AFMChatCompletionGenerating = AFMFoundationModelsChatGenerator()
+    generator: any AFMChatCompletionGenerating = IntegrationImmediateGenerator()
 ) throws -> AFMHTTPServer {
     try AFMHTTPServer(
         configuration: configuration,

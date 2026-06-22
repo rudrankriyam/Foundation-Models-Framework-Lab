@@ -48,7 +48,7 @@ public actor AFMHTTPServer {
         configuration: AFMServerConfiguration = .init(),
         catalog: any AFMModelCatalog,
         clock: any AFMServerClock = AFMSystemServerClock(),
-        generator: any AFMChatCompletionGenerating = AFMFoundationModelsChatGenerator()
+        generator: any AFMChatCompletionGenerating
     ) throws {
         let configuration = try configuration.validated()
         self.configuration = configuration

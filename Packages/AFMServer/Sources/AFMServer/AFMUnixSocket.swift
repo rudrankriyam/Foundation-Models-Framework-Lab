@@ -1,12 +1,25 @@
 import Darwin
 import Foundation
 
+enum AFMUnixSocketPath {
+    static let maximumUTF8ByteCount: Int = {
+        var address = sockaddr_un()
+        return withUnsafeBytes(of: &address.sun_path) { bytes in
+            bytes.count - 1
+        }
+    }()
+
+    static func fits(_ path: String) -> Bool {
+        path.utf8.count <= maximumUTF8ByteCount
+    }
+}
+
 enum AFMUnixSocketManager {
     static func prepare(path: String) throws {
-        try validateParentDirectory(of: path)
-        guard path.utf8CString.count <= MemoryLayout<sockaddr_un>.size - MemoryLayout<sa_family_t>.size else {
+        guard AFMUnixSocketPath.fits(path) else {
             throw AFMUnixSocketError.pathTooLong
         }
+        try validateParentDirectory(of: path)
         guard let status = try fileStatus(at: path) else { return }
         guard isSocket(status) else {
             throw AFMUnixSocketError.pathExists(kind: fileKind(status))

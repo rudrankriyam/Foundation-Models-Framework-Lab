@@ -66,7 +66,11 @@ struct ServeCommand: AsyncParsableCommand {
         let catalog = AFMStaticModelCatalog(
             models: [.init(id: "system", isAvailable: availability.isAvailable)]
         )
-        let server = try AFMHTTPServer(configuration: serverConfiguration, catalog: catalog)
+        let server = try AFMHTTPServer(
+            configuration: serverConfiguration,
+            catalog: catalog,
+            generator: AFMFoundationModelsChatGenerator()
+        )
         let terminationSignal = AFMTerminationSignal()
 
         do {
