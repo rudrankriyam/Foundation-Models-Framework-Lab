@@ -2,6 +2,7 @@ import AFMServer
 import Darwin
 import Foundation
 import Testing
+@testable import AFMCLI
 
 @Test("Bridge commands are discoverable and document headless inputs")
 func bridgeHelp() throws {
@@ -242,6 +243,108 @@ func bridgeEnsureDryRun() throws {
     }
 }
 
+@Test("Bridge requests retry rotated descriptors only when explicitly allowed")
+func bridgeDescriptorRotationRetryPolicy() async throws {
+    let parent = try makeBridgeTemporaryDirectory()
+    defer { try? FileManager.default.removeItem(at: parent) }
+    let descriptor = parent.appending(path: "connection.json")
+    let paths = ResolvedBridgePaths(
+        baseDirectory: nil,
+        bridgeDirectory: parent.path(),
+        descriptorPath: descriptor.path(),
+        descriptorFileName: descriptor.lastPathComponent
+    )
+    try writeBridgeDescriptor(
+        at: descriptor,
+        port: 19_760,
+        token: String(repeating: "r", count: 43),
+        processIdentifier: getpid()
+    )
+
+    var retriedAttempts = 0
+    let retried: (host: AFMBridgeCommandConnection, response: Int) = try await performBridgeRequest(
+        paths: paths
+    ) { _ in
+        retriedAttempts += 1
+        if retriedAttempts == 1 {
+            try writeBridgeDescriptor(
+                at: descriptor,
+                port: 19_761,
+                token: String(repeating: "s", count: 43),
+                processIdentifier: getpid()
+            )
+            throw BridgeOperationTestError.expectedFailure
+        }
+        return 42
+    }
+    #expect(retried.response == 42)
+    #expect(retriedAttempts == 2)
+
+    var nonRetryingAttempts = 0
+    await #expect(throws: BridgeOperationTestError.expectedFailure) {
+        let _: (host: AFMBridgeCommandConnection, response: Int) = try await performBridgeRequest(
+            paths: paths,
+            retryAfterDescriptorRotation: false
+        ) { _ in
+            nonRetryingAttempts += 1
+            try writeBridgeDescriptor(
+                at: descriptor,
+                port: 19_762,
+                token: String(repeating: "t", count: 43),
+                processIdentifier: getpid()
+            )
+            throw BridgeOperationTestError.expectedFailure
+        }
+    }
+    #expect(nonRetryingAttempts == 1)
+}
+
+@Test("Bridge command connections preserve request cancellation")
+func bridgeCommandConnectionCancellation() async throws {
+    let token = String(repeating: "c", count: 43)
+    let probe = BridgeCancellationProbe()
+    let server = try AFMHTTPServer(
+        configuration: .init(
+            endpoint: .tcp(host: "127.0.0.1", port: 0),
+            security: .init(bearerToken: token)
+        ),
+        catalog: AFMStaticModelCatalog(models: [.init(id: "system", isAvailable: true)]),
+        generator: BridgeCancellationGenerator(probe: probe)
+    )
+    let address = try await server.start()
+    guard case .tcp(_, let port) = address else {
+        try await server.stop()
+        Issue.record("Expected a TCP bridge test server")
+        return
+    }
+
+    let parent = try makeBridgeTemporaryDirectory()
+    defer { try? FileManager.default.removeItem(at: parent) }
+    let descriptor = parent.appending(path: "connection.json")
+    try writeBridgeDescriptor(at: descriptor, port: port, token: token, processIdentifier: getpid())
+    let paths = ResolvedBridgePaths(
+        baseDirectory: nil,
+        bridgeDirectory: parent.path(),
+        descriptorPath: descriptor.path(),
+        descriptorFileName: descriptor.lastPathComponent
+    )
+    let connection = try AFMBridgeCommandConnection.connect(paths: paths)
+    let body = Data(#"{"model":"system","messages":[{"role":"user","content":"Wait"}]}"#.utf8)
+    let request = Task { try await connection.chat(body: body) }
+    await probe.waitUntilStarted()
+    request.cancel()
+
+    do {
+        _ = try await request.value
+        Issue.record("Expected cancellation")
+    } catch is CancellationError {
+        // Expected.
+    } catch {
+        Issue.record("Expected CancellationError, got \(error)")
+    }
+    try await server.stop()
+}
+
 private actor BridgeGeneratorProbe {
     private var request: AFMChatGenerationRequest?
 
@@ -251,6 +354,20 @@ private actor BridgeGeneratorProbe {
 
     func lastRequest() -> AFMChatGenerationRequest? {
         request
+    }
+}
+
+private actor BridgeCancellationProbe {
+    private var started = false
+
+    func markStarted() {
+        started = true
+    }
+
+    func waitUntilStarted() async {
+        while !started {
+            await Task.yield()
+        }
     }
 }
 
@@ -269,6 +386,23 @@ private struct BridgeTestGenerator: AFMChatCompletionGenerating {
             )
         )
     }
+}
+
+private struct BridgeCancellationGenerator: AFMChatCompletionGenerating {
+    let probe: BridgeCancellationProbe
+
+    func generate(_ request: AFMChatGenerationRequest) async throws -> AFMChatGenerationResult {
+        await probe.markStarted()
+        try await ContinuousClock().sleep(for: .seconds(30))
+        return .init(
+            content: "Unexpected",
+            usage: .init(inputTokenCount: 1, measurement: .estimated, scope: .response)
+        )
+    }
+}
+
+private enum BridgeOperationTestError: Error {
+    case expectedFailure
 }
 
 private enum BridgeTestError: Error {

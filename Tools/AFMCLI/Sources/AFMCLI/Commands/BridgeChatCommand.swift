@@ -41,7 +41,12 @@ struct BridgeChatCommand: AsyncParsableCommand {
             }
 
             let body = try JSONEncoder().encode(request)
-            let result = try await performBridgeRequest(paths: paths) { try await $0.chat(body: body) }
+            let result = try await performBridgeRequest(
+                paths: paths,
+                retryAfterDescriptorRotation: false
+            ) {
+                try await $0.chat(body: body)
+            }
             guard let choice = result.response.choices.sorted(by: { $0.index < $1.index }).first,
                   let renderedResponse = nonemptyBridgeResponse(choice.message) else {
                 throw AFMBridgeCommandError.invalidResponse(endpoint: result.host.endpointDescription)

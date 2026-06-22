@@ -55,6 +55,8 @@ struct AFMBridgeCommandConnection: Sendable {
         let response: AFMBridgeClientResponse
         do {
             response = try await operation()
+        } catch is CancellationError {
+            throw CancellationError()
         } catch {
             if !bridgeProcessIsRunning(descriptor.processIdentifier) {
                 throw AFMBridgeCommandError.hostStopped(descriptorPath: paths.descriptorPath)

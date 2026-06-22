@@ -17,13 +17,15 @@ func executeBridgeCommand(
 
 func performBridgeRequest<Response: Sendable>(
     paths: ResolvedBridgePaths,
+    retryAfterDescriptorRotation: Bool = true,
     operation: (AFMBridgeCommandConnection) async throws -> Response
 ) async throws -> (host: AFMBridgeCommandConnection, response: Response) {
     let firstHost = try AFMBridgeCommandConnection.connect(paths: paths)
     do {
         return (firstHost, try await operation(firstHost))
     } catch {
-        guard let replacementDescriptor = try? paths.readDescriptor(),
+        guard retryAfterDescriptorRotation,
+              let replacementDescriptor = try? paths.readDescriptor(),
               replacementDescriptor.launchIdentifier != firstHost.descriptor.launchIdentifier,
               let replacementHost = try? AFMBridgeCommandConnection.connect(paths: paths) else {
             throw error
