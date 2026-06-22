@@ -102,8 +102,12 @@ struct AFMChatStreamingServiceTests {
         let emissions = try await Self.collect(Self.service(generator: generator), body: Self.streamBody())
         let chunks = try Self.streamBodies(emissions).dropLast().map(Self.eventObject)
 
-        #expect(chunks.count == 2)
-        #expect(try Self.choice(in: chunks[1])["finish_reason"] as? String == "content_filter")
+        #expect(chunks.count == 3)
+        let refusalChoice = try Self.choice(in: chunks[1])
+        let refusalDelta = try #require(refusalChoice["delta"] as? [String: Any])
+        #expect(refusalDelta["refusal"] as? String == "Declined")
+        #expect(refusalChoice["finish_reason"] is NSNull)
+        #expect(try Self.choice(in: chunks[2])["finish_reason"] as? String == "content_filter")
     }
 
     @Test("Streaming awaits each emitted body before requesting the next delta")

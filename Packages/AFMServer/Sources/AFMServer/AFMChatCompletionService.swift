@@ -133,22 +133,13 @@ private extension AFMChatCompletionService {
                     )
                 }
             }
-            try await writeChunk(
+            try await writeTerminalChunks(
+                result,
                 identifier: identifier,
                 created: created,
-                finishReason: result.finishReason,
                 request: request,
                 emitting: emission
             )
-            if request.streamOptions?.includeUsage == true {
-                try await writeUsageChunk(
-                    result.usage,
-                    identifier: identifier,
-                    created: created,
-                    request: request,
-                    emitting: emission
-                )
-            }
             try await emission(.streamBody(AFMServerSentEventEncoder().done))
             try await emission(.streamEnd)
             await gate.release()
@@ -263,6 +254,7 @@ private extension AFMChatCompletionService {
         created: Int64,
         role: String? = nil,
         content: String? = nil,
+        refusal: String? = nil,
         finishReason: AFMChatFinishReason? = nil,
         request: AFMChatGenerationRequest,
         emitting emission: @escaping @Sendable (AFMHTTPEmission) async throws -> Void
@@ -274,13 +266,62 @@ private extension AFMChatCompletionService {
             choices: [
                 .init(
                     index: 0,
-                    delta: .init(role: role, content: content),
+                    delta: .init(role: role, content: content, refusal: refusal),
                     finishReason: finishReason
                 )
             ],
             usage: nil
         )
         try await emission(.streamBody(try AFMServerSentEventEncoder().event(chunk)))
+    }
+
+    func writeRefusalChunk(
+        _ refusal: String?,
+        identifier: String,
+        created: Int64,
+        request: AFMChatGenerationRequest,
+        emitting emission: @escaping @Sendable (AFMHTTPEmission) async throws -> Void
+    ) async throws {
+        guard let refusal else { return }
+        try await writeChunk(
+            identifier: identifier,
+            created: created,
+            refusal: refusal,
+            request: request,
+            emitting: emission
+        )
+    }
+
+    func writeTerminalChunks(
+        _ result: AFMChatGenerationResult,
+        identifier: String,
+        created: Int64,
+        request: AFMChatGenerationRequest,
+        emitting emission: @escaping @Sendable (AFMHTTPEmission) async throws -> Void
+    ) async throws {
+        try await writeRefusalChunk(
+            result.refusal,
+            identifier: identifier,
+            created: created,
+            request: request,
+            emitting: emission
+        )
+        try await writeChunk(
+            identifier: identifier,
+            created: created,
+            finishReason: result.finishReason,
+            request: request,
+            emitting: emission
+        )
+        if request.streamOptions?.includeUsage == true {
+            try await writeUsageChunk(
+                result.usage,
+                identifier: identifier,
+                created: created,
+                request: request,
+                emitting: emission
+            )
+        }
     }
 
     func writeUsageChunk(

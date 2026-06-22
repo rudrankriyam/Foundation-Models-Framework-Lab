@@ -5,16 +5,19 @@ struct AFMChatCompletionChunk: Encodable {
         struct Delta: Encodable {
             let role: String?
             let content: String?
+            let refusal: String?
 
             func encode(to encoder: Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
                 try container.encodeIfPresent(role, forKey: .role)
                 try container.encodeIfPresent(content, forKey: .content)
+                try container.encodeIfPresent(refusal, forKey: .refusal)
             }
 
             private enum CodingKeys: String, CodingKey {
                 case role
                 case content
+                case refusal
             }
         }
 
