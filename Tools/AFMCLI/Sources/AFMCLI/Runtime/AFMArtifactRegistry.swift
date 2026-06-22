@@ -1,12 +1,13 @@
 import ArgumentParser
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 import Yams
 
 enum AFMArtifactRegistry {
-    static func loadSchemaDocument(from reference: ResolvedArtifactReference) throws -> AFMSchemaDocument {
+    static func loadSchemaDocument(from reference: ResolvedArtifactReference) throws -> FoundationModelsJSONSchema {
         let text = try String(contentsOfFile: reference.filePath, encoding: .utf8)
-        return try decodeArtifact(AFMSchemaDocument.self, from: text, path: reference.filePath)
+        return try decodeArtifact(FoundationModelsJSONSchema.self, from: text, path: reference.filePath)
     }
 
     static func loadToolManifest(from reference: ResolvedArtifactReference) throws -> AFMToolManifest {
@@ -40,122 +41,10 @@ enum AFMArtifactRegistry {
     }
 }
 
-struct AFMSchemaDocument: Sendable, Codable {
-    let title: String?
-    let description: String?
-    let type: String?
-    let properties: [String: AFMSchemaDocumentBox]?
-    let required: [String]?
-    let items: AFMSchemaDocumentBox?
-    let minimumItems: Int?
-    let maximumItems: Int?
-    let enumValues: [String]?
-
-    enum CodingKeys: String, CodingKey {
-        case title
-        case description
-        case type
-        case properties
-        case required
-        case items
-        case minimumItems = "minItems"
-        case maximumItems = "maxItems"
-        case enumValues = "enum"
-    }
-
-    func generationSchema(fallbackName: String = "RootSchema") throws -> GenerationSchema {
-        try GenerationSchema(root: dynamicSchema(nameHint: title ?? fallbackName), dependencies: [])
-    }
-
-    private func dynamicSchema(nameHint: String) throws -> DynamicGenerationSchema {
-        if let enumValues, !enumValues.isEmpty {
-            return DynamicGenerationSchema(
-                name: title ?? nameHint,
-                description: description,
-                anyOf: enumValues
-            )
-        }
-
-        let resolvedType = resolvedSchemaType()
-        switch resolvedType {
-        case "object":
-            let properties = self.properties ?? [:]
-            let requiredProperties = Set(self.required ?? Array(properties.keys))
-            let dynamicProperties = try properties.keys.sorted().map { propertyName in
-                guard let propertySchema = properties[propertyName]?.value else {
-                    throw ValidationError("Missing schema for property '\(propertyName)'")
-                }
-                return DynamicGenerationSchema.Property(
-                    name: propertyName,
-                    description: propertySchema.description,
-                    schema: try propertySchema.dynamicSchema(nameHint: propertySchema.title ?? propertyName.camelizedSchemaName()),
-                    isOptional: !requiredProperties.contains(propertyName)
-                )
-            }
-            return DynamicGenerationSchema(
-                name: title ?? nameHint,
-                description: description,
-                properties: dynamicProperties
-            )
-        case "array":
-            guard let items = items?.value else {
-                throw ValidationError("Array schema '\(title ?? nameHint)' is missing an items definition")
-            }
-            return DynamicGenerationSchema(
-                arrayOf: try items.dynamicSchema(nameHint: items.title ?? "\(nameHint)Item"),
-                minimumElements: minimumItems,
-                maximumElements: maximumItems
-            )
-        case "string":
-            return DynamicGenerationSchema(type: String.self)
-        case "integer":
-            return DynamicGenerationSchema(type: Int.self)
-        case "number":
-            return DynamicGenerationSchema(type: Double.self)
-        case "boolean":
-            return DynamicGenerationSchema(type: Bool.self)
-        default:
-            throw ValidationError("Unsupported schema type '\(resolvedType)' in '\(title ?? nameHint)'")
-        }
-    }
-
-    private func resolvedSchemaType() -> String {
-        if let type {
-            return type
-        }
-        if properties != nil {
-            return "object"
-        }
-        if items != nil {
-            return "array"
-        }
-        if enumValues != nil {
-            return "string"
-        }
-        return "object"
-    }
-}
-
-final class AFMSchemaDocumentBox: Codable, @unchecked Sendable {
-    let value: AFMSchemaDocument
-
-    init(_ value: AFMSchemaDocument) {
-        self.value = value
-    }
-
-    init(from decoder: Decoder) throws {
-        self.value = try AFMSchemaDocument(from: decoder)
-    }
-
-    func encode(to encoder: Encoder) throws {
-        try value.encode(to: encoder)
-    }
-}
-
 struct AFMToolManifest: Sendable, Codable {
     let name: String
     let description: String
-    let parameters: AFMSchemaDocument
+    let parameters: FoundationModelsJSONSchema
     let runner: AFMToolRunnerManifest
 }
 
@@ -191,7 +80,7 @@ struct AFMManifestTool: Tool {
     init(manifest: AFMToolManifest, sourcePath: String) throws {
         self.manifest = manifest
         self.sourcePath = sourcePath
-        self.parameters = try manifest.parameters.generationSchema(fallbackName: manifest.name.camelizedSchemaName())
+        self.parameters = try manifest.parameters.generationSchema(rootName: manifest.name.camelizedSchemaName())
     }
 
     var name: String { manifest.name }

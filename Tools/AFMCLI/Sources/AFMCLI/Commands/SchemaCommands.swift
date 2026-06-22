@@ -139,7 +139,7 @@ struct SchemaCustomCommand: AsyncParsableCommand {
         let result = try await GenerateDynamicSchemaContentUseCase().execute(
             DynamicSchemaGenerationRequest(
                 prompt: resolvedInput.value,
-                schema: try schemaDocument.generationSchema(fallbackName: schemaReference.identifier.camelizedSchemaName()),
+                schema: try schemaDocument.generationSchema(rootName: schemaReference.identifier.camelizedSchemaName()),
                 systemPrompt: generation.systemPrompt,
                 modelUseCase: useCaseFlags.useCase,
                 guardrails: generation.guardrails,

@@ -145,6 +145,8 @@ afm tag run --prompt "A joyful dog playing in a sunny park."
 ### Extract structured data
 
 Use `afm schema` when you want the model to return data in a predictable shape.
+Custom schema files use standard `required` semantics: properties omitted from
+the `required` array are optional.
 
 ```bash
 afm schema list
