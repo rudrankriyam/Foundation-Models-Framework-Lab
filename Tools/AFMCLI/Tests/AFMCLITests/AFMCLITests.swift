@@ -39,6 +39,8 @@ func rootDryRun() throws {
 @Test("Leaf command help covers every shipped public workflow")
 func leafCommandHelpCoverage() throws {
     let commands: [[String]] = [
+        ["available", "--help"],
+        ["quota-usage", "--help"],
         ["model", "status", "--help"],
         ["model", "languages", "--help"],
         ["model", "use-cases", "--help"],
@@ -74,23 +76,50 @@ func leafCommandHelpCoverage() throws {
 
 @Test("Model and schema discovery commands honor dry-run")
 func discoveryCommandsHonorDryRun() throws {
+    let available = try runAFM("available", "--model", "pcc", "--output", "json", "--dry-run")
+    let quota = try runAFM("quota-usage", "--model", "system", "--output", "json", "--dry-run")
     let status = try runAFM("model", "status", "--output", "json", "--dry-run")
     let languages = try runAFM("model", "languages", "--output", "json", "--dry-run")
     let useCases = try runAFM("model", "use-cases", "--output", "json", "--dry-run")
     let guardrails = try runAFM("model", "guardrails", "--output", "json", "--dry-run")
     let schemaList = try runAFM("schema", "list", "--output", "json", "--dry-run")
 
+    #expect(available.status == 0)
+    #expect(quota.status == 0)
     #expect(status.status == 0)
     #expect(languages.status == 0)
     #expect(useCases.status == 0)
     #expect(guardrails.status == 0)
     #expect(schemaList.status == 0)
 
+    #expect((try parseJSONObject(available.stdout))["command"] as? String == "available")
+    #expect((try parseJSONObject(available.stdout))["model"] as? String == "pcc")
+    #expect((try parseJSONObject(quota.stdout))["command"] as? String == "quota-usage")
+    #expect((try parseJSONObject(quota.stdout))["model"] as? String == "system")
     #expect((try parseJSONObject(status.stdout))["command"] as? String == "model status")
     #expect((try parseJSONObject(languages.stdout))["command"] as? String == "model languages")
     #expect((try parseJSONObject(useCases.stdout))["command"] as? String == "model use-cases")
     #expect((try parseJSONObject(guardrails.stdout))["command"] as? String == "model guardrails")
     #expect((try parseJSONObject(schemaList.stdout))["command"] as? String == "schema list")
+}
+
+@Test("Runtime commands expose truthful structured status")
+func runtimeCommandsExposeStructuredStatus() throws {
+    let available = try runAFM("available", "--output", "json")
+    let quota = try runAFM("quota-usage", "--output", "json")
+
+    #expect(available.status == 0)
+    #expect(quota.status == 0)
+
+    let availableJSON = try parseJSONObject(available.stdout)
+    let availableModels = try #require(availableJSON["models"] as? [[String: Any]])
+    #expect(availableModels.compactMap { $0["id"] as? String } == ["system", "pcc"])
+    #expect(availableModels.allSatisfy { $0["isRunnableInCurrentProcess"] is Bool })
+
+    let quotaJSON = try parseJSONObject(quota.stdout)
+    let quotaModels = try #require(quotaJSON["models"] as? [[String: Any]])
+    #expect(quotaModels.compactMap { $0["id"] as? String } == ["system", "pcc"])
+    #expect(quotaModels.first?["status"] as? String == "notApplicable")
 }
 
 @Test("TTY-aware defaults choose text for terminals and json for pipes")

@@ -46,6 +46,8 @@ These are good starting points after install:
 afm model status
 afm token-count "What is Swift?"
 afm token-count -i @instructions.md --prompt @prompt.md --breakdown
+afm available
+afm quota-usage --model pcc
 afm session respond --prompt "Summarize Foundation Models in one paragraph."
 afm session respond --adapter ~/MyAdapter.fmadapter --prompt "Rewrite this in my house style."
 afm session stream --prompt "Write a short poem about rain."
@@ -67,6 +69,21 @@ afm model languages
 afm model use-cases
 afm model guardrails
 ```
+
+Use the native-style runtime commands when automation needs both system and PCC
+status in one stable JSON shape:
+
+```bash
+afm available --output json
+afm available --model pcc
+afm quota-usage --model pcc --output json
+```
+
+PCC requires macOS 27, an Xcode 27-built `afm`, and Apple's managed
+`com.apple.developer.private-cloud-compute` entitlement in the running
+executable. The commands report those states separately. They do not treat the
+framework's device-level availability result as proof that the current process
+is authorized, and they do not invent a numeric quota that Apple doesn't expose.
 
 ### Count and budget tokens
 
