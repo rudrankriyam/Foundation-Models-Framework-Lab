@@ -12,6 +12,10 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
+#if os(macOS)
+            AgentBridgeSettingsView()
+#endif
+
             Section("About") {
                 LabeledContent("Version", value: version)
 
@@ -64,4 +68,7 @@ struct SettingsView: View {
     NavigationStack {
         SettingsView()
     }
+#if os(macOS)
+    .environment(AgentBridgeController())
+#endif
 }

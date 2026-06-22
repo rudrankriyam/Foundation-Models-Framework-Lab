@@ -6,6 +6,7 @@ on:
     paths:
       - 'Tools/AFMCLI/**'
       - 'FoundationLabCore/**'
+      - 'Packages/AFMServer/**'
       - 'Packages/FoundationModelsKit/**'
       - 'Package.swift'
       - 'Package.resolved'
@@ -18,6 +19,7 @@ on:
     paths:
       - 'Tools/AFMCLI/**'
       - 'FoundationLabCore/**'
+      - 'Packages/AFMServer/**'
       - 'Packages/FoundationModelsKit/**'
       - 'Package.swift'
       - 'Package.resolved'
@@ -49,7 +51,7 @@ jobs:
       - name: Install SwiftLint
         run: brew install swiftlint
 
-      - name: Lint Core and CLI
+      - name: Lint Core, CLI, and AFMServer
         run: swiftlint lint --strict --config .swiftlint-core-cli.yml
 
       - name: Lint FoundationModelsKit
@@ -66,6 +68,9 @@ jobs:
         run: |
           swift test \
             --skip 'AFMCLITests\.(feedbackExportCreatesNestedDirectories|streamingJSONEmitsEvents|modelCommandsReturnStructuredJSON)'
+
+      - name: Test standalone AFMServer package
+        run: swift test --package-path Packages/AFMServer
 
       - name: Test standalone FoundationModelsKit package
         run: swift test --package-path Packages/FoundationModelsKit

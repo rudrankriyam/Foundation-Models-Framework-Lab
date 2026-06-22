@@ -32,7 +32,7 @@ To run live model commands, you still need a supported Apple Intelligence Mac. F
 
 ## Why `afm`
 
-- It gives Foundation Models a direct command-line workflow for prompting, tagging, schemas, tools, transcripts, and feedback.
+- It gives Foundation Models a direct workflow for prompting, tagging, schemas, tools, transcripts, feedback, and local services.
 - It is built for real terminal use: explicit flags, readable help, file-based inputs, and clean JSON output.
 - It works well in automation and agent flows with dry-runs, stdin support, schema and tool directories, and NDJSON-style streaming events.
 - It keeps important runtime controls close at hand, including adapters, use cases, guardrails, schema prompting, and feedback issues.
@@ -54,6 +54,11 @@ afm session stream --prompt "Write a short poem about rain."
 afm tag run --prompt "A joyful dog playing in a sunny park."
 afm schema run typed-person --input "Alex Rivera is a designer in Berlin."
 afm schema run custom --schema person-card --schema-dir .afm/schemas --input @person.txt
+afm serve
+afm bridge prepare
+afm bridge ensure
+afm bridge status
+afm bridge chat --model pcc --prompt "Explain this change."
 ```
 
 ## Sample Workflows
@@ -157,6 +162,8 @@ afm tag run --prompt "A joyful dog playing in a sunny park."
 ### Extract structured data
 
 Use `afm schema` when you want the model to return data in a predictable shape.
+Custom schema files use standard `required` semantics: properties omitted from
+the `required` array are optional.
 
 ```bash
 afm schema object --name Person --string name --integer age --optional > person.json
@@ -195,6 +202,127 @@ Use export commands when you want artifacts you can keep, diff, or send elsewher
 afm transcript export --message "Hello" --message "Summarize our conversation." --file transcript.json
 afm feedback export --prompt "What is the capital of France?" --sentiment positive --issue incorrect --file feedback.json
 ```
+
+### Start the local server
+
+`afm serve` starts a transport for local integrations. It provides `GET /health`,
+`GET /v1/models`, and OpenAI-compatible `POST /v1/chat/completions`, including
+incremental server-sent event streaming.
+
+```bash
+afm serve
+curl http://127.0.0.1:1976/health
+curl http://127.0.0.1:1976/v1/models
+curl http://127.0.0.1:1976/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"system","messages":[{"role":"user","content":"Hello"}]}'
+curl -N http://127.0.0.1:1976/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"system","messages":[{"role":"user","content":"Hello"}],"stream":true,"stream_options":{"include_usage":true},"tools":[],"tool_choice":"auto"}'
+curl http://127.0.0.1:1976/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"system","messages":[{"role":"user","content":"Extract a name from Ada Lovelace."}],"response_format":{"type":"json_schema","json_schema":{"name":"person","strict":true,"schema":{"type":"object","properties":{"name":{"type":"string"}},"required":["name"],"additionalProperties":false}}}}'
+curl http://127.0.0.1:1976/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"system","messages":[{"role":"user","content":"What is the weather in Paris?"}],"tools":[{"type":"function","function":{"name":"get_weather","description":"Report a weather lookup request.","parameters":{"type":"object","properties":{"city":{"type":"string"}},"required":["city"],"additionalProperties":false}}}],"tool_choice":"auto"}'
+```
+
+Chat requests are stateless: send the complete system, developer, user,
+assistant, and tool history each time. String content and typed text parts are
+supported, along with `temperature`, `top_p`, `max_completion_tokens`, and the
+legacy `max_tokens` alias. Streaming emits assistant role and content deltas,
+a terminal finish reason, and `[DONE]`. Set `stream_options.include_usage` to
+receive a final empty-choices usage chunk.
+
+Function tools use the public Foundation Models `Tool` protocol, but the server's
+adapter only records the model's proposed name and JSON arguments. It never
+looks up or executes a caller-supplied function. The response finishes with
+`tool_calls`; execute any action in your own process, then send the matching
+assistant and tool messages in the next stateless request. `tool_choice: "auto"`
+and `"none"` work on OS 26. Forced `"required"` and named-function choices use
+the public OS 27 required mode and return `unsupported_tool_choice` on older
+runtimes instead of silently behaving like `auto`. `parallel_tool_calls: false`
+is accepted with `tool_choice: "none"`; it is rejected for enabled tools because
+Foundation Models has no public serial-call mode.
+
+Tool parameter schemas accept the shared dynamic-schema subset: closed objects,
+optional or required properties, nested objects, arrays, strings, string enums,
+integers, numbers, and booleans. Unsupported JSON Schema keywords receive a
+field-specific `400`. `strict: true` additionally requires every object to set
+`additionalProperties: false` and list every property as required, recursively.
+Requests are capped at 16 definitions, 64 KiB per schema, and 128 KiB combined;
+one response may report at most 32 calls. Tool-enabled streams are buffered until
+the runtime either finishes normally or reports tool calls, preventing Foundation
+Models' internal tool representation from appearing as content deltas.
+
+`response_format` accepts `text` and `json_schema`; structured responses return
+JSON text in `message.content`, and structured streams emit the complete JSON
+document as one content delta. The older `json_object` mode is not supported.
+Properties omitted from `required` are optional. Image parts and unsupported
+response formats return a precise `400`. Responses include input/output usage
+plus an `afm_measurement` value of `observed`, `tokenized`, or `estimated` so
+fallback counts are never presented as runtime observation. Sentinel-stopped
+tool calls are counted from the input transcript (including active definitions)
+and a synthetic tool-call output entry, so they are reported as `tokenized` or
+`estimated`, never `observed`.
+
+Generation concurrency defaults to one and excess requests receive `429`
+without being queued. Configure it with `--max-concurrent-generations`; use
+`--model-timeout` to change the default 120-second timeout.
+
+The default listener is loopback-only. Cross-site requests are rejected unless
+their exact origin is passed with `--allow-origin`. Add bearer authentication
+with `--token` or the `AFM_SERVER_TOKEN` environment variable:
+
+```bash
+AFM_SERVER_TOKEN="$(openssl rand -hex 32)" afm serve
+afm serve --socket /tmp/afm.sock
+```
+
+A non-loopback binding requires both `--allow-network` and a bearer token. Unix
+sockets are created with mode `0600`, and `afm` refuses to replace regular files,
+symlinks, or active sockets at the requested path.
+
+### Use the signed Agent Bridge
+
+`afm bridge` lets terminals, scripts, and coding agents use Foundation Lab as a
+signed local host. The client itself needs no TTY and does not need to inherit
+the app's entitlements. Foundation Lab performs the model request and exposes
+only an authenticated local endpoint.
+
+Prepare the shared directory once, choose `~/.afm` in Foundation Lab's Agent
+Bridge settings, and start the bridge:
+
+```bash
+afm bridge prepare
+afm bridge ensure
+afm bridge models
+afm bridge chat --prompt "Summarize this repository."
+afm bridge chat --model pcc --max-tokens 512 --temperature 0.2 --prompt @prompt.md
+```
+
+The default descriptor is `~/.afm/bridge/connection.json`. Use `--base` to
+prepare or inspect another shared base directory, or `--descriptor` to read a
+specific descriptor file:
+
+```bash
+afm bridge status --descriptor /absolute/path/to/connection.json
+```
+
+`afm bridge ensure` (also available as `afm bridge launch`) first checks the
+authenticated health endpoint. If the host is not reachable, it launches
+Foundation Lab in the background with `/usr/bin/open -gj` and waits up to 20
+seconds for the bridge. Use `--app /path/to/Foundation Lab.app` for a specific
+build and `--timeout` to adjust the bounded wait.
+
+The descriptor is validated as a current-user-only regular file. Its bearer
+credential is used internally and is never included in text, JSON, verbose, or
+dry-run output. Missing, stale, and unreachable hosts fail with instructions to
+restart Agent Bridge instead of waiting for terminal interaction.
+
+Preparation never changes permissions on an existing base directory. Existing
+directories must already be owned by the current user with mode `0700`; unsafe
+or overly broad modes are rejected without modification.
 
 ## Files, Pipes, And Automation
 

@@ -61,7 +61,8 @@ func leafCommandHelpCoverage() throws {
         ["tool", "validate", "--help"],
         ["tool", "call", "--help"],
         ["transcript", "export", "--help"],
-        ["feedback", "export", "--help"]
+        ["feedback", "export", "--help"],
+        ["serve", "--help"]
     ]
 
     for command in commands {

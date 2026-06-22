@@ -1,5 +1,5 @@
 {
-  "originHash" : "fcc2212c367abc6ed186641126a9ba0d9a9a94d8c7f2e1c1d31783daffff709f",
+  "originHash" : "1d1c222bafbebe0f2b0dc380fa15127ff88c4e799284f03ca604d2ce37d4e07c",
   "pins" : [
     {
       "identity" : "highlightswift",
@@ -83,6 +83,15 @@
       }
     },
     {
+      "identity" : "swift-nio",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-nio.git",
+      "state" : {
+        "revision" : "77b84ac2cd2ac9e4ac67d19f045fd5b434f56967",
+        "version" : "2.101.0"
+      }
+    },
+    {
       "identity" : "swift-safetensors",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/jkrukowski/swift-safetensors.git",
@@ -98,6 +107,15 @@
       "state" : {
         "revision" : "36a8b2b45733f6adb3092100f16e4c7d38a10a7c",
         "version" : "0.0.6"
+      }
+    },
+    {
+      "identity" : "swift-system",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-system.git",
+      "state" : {
+        "revision" : "7502b711c92a17741fa625d722b0ccbd595d8ed1",
+        "version" : "1.7.2"
       }
     },
     {

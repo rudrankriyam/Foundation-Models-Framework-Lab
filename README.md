@@ -219,6 +219,11 @@ archived in favor of this shared implementation.
 
 ## Swift Package Products
 
+`FoundationModelsKit` and `FoundationModelsTools` are defined by
+[`Packages/FoundationModelsKit/Package.swift`](Packages/FoundationModelsKit/Package.swift).
+Local package consumers should depend on that package path directly rather than
+requesting those products from the repository's root manifest.
+
 - `FoundationModelsKit` provides transcript history transforms, provenance-aware
   token accounting shared by the app and CLI, calibrated estimation, and
   context-budget utilities.

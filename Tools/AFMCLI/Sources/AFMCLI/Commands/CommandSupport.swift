@@ -401,6 +401,12 @@ enum HelpText {
       transcript   Export transcript data from a session flow.
       feedback     Export Foundation Models feedback attachments.
 
+    SERVER COMMANDS
+      serve        Serve local HTTP endpoints over TCP or a Unix-domain socket.
+
+    AGENT BRIDGE COMMANDS
+      bridge       Use a signed Foundation Lab host from agents and automation.
+
     QUICK START
       afm available
       afm quota-usage --model pcc
@@ -422,6 +428,11 @@ enum HelpText {
       afm tool inspect --tool demo-weather
       afm transcript export --message "Hello" --message "Summarize this conversation." --file transcript.json
       afm feedback export --prompt "What is the capital of France?" --sentiment positive --file feedback.json
+      afm serve
+      afm bridge prepare
+      afm bridge ensure
+      afm bridge status
+      afm bridge chat --model pcc --prompt "Summarize this repository."
     """
 
     static let session = """
@@ -444,7 +455,7 @@ enum HelpText {
 func suggestRootCommand(for input: String) -> String? {
     let commands = [
         "available", "quota-usage", "model", "token-count", "tag", "session",
-        "schema", "tool", "transcript", "feedback", "help", "version"
+        "schema", "tool", "transcript", "feedback", "serve", "bridge", "help", "version"
     ]
     return suggestCommand(input, in: commands)
 }

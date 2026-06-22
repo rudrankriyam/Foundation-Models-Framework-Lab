@@ -1,5 +1,6 @@
 included:
   - FoundationLabCore
+  - Packages/AFMServer
   - Tools/AFMCLI
 
 excluded:

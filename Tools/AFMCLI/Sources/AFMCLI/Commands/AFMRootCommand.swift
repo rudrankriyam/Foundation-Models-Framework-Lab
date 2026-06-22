@@ -23,7 +23,9 @@ struct AFMRootCommand: AsyncParsableCommand {
             SchemaCommand.self,
             ToolCommand.self,
             TranscriptCommand.self,
-            FeedbackCommand.self
+            FeedbackCommand.self,
+            ServeCommand.self,
+            BridgeCommand.self
         ]
     )
 
@@ -42,10 +44,10 @@ struct AFMRootCommand: AsyncParsableCommand {
 
         let payload = RootStatusPayload(
             name: Self.configuration.commandName ?? "afm",
-            summary: "Workflow-first CLI for Foundation Models sessions, schemas, tools, transcripts, and feedback.",
+            summary: "Workflow-first CLI for Foundation Models sessions, schemas, tools, exports, and local services.",
             commands: [
                 "available", "quota-usage", "model", "token-count", "tag", "session",
-                "schema", "tool", "transcript", "feedback"
+                "schema", "tool", "transcript", "feedback", "serve", "bridge"
             ]
         )
         let human: String
