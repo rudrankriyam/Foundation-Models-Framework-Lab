@@ -178,8 +178,8 @@ func pipedSchemaInputOverridesPresetDefaults() throws {
     #expect(json["input"] as? String == pipedInput)
 }
 
-@Test("Schemas emitted by fm fail closed instead of changing shape silently")
-func foundationModelsCLISchemaFixturesFailClosed() throws {
+@Test("Schemas emitted by fm convert into runnable generation schemas")
+func foundationModelsCLISchemaFixturesConvert() throws {
     let fixtures = ["fm-schema-nested", "fm-schema-union"]
 
     for fixture in fixtures {
@@ -192,10 +192,10 @@ func foundationModelsCLISchemaFixturesFailClosed() throws {
         )
         let result = try runCustomSchemaDryRun(schemaURL)
 
-        #expect(result.status == 64)
-        #expect(result.stdout.isEmpty)
-        #expect(result.stderr.contains("Unsupported schema keyword '$defs'"))
-        #expect(result.stderr.contains("JSON pointer '/$defs'"))
+        #expect(result.status == 0)
+        #expect(result.stderr.isEmpty)
+        let payload = try parseJSONObject(result.stdout)
+        #expect(payload["command"] as? String == "schema run custom")
     }
 }
 
@@ -208,34 +208,22 @@ func unsupportedSchemaKeywordsReportExactPointers() throws {
 
     let cases = [
         UnsupportedSchemaCase(
-            name: "definitions",
-            document: #"{"type":"object","$defs":{}}"#,
-            keyword: "$defs",
-            pointer: "/$defs"
+            name: "one-of",
+            document: #"{"oneOf":[{"type":"string"},{"type":"integer"}]}"#,
+            keyword: "oneOf",
+            pointer: "/oneOf"
         ),
         UnsupportedSchemaCase(
-            name: "reference",
-            document: ##"{"type":"object","properties":{"address":{"$ref":"#/$defs/Address"}}}"##,
-            keyword: "$ref",
-            pointer: "/properties/address/$ref"
+            name: "all-of",
+            document: #"{"type":"object","properties":{"profile":{"allOf":[{"type":"object"}]}}}"#,
+            keyword: "allOf",
+            pointer: "/properties/profile/allOf"
         ),
         UnsupportedSchemaCase(
-            name: "escaped-reference-path",
-            document: ##"{"type":"object","properties":{"home/office~primary":{"$ref":"#/$defs/Room"}}}"##,
-            keyword: "$ref",
-            pointer: "/properties/home~1office~0primary/$ref"
-        ),
-        UnsupportedSchemaCase(
-            name: "union",
-            document: #"{"type":"array","items":{"anyOf":[{"type":"string"},{"type":"integer"}]}}"#,
-            keyword: "anyOf",
-            pointer: "/items/anyOf"
-        ),
-        UnsupportedSchemaCase(
-            name: "property-order",
-            document: #"{"type":"object","properties":{"profile":{"type":"object","x-order":[]}}}"#,
-            keyword: "x-order",
-            pointer: "/properties/profile/x-order"
+            name: "escaped-unsupported-path",
+            document: #"{"type":"object","properties":{"home/office~primary":{"format":"email"}}}"#,
+            keyword: "format",
+            pointer: "/properties/home~1office~0primary/format"
         ),
         UnsupportedSchemaCase(
             name: "open-additional-properties",
@@ -273,15 +261,17 @@ func unsupportedYAMLSchemaKeywordReportsExactPointer() throws {
     type: object
     properties:
       address:
-        $ref: '#/$defs/Address'
+        oneOf:
+        - type: string
+        - type: integer
     """
     try schema.write(to: schemaURL, atomically: true, encoding: .utf8)
 
     let result = try runCustomSchemaDryRun(schemaURL)
 
     #expect(result.status == 64)
-    #expect(result.stderr.contains("Unsupported schema keyword '$ref'"))
-    #expect(result.stderr.contains("JSON pointer '/properties/address/$ref'"))
+    #expect(result.stderr.contains("Unsupported schema keyword 'oneOf'"))
+    #expect(result.stderr.contains("JSON pointer '/properties/address/oneOf'"))
 }
 
 @Test("Closed additional properties preserve supported schema conversion")

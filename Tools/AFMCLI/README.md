@@ -103,6 +103,8 @@ afm tag run --prompt "A joyful dog playing in a sunny park."
 Use `afm schema` when you want the model to return data in a predictable shape.
 
 ```bash
+afm schema object --name Person --string name --integer age --optional > person.json
+afm schema object --format yaml --name Restaurant --string name --string address.street > restaurant.yaml
 afm schema list
 afm schema run typed-person --input "Alex Rivera is a designer in Berlin."
 afm schema run basic-object --preset product
@@ -111,6 +113,13 @@ afm schema run enum-schema --preset sentiment
 afm schema run custom --schema person-card --schema-dir .afm/schemas --input @person.txt
 afm schema run custom --schema person-card --input @person.txt --no-include-schema-in-prompt
 ```
+
+`schema object` follows the native `fm` declaration order: `--array`,
+`--description`, and `--optional` modify the property immediately before them.
+Dot-separated names create referenced nested objects. Use `--object <name>
+--schema <json>` for an explicit object, or `--anyOf` followed by repeated
+`--schema` values for a union. Prefix a schema path with `@` to compose JSON or
+YAML artifacts without shell substitution.
 
 ### Inspect and call tool manifests
 

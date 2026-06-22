@@ -1,0 +1,39 @@
+{
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "tags" : {
+      "type" : "array",
+      "items" : {
+        "type" : "string"
+      }
+    },
+    "title" : {
+      "description" : "Display title",
+      "type" : "string"
+    },
+    "count" : {
+      "type" : "integer"
+    },
+    "score" : {
+      "type" : "number"
+    },
+    "active" : {
+      "type" : "boolean"
+    }
+  },
+  "title" : "Sample",
+  "required" : [
+    "title",
+    "score",
+    "active",
+    "tags"
+  ],
+  "x-order" : [
+    "title",
+    "count",
+    "score",
+    "active",
+    "tags"
+  ]
+}

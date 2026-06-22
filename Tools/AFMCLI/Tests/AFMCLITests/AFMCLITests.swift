@@ -46,6 +46,7 @@ func leafCommandHelpCoverage() throws {
         ["session", "respond", "--help"],
         ["session", "stream", "--help"],
         ["session", "chat", "--help"],
+        ["schema", "object", "--help"],
         ["schema", "list", "--help"],
         ["schema", "run", "custom", "--help"],
         ["schema", "run", "typed-person", "--help"],
