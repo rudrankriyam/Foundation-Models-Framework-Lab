@@ -259,6 +259,21 @@ struct FMFBenchGraderTests {
     }
 
     @Test
+    func mockPersonalOrganizerWorldRejectsEmptySearchTerms() async {
+        let world = FMFBenchMockPersonalOrganizerWorld()
+        let contactsResult = await world.contacts(matching: " \n\t ")
+
+        if case .results(let contacts) = contactsResult {
+            #expect(contacts.isEmpty)
+        } else {
+            Issue.record("Expected an empty contact result.")
+        }
+
+        await world.reset(for: "personal-organizer-017")
+        #expect(await world.reminders(matchingTitle: " \n\t ").isEmpty)
+    }
+
+    @Test
     func mockPersonalOrganizerWorldAppliesAdversarialFixtures() async {
         let world = FMFBenchMockPersonalOrganizerWorld()
 

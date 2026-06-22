@@ -34,6 +34,11 @@ actor FMFBenchMockPersonalOrganizerWorld {
     }
 
     func contacts(matching query: String) -> ContactSearchOutcome {
+        let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else {
+            return .results([])
+        }
+
         if remainingSearchFailures > 0 {
             remainingSearchFailures -= 1
             return .transientFailure
@@ -47,7 +52,12 @@ actor FMFBenchMockPersonalOrganizerWorld {
     }
 
     func reminders(matchingTitle query: String) -> [FMFBenchPersonalOrganizerReminder] {
-        reminders.filter {
+        let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else {
+            return []
+        }
+
+        return reminders.filter {
             $0.title.localizedCaseInsensitiveContains(query)
                 || query.localizedCaseInsensitiveContains($0.title)
         }
