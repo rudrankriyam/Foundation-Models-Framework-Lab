@@ -246,7 +246,7 @@ private extension TokenCountCommand {
             schema = ResolvedTokenCountSchema(
                 reference: reference,
                 schema: try document.generationSchema(
-                    rootName: reference.identifier.camelizedSchemaName()
+                    fallbackName: reference.identifier.camelizedSchemaName()
                 ),
                 sourceText: sourceText
             )

@@ -14,6 +14,8 @@ struct AFMRootCommand: AsyncParsableCommand {
         discussion: HelpText.root,
         version: "0.1.0",
         subcommands: [
+            AvailableCommand.self,
+            QuotaUsageCommand.self,
             ModelCommand.self,
             TokenCountCommand.self,
             TagCommand.self,
@@ -44,8 +46,8 @@ struct AFMRootCommand: AsyncParsableCommand {
             name: Self.configuration.commandName ?? "afm",
             summary: "Workflow-first CLI for Foundation Models sessions, schemas, tools, exports, and local services.",
             commands: [
-                "model", "token-count", "tag", "session", "schema", "tool", "transcript", "feedback", "serve",
-                "bridge"
+                "available", "quota-usage", "model", "token-count", "tag", "session",
+                "schema", "tool", "transcript", "feedback", "serve", "bridge"
             ]
         )
         let human: String

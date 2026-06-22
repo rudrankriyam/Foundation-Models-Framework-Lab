@@ -9,6 +9,7 @@ struct SchemaCommand: AsyncParsableCommand {
         abstract: "Run typed and dynamic schema workflows.",
         discussion: HelpText.schema,
         subcommands: [
+            SchemaObjectCommand.self,
             SchemaListCommand.self,
             SchemaRunCommand.self
         ]
@@ -110,6 +111,9 @@ struct SchemaCustomCommand: AsyncParsableCommand {
         let adapterPath = try adapterOptions.resolveAdapterPath(guardrails: generation.guardrails)
         let schemaReference = try schemaSource.resolve()
         let schemaDocument = try AFMArtifactRegistry.loadSchemaDocument(from: schemaReference)
+        let generationSchema = try schemaDocument.generationSchema(
+            fallbackName: schemaReference.identifier.camelizedSchemaName()
+        )
         let resolvedInput = try inputSource.resolve()
 
         if options.dryRun {
@@ -139,7 +143,7 @@ struct SchemaCustomCommand: AsyncParsableCommand {
         let result = try await GenerateDynamicSchemaContentUseCase().execute(
             DynamicSchemaGenerationRequest(
                 prompt: resolvedInput.value,
-                schema: try schemaDocument.generationSchema(rootName: schemaReference.identifier.camelizedSchemaName()),
+                schema: generationSchema,
                 systemPrompt: generation.systemPrompt,
                 modelUseCase: useCaseFlags.useCase,
                 guardrails: generation.guardrails,

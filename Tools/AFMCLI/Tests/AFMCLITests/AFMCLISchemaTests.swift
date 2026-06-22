@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+@testable import AFMCLI
 
 @Test("Schema commands expose list and run flows")
 func schemaCommands() throws {
@@ -175,4 +176,177 @@ func pipedSchemaInputOverridesPresetDefaults() throws {
     #expect(result.status == 0)
     let json = try parseJSONObject(result.stdout)
     #expect(json["input"] as? String == pipedInput)
+}
+
+@Test("Schemas emitted by fm convert into runnable generation schemas")
+func foundationModelsCLISchemaFixturesConvert() throws {
+    let fixtures = ["fm-schema-nested", "fm-schema-union"]
+
+    for fixture in fixtures {
+        let schemaURL = try #require(
+            Bundle.module.url(
+                forResource: fixture,
+                withExtension: "json",
+                subdirectory: "Fixtures"
+            )
+        )
+        let result = try runCustomSchemaDryRun(schemaURL)
+
+        #expect(result.status == 0)
+        #expect(result.stderr.isEmpty)
+        let payload = try parseJSONObject(result.stdout)
+        #expect(payload["command"] as? String == "schema run custom")
+    }
+}
+
+@Test("Unsupported schema keywords report their exact JSON pointers")
+func unsupportedSchemaKeywordsReportExactPointers() throws {
+    let directory = URL(fileURLWithPath: NSTemporaryDirectory())
+        .appending(path: "afm-unsupported-schemas-\(UUID().uuidString)")
+    defer { try? FileManager.default.removeItem(at: directory) }
+    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+
+    let cases = [
+        UnsupportedSchemaCase(
+            name: "one-of",
+            document: #"{"oneOf":[{"type":"string"},{"type":"integer"}]}"#,
+            keyword: "oneOf",
+            pointer: "/oneOf"
+        ),
+        UnsupportedSchemaCase(
+            name: "all-of",
+            document: #"{"type":"object","properties":{"profile":{"allOf":[{"type":"object"}]}}}"#,
+            keyword: "allOf",
+            pointer: "/properties/profile/allOf"
+        ),
+        UnsupportedSchemaCase(
+            name: "escaped-unsupported-path",
+            document: #"{"type":"object","properties":{"home/office~primary":{"format":"email"}}}"#,
+            keyword: "format",
+            pointer: "/properties/home~1office~0primary/format"
+        ),
+        UnsupportedSchemaCase(
+            name: "open-additional-properties",
+            document: #"{"type":"object","properties":{"profile":{"type":"object","additionalProperties":true}}}"#,
+            keyword: "additionalProperties",
+            pointer: "/properties/profile/additionalProperties"
+        ),
+        UnsupportedSchemaCase(
+            name: "schema-additional-properties",
+            document: #"{"type":"object","additionalProperties":{"type":"string"}}"#,
+            keyword: "additionalProperties",
+            pointer: "/additionalProperties"
+        )
+    ]
+
+    for testCase in cases {
+        let schemaURL = directory.appending(path: "\(testCase.name).json")
+        try testCase.document.write(to: schemaURL, atomically: true, encoding: .utf8)
+        let result = try runCustomSchemaDryRun(schemaURL)
+
+        #expect(result.status == 64)
+        #expect(result.stdout.isEmpty)
+        #expect(result.stderr.contains("Unsupported schema keyword '\(testCase.keyword)'"))
+        #expect(result.stderr.contains("JSON pointer '\(testCase.pointer)'"))
+    }
+
+}
+
+@Test("Unsupported YAML schema keywords report exact JSON pointers")
+func unsupportedYAMLSchemaKeywordReportsExactPointer() throws {
+    let schemaURL = URL(fileURLWithPath: NSTemporaryDirectory())
+        .appending(path: "afm-unsupported-schema-\(UUID().uuidString).yaml")
+    defer { try? FileManager.default.removeItem(at: schemaURL) }
+    let schema = """
+    type: object
+    properties:
+      address:
+        oneOf:
+        - type: string
+        - type: integer
+    """
+    try schema.write(to: schemaURL, atomically: true, encoding: .utf8)
+
+    let result = try runCustomSchemaDryRun(schemaURL)
+
+    #expect(result.status == 64)
+    #expect(result.stderr.contains("Unsupported schema keyword 'oneOf'"))
+    #expect(result.stderr.contains("JSON pointer '/properties/address/oneOf'"))
+}
+
+@Test("Closed additional properties preserve supported schema conversion")
+func closedAdditionalPropertiesRemainSupported() throws {
+    let directory = URL(fileURLWithPath: NSTemporaryDirectory())
+        .appending(path: "afm-supported-schema-\(UUID().uuidString)")
+    let schemaURL = directory.appending(path: "supported.json")
+    defer { try? FileManager.default.removeItem(at: directory) }
+    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+
+    let schema = """
+    {
+      "title": "ReleaseSummary",
+      "description": "A supported schema using every currently converted shape.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "scores": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": {
+            "type": "number"
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "revision": {
+              "type": "integer"
+            }
+          },
+          "required": ["revision"]
+        },
+        "approved": {
+          "type": "boolean"
+        }
+      },
+      "required": ["name", "priority", "scores", "metadata"]
+    }
+    """
+    let document = try JSONDecoder().decode(AFMSchemaDocument.self, from: Data(schema.utf8))
+    _ = try document.generationSchema(fallbackName: "ReleaseSummary")
+    try schema.write(to: schemaURL, atomically: true, encoding: .utf8)
+
+    let result = try runCustomSchemaDryRun(schemaURL)
+
+    #expect(result.status == 0)
+    #expect(result.stderr.isEmpty)
+    let json = try parseJSONObject(result.stdout)
+    #expect(json["command"] as? String == "schema run custom")
+    #expect(json["schemaFile"] as? String == schemaURL.path())
+}
+
+private func runCustomSchemaDryRun(_ schemaURL: URL) throws -> CommandResult {
+    try runAFM(
+        "schema", "run", "custom",
+        "--output", "json",
+        "--dry-run",
+        "--schema", schemaURL.path(),
+        "--input", "Test input"
+    )
+}
+
+private struct UnsupportedSchemaCase {
+    let name: String
+    let document: String
+    let keyword: String
+    let pointer: String
 }

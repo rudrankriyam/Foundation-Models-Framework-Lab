@@ -375,6 +375,10 @@ func currentSupportedLanguageDisplayName(from languages: [SupportedLanguageDescr
 
 enum HelpText {
     static let root = """
+    RUNTIME COMMANDS
+      available     Inspect system and PCC readiness for the current process.
+      quota-usage   Inspect PCC quota state without inventing numeric usage.
+
     MODEL COMMANDS
       model        Inspect model readiness and supported languages.
 
@@ -404,6 +408,8 @@ enum HelpText {
       bridge       Use a signed Foundation Lab host from agents and automation.
 
     QUICK START
+      afm available
+      afm quota-usage --model pcc
       afm model status
       afm model use-cases
       afm model guardrails
@@ -415,6 +421,7 @@ enum HelpText {
       afm session chat --message "Hello" --message "Now answer in French."
       afm tag run --prompt "A joyful dog playing in a sunny park."
       afm session respond --prompt @prompt.txt --tool demo-weather
+      afm schema object --name Person --string name --integer age --optional
       afm schema list
       afm schema run typed-person --input "Alex Rivera is a designer in Berlin."
       afm schema run custom --schema demo-person --input @input.txt
@@ -439,6 +446,7 @@ enum HelpText {
 
     static let schema = """
     SCHEMA COMMANDS
+      object      Generate a runnable JSON or YAML schema artifact.
       list        Show available typed and dynamic schema workflows.
       run         Execute one schema workflow.
     """
@@ -446,8 +454,8 @@ enum HelpText {
 
 func suggestRootCommand(for input: String) -> String? {
     let commands = [
-        "model", "token-count", "tag", "session", "schema", "tool", "transcript", "feedback", "serve", "bridge",
-        "help", "version"
+        "available", "quota-usage", "model", "token-count", "tag", "session",
+        "schema", "tool", "transcript", "feedback", "serve", "bridge", "help", "version"
     ]
     return suggestCommand(input, in: commands)
 }

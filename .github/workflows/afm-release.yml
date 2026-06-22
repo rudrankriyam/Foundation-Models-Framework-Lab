@@ -14,6 +14,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v6
 
+      - name: Show release toolchain versions
+        run: |
+          xcodebuild -version
+          swift --version
+
       - name: Validate release tag
         run: |
           TAG="${GITHUB_REF_NAME}"
@@ -40,8 +45,26 @@ jobs:
             --arch x86_64 \
             --product afm \
             --scratch-path .build-release
-          cp .build-release/apple/Products/Release/afm "release/afm_${VERSION}_macOS_universal"
+          AFM_BIN_PATH="$(swift build \
+            -c release \
+            --arch arm64 \
+            --arch x86_64 \
+            --product afm \
+            --scratch-path .build-release \
+            --show-bin-path)"
+          cp "$AFM_BIN_PATH/afm" "release/afm_${VERSION}_macOS_universal"
           chmod +x "release/afm_${VERSION}_macOS_universal"
+
+      - name: Verify universal release artifact
+        env:
+          AFM_EXPECTED_MACOS_MINIMUM: '26.0'
+        run: bash .github/scripts/verify-afm-artifact.sh "release/afm_${VERSION}_macOS_universal"
+
+      - name: Test the packaged release binary
+        run: |
+          AFM_TEST_BINARY="$PWD/release/afm_${VERSION}_macOS_universal" \
+            swift test \
+            --filter 'AFMCLITests\.(rootHelpShowsGroupedCommands|rootDryRun|discoveryCommandsHonorDryRun|validationErrorsAreDeterministic)'
 
       - name: Detect signing configuration
         id: signing

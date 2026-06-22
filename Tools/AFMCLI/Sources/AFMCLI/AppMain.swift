@@ -19,8 +19,8 @@ struct AFMEntryPoint {
         guard !firstArgument.hasPrefix("-") else { return nil }
 
         let rootCommands = [
-            "model", "token-count", "tag", "session", "schema", "tool", "transcript", "feedback", "serve",
-            "bridge", "help", "version"
+            "available", "quota-usage", "model", "token-count", "tag", "session",
+            "schema", "tool", "transcript", "feedback", "serve", "bridge", "help", "version"
         ]
         if !rootCommands.contains(firstArgument) {
             if let suggestion = suggestRootCommand(for: firstArgument) {
@@ -37,7 +37,7 @@ struct AFMEntryPoint {
             "model": ["status", "languages", "use-cases", "guardrails"],
             "tag": ["run"],
             "session": ["respond", "stream", "chat"],
-            "schema": ["list", "run"],
+            "schema": ["object", "list", "run"],
             "tool": ["inspect", "validate", "call"],
             "transcript": ["export"],
             "feedback": ["export"],

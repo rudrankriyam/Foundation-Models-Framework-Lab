@@ -21,9 +21,10 @@ func runAFM(
     stdin: String? = nil
 ) throws -> CommandResult {
     let process = Process()
-    process.executableURL = try findAFMBinary()
+    let processEnvironment = ProcessInfo.processInfo.environment.merging(environment) { _, new in new }
+    process.executableURL = try findAFMBinary(environment: processEnvironment)
     process.currentDirectoryURL = packageRoot()
-    process.environment = ProcessInfo.processInfo.environment.merging(environment) { _, new in new }
+    process.environment = processEnvironment
 
     let stdoutPipe = Pipe()
     let stderrPipe = Pipe()
@@ -90,8 +91,28 @@ private func decodedOutput(_ data: Data) -> String {
         .trimmingCharacters(in: .whitespacesAndNewlines)
 }
 
-func findAFMBinary() throws -> URL {
+func findAFMBinary(
+    environment: [String: String] = ProcessInfo.processInfo.environment
+) throws -> URL {
     let root = packageRoot()
+
+    if let providedPath = environment["AFM_TEST_BINARY"]?
+        .trimmingCharacters(in: .whitespacesAndNewlines),
+       !providedPath.isEmpty {
+        let providedBinary = URL(
+            fileURLWithPath: providedPath,
+            relativeTo: root
+        ).standardizedFileURL
+
+        guard FileManager.default.isExecutableFile(atPath: providedBinary.path()) else {
+            throw TestFailure(
+                "AFM_TEST_BINARY is not an executable file: \(providedBinary.path())"
+            )
+        }
+
+        return providedBinary
+    }
+
     let directCandidates = [
         root.appending(path: ".build/debug/afm"),
         root.appending(path: ".build/arm64-apple-macosx/debug/afm"),

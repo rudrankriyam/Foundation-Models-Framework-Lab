@@ -87,7 +87,10 @@ let package = Package(
         .testTarget(
             name: "AFMCLITests",
             dependencies: ["AFMCLI"],
-            path: "Tools/AFMCLI/Tests/AFMCLITests"
+            path: "Tools/AFMCLI/Tests/AFMCLITests",
+            resources: [
+                .copy("Fixtures")
+            ]
         ),
         .testTarget(
             name: "FMFBenchCoreTests",

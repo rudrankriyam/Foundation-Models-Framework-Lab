@@ -46,6 +46,8 @@ These are good starting points after install:
 afm model status
 afm token-count "What is Swift?"
 afm token-count -i @instructions.md --prompt @prompt.md --breakdown
+afm available
+afm quota-usage --model pcc
 afm session respond --prompt "Summarize Foundation Models in one paragraph."
 afm session respond --adapter ~/MyAdapter.fmadapter --prompt "Rewrite this in my house style."
 afm session stream --prompt "Write a short poem about rain."
@@ -72,6 +74,21 @@ afm model languages
 afm model use-cases
 afm model guardrails
 ```
+
+Use the native-style runtime commands when automation needs both system and PCC
+status in one stable JSON shape:
+
+```bash
+afm available --output json
+afm available --model pcc
+afm quota-usage --model pcc --output json
+```
+
+PCC requires macOS 27, an Xcode 27-built `afm`, and Apple's managed
+`com.apple.developer.private-cloud-compute` entitlement in the running
+executable. The commands report those states separately. They do not treat the
+framework's device-level availability result as proof that the current process
+is authorized, and they do not invent a numeric quota that Apple doesn't expose.
 
 ### Count and budget tokens
 
@@ -149,6 +166,8 @@ Custom schema files use standard `required` semantics: properties omitted from
 the `required` array are optional.
 
 ```bash
+afm schema object --name Person --string name --integer age --optional > person.json
+afm schema object --format yaml --name Restaurant --string name --string address.street > restaurant.yaml
 afm schema list
 afm schema run typed-person --input "Alex Rivera is a designer in Berlin."
 afm schema run basic-object --preset product
@@ -157,6 +176,13 @@ afm schema run enum-schema --preset sentiment
 afm schema run custom --schema person-card --schema-dir .afm/schemas --input @person.txt
 afm schema run custom --schema person-card --input @person.txt --no-include-schema-in-prompt
 ```
+
+`schema object` follows the native `fm` declaration order: `--array`,
+`--description`, and `--optional` modify the property immediately before them.
+Dot-separated names create referenced nested objects. Use `--object <name>
+--schema <json>` for an explicit object, or `--anyOf` followed by repeated
+`--schema` values for a union. Prefix a schema path with `@` to compose JSON or
+YAML artifacts without shell substitution.
 
 ### Inspect and call tool manifests
 
