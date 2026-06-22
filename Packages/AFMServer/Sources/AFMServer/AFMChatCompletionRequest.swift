@@ -50,6 +50,7 @@ public struct AFMChatGenerationRequest: Sendable, Equatable {
     public let temperature: Double?
     public let topP: Double?
     public let maximumCompletionTokens: Int?
+    public let responseFormat: AFMChatResponseFormat?
 
     public init(
         model: String = "system",
@@ -58,7 +59,8 @@ public struct AFMChatGenerationRequest: Sendable, Equatable {
         streamOptions: AFMChatStreamOptions? = nil,
         temperature: Double? = nil,
         topP: Double? = nil,
-        maximumCompletionTokens: Int? = nil
+        maximumCompletionTokens: Int? = nil,
+        responseFormat: AFMChatResponseFormat? = nil
     ) {
         self.model = model
         self.messages = messages
@@ -67,6 +69,7 @@ public struct AFMChatGenerationRequest: Sendable, Equatable {
         self.temperature = temperature
         self.topP = topP
         self.maximumCompletionTokens = maximumCompletionTokens
+        self.responseFormat = responseFormat
     }
 }
 
@@ -80,7 +83,6 @@ extension AFMChatGenerationRequest: Decodable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: AFMJSONKey.self)
         try rejectUnknownFields(in: container, allowed: Self.allowedFields, decoder: decoder)
-        try rejectUnsupportedFields(["response_format"], in: container, decoder: decoder)
 
         let model = try container.decodeIfPresent(String.self, forKey: .init("model")) ?? "system"
         guard container.contains(.init("messages")) else {
@@ -99,6 +101,10 @@ extension AFMChatGenerationRequest: Decodable {
             forKey: .init("max_completion_tokens")
         )
         let legacyMaximumTokens = try container.decodeIfPresent(Int.self, forKey: .init("max_tokens"))
+        let responseFormat = try container.decodeIfPresent(
+            AFMChatResponseFormat.self,
+            forKey: .init("response_format")
+        )
 
         try Self.validateModel(model)
         try Self.validateStreaming(stream: stream, streamOptions: streamOptions)
@@ -118,7 +124,8 @@ extension AFMChatGenerationRequest: Decodable {
             streamOptions: streamOptions,
             temperature: temperature,
             topP: topP,
-            maximumCompletionTokens: maximumCompletionTokens ?? legacyMaximumTokens
+            maximumCompletionTokens: maximumCompletionTokens ?? legacyMaximumTokens,
+            responseFormat: responseFormat
         )
     }
 

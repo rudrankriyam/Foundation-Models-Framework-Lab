@@ -88,6 +88,31 @@ struct AFMChatStreamingServiceTests {
         #expect(bodies.last == "data: [DONE]\n\n")
     }
 
+    @Test("Structured streaming emits one complete JSON delta before finish and usage")
+    func structuredStreamUsesSingleJSONDelta() async throws {
+        let content = #"{"name":"Ada"}"#
+        let generator = StreamingGenerator(
+            deltas: [content],
+            result: .init(content: content, usage: Self.standardUsage())
+        )
+        let emissions = try await Self.collect(
+            Self.service(generator: generator),
+            body: Self.structuredStreamBody()
+        )
+        let bodies = Self.streamBodies(emissions)
+        let chunks = try bodies.dropLast().map(Self.eventObject)
+
+        #expect(chunks.count == 4)
+        #expect(try Self.content(in: chunks[1]) == content)
+        let decodedContent = try #require(
+            JSONSerialization.jsonObject(with: Data(content.utf8)) as? [String: String]
+        )
+        #expect(decodedContent == ["name": "Ada"])
+        #expect(try Self.choice(in: chunks[2])["finish_reason"] as? String == "stop")
+        #expect((chunks[3]["choices"] as? [Any])?.isEmpty == true)
+        #expect(bodies.last == "data: [DONE]\n\n")
+    }
+
     @Test("Streaming refusals finish with content_filter")
     func streamRefusal() async throws {
         let generator = StreamingGenerator(
@@ -346,6 +371,32 @@ private extension AFMChatStreamingServiceTests {
         let options = includeUsage ? #", "stream_options":{"include_usage":true}"# : ""
         return Data(
             #"{"model":"system","messages":[{"role":"user","content":"Hi"}],"stream":true\#(options)}"#.utf8
+        )
+    }
+
+    static func structuredStreamBody() -> Data {
+        Data(
+            #"""
+            {
+              "model": "system",
+              "messages": [{"role": "user", "content": "Ada"}],
+              "stream": true,
+              "stream_options": {"include_usage": true},
+              "response_format": {
+                "type": "json_schema",
+                "json_schema": {
+                  "name": "person",
+                  "strict": true,
+                  "schema": {
+                    "type": "object",
+                    "properties": {"name": {"type": "string"}},
+                    "required": ["name"],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+            """#.utf8
         )
     }
 
