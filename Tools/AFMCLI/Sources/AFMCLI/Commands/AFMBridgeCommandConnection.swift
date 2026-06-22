@@ -9,6 +9,13 @@ struct AFMBridgeCommandConnection: Sendable {
 
     static func connect(paths: ResolvedBridgePaths) throws -> Self {
         let descriptor = try paths.readDescriptor()
+        return try connect(paths: paths, descriptor: descriptor)
+    }
+
+    static func connect(
+        paths: ResolvedBridgePaths,
+        descriptor: AFMBridgeConnectionDescriptor
+    ) throws -> Self {
         do {
             return try Self(
                 paths: paths,

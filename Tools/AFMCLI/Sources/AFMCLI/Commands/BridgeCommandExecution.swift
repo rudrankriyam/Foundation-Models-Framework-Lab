@@ -1,3 +1,4 @@
+import AFMServer
 import ArgumentParser
 
 func executeBridgeCommand(
@@ -29,10 +30,24 @@ func performBridgeRequest<Response: Sendable>(
         try Task.checkCancellation()
         guard retryAfterDescriptorRotation,
               let replacementDescriptor = try? paths.readDescriptor(),
-              replacementDescriptor.launchIdentifier != firstHost.descriptor.launchIdentifier,
-              let replacementHost = try? AFMBridgeCommandConnection.connect(paths: paths) else {
+              bridgeConnectionChanged(from: firstHost.descriptor, to: replacementDescriptor),
+              let replacementHost = try? AFMBridgeCommandConnection.connect(
+                  paths: paths,
+                  descriptor: replacementDescriptor
+              ) else {
             throw error
         }
         return (replacementHost, try await operation(replacementHost))
     }
+}
+
+private func bridgeConnectionChanged(
+    from previous: AFMBridgeConnectionDescriptor,
+    to replacement: AFMBridgeConnectionDescriptor
+) -> Bool {
+    previous.endpoint != replacement.endpoint
+        || previous.bearerToken != replacement.bearerToken
+        || previous.processIdentifier != replacement.processIdentifier
+        || previous.launchIdentifier != replacement.launchIdentifier
+        || previous.startedAt != replacement.startedAt
 }
