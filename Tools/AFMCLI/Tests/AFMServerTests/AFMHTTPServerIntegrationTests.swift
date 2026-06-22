@@ -4,6 +4,8 @@ import FoundationModelsKit
 import Testing
 @testable import AFMServer
 
+// swiftlint:disable file_length
+
 @Test("TCP transport serves health and enforces parser and body limits")
 func tcpTransportAndLimits() async throws {
     let limits = AFMServerLimits(
@@ -77,6 +79,43 @@ func tcpChatCompletion() async throws {
     }
 }
 
+@Test("A pipelined request cannot replace an in-flight chat response")
+func tcpPipelinedChatCompletion() async throws {
+    let probe = IntegrationCompletionProbe()
+    let server = try testServer(
+        configuration: .init(endpoint: .tcp(host: "127.0.0.1", port: 0)),
+        generator: IntegrationControlledGenerator(probe: probe)
+    )
+
+    do {
+        let address = try await server.start()
+        guard case .tcp(_, let port) = address else {
+            Issue.record("Expected a TCP address")
+            try await server.stop()
+            return
+        }
+        let body = #"{"messages":[{"role":"user","content":"Hi"}]}"#
+        let chat = chatHTTPRequest(body: body, port: port, close: false)
+        let health = "GET /health HTTP/1.1\r\nHost: 127.0.0.1:\(port)\r\nConnection: close\r\n\r\n"
+        let responseTask = Task.detached {
+            try sendRawHTTPRequest(chat + health, port: port)
+        }
+
+        try await probe.waitUntilStarted()
+        await probe.complete()
+        let response = try await responseTask.value
+        #expect(response.components(separatedBy: "HTTP/1.1 200 OK").count == 2)
+        #expect(response.contains(#""object":"chat.completion""#))
+        #expect(response.contains("connection: close"))
+        #expect(!response.contains(#""status":"afm serve is running""#))
+        #expect(!response.contains("HTTP/1.1 400 Bad Request"))
+        try await server.stop()
+    } catch {
+        try? await server.stop()
+        throw error
+    }
+}
+
 @Test("A TCP disconnect cancels its in-flight model generation")
 func tcpDisconnectCancelsChat() async throws {
     let probe = IntegrationCancellationProbe()
@@ -95,7 +134,7 @@ func tcpDisconnectCancelsChat() async throws {
         let descriptor = try connectTCPSocket(port: port)
         let body = #"{"messages":[{"role":"user","content":"Hi"}]}"#
         try writeRawHTTPRequest(chatHTTPRequest(body: body, port: port, close: false), to: descriptor)
-        await probe.waitUntilStarted()
+        try await probe.waitUntilStarted()
         var reset = linger(l_onoff: 1, l_linger: 0)
         #expect(
             setsockopt(
@@ -107,7 +146,7 @@ func tcpDisconnectCancelsChat() async throws {
             ) == 0
         )
         #expect(Darwin.close(descriptor) == 0)
-        await probe.waitUntilCancelled()
+        try await probe.waitUntilCancelled()
         try await server.stop()
     } catch {
         try? await server.stop()
@@ -371,6 +410,46 @@ private struct IntegrationImmediateGenerator: AFMChatCompletionGenerating {
     }
 }
 
+private struct IntegrationControlledGenerator: AFMChatCompletionGenerating {
+    let probe: IntegrationCompletionProbe
+
+    func generate(_ request: AFMChatGenerationRequest) async throws -> AFMChatGenerationResult {
+        await probe.waitForCompletion()
+        return .init(
+            content: "First response",
+            usage: .init(inputTokenCount: 2, measurement: .estimated, scope: .response)
+        )
+    }
+}
+
+private actor IntegrationCompletionProbe {
+    private var started = false
+    private var continuation: CheckedContinuation<Void, Never>?
+
+    func waitForCompletion() async {
+        started = true
+        await withCheckedContinuation { continuation = $0 }
+    }
+
+    func waitUntilStarted() async throws {
+        try await waitUntil { started }
+    }
+
+    private func waitUntil(_ predicate: () -> Bool) async throws {
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: .seconds(5))
+        while !predicate() {
+            guard clock.now < deadline else { throw IntegrationProbeError.timedOut }
+            await Task.yield()
+        }
+    }
+
+    func complete() {
+        continuation?.resume()
+        continuation = nil
+    }
+}
+
 private struct IntegrationPausingGenerator: AFMChatCompletionGenerating {
     let probe: IntegrationCancellationProbe
 
@@ -395,13 +474,26 @@ private actor IntegrationCancellationProbe {
     func markStarted() { started = true }
     func markCancelled() { cancelled = true }
 
-    func waitUntilStarted() async {
-        while !started { await Task.yield() }
+    func waitUntilStarted() async throws {
+        try await waitUntil { started }
     }
 
-    func waitUntilCancelled() async {
-        while !cancelled { await Task.yield() }
+    func waitUntilCancelled() async throws {
+        try await waitUntil { cancelled }
     }
+
+    private func waitUntil(_ predicate: () -> Bool) async throws {
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: .seconds(5))
+        while !predicate() {
+            guard clock.now < deadline else { throw IntegrationProbeError.timedOut }
+            await Task.yield()
+        }
+    }
+}
+
+private enum IntegrationProbeError: Error {
+    case timedOut
 }
 
 private func chatHTTPRequest(body: String, port: Int, close: Bool) -> String {

@@ -3,6 +3,22 @@ import FoundationModels
 import Testing
 @testable import AFMServer
 
+#if compiler(>=6.4)
+@available(iOS 27.0, macOS 27.0, *)
+@Test("Modern session errors distinguish concurrency from transcript mutation")
+func modernSessionErrorMapping() {
+    let concurrent = AFMFoundationModelsChatGenerator.mapModernError(
+        LanguageModelSession.Error.concurrentRequests
+    )
+    let transcriptMutation = AFMFoundationModelsChatGenerator.mapModernError(
+        LanguageModelSession.Error.transcriptMutationWhileResponding
+    )
+
+    #expect(concurrent == .concurrentRequest)
+    #expect(transcriptMutation == nil)
+}
+#endif
+
 @Test("Transcript reconstruction preserves instructions, turns, tools, and the active prompt")
 func transcriptReconstruction() throws {
     let request = try AFMChatGenerationRequest.decode(Data(transcriptRequestJSON.utf8))

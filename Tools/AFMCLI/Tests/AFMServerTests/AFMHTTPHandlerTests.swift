@@ -177,6 +177,30 @@ func keepAliveRequests() throws {
     _ = try? channel.finish()
 }
 
+@Test("A closing response ignores request parts received before its flush completes")
+func closingResponseIgnoresLateRequest() throws {
+    let delayedEnd = DelayedResponseEndHandler()
+    let channel = EmbeddedChannel(handler: delayedEnd)
+    try channel.pipeline.syncOperations.addHandler(
+        AFMHTTPHandler(router: testRouter(), limits: .init())
+    )
+
+    try writeRequest(
+        path: "/health",
+        additionalHeaders: [("connection", "close")],
+        to: channel
+    )
+    try writeRequest(path: "/v1/models", to: channel)
+
+    let response = try readResponse(from: channel)
+    #expect(response.head.status == .ok)
+    #expect(response.head.headers.first(name: "connection") == "close")
+    #expect(try channel.readOutbound(as: HTTPServerResponsePart.self) == nil)
+    delayedEnd.completeWrites()
+    channel.embeddedEventLoop.run()
+    _ = try? channel.finish()
+}
+
 @Test("Chat POST requires JSON even when the body is empty")
 func chatRequiresJSONContentType() throws {
     let channel = EmbeddedChannel(
@@ -198,6 +222,29 @@ private struct TestClock: AFMServerClock {
 private struct TestHTTPResponse {
     let head: HTTPResponseHead
     let body: Data
+}
+
+private final class DelayedResponseEndHandler: ChannelOutboundHandler, @unchecked Sendable {
+    typealias OutboundIn = HTTPServerResponsePart
+    typealias OutboundOut = HTTPServerResponsePart
+
+    private var completionPromises: [EventLoopPromise<Void>] = []
+
+    func write(context: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
+        if case .end = unwrapOutboundIn(data) {
+            if let promise {
+                completionPromises.append(promise)
+            }
+            context.write(data, promise: nil)
+        } else {
+            context.write(data, promise: promise)
+        }
+    }
+
+    func completeWrites() {
+        completionPromises.forEach { $0.succeed(()) }
+        completionPromises.removeAll()
+    }
 }
 
 private func testRouter(

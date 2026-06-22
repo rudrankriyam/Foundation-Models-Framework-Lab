@@ -12,6 +12,8 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
     private var receivedBodyBytes = 0
     private var requestBody = Data()
     private var responseWasSent = false
+    private var shouldCloseForPipelinedRequest = false
+    private var isClosingResponse = false
     private var generationTask: Task<Void, Never>?
 
     init(router: AFMRequestRouter, limits: AFMServerLimits) {
@@ -20,6 +22,7 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
     }
 
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
+        guard !isClosingResponse else { return }
         switch unwrapInboundIn(data) {
         case .head(let head):
             receiveHead(head, context: context)
@@ -32,6 +35,10 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
 
     func errorCaught(context: ChannelHandlerContext, error: Error) {
         cancelGeneration()
+        guard !isClosingResponse else {
+            context.close(promise: nil)
+            return
+        }
         guard !responseWasSent else {
             context.close(promise: nil)
             return
@@ -70,6 +77,10 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
 
     private func receiveHead(_ head: HTTPRequestHead, context: ChannelHandlerContext) {
         guard requestHead == nil, !responseWasSent else {
+            if generationTask != nil {
+                shouldCloseForPipelinedRequest = true
+                return
+            }
             cancelGeneration()
             responseWasSent = true
             send(
@@ -102,6 +113,7 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
     }
 
     private func receiveBody(_ buffer: ByteBuffer, context: ChannelHandlerContext) {
+        guard !shouldCloseForPipelinedRequest else { return }
         guard let head = requestHead, !responseWasSent else { return }
 
         if receivedBodyBytes == 0, !declaresBody(head), !hasJSONContentType(head) {
@@ -123,6 +135,7 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
     }
 
     private func receiveEnd(context: ChannelHandlerContext) {
+        guard !shouldCloseForPipelinedRequest else { return }
         guard let head = requestHead else {
             if !responseWasSent {
                 responseWasSent = true
@@ -144,8 +157,8 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
         switch router.route(for: head) {
         case .immediate(let response):
             let shouldClose = !head.isKeepAlive
-            send(response, version: head.version, close: shouldClose, context: context)
             resetRequestState()
+            send(response, version: head.version, close: shouldClose, context: context)
         case .chatCompletion(let origin):
             startChatCompletion(head: head, body: requestBody, origin: origin, context: context)
         }
@@ -192,9 +205,9 @@ final class AFMHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
     ) {
         generationTask = nil
         guard requestHead != nil, !responseWasSent, context.channel.isActive else { return }
-        let shouldClose = !head.isKeepAlive
-        send(response, version: head.version, close: shouldClose, context: context)
+        let shouldClose = !head.isKeepAlive || shouldCloseForPipelinedRequest
         resetRequestState()
+        send(response, version: head.version, close: shouldClose, context: context)
     }
 }
 
@@ -231,6 +244,9 @@ private extension AFMHTTPHandler {
         close: Bool,
         context: ChannelHandlerContext
     ) {
+        if close {
+            isClosingResponse = true
+        }
         var headers = response.headers
         headers.replaceOrAdd(name: "content-type", value: "application/json")
         headers.replaceOrAdd(name: "content-length", value: String(response.body.count))
@@ -262,6 +278,7 @@ private extension AFMHTTPHandler {
         receivedBodyBytes = 0
         requestBody.removeAll(keepingCapacity: true)
         responseWasSent = false
+        shouldCloseForPipelinedRequest = false
     }
 
     private func cancelGeneration() {

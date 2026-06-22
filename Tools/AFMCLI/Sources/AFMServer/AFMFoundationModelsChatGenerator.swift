@@ -228,36 +228,6 @@ private extension AFMFoundationModelsChatGenerator {
         return mapLegacyError(error) ?? error
     }
 
-    #if compiler(>=6.4)
-    @available(iOS 27.0, macOS 27.0, *)
-    static func mapModernError(_ error: Error) -> AFMChatGenerationError? {
-        if error is SystemLanguageModel.Error {
-            return .modelUnavailable
-        }
-        if error is LanguageModelSession.Error {
-            return .concurrentRequest
-        }
-        guard let modelError = error as? LanguageModelError else { return nil }
-        switch modelError {
-        case .contextSizeExceeded:
-            return .contextLengthExceeded
-        case .rateLimited:
-            return .rateLimited
-        case .guardrailViolation, .refusal:
-            return .safetyViolation
-        case .timeout:
-            return .timedOut
-        case .unsupportedCapability,
-             .unsupportedTranscriptContent,
-             .unsupportedGenerationGuide,
-             .unsupportedLanguageOrLocale:
-            return .unsupportedInput
-        @unknown default:
-            return nil
-        }
-    }
-    #endif
-
     static func mapLegacyError(_ error: Error) -> AFMChatGenerationError? {
         guard let generationError = error as? LanguageModelSession.GenerationError else { return nil }
         switch generationError {
@@ -278,3 +248,49 @@ private extension AFMFoundationModelsChatGenerator {
         }
     }
 }
+
+#if compiler(>=6.4)
+extension AFMFoundationModelsChatGenerator {
+    @available(iOS 27.0, macOS 27.0, *)
+    static func mapModernError(_ error: Error) -> AFMChatGenerationError? {
+        if error is SystemLanguageModel.Error {
+            return .modelUnavailable
+        }
+        if let sessionError = error as? LanguageModelSession.Error {
+            return mapModernSessionError(sessionError)
+        }
+        guard let modelError = error as? LanguageModelError else { return nil }
+        switch modelError {
+        case .contextSizeExceeded:
+            return .contextLengthExceeded
+        case .rateLimited:
+            return .rateLimited
+        case .guardrailViolation, .refusal:
+            return .safetyViolation
+        case .timeout:
+            return .timedOut
+        case .unsupportedCapability,
+             .unsupportedTranscriptContent,
+             .unsupportedGenerationGuide,
+             .unsupportedLanguageOrLocale:
+            return .unsupportedInput
+        @unknown default:
+            return nil
+        }
+    }
+
+    @available(iOS 27.0, macOS 27.0, *)
+    private static func mapModernSessionError(
+        _ error: LanguageModelSession.Error
+    ) -> AFMChatGenerationError? {
+        switch error {
+        case .concurrentRequests:
+            return .concurrentRequest
+        case .transcriptMutationWhileResponding:
+            return nil
+        @unknown default:
+            return nil
+        }
+    }
+}
+#endif
