@@ -265,17 +265,18 @@ private extension FoundationLabConversationEngine {
 
         session = LanguageModelSession(model: model, transcript: transcript)
         sessionCount += 1
-        await updateTokenCount()
+        await updateTokenCount(usageSource: .context)
 
         isApplyingWindow = false
         notifyStateChange()
     }
 
-    func updateTokenCount() async {
+    func updateTokenCount(usageSource: FoundationLabConversationTokenUsageSource = .accumulatedSession) async {
         let snapshot = await foundationLabConversationTokenSnapshot(
             session: session,
             model: model,
-            runtime: configuration.modelRuntime
+            runtime: configuration.modelRuntime,
+            usageSource: usageSource
         )
         currentTokenCount = snapshot.legacyTokenCount
         currentTokenUsage = snapshot.usage
