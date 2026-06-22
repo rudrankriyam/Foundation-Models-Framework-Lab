@@ -375,6 +375,10 @@ func currentSupportedLanguageDisplayName(from languages: [SupportedLanguageDescr
 
 enum HelpText {
     static let root = """
+    RUNTIME COMMANDS
+      available     Inspect system and PCC readiness for the current process.
+      quota-usage   Inspect PCC quota state without inventing numeric usage.
+
     MODEL COMMANDS
       model        Inspect model readiness and supported languages.
 
@@ -398,6 +402,8 @@ enum HelpText {
       feedback     Export Foundation Models feedback attachments.
 
     QUICK START
+      afm available
+      afm quota-usage --model pcc
       afm model status
       afm model use-cases
       afm model guardrails
@@ -436,7 +442,10 @@ enum HelpText {
 }
 
 func suggestRootCommand(for input: String) -> String? {
-    let commands = ["model", "token-count", "tag", "session", "schema", "tool", "transcript", "feedback", "help", "version"]
+    let commands = [
+        "available", "quota-usage", "model", "token-count", "tag", "session",
+        "schema", "tool", "transcript", "feedback", "help", "version"
+    ]
     return suggestCommand(input, in: commands)
 }
 
