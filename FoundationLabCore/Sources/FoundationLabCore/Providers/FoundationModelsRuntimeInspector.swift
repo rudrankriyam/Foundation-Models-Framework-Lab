@@ -89,12 +89,30 @@ public struct FoundationModelsRuntimeInspector: ModelRuntimeInspecting {
     func privateCloudUnavailableQuotaResult(
         for status: ModelRuntimeStatusResult
     ) -> ModelQuotaUsageResult? {
-        guard status.runtime == .privateCloudCompute,
-              !status.isRunnableInCurrentProcess else { return nil }
+        guard status.runtime == .privateCloudCompute else { return nil }
+        guard status.isSupported else {
+            return ModelQuotaUsageResult(
+                runtime: .privateCloudCompute,
+                status: .unsupported,
+                unavailableReason: status.reason ?? .unknown,
+                metadata: metadata(for: .privateCloudCompute)
+            )
+        }
+
+        let authorizationReason: ModelRuntimeUnavailableReason
+        switch status.authorization {
+        case .granted:
+            return nil
+        case .missing:
+            authorizationReason = .missingEntitlement
+        case .unknown, .notRequired:
+            authorizationReason = .unknown
+        }
+
         return ModelQuotaUsageResult(
             runtime: .privateCloudCompute,
-            status: status.isSupported ? .unavailable : .unsupported,
-            unavailableReason: status.reason ?? .unknown,
+            status: .unavailable,
+            unavailableReason: authorizationReason,
             metadata: metadata(for: .privateCloudCompute)
         )
     }
