@@ -10,7 +10,9 @@ on:
       - 'Package.swift'
       - 'Package.resolved'
       - '.swiftlint-core-cli.yml'
+      - '.github/scripts/verify-afm-artifact.sh'
       - '.github/workflows/afm-cli.yml'
+      - '.github/workflows/afm-release.yml'
   push:
     branches: [main]
     paths:
@@ -20,7 +22,9 @@ on:
       - 'Package.swift'
       - 'Package.resolved'
       - '.swiftlint-core-cli.yml'
+      - '.github/scripts/verify-afm-artifact.sh'
       - '.github/workflows/afm-cli.yml'
+      - '.github/workflows/afm-release.yml'
   workflow_dispatch:
 
 permissions:
@@ -66,6 +70,18 @@ jobs:
       - name: Test standalone FoundationModelsKit package
         run: swift test --package-path Packages/FoundationModelsKit
 
+  universal-artifact:
+    needs: build-and-test
+    runs-on: macos-26
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Show artifact toolchain versions
+        run: |
+          xcodebuild -version
+          swift --version
+
       - name: Build universal release binary
         run: |
           rm -rf .build-release build
@@ -75,8 +91,31 @@ jobs:
             --arch x86_64 \
             --product afm \
             --scratch-path .build-release
+          AFM_BIN_PATH="$(swift build \
+            -c release \
+            --arch arm64 \
+            --arch x86_64 \
+            --product afm \
+            --scratch-path .build-release \
+            --show-bin-path)"
           mkdir -p build
-          cp .build-release/apple/Products/Release/afm build/afm_dev_macOS_universal
+          cp "$AFM_BIN_PATH/afm" build/afm_dev_macOS_universal
+          chmod +x build/afm_dev_macOS_universal
+
+      - name: Verify universal artifact
+        env:
+          AFM_EXPECTED_MACOS_MINIMUM: '26.0'
+        run: bash .github/scripts/verify-afm-artifact.sh build/afm_dev_macOS_universal
+
+      - name: Test the packaged binary
+        env:
+          AFM_TEST_BINARY: ${{ github.workspace }}/build/afm_dev_macOS_universal
+        run: |
+          swift test \
+            --filter 'AFMCLITests\.(rootHelpShowsGroupedCommands|rootDryRun|discoveryCommandsHonorDryRun|validationErrorsAreDeterministic)'
+
+      - name: Write artifact checksum
+        run: |
           shasum -a 256 build/afm_dev_macOS_universal > build/afm_dev_checksums.txt
 
       - name: Upload CLI artifact
