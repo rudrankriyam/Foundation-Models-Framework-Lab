@@ -116,13 +116,13 @@ struct ImageInputLiveView: View {
             isResultFocused = false
             isErrorFocused = true
         }
-        .onChange(of: model.result != nil) { _, hasResult in
-            guard hasResult else { return }
+        .onChange(of: model.result?.id) { _, resultID in
+            guard resultID != nil else { return }
             isErrorFocused = false
             isResultFocused = true
         }
-        .sensoryFeedback(.success, trigger: model.result != nil) { oldValue, newValue in
-            !oldValue && newValue
+        .sensoryFeedback(.success, trigger: model.result?.id) { oldValue, newValue in
+            newValue != nil && newValue != oldValue
         }
     }
 

@@ -6,7 +6,8 @@
 #if compiler(>=6.4)
 import Foundation
 
-struct ImageInputRunResult {
+struct ImageInputRunResult: Identifiable {
+    let id = UUID()
     let response: String
     let prompt: String
     let imageName: String
