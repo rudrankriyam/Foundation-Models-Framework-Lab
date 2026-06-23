@@ -117,7 +117,6 @@ final class ImageInputViewModel {
         let runID = UUID()
         activeRunID = runID
         isRunning = true
-        result = nil
         errorMessage = nil
 
         runTask = Task { @MainActor [weak self] in
