@@ -24,6 +24,7 @@ final class ToolCallingModeLabViewModel {
     }
     var results = ToolCallingExperimentMode.allCases.map { ToolCallingModeRunResult.pending($0) }
     var isRunning = false
+    var isStoppingRun = false
     var activeMode: ToolCallingExperimentMode?
     var errorMessage: String?
 
@@ -33,6 +34,7 @@ final class ToolCallingModeLabViewModel {
     var canRun: Bool {
         !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             && !isRunning
+            && !isStoppingRun
             && readinessIssue == nil
     }
 
@@ -59,7 +61,7 @@ final class ToolCallingModeLabViewModel {
     }
 
     func startComparison() {
-        guard !isRunning else { return }
+        guard !isRunning, !isStoppingRun else { return }
         guard let trimmedPrompt = nonemptyPrompt else { return }
         if let readinessIssue {
             errorMessage = readinessIssue
@@ -69,11 +71,9 @@ final class ToolCallingModeLabViewModel {
     }
 
     func cancelRun() {
-        activeRunID = nil
+        guard isRunning, !isStoppingRun else { return }
+        isStoppingRun = true
         runTask?.cancel()
-        runTask = nil
-        isRunning = false
-        activeMode = nil
         results = results.map { result in
             guard result.state == .running else { return result }
             var cancelled = result
@@ -105,6 +105,7 @@ private extension ToolCallingModeLabViewModel {
         let runID = UUID()
         activeRunID = runID
         isRunning = true
+        isStoppingRun = false
         errorMessage = nil
         results = ToolCallingExperimentMode.allCases.map { ToolCallingModeRunResult.pending($0) }
 
@@ -119,12 +120,15 @@ private extension ToolCallingModeLabViewModel {
                 activeRunID = nil
                 runTask = nil
                 isRunning = false
+                isStoppingRun = false
                 activeMode = nil
             }
         }
 
         for mode in ToolCallingExperimentMode.allCases {
-            guard activeRunID == id, self.prompt.trimmingCharacters(in: .whitespacesAndNewlines) == prompt else {
+            guard !Task.isCancelled,
+                  activeRunID == id,
+                  self.prompt.trimmingCharacters(in: .whitespacesAndNewlines) == prompt else {
                 return
             }
 
@@ -143,6 +147,7 @@ private extension ToolCallingModeLabViewModel {
             } catch is CancellationError {
                 return
             } catch {
+                guard !Task.isCancelled else { return }
                 guard activeRunID == id else { return }
                 update(mode: mode) { result in
                     result.state = .failed(error.localizedDescription)

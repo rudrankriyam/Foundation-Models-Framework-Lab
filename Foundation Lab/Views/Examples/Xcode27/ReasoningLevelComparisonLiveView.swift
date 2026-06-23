@@ -92,6 +92,7 @@ struct ReasoningLevelComparisonLiveView: View {
                 TextField("Enter one prompt for all three levels", text: Bindable(model).prompt, axis: .vertical)
                     .lineLimit(4...8)
                     .textFieldStyle(.roundedBorder)
+                    .disabled(model.isRunning || model.isStoppingRun)
                     .accessibilityHint("The same prompt is sent to a new session for each reasoning level")
 
                 HStack {
@@ -99,17 +100,18 @@ struct ReasoningLevelComparisonLiveView: View {
                         .buttonStyle(.borderless)
                         .padding(.vertical, Spacing.medium)
                         .contentShape(.rect)
+                        .disabled(model.isRunning || model.isStoppingRun)
 
                     Spacer()
 
                     Button(
-                        model.isRunning ? "Stop" : "Run 3 Levels",
-                        systemImage: model.isRunning ? "stop.fill" : "play.fill",
+                        model.isStoppingRun ? "Stopping…" : (model.isRunning ? "Stop" : "Run 3 Levels"),
+                        systemImage: model.isStoppingRun ? "hourglass" : (model.isRunning ? "stop.fill" : "play.fill"),
                         action: toggleRun
                     )
                     .buttonStyle(.glassProminent)
                     .controlSize(.large)
-                    .disabled(!model.isRunning && !model.canRun)
+                    .disabled(model.isStoppingRun || (!model.isRunning && !model.canRun))
                 }
             }
         }

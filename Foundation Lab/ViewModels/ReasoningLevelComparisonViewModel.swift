@@ -24,6 +24,7 @@ final class ReasoningLevelComparisonViewModel {
     }
     var results = ReasoningComparisonLevel.allCases.map { ReasoningComparisonResult.pending($0) }
     var isRunning = false
+    var isStoppingRun = false
     var activeLevel: ReasoningComparisonLevel?
     var errorMessage: String?
 
@@ -37,6 +38,7 @@ final class ReasoningLevelComparisonViewModel {
     var canRun: Bool {
         !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             && !isRunning
+            && !isStoppingRun
             && readinessIssue == nil
     }
 
@@ -75,7 +77,7 @@ final class ReasoningLevelComparisonViewModel {
     }
 
     func startComparison() {
-        guard !isRunning else { return }
+        guard !isRunning, !isStoppingRun else { return }
         guard let trimmedPrompt = nonemptyPrompt else { return }
         if let readinessIssue {
             errorMessage = readinessIssue
@@ -85,11 +87,9 @@ final class ReasoningLevelComparisonViewModel {
     }
 
     func cancelRun() {
-        activeRunID = nil
+        guard isRunning, !isStoppingRun else { return }
+        isStoppingRun = true
         runTask?.cancel()
-        runTask = nil
-        isRunning = false
-        activeLevel = nil
         results = results.map { result in
             guard result.state == .running else { return result }
             var cancelled = result
@@ -121,6 +121,7 @@ private extension ReasoningLevelComparisonViewModel {
         let runID = UUID()
         activeRunID = runID
         isRunning = true
+        isStoppingRun = false
         errorMessage = nil
         results = ReasoningComparisonLevel.allCases.map { ReasoningComparisonResult.pending($0) }
 
@@ -135,12 +136,15 @@ private extension ReasoningLevelComparisonViewModel {
                 activeRunID = nil
                 runTask = nil
                 isRunning = false
+                isStoppingRun = false
                 activeLevel = nil
             }
         }
 
         for level in ReasoningComparisonLevel.allCases {
-            guard activeRunID == id, self.prompt.trimmingCharacters(in: .whitespacesAndNewlines) == prompt else {
+            guard !Task.isCancelled,
+                  activeRunID == id,
+                  self.prompt.trimmingCharacters(in: .whitespacesAndNewlines) == prompt else {
                 return
             }
 
@@ -159,6 +163,7 @@ private extension ReasoningLevelComparisonViewModel {
             } catch is CancellationError {
                 return
             } catch {
+                guard !Task.isCancelled else { return }
                 guard activeRunID == id else { return }
                 update(level: level) { result in
                     result.state = .failed(error.localizedDescription)

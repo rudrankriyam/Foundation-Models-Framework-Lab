@@ -102,6 +102,7 @@ struct ToolCallingModeLabLiveView: View {
                 TextField("Ask about the local fixture", text: Bindable(model).prompt, axis: .vertical)
                     .lineLimit(3...7)
                     .textFieldStyle(.roundedBorder)
+                    .disabled(model.isRunning || model.isStoppingRun)
                     .accessibilityHint("The same prompt is sent to a new session for each tool-calling mode")
 
                 HStack {
@@ -109,17 +110,18 @@ struct ToolCallingModeLabLiveView: View {
                         .buttonStyle(.borderless)
                         .padding(.vertical, Spacing.medium)
                         .contentShape(.rect)
+                        .disabled(model.isRunning || model.isStoppingRun)
 
                     Spacer()
 
                     Button(
-                        model.isRunning ? "Stop" : "Run 3 Modes",
-                        systemImage: model.isRunning ? "stop.fill" : "play.fill",
+                        model.isStoppingRun ? "Stopping…" : (model.isRunning ? "Stop" : "Run 3 Modes"),
+                        systemImage: model.isStoppingRun ? "hourglass" : (model.isRunning ? "stop.fill" : "play.fill"),
                         action: toggleRun
                     )
                     .buttonStyle(.glassProminent)
                     .controlSize(.large)
-                    .disabled(!model.isRunning && !model.canRun)
+                    .disabled(model.isStoppingRun || (!model.isRunning && !model.canRun))
                 }
             }
         }
