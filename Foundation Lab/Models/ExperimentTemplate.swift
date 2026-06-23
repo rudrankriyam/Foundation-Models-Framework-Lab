@@ -331,27 +331,6 @@ extension ExperimentTemplate {
                 ))
             ),
             keywords: ["sampling", "temperature", "tokens", "seed"]
-        ),
-        template(
-            .modelRuntime,
-            id: "model-runtime",
-            level: .advanced,
-            track: .contextAndRuntime,
-            summary: "Inspect the active system model, tokenizer, and capabilities."
-        ),
-        template(
-            .privateCloudCompute,
-            id: "private-cloud",
-            level: .advanced,
-            track: .contextAndRuntime,
-            summary: "Probe Private Cloud Compute availability, quota, and context size."
-        ),
-        template(
-            .usagePerformanceTrace,
-            id: "usage-trace",
-            level: .expert,
-            track: .contextAndRuntime,
-            summary: "Run a real stream and inspect timing plus reported token usage."
         )
     ]
 
@@ -445,48 +424,6 @@ extension ExperimentTemplate {
                 ))
             ),
             keywords: ["agent", "custom tools", "workflow", "permissions"]
-        ),
-        template(
-            .contextWindowInspector,
-            id: "context-window",
-            level: .advanced,
-            track: .advancedWorkflows,
-            summary: "Adjust each context source and learn when to compact a session."
-        ),
-        template(
-            .historyTransformLab,
-            id: "history-transforms",
-            level: .expert,
-            track: .advancedWorkflows,
-            summary: "Compare trimming, summarizing, redaction, and spotlighting policies."
-        ),
-        template(
-            .riskyToolConfirmation,
-            id: "tool-authorization",
-            level: .expert,
-            track: .advancedWorkflows,
-            summary: "Rehearse app-owned approval before a tool performs a side effect."
-        ),
-        template(
-            .contextBudgetVisualizer,
-            id: "context-budget",
-            level: .expert,
-            track: .advancedWorkflows,
-            summary: "Inspect which context is kept, summarized, or dropped as a budget fills."
-        ),
-        template(
-            .foundationModelsSecurityPlayground,
-            id: "agent-security",
-            level: .expert,
-            track: .advancedWorkflows,
-            summary: "Exercise framework guarantees and the security boundaries your app owns."
-        ),
-        template(
-            .geminiVideoInput,
-            id: "custom-video-model",
-            level: .expert,
-            track: .advancedWorkflows,
-            summary: "Bridge a custom video-capable model into LanguageModelSession."
         ),
         ExperimentTemplate(
             id: "xcode-27",

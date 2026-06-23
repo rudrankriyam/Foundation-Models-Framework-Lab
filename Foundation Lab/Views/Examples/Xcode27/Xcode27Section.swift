@@ -23,10 +23,11 @@ struct Xcode27Section<Content: View>: View {
         VStack(alignment: .leading, spacing: Spacing.medium) {
             Text(title)
                 .font(.headline)
+                .accessibilityAddTraits(.isHeader)
 
             content
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, Spacing.small)
+        .padding(.vertical, Spacing.xSmall)
     }
 }

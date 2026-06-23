@@ -53,15 +53,21 @@ struct ExampleViewBase<Content: View>: View {
           .foregroundStyle(.secondary)
 
         promptSection
-        actionButtons
 
         if let error = errorMessage {
-          Label(error, systemImage: "exclamationmark.triangle.fill")
+          Label {
+            Text(error)
+              .foregroundStyle(.primary)
+          } icon: {
+            Image(systemName: "exclamationmark.triangle.fill")
+              .foregroundStyle(.red)
+          }
             .font(.callout)
-            .foregroundStyle(.red)
             .padding(Spacing.medium)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.red.opacity(0.08), in: .rect(cornerRadius: CornerRadius.medium))
+            .background(.quaternary, in: .rect(cornerRadius: CornerRadius.medium))
+            .accessibilityLabel("Error: \(error)")
+            .accessibilityElement(children: .combine)
         }
 
         content
@@ -72,6 +78,8 @@ struct ExampleViewBase<Content: View>: View {
       }
       .padding(.horizontal, Spacing.medium)
       .padding(.vertical, Spacing.large)
+      .frame(maxWidth: 760, alignment: .leading)
+      .frame(maxWidth: .infinity)
     }
     #if os(iOS)
     .scrollDismissesKeyboard(.interactively)
@@ -86,45 +94,34 @@ struct ExampleViewBase<Content: View>: View {
   }
 
   private var promptSection: some View {
-    VStack(alignment: .leading, spacing: Spacing.small) {
-      Text("Prompt")
-        .font(.headline)
-        .foregroundStyle(.secondary)
+    VStack(alignment: .leading, spacing: Spacing.medium) {
+      HStack {
+        Text("Prompt")
+          .font(.headline)
 
-      TextEditor(text: $currentPrompt)
-        .font(.body)
-        .scrollContentBackground(.hidden)
-        .padding(Spacing.medium)
-        .frame(minHeight: 120)
-        .background(.quaternary, in: .rect(cornerRadius: CornerRadius.medium))
-        .accessibilityLabel("Prompt")
-    }
-  }
+        Spacer()
 
-  private var actionButtons: some View {
-    HStack(spacing: Spacing.small) {
-      Button(action: reset) {
-        Text("Reset")
-          .font(.callout)
-          .fontWeight(.medium)
-          .frame(maxWidth: .infinity)
-          .padding(.vertical, Spacing.small)
+        Button("Reset", systemImage: "arrow.counterclockwise", action: reset)
+          .buttonStyle(.borderless)
+          .frame(minHeight: 44)
+          .disabled(isExecuting)
+          .accessibilityHint("Restore this example's defaults")
       }
-      .buttonStyle(.glass)
-      .disabled(isExecuting)
-      .accessibilityHint("Restore this example's defaults")
+
+      TextField("Enter a prompt", text: $currentPrompt, axis: .vertical)
+        .lineLimit(3...6)
+        .textFieldStyle(.roundedBorder)
+        .accessibilityLabel("Prompt")
 
       Button(action: toggleRun) {
-        HStack(spacing: Spacing.small) {
-          if isExecuting {
-            Image(systemName: "stop.fill")
-          }
+        Label {
           Text(LocalizedStringKey(isExecuting ? "Stop" : runLabel))
             .font(.callout)
             .fontWeight(.medium)
+        } icon: {
+          Image(systemName: isExecuting ? "stop.fill" : "play.fill")
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, Spacing.small)
+        .frame(maxWidth: .infinity, minHeight: 44)
       }
       .buttonStyle(.glassProminent)
       .disabled(!isExecuting && currentPrompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)

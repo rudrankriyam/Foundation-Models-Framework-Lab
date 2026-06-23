@@ -23,7 +23,7 @@ struct ExperimentLibraryCatalogView: View {
         .navigationTitle(catalog.title)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.large)
-        .listStyle(.insetGrouped)
+        .listStyle(.plain)
         #else
         .navigationSubtitle(catalog.subtitle)
         .listStyle(.inset)
@@ -34,22 +34,18 @@ struct ExperimentLibraryCatalogView: View {
     private var schemaSections: some View {
         schemaSection(
             "Beginner",
-            systemImage: FoundationLabExperimentLevel.beginner.systemImage,
             examples: [.basicObject, .arraySchema, .enumSchema]
         )
         schemaSection(
             "Intermediate",
-            systemImage: FoundationLabExperimentLevel.intermediate.systemImage,
             examples: [.nestedObjects, .generationGuides, .generablePattern]
         )
         schemaSection(
             "Advanced",
-            systemImage: FoundationLabExperimentLevel.advanced.systemImage,
             examples: [.schemaReferences, .unionTypes, .errorHandling]
         )
         schemaSection(
             "Expert Projects",
-            systemImage: FoundationLabExperimentLevel.expert.systemImage,
             examples: [.formBuilder, .invoiceProcessing]
         )
     }
@@ -60,14 +56,14 @@ struct ExperimentLibraryCatalogView: View {
             languageRow(.languageDetection)
             languageRow(.multilingualResponses)
         } header: {
-            Label("Explore", systemImage: "text.bubble")
+            Text("Explore")
         }
 
         Section {
             languageRow(.sessionManagement)
             languageRow(.productionExample)
         } header: {
-            Label("Production Patterns", systemImage: "shippingbox")
+            Text("Production Patterns")
         }
     }
 
@@ -75,7 +71,6 @@ struct ExperimentLibraryCatalogView: View {
     private var xcode27Sections: some View {
         exampleSection(
             ExperimentTrack.contextAndRuntime.title,
-            systemImage: ExperimentTrack.contextAndRuntime.systemImage,
             examples: [
                 .modelRuntime,
                 .contextWindowInspector,
@@ -86,7 +81,6 @@ struct ExperimentLibraryCatalogView: View {
         )
         exampleSection(
             ExperimentTrack.buildWithTools.title,
-            systemImage: ExperimentTrack.buildWithTools.systemImage,
             examples: [
                 .toolCallingModeLab,
                 .riskyToolConfirmation,
@@ -96,7 +90,6 @@ struct ExperimentLibraryCatalogView: View {
         )
         exampleSection(
             ExperimentTrack.advancedWorkflows.title,
-            systemImage: ExperimentTrack.advancedWorkflows.systemImage,
             examples: [
                 .dynamicProfileBuilder,
                 .reasoningLevelComparison,
@@ -109,7 +102,6 @@ struct ExperimentLibraryCatalogView: View {
         )
         exampleSection(
             ExperimentTrack.appliedProjects.title,
-            systemImage: ExperimentTrack.appliedProjects.systemImage,
             examples: [
                 .geminiVideoInput,
                 .spotlightRAGExplorer,
@@ -118,14 +110,12 @@ struct ExperimentLibraryCatalogView: View {
         )
         exampleSection(
             ExperimentLaunch.workspace(ExpertWorkspace.fmfBench).displayName,
-            systemImage: ExperimentLaunch.workspace(ExpertWorkspace.fmfBench).systemImage,
             examples: [.evaluationsLab, .fmCLIPythonPlayground]
         )
     }
 
     private func exampleSection(
         _ title: String,
-        systemImage: String,
         examples: [ExampleType]
     ) -> some View {
         Section {
@@ -135,13 +125,12 @@ struct ExperimentLibraryCatalogView: View {
                 }
             }
         } header: {
-            Label(title, systemImage: systemImage)
+            Text(title)
         }
     }
 
     private func schemaSection(
         _ title: LocalizedStringKey,
-        systemImage: String,
         examples: [DynamicSchemaExampleType]
     ) -> some View {
         Section {
@@ -155,7 +144,7 @@ struct ExperimentLibraryCatalogView: View {
                 }
             }
         } header: {
-            Label(title, systemImage: systemImage)
+            Text(title)
         }
     }
 

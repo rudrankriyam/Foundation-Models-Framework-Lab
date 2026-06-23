@@ -26,16 +26,15 @@ struct LibraryTemplateRow: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
-
-                LibraryTemplateMetadataView(
-                    launch: template.launch,
-                    level: template.level
-                )
             }
         }
         .padding(.vertical, Spacing.xSmall)
         .contentShape(.rect)
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(template.title)
+        .accessibilityValue(
+            "\(template.summary) \(template.launch.displayName), \(template.level.displayName)"
+        )
     }
 
 }
