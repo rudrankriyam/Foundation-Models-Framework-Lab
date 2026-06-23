@@ -14,6 +14,34 @@ import _CoreSpotlight_FoundationModels
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
+extension SessionPropertyValues {
+    @SessionPropertyEntry
+    var spotlightRAGToolCallCount = 0
+}
+
+@available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+private struct SpotlightRAGProfile: LanguageModelSession.DynamicProfile {
+    let tool: SpotlightSearchTool
+
+    @SessionProperty(\.spotlightRAGToolCallCount)
+    private var toolCallCount
+
+    var body: some LanguageModelSession.DynamicProfile {
+        LanguageModelSession.Profile {
+            tool
+        }
+        .toolCallingMode(toolCallCount == 0 ? .required : .allowed)
+        .onToolCall {
+            toolCallCount += 1
+        }
+    }
+}
+
+@available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
 @MainActor
 @Observable
 final class SpotlightRAGViewModel {
@@ -25,7 +53,7 @@ final class SpotlightRAGViewModel {
     var errorMessage: String?
     var events: [SpotlightRAGSearchEvent] = []
     var matchedDocuments: [SpotlightRAGDocument] = []
-    var guidance = SpotlightRAGGuidance.dynamic
+    var guidance = SpotlightRAGGuidance.focused
     var usesCompactFormat = true
     var isIndexing = false
     var isRunning = false
@@ -97,7 +125,7 @@ final class SpotlightRAGViewModel {
         errorMessage = nil
         events = []
         matchedDocuments = []
-        guidance = .dynamic
+        guidance = .focused
         usesCompactFormat = true
     }
 
@@ -149,14 +177,14 @@ private extension SpotlightRAGViewModel {
         defer { monitor.cancel() }
 
         do {
-            let session = LanguageModelSession(
-                tools: [tool],
-                instructions: """
-                Answer questions using the app's Spotlight index. Cite the titles of the indexed items you rely on. If the index \
-                doesn't contain enough evidence, say that plainly instead of guessing.
-                """
-            )
-            let response = try await session.respond(to: prompt)
+            let session = LanguageModelSession(profile: SpotlightRAGProfile(tool: tool))
+            let groundedPrompt = """
+            Search the app's Spotlight index before answering. Cite the titles of the indexed items you rely on. If the index \
+            doesn't contain enough evidence, say that plainly instead of guessing.
+
+            Question: \(prompt)
+            """
+            let response = try await session.respond(to: groundedPrompt)
             try Task.checkCancellation()
             guard activeRunID == id else { return }
             answer = response.content

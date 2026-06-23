@@ -13,14 +13,13 @@ struct SpotlightRAGResultsSection: View {
     let model: SpotlightRAGViewModel
 
     var body: some View {
-        Xcode27Section(String(localized: "Retrieval Trajectory")) {
-            if model.events.isEmpty {
-                ContentUnavailableView {
-                    Label("No Search Events", systemImage: "point.3.connected.trianglepath.dotted")
-                } description: {
-                    Text("Run a grounded question to watch the model build and execute Spotlight search stages.")
-                }
-            } else {
+        if model.isRunning && model.events.isEmpty {
+            ProgressView("Searching Spotlight…")
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+
+        if !model.events.isEmpty {
+            Xcode27Section(String(localized: "Retrieval Trajectory")) {
                 VStack(spacing: 0) {
                     ForEach(model.events) { event in
                         Label {
@@ -52,14 +51,8 @@ struct SpotlightRAGResultsSection: View {
             }
         }
 
-        Xcode27Section(String(localized: "Retrieved Evidence")) {
-            if model.matchedDocuments.isEmpty {
-                ContentUnavailableView {
-                    Label("No Evidence Retrieved", systemImage: "doc.text.magnifyingglass")
-                } description: {
-                    Text("Matched items appear here separately from the generated answer.")
-                }
-            } else {
+        if !model.matchedDocuments.isEmpty {
+            Xcode27Section(String(localized: "Retrieved Evidence")) {
                 VStack(alignment: .leading, spacing: Spacing.medium) {
                     ForEach(model.matchedDocuments) { document in
                         VStack(alignment: .leading, spacing: Spacing.xSmall) {
@@ -82,19 +75,17 @@ struct SpotlightRAGResultsSection: View {
             }
         }
 
-        Xcode27Section(String(localized: "Grounded Answer")) {
-            if model.answer.isEmpty {
-                ContentUnavailableView {
-                    Label("No Answer Yet", systemImage: "text.bubble")
-                } description: {
-                    Text("The final model response appears here after retrieval completes.")
-                }
-            } else {
-                Text(model.answer)
+        if !model.answer.isEmpty {
+            Xcode27Section(String(localized: "Grounded Answer")) {
+                Text(formattedAnswer)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .textSelection(.enabled)
             }
         }
+    }
+
+    private var formattedAnswer: AttributedString {
+        (try? AttributedString(markdown: model.answer)) ?? AttributedString(model.answer)
     }
 }
 #endif

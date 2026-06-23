@@ -12,50 +12,62 @@ import SwiftUI
 struct SpotlightRAGIndexSection: View {
     let model: SpotlightRAGViewModel
 
+    @State private var showsSamples = false
+
     var body: some View {
         Xcode27Section(String(localized: "Local Spotlight Index")) {
             VStack(alignment: .leading, spacing: Spacing.medium) {
-                ForEach(model.sampleDocuments) { document in
-                    Label {
-                        VStack(alignment: .leading, spacing: Spacing.xSmall) {
-                            Text(document.title)
-                                .bold()
-                            Text(document.body)
-                                .font(.callout)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(2)
+                if model.isIndexing {
+                    ProgressView("Indexing four sample notes…")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                } else if model.hasIndexedSamples {
+                    HStack(spacing: Spacing.small) {
+                        Label("Four sample notes are ready", systemImage: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+
+                        Spacer()
+
+                        Menu("Index actions", systemImage: "ellipsis.circle") {
+                            Button("Reindex Samples", systemImage: "arrow.clockwise", action: indexSamples)
+                            Button("Clear Index", systemImage: "trash", role: .destructive, action: clearIndex)
                         }
-                    } icon: {
-                        Image(systemName: "doc.text")
-                            .foregroundStyle(.blue)
+                        .labelStyle(.iconOnly)
+                        .frame(minWidth: 44, minHeight: 44)
                     }
-
-                    if document.id != model.sampleDocuments.last?.id {
-                        Divider()
-                    }
-                }
-
-                HStack(spacing: Spacing.small) {
-                    Button("Clear Index", systemImage: "trash", action: clearIndex)
-                        .buttonStyle(.glass)
-                        .disabled(model.isIndexing || !model.hasIndexedSamples)
-
+                } else {
                     Button(
-                        model.hasIndexedSamples ? "Reindex Samples" : "Index Samples",
+                        "Index Four Sample Notes",
                         systemImage: "square.stack.3d.up.badge.a",
                         action: indexSamples
                     )
                     .buttonStyle(.glassProminent)
+                    .controlSize(.large)
+                    .frame(maxWidth: .infinity)
                     .disabled(model.isIndexing || model.isRunning)
                 }
-                .controlSize(.large)
 
-                Label(
-                    model.hasIndexedSamples ? "Sample index is ready" : "Index the samples before asking a question",
-                    systemImage: model.hasIndexedSamples ? "checkmark.circle.fill" : "circle.dashed"
-                )
+                DisclosureGroup(isExpanded: $showsSamples) {
+                    VStack(alignment: .leading, spacing: Spacing.small) {
+                        ForEach(model.sampleDocuments) { document in
+                            VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                                Text(document.title)
+                                    .bold()
+                                Text(document.body)
+                                    .font(.callout)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            if document.id != model.sampleDocuments.last?.id {
+                                Divider()
+                            }
+                        }
+                    }
+                    .padding(.top, Spacing.small)
+                } label: {
+                    Text("Preview sample notes")
+                        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                }
                 .font(.callout)
-                .foregroundStyle(model.hasIndexedSamples ? .green : .secondary)
             }
         }
     }

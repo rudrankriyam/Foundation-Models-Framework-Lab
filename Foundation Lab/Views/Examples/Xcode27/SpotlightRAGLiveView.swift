@@ -16,27 +16,14 @@ struct SpotlightRAGLiveView: View {
         @Bindable var model = model
 
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: Spacing.large) {
-                Label {
-                    VStack(alignment: .leading, spacing: Spacing.xSmall) {
-                        Text("Live retrieval experiment")
-                            .bold()
-                        Text(
-                            """
-                            Index local sample notes, inspect every Spotlight search stage, and compare the evidence with the \
-                            model's answer.
-                            """
-                        )
-                            .foregroundStyle(.secondary)
-                    }
-                } icon: {
-                    Image(systemName: "sparkle.magnifyingglass")
-                        .foregroundStyle(.blue)
+            LazyVStack(alignment: .leading, spacing: Spacing.xLarge) {
+                VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                    Text("Ask your Spotlight index")
+                        .font(.title2.bold())
+                    Text("Index four notes, ask one question, then inspect the evidence behind the answer.")
+                        .foregroundStyle(.secondary)
                 }
-                .font(.callout)
-                .padding(Spacing.medium)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.blue.opacity(0.08), in: .rect(cornerRadius: CornerRadius.medium))
 
                 SpotlightRAGIndexSection(model: model)
                 SpotlightRAGConfigurationSection(model: model)
@@ -48,30 +35,31 @@ struct SpotlightRAGLiveView: View {
                             .textFieldStyle(.roundedBorder)
                             .accessibilityHint("The model searches only the sample notes indexed by this lab")
 
-                        PromptSuggestions(
-                            suggestions: [
-                                String(localized: "What did I decide about Kyoto?"),
-                                String(localized: "How should I validate a Foundation Lab release?"),
-                                String(localized: "Which hike advice mentions rain?"),
-                                String(localized: "What does the index not know about Tokyo?")
-                            ],
-                            onSelect: selectPrompt
-                        )
+                        HStack {
+                            Menu("Example Questions", systemImage: "text.bubble") {
+                                ForEach(examplePrompts, id: \.self) { prompt in
+                                    Button(prompt) { selectPrompt(prompt) }
+                                }
+                            }
+                            .padding(.vertical, Spacing.medium)
+                            .contentShape(.rect)
 
-                        HStack(spacing: Spacing.small) {
+                            Spacer()
+
                             Button("Reset", systemImage: "arrow.counterclockwise", action: model.reset)
-                                .buttonStyle(.glass)
-                                .frame(maxWidth: .infinity)
-
-                            Button(
-                                model.isRunning ? "Stop" : "Search and Answer",
-                                systemImage: model.isRunning ? "stop.fill" : "sparkle.magnifyingglass",
-                                action: toggleRun
-                            )
-                            .buttonStyle(.glassProminent)
-                            .frame(maxWidth: .infinity)
-                            .disabled(!model.isRunning && !model.canRun)
+                                .buttonStyle(.borderless)
+                                .padding(.vertical, Spacing.medium)
+                                .contentShape(.rect)
                         }
+
+                        Button(
+                            model.isRunning ? "Stop" : "Search Spotlight and Answer",
+                            systemImage: model.isRunning ? "stop.fill" : "sparkle.magnifyingglass",
+                            action: toggleRun
+                        )
+                        .buttonStyle(.glassProminent)
+                        .frame(maxWidth: .infinity)
+                        .disabled(!model.isRunning && !model.canRun)
                         .controlSize(.large)
                     }
                 }
@@ -102,7 +90,9 @@ struct SpotlightRAGLiveView: View {
         .navigationSubtitle("Ground answers in your app's indexed content")
         #endif
         .onDisappear(perform: model.cancelRun)
-        .sensoryFeedback(.success, trigger: model.hasIndexedSamples)
+        .sensoryFeedback(.success, trigger: model.hasIndexedSamples) { _, isReady in
+            isReady
+        }
     }
 
     private func selectPrompt(_ prompt: String) {
@@ -117,6 +107,15 @@ struct SpotlightRAGLiveView: View {
         }
     }
 
+    private var examplePrompts: [String] {
+        [
+            String(localized: "What did I decide about Kyoto?"),
+            String(localized: "How should I validate a Foundation Lab release?"),
+            String(localized: "Which hike advice mentions rain?"),
+            String(localized: "What does the index not know about Tokyo?")
+        ]
+    }
+
     private var codeExample: String {
         """
         import CoreSpotlight
@@ -127,11 +126,7 @@ struct SpotlightRAGLiveView: View {
         ]
         let source = CoreSpotlightSource(fetchAttributes: attributes)
         let guide = SpotlightSearchTool.Guide(
-            level: .dynamic(.init(
-                textMatch: true,
-                similarityMatch: true,
-                attributes: attributes
-            )),
+            level: .focused(.items),
             format: .compact
         )
         let tool = SpotlightSearchTool(configuration: .init(
@@ -145,7 +140,8 @@ struct SpotlightRAGLiveView: View {
             }
         }
 
-        let session = LanguageModelSession(tools: [tool])
+        // Require retrieval once, then switch to allowed so the model can answer.
+        let session = LanguageModelSession(profile: SpotlightRAGProfile(tool: tool))
         let response = try await session.respond(to: prompt)
         """
     }

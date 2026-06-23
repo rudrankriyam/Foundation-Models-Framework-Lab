@@ -12,8 +12,10 @@ import SwiftUI
 struct SpotlightRAGConfigurationSection: View {
     @Bindable var model: SpotlightRAGViewModel
 
+    @State private var showsSettings = false
+
     var body: some View {
-        Xcode27Section(String(localized: "Tool Configuration")) {
+        DisclosureGroup(isExpanded: $showsSettings) {
             VStack(alignment: .leading, spacing: Spacing.medium) {
                 Picker("Search guidance", selection: $model.guidance) {
                     ForEach(SpotlightRAGGuidance.allCases) { guidance in
@@ -24,18 +26,23 @@ struct SpotlightRAGConfigurationSection: View {
 
                 Toggle("Use compact result formatting", isOn: $model.usesCompactFormat)
 
-                Text(
-                    """
-                    Dynamic guidance enables text, semantic, date, and content-type search while excluding irrelevant people and \
-                    numeric operators. Compact formatting preserves more of the model's context window.
-                    """
-                )
-                    .font(.callout)
+                Text(model.guidance.explanation)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .disabled(model.isRunning)
+            .padding(.top, Spacing.small)
+        } label: {
+            VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                Text("Search Settings")
+                    .font(.headline)
+                Text("\(model.guidance.title) guidance · \(model.usesCompactFormat ? "Compact" : "Structured") output")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
+        .padding(.vertical, Spacing.small)
     }
 }
 #endif
