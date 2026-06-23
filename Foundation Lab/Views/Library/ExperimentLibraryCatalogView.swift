@@ -222,7 +222,7 @@ private extension ExampleType {
         case .privateCloudCompute:
             String(localized: "Probe PCC availability, quota, and context size")
         case .imageInputPlayground:
-            String(localized: "Inspect image attachment recipes and measured resolution boundaries")
+            String(localized: "Import an image, ask the on-device model, and inspect live usage evidence")
         case .usagePerformanceTrace:
             String(localized: "Run a real streamed response and inspect its reported usage")
         case .toolCallingModeLab:
