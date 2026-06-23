@@ -63,7 +63,6 @@ extension ExperimentTemplate {
             summary: toolLibrarySummary(tool),
             prompt: toolRecipePrompt(tool),
             instructions: toolRecipeInstructions(tool),
-            level: toolLibraryLevel(tool),
             kind: .toolUse,
             selectedTools: [tool]
         ))
@@ -92,16 +91,6 @@ extension ExperimentTemplate {
         }
     }
 
-    static func toolLibraryLevel(
-        _ tool: FoundationLabBuiltInTool
-    ) -> FoundationLabExperimentLevel {
-        switch tool {
-        case .weather, .web, .webMetadata:
-            .intermediate
-        case .contacts, .calendar, .reminders, .location, .health, .music:
-            .advanced
-        }
-    }
 }
 
 private extension ExperimentTemplate {

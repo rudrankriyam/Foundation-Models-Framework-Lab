@@ -12,13 +12,6 @@ struct PlaygroundInspectorView: View {
                 TextField("Name", text: $experimentStore.activeExperiment.name)
                 TextField("Description", text: $experimentStore.activeExperiment.summary, axis: .vertical)
                     .lineLimit(2...4)
-
-                LabeledContent("Level") {
-                    Label(
-                        experimentStore.activeExperiment.level.displayName,
-                        systemImage: experimentStore.activeExperiment.level.systemImage
-                    )
-                }
             }
 
             Section("Model") {

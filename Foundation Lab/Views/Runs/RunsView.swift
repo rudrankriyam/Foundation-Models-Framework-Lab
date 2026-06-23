@@ -115,7 +115,6 @@ struct RunsView: View {
                 run.configuration.name,
                 run.configuration.summary,
                 run.configuration.kind.displayName,
-                run.configuration.level.displayName,
                 run.prompt,
                 run.response,
                 run.errorMessage ?? "",

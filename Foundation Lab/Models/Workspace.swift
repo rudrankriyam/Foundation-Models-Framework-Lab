@@ -1,11 +1,11 @@
 //
-//  ExpertWorkspace.swift
+//  Workspace.swift
 //  Foundation Lab
 //
 
 import Foundation
 
-enum ExpertWorkspace: String, Hashable, Identifiable {
+enum Workspace: String, Hashable, Identifiable {
     case adapterComparison
     case fmfBench
 

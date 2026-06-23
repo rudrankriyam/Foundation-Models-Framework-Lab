@@ -24,9 +24,9 @@ Generic SaaS dashboards, identical card grids, cards nested inside cards, decora
 
 1. Put the capability first: prompts, source material, controls, and results should dominate each screen.
 2. Use native structure before custom decoration: navigation, lists, sections, forms, tables, disclosure, and inspectors should carry hierarchy.
-3. Reveal complexity progressively: show the primary path first and keep diagnostics, code, and advanced controls available without making them compete.
+3. Reveal complexity progressively: show the primary path first and keep diagnostics, code, and specialized controls available without making them compete.
 4. Let whitespace and typography separate ideas; backgrounds and rounded containers must have a functional reason.
-5. Preserve expert efficiency while keeping terminology and next actions understandable to developers encountering an API for the first time.
+5. Preserve efficient workflows while keeping terminology and next actions understandable to developers encountering an API for the first time.
 
 ## Accessibility & Inclusion
 

@@ -12,7 +12,7 @@ enum ExperimentTrack: String, CaseIterable, Hashable, Identifiable {
     case structuredOutput
     case contextAndRuntime
     case appliedProjects
-    case advancedWorkflows
+    case workflows
 
     var id: String { rawValue }
 
@@ -28,8 +28,8 @@ enum ExperimentTrack: String, CaseIterable, Hashable, Identifiable {
             return String(localized: "Context & Runtime")
         case .appliedProjects:
             return String(localized: "Applied Projects")
-        case .advancedWorkflows:
-            return String(localized: "Advanced Workflows")
+        case .workflows:
+            return String(localized: "Workflows")
         }
     }
 
@@ -45,7 +45,7 @@ enum ExperimentTrack: String, CaseIterable, Hashable, Identifiable {
             return String(localized: "Understand the model, its limits, and each run.")
         case .appliedProjects:
             return String(localized: "Study complete patterns you can adapt to your app.")
-        case .advancedWorkflows:
+        case .workflows:
             return String(localized: "Compose and measure production-grade experiments.")
         }
     }
@@ -62,7 +62,7 @@ enum ExperimentTrack: String, CaseIterable, Hashable, Identifiable {
             "cpu"
         case .appliedProjects:
             "shippingbox"
-        case .advancedWorkflows:
+        case .workflows:
             "point.topleft.down.curvedto.point.bottomright.up"
         }
     }
@@ -91,7 +91,7 @@ enum ExperimentLaunch: Hashable {
     case recipe(FoundationLabExperimentConfiguration)
     case guidedLab(ExampleType)
     case workshop(ExperimentLibraryCatalog)
-    case workspace(ExpertWorkspace)
+    case workspace(Workspace)
 
     var displayName: String {
         switch self {
@@ -125,7 +125,6 @@ struct ExperimentTemplate: Identifiable, Hashable {
     let title: String
     let summary: String
     let systemImage: String
-    let level: FoundationLabExperimentLevel
     let track: ExperimentTrack
     let launch: ExperimentLaunch
     let keywords: [String]
@@ -135,7 +134,6 @@ struct ExperimentTemplate: Identifiable, Hashable {
         title: String,
         summary: String,
         systemImage: String,
-        level: FoundationLabExperimentLevel,
         track: ExperimentTrack,
         launch: ExperimentLaunch,
         keywords: [String] = []
@@ -144,7 +142,6 @@ struct ExperimentTemplate: Identifiable, Hashable {
         self.title = String(localized: String.LocalizationValue(title))
         self.summary = String(localized: String.LocalizationValue(summary))
         self.systemImage = systemImage
-        self.level = level
         self.track = track
         self.launch = launch
         self.keywords = keywords
@@ -158,7 +155,7 @@ extension ExperimentTemplate {
         + structuredOutputTemplates
         + contextTemplates
         + appliedTemplates
-        + advancedTemplates
+        + workflowTemplates
 
     static func templates(in track: ExperimentTrack) -> [ExperimentTemplate] {
         curatedLibrary.filter { $0.track == track }
@@ -170,7 +167,6 @@ extension ExperimentTemplate {
             title: "New Experiment",
             summary: "Start with an empty prompt and build at your own pace.",
             systemImage: "plus.square",
-            level: .beginner,
             track: .startHere,
             launch: .recipe(
                 localizedConfiguration(FoundationLabExperimentConfiguration(
@@ -184,7 +180,6 @@ extension ExperimentTemplate {
             title: "One-shot Prompt",
             summary: "Send one prompt and inspect the complete response.",
             systemImage: "ellipsis.message",
-            level: .beginner,
             track: .startHere,
             launch: .recipe(
                 localizedConfiguration(FoundationLabExperimentConfiguration(
@@ -192,7 +187,6 @@ extension ExperimentTemplate {
                     summary: "The shortest path from a prompt to a model response",
                     prompt: "Explain why on-device language models are useful in an iOS app.",
                     instructions: "Answer clearly in three short paragraphs and include one concrete example.",
-                    level: .beginner,
                     kind: .generation
                 ))
             ),
@@ -203,7 +197,6 @@ extension ExperimentTemplate {
             title: "Streaming Response",
             summary: "Watch a response arrive incrementally in real time.",
             systemImage: "text.line.first.and.arrowtriangle.forward",
-            level: .beginner,
             track: .startHere,
             launch: .recipe(
                 localizedConfiguration(FoundationLabExperimentConfiguration(
@@ -211,7 +204,6 @@ extension ExperimentTemplate {
                     summary: "See the model response appear as it is generated",
                     prompt: "Write a short field guide for observing the night sky from a city balcony.",
                     instructions: "Use a brief introduction followed by five practical tips.",
-                    level: .beginner,
                     kind: .generation,
                     generationOptions: FoundationLabGenerationOptions(maximumResponseTokens: 320)
                 ))
@@ -223,7 +215,6 @@ extension ExperimentTemplate {
             title: "Guided Conversation",
             summary: "Open a ready-made session with editable instructions and prompt.",
             systemImage: "bubble.left.and.text.bubble.right",
-            level: .beginner,
             track: .startHere,
             launch: .recipe(
                 localizedConfiguration(FoundationLabExperimentConfiguration(
@@ -231,7 +222,6 @@ extension ExperimentTemplate {
                     summary: "Learn how instructions shape a response",
                     prompt: "Explain on-device language models using a simple analogy.",
                     instructions: "Be concise, friendly, and define technical terms the first time you use them.",
-                    level: .beginner,
                     kind: .conversation
                 ))
             ),
@@ -245,7 +235,6 @@ extension ExperimentTemplate {
             title: "Tool-Enabled Assistant",
             summary: "Fork a two-tool setup, mix in system capabilities, then export the Swift.",
             systemImage: "wrench.and.screwdriver",
-            level: .advanced,
             track: .buildWithTools,
             launch: .recipe(
                 localizedConfiguration(FoundationLabExperimentConfiguration(
@@ -253,7 +242,6 @@ extension ExperimentTemplate {
                     summary: "A customizable assistant grounded by live tools",
                     prompt: "Compare today's weather in Cupertino with a good indoor alternative nearby.",
                     instructions: "Use tools when they provide fresher or more reliable information. Explain which evidence you used.",
-                    level: .advanced,
                     kind: .toolUse,
                     selectedTools: [.weather, .web]
                 ))
@@ -266,7 +254,6 @@ extension ExperimentTemplate {
             title: tool.displayName,
             summary: toolLibrarySummary(tool),
             systemImage: tool.systemImage,
-            level: toolLibraryLevel(tool),
             track: .buildWithTools,
             launch: .recipe(toolRecipeConfiguration(tool)),
             keywords: ["tool calling", "system integration", tool.summary]
@@ -277,14 +264,12 @@ extension ExperimentTemplate {
         template(
             .structuredData,
             id: "structured-data",
-            level: .beginner,
             track: .structuredOutput,
             summary: "Generate type-safe Swift values instead of parsing prose."
         ),
         template(
             .generationGuides,
             id: "generation-guides",
-            level: .intermediate,
             track: .structuredOutput,
             summary: "Constrain generated properties with clear, testable guides."
         ),
@@ -293,7 +278,6 @@ extension ExperimentTemplate {
             title: "Dynamic Schema Workshop",
             summary: "Progress from a basic object to forms, unions, and invoice extraction.",
             systemImage: "curlybraces.square",
-            level: .advanced,
             track: .structuredOutput,
             launch: .workshop(.schemas),
             keywords: ["schema", "generable", "json", "invoice", "form"]
@@ -304,7 +288,6 @@ extension ExperimentTemplate {
         template(
             .modelAvailability,
             id: "model-availability",
-            level: .beginner,
             track: .contextAndRuntime,
             summary: "Check whether the system model is ready before starting work."
         ),
@@ -313,7 +296,6 @@ extension ExperimentTemplate {
             title: "Generation Options",
             summary: "Tune sampling and response limits, then compare the output.",
             systemImage: "slider.horizontal.3",
-            level: .intermediate,
             track: .contextAndRuntime,
             launch: .recipe(
                 localizedConfiguration(FoundationLabExperimentConfiguration(
@@ -321,7 +303,6 @@ extension ExperimentTemplate {
                     summary: "Compare a deliberate sampling setup with the defaults",
                     prompt: "Propose three names for a privacy-first journaling app and explain the strongest choice.",
                     instructions: "Keep each name distinctive and make the comparison concrete.",
-                    level: .intermediate,
                     kind: .generation,
                     generationOptions: FoundationLabGenerationOptions(
                         sampling: .randomTop(40, seed: 42),
@@ -335,21 +316,18 @@ extension ExperimentTemplate {
         template(
             .modelRuntime,
             id: "model-runtime",
-            level: .advanced,
             track: .contextAndRuntime,
             summary: "Inspect the active system model, tokenizer, and capabilities."
         ),
         template(
             .privateCloudCompute,
             id: "private-cloud",
-            level: .advanced,
             track: .contextAndRuntime,
             summary: "Probe Private Cloud Compute availability, quota, and context size."
         ),
         template(
             .usagePerformanceTrace,
             id: "usage-trace",
-            level: .expert,
             track: .contextAndRuntime,
             summary: "Run a real stream and inspect timing plus reported token usage."
         )
@@ -361,7 +339,6 @@ extension ExperimentTemplate {
             title: "Journaling",
             summary: "Turn free-form reflections into thoughtful prompts and summaries.",
             systemImage: "book.closed",
-            level: .beginner,
             track: .appliedProjects,
             launch: .recipe(
                 localizedConfiguration(FoundationLabExperimentConfiguration(
@@ -369,7 +346,6 @@ extension ExperimentTemplate {
                     summary: "Transform a reflection into a useful, compassionate summary",
                     prompt: "I felt scattered this morning, but a quiet walk helped me focus on the work that matters.",
                     instructions: "Summarize the reflection without diagnosing. Then offer one gentle follow-up question.",
-                    level: .beginner,
                     kind: .applied,
                     generationOptions: FoundationLabGenerationOptions(maximumResponseTokens: 220)
                 ))
@@ -381,7 +357,6 @@ extension ExperimentTemplate {
             title: "Creative Writing",
             summary: "Explore how prompt changes shape creative output.",
             systemImage: "pencil.and.outline",
-            level: .beginner,
             track: .appliedProjects,
             launch: .recipe(
                 localizedConfiguration(FoundationLabExperimentConfiguration(
@@ -389,7 +364,6 @@ extension ExperimentTemplate {
                     summary: "Experiment with voice, constraints, and revision",
                     prompt: "Write a scene about a lighthouse keeper receiving an impossible weather report.",
                     instructions: "Use vivid but economical prose, no more than 350 words, and end on an unresolved image.",
-                    level: .beginner,
                     kind: .generation,
                     generationOptions: FoundationLabGenerationOptions(
                         temperature: 0.9,
@@ -402,14 +376,12 @@ extension ExperimentTemplate {
         template(
             .rag,
             id: "document-question-answering",
-            level: .advanced,
             track: .appliedProjects,
             summary: "Index documents and ask grounded questions with source citations."
         ),
         template(
             .health,
             id: "health-dashboard",
-            level: .advanced,
             track: .appliedProjects,
             summary: "Study an end-to-end HealthKit experience powered by model tools."
         ),
@@ -418,28 +390,25 @@ extension ExperimentTemplate {
             title: "Multilingual Workshop",
             summary: "Detect support, generate in multiple languages, and manage sessions.",
             systemImage: "character.book.closed",
-            level: .intermediate,
             track: .appliedProjects,
             launch: .workshop(.languages),
             keywords: ["languages", "localization", "translation", "multilingual"]
         )
     ]
 
-    private static let advancedTemplates: [ExperimentTemplate] = [
+    private static let workflowTemplates: [ExperimentTemplate] = [
         ExperimentTemplate(
             id: "agent-workbench",
             title: "Agent Workbench",
             summary: "Tune a multi-tool setup, inspect its runs, and export it as Swift.",
             systemImage: "point.topleft.down.curvedto.point.bottomright.up",
-            level: .expert,
-            track: .advancedWorkflows,
+            track: .workflows,
             launch: .recipe(
                 localizedConfiguration(FoundationLabExperimentConfiguration(
                     name: "Agent Workbench",
-                    summary: "An expert workspace for composing a multi-tool agent",
+                    summary: "Tune a multi-tool setup, inspect its runs, and export it as Swift.",
                     prompt: "Plan a focused afternoon around my next calendar event and create any useful follow-up reminder.",
                     instructions: "Use the minimum number of tools needed. Ask before making changes and summarize every side effect.",
-                    level: .expert,
                     kind: .toolUse,
                     selectedTools: [.calendar, .reminders, .location]
                 ))
@@ -449,43 +418,37 @@ extension ExperimentTemplate {
         template(
             .contextWindowInspector,
             id: "context-window",
-            level: .advanced,
-            track: .advancedWorkflows,
+            track: .workflows,
             summary: "Adjust each context source and learn when to compact a session."
         ),
         template(
             .historyTransformLab,
             id: "history-transforms",
-            level: .expert,
-            track: .advancedWorkflows,
+            track: .workflows,
             summary: "Compare trimming, summarizing, redaction, and spotlighting policies."
         ),
         template(
             .riskyToolConfirmation,
             id: "tool-authorization",
-            level: .expert,
-            track: .advancedWorkflows,
+            track: .workflows,
             summary: "Rehearse app-owned approval before a tool performs a side effect."
         ),
         template(
             .contextBudgetVisualizer,
             id: "context-budget",
-            level: .expert,
-            track: .advancedWorkflows,
+            track: .workflows,
             summary: "Inspect which context is kept, summarized, or dropped as a budget fills."
         ),
         template(
             .foundationModelsSecurityPlayground,
             id: "agent-security",
-            level: .expert,
-            track: .advancedWorkflows,
+            track: .workflows,
             summary: "Exercise framework guarantees and the security boundaries your app owns."
         ),
         template(
             .geminiVideoInput,
             id: "custom-video-model",
-            level: .expert,
-            track: .advancedWorkflows,
+            track: .workflows,
             summary: "Bridge a custom video-capable model into LanguageModelSession."
         ),
         ExperimentTemplate(
@@ -493,8 +456,7 @@ extension ExperimentTemplate {
             title: "Xcode 27",
             summary: "Compose and measure production-grade experiments.",
             systemImage: "apple.intelligence",
-            level: .expert,
-            track: .advancedWorkflows,
+            track: .workflows,
             launch: .workshop(.xcode27),
             keywords: ExampleType.xcode27Examples.flatMap { [$0.title, $0.subtitle] }
         ),
@@ -503,8 +465,7 @@ extension ExperimentTemplate {
             title: "Adapter Comparison",
             summary: "Compare a custom .fmadapter package against the base model in fresh sessions.",
             systemImage: "square.split.2x1",
-            level: .expert,
-            track: .advancedWorkflows,
+            track: .workflows,
             launch: .workspace(.adapterComparison),
             keywords: ["adapter", "fmadapter", "fine tuning", "comparison", "fmas"]
         ),
@@ -513,8 +474,7 @@ extension ExperimentTemplate {
             title: "FMFBench",
             summary: "Run repeatable app-shaped quality and performance evaluations.",
             systemImage: "gauge.with.dots.needle.67percent",
-            level: .expert,
-            track: .advancedWorkflows,
+            track: .workflows,
             launch: .workspace(.fmfBench),
             keywords: ["benchmark", "evaluation", "latency", "quality", "device runner"]
         )
@@ -523,7 +483,6 @@ extension ExperimentTemplate {
     private static func template(
         _ example: ExampleType,
         id: String,
-        level: FoundationLabExperimentLevel,
         track: ExperimentTrack,
         summary: String
     ) -> ExperimentTemplate {
@@ -532,7 +491,6 @@ extension ExperimentTemplate {
             title: example.title,
             summary: summary,
             systemImage: example.icon,
-            level: level,
             track: track,
             launch: .guidedLab(example),
             keywords: [example.subtitle]

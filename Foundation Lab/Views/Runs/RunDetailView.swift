@@ -45,7 +45,6 @@ struct RunDetailView: View {
         name: "Weather Assistant",
         prompt: "What should I wear for a walk in Cupertino?",
         instructions: "Be concise and use the weather tool.",
-        level: .beginner,
         kind: .toolUse,
         selectedTools: [.weather]
     )

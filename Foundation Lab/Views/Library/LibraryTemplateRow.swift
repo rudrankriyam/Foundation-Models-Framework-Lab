@@ -27,10 +27,7 @@ struct LibraryTemplateRow: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
-                LibraryTemplateMetadataView(
-                    launch: template.launch,
-                    level: template.level
-                )
+                LibraryTemplateMetadataView(launch: template.launch)
             }
         }
         .padding(.vertical, Spacing.xSmall)

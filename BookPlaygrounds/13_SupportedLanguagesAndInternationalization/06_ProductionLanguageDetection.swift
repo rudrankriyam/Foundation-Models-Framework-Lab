@@ -26,7 +26,7 @@ import Foundation
     debugPrint("Responding in: \(userLanguage)")
 
     let nutritionSession = LanguageModelSession(instructions: """
-        You are a nutrition expert specializing in food analysis and macro tracking.
+        You specialize in nutrition, food analysis, and macro tracking.
 
         IMPORTANT: Respond in \(userLanguage). All your responses must be in the user's language: \(userLanguage)
 

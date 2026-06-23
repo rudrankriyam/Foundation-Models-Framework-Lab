@@ -7,12 +7,12 @@ providing focused labs for APIs that need a specialized interface.
 
 The app is designed for two complementary workflows:
 
-- Beginners can open a working recipe, change one thing, and run it immediately.
-- Experienced developers can compose custom prompts and tools, inspect every run,
+- Open a working recipe, change one thing, and run it immediately.
+- Compose custom prompts and tools, inspect every run,
   compare adapters, and use the repository's CLI and evaluation tooling.
 
 <div align="center">
-  <img src="images/FoundationLab-Library-macOS.png" alt="Foundation Lab for macOS showing the Library with editable beginner recipes and built-in tool examples" width="1000"/>
+  <img src="images/FoundationLab-Library-macOS.png" alt="Foundation Lab for macOS showing the Library with editable recipes and built-in tool examples" width="1000"/>
   <br/>
   <strong>Library</strong>
   <br/>
@@ -39,7 +39,7 @@ Foundation Lab has three primary destinations:
 
 | Destination | Purpose |
 | --- | --- |
-| Library | Browse 18 editable recipes, 14 guided labs, three workshops, saved experiments, and two expert workspaces. |
+| Library | Browse 18 editable recipes, 14 guided labs, three workshops, saved experiments, and two workspaces. |
 | Playground | Edit prompts and instructions, configure the model and tools, stream responses, use voice input, save experiments, and export Swift. |
 | Runs | Inspect persisted run status, configuration, transcript events, tool calls, timing, and token usage. |
 
@@ -48,7 +48,7 @@ Library entries identify how they open:
 - **Recipe** opens in Playground and can be edited, run, and saved.
 - **Guided Lab** uses a focused interface for a specific Foundation Models API.
 - **Workshop** groups related schema, language, or Xcode 27 examples without adding another top-level destination.
-- **Workspace** opens an expert tool such as Adapter Comparison or FMFBench.
+- **Workspace** opens a dedicated tool such as Adapter Comparison or FMFBench.
 
 ## Requirements
 
@@ -141,7 +141,7 @@ When built with Xcode 27, Foundation Lab also demonstrates:
 The image-input probe under [`Tools/ImageInputProbe`](Tools/ImageInputProbe)
 can measure the current SDK's practical decoded-buffer boundary.
 
-## Expert Workspaces
+## Workspaces
 
 ### Adapter Comparison
 
@@ -206,7 +206,7 @@ AFM releases use `afm-vx.y.z` tags so CLI releases remain independent from app r
 
 | Surface | Location | Purpose |
 | --- | --- | --- |
-| Foundation Lab | [`Foundation Lab`](Foundation%20Lab) | Native Library, Playground, Runs, guided labs, and expert workspaces |
+| Foundation Lab | [`Foundation Lab`](Foundation%20Lab) | Native Library, Playground, Runs, guided labs, and workspaces |
 | FoundationLabCore | [`FoundationLabCore`](FoundationLabCore) | UI-independent requests, results, use cases, providers, and experiment models |
 | FoundationModelsKit | [`Packages/FoundationModelsKit`](Packages/FoundationModelsKit) | Transcript, context, history, and system-tool packages |
 | AFM CLI | [`Tools/AFMCLI`](Tools/AFMCLI) | Scriptable Foundation Models workflows |

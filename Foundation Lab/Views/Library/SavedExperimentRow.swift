@@ -33,15 +33,10 @@ struct SavedExperimentRow: View {
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
-                ViewThatFits(in: .horizontal) {
-                    HStack(spacing: 12) {
-                        metadata
-                    }
-
-                    VStack(alignment: .leading, spacing: 3) {
-                        metadata
-                    }
-                }
+                Label(
+                    experiment.modifiedAt.formatted(date: .abbreviated, time: .omitted),
+                    systemImage: "clock"
+                )
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             }
@@ -51,14 +46,6 @@ struct SavedExperimentRow: View {
         .accessibilityElement(children: .combine)
     }
 
-    @ViewBuilder
-    private var metadata: some View {
-        Label(experiment.level.displayName, systemImage: experiment.level.systemImage)
-        Label(
-            experiment.modifiedAt.formatted(date: .abbreviated, time: .omitted),
-            systemImage: "clock"
-        )
-    }
 }
 
 #Preview {
@@ -67,7 +54,6 @@ struct SavedExperimentRow: View {
             experiment: FoundationLabExperimentConfiguration(
                 name: "Trip Planning Agent",
                 summary: "Uses weather and calendar context",
-                level: .advanced,
                 kind: .toolUse,
                 selectedTools: [.weather, .calendar]
             )
