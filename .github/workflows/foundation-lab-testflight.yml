@@ -37,6 +37,7 @@ jobs:
       TESTFLIGHT_GROUP: ${{ vars.FOUNDATION_LAB_EXTERNAL_GROUP_ID }}
       TARGET_BUNDLE_ID: ${{ vars.FOUNDATION_LAB_BUNDLE_ID }}
       TEAM_ID: ${{ vars.FOUNDATION_LAB_TEAM_ID }}
+      PROFILE_NAME: ${{ vars.FOUNDATION_LAB_PROFILE_NAME }}
       UPLOAD: ${{ github.event_name == 'push' || inputs.upload }}
     steps:
       - name: Check out repository
@@ -73,17 +74,26 @@ jobs:
           ASC_KEY_ID_SECRET: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID_SECRET: ${{ secrets.ASC_ISSUER_ID }}
           ASC_PRIVATE_KEY_B64_SECRET: ${{ secrets.ASC_PRIVATE_KEY_B64 }}
+          SIGNING_CERTIFICATE_P12_B64_SECRET: ${{ secrets.FOUNDATION_LAB_DISTRIBUTION_P12_B64 }}
+          SIGNING_CERTIFICATE_PASSWORD_SECRET: ${{ secrets.FOUNDATION_LAB_DISTRIBUTION_P12_PASSWORD }}
+          PROVISIONING_PROFILE_B64_SECRET: ${{ secrets.FOUNDATION_LAB_PROVISIONING_PROFILE_B64 }}
         run: |
-          for key in APP_ID TESTFLIGHT_GROUP TARGET_BUNDLE_ID TEAM_ID; do
+          for key in APP_ID TESTFLIGHT_GROUP TARGET_BUNDLE_ID TEAM_ID PROFILE_NAME; do
             if [ -z "${!key}" ]; then
               echo "Missing required repository variable: $key" >&2
               exit 1
             fi
           done
 
-          for key in ASC_KEY_ID_SECRET ASC_ISSUER_ID_SECRET ASC_PRIVATE_KEY_B64_SECRET; do
+          for key in \
+            ASC_KEY_ID_SECRET \
+            ASC_ISSUER_ID_SECRET \
+            ASC_PRIVATE_KEY_B64_SECRET \
+            SIGNING_CERTIFICATE_P12_B64_SECRET \
+            SIGNING_CERTIFICATE_PASSWORD_SECRET \
+            PROVISIONING_PROFILE_B64_SECRET; do
             if [ -z "${!key}" ]; then
-              echo "Missing required repository secret: ${key%_SECRET}" >&2
+              echo "Missing required repository secret for $key" >&2
               exit 1
             fi
           done
@@ -103,6 +113,56 @@ jobs:
             echo "ASC_ISSUER_ID=$ASC_ISSUER_ID_SECRET"
             echo "ASC_PRIVATE_KEY_PATH=$KEY_PATH"
           } >> "$GITHUB_ENV"
+
+      - name: Install distribution signing assets
+        env:
+          SIGNING_CERTIFICATE_P12_B64: ${{ secrets.FOUNDATION_LAB_DISTRIBUTION_P12_B64 }}
+          SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.FOUNDATION_LAB_DISTRIBUTION_P12_PASSWORD }}
+          PROVISIONING_PROFILE_B64: ${{ secrets.FOUNDATION_LAB_PROVISIONING_PROFILE_B64 }}
+        run: |
+          set -euo pipefail
+
+          CERTIFICATE_PATH="$RUNNER_TEMP/foundation-lab-distribution.p12"
+          PROFILE_PATH="$RUNNER_TEMP/foundation-lab.mobileprovision"
+          PROFILE_PLIST="$RUNNER_TEMP/foundation-lab-profile.plist"
+          KEYCHAIN_PATH="$RUNNER_TEMP/foundation-lab-signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -base64 36)"
+
+          printf '%s' "$SIGNING_CERTIFICATE_P12_B64" | base64 --decode > "$CERTIFICATE_PATH"
+          printf '%s' "$PROVISIONING_PROFILE_B64" | base64 --decode > "$PROFILE_PATH"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERTIFICATE_PATH" \
+            -k "$KEYCHAIN_PATH" \
+            -P "$SIGNING_CERTIFICATE_PASSWORD" \
+            -T /usr/bin/codesign \
+            -T /usr/bin/security
+          security set-key-partition-list \
+            -S apple-tool:,apple:,codesign: \
+            -s \
+            -k "$KEYCHAIN_PASSWORD" \
+            "$KEYCHAIN_PATH"
+          security list-keychains -d user -s \
+            "$KEYCHAIN_PATH" \
+            "$HOME/Library/Keychains/login.keychain-db"
+
+          security cms -D -i "$PROFILE_PATH" > "$PROFILE_PLIST"
+          PROFILE_UUID="$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$PROFILE_PLIST")"
+          INSTALLED_PROFILE_NAME="$(/usr/libexec/PlistBuddy -c 'Print :Name' "$PROFILE_PLIST")"
+
+          if [ "$INSTALLED_PROFILE_NAME" != "$PROFILE_NAME" ]; then
+            echo "Provisioning profile name does not match FOUNDATION_LAB_PROFILE_NAME" >&2
+            exit 1
+          fi
+
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$PROFILE_PATH" \
+            "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
+
+          security find-identity -v -p codesigning
+          echo "SIGNING_KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
 
       - name: Resolve marketing version
         id: version
@@ -139,3 +199,12 @@ jobs:
           asc workflow run foundation_lab_testflight \
             "VERSION:${{ steps.version.outputs.version }}" \
             "UPLOAD:$UPLOAD"
+
+      - name: Remove temporary signing keychain
+        if: always()
+        run: |
+          if [ -n "${SIGNING_KEYCHAIN_PATH:-}" ]; then
+            security list-keychains -d user -s \
+              "$HOME/Library/Keychains/login.keychain-db" || true
+            security delete-keychain "$SIGNING_KEYCHAIN_PATH" || true
+          fi

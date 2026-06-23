@@ -17,11 +17,11 @@
         },
         {
           "name": "validate_inputs",
-          "run": "for key in APP_ID TESTFLIGHT_GROUP TARGET_BUNDLE_ID TEAM_ID VERSION; do if [ -z \"${!key}\" ]; then echo \"$key is required\" >&2; exit 1; fi; done"
+          "run": "for key in APP_ID TESTFLIGHT_GROUP TARGET_BUNDLE_ID TEAM_ID PROFILE_NAME SIGNING_KEYCHAIN_PATH VERSION; do if [ -z \"${!key}\" ]; then echo \"$key is required\" >&2; exit 1; fi; done"
         },
         {
           "name": "render_export_options",
-          "run": "sed \"s/__TEAM_ID__/$TEAM_ID/g\" \"$EXPORT_OPTIONS_TEMPLATE\" > \"$EXPORT_OPTIONS\" && plutil -lint \"$EXPORT_OPTIONS\" >/dev/null"
+          "run": "sed -e \"s/__TEAM_ID__/$TEAM_ID/g\" -e \"s/__TARGET_BUNDLE_ID__/$TARGET_BUNDLE_ID/g\" -e \"s/__PROFILE_NAME__/$PROFILE_NAME/g\" \"$EXPORT_OPTIONS_TEMPLATE\" > \"$EXPORT_OPTIONS\" && plutil -lint \"$EXPORT_OPTIONS\" >/dev/null"
         },
         {
           "name": "resolve_next_build",
@@ -32,7 +32,7 @@
         },
         {
           "name": "archive",
-          "run": "asc xcode archive --project \"$PROJECT_PATH\" --scheme \"$SCHEME\" --configuration \"$CONFIGURATION\" --archive-path \".asc/artifacts/FoundationLab-$VERSION-${steps.resolve_next_build.BUILD_NUMBER}.xcarchive\" --clean --overwrite --xcodebuild-flag=-destination --xcodebuild-flag=generic/platform=iOS --xcodebuild-flag=-allowProvisioningUpdates --xcodebuild-flag=-authenticationKeyID --xcodebuild-flag=$ASC_KEY_ID --xcodebuild-flag=-authenticationKeyIssuerID --xcodebuild-flag=$ASC_ISSUER_ID --xcodebuild-flag=-authenticationKeyPath --xcodebuild-flag=$ASC_PRIVATE_KEY_PATH --xcodebuild-flag=PRODUCT_BUNDLE_IDENTIFIER=$TARGET_BUNDLE_ID --xcodebuild-flag=DEVELOPMENT_TEAM=$TEAM_ID --xcodebuild-flag=MARKETING_VERSION=$VERSION --xcodebuild-flag=CURRENT_PROJECT_VERSION=${steps.resolve_next_build.BUILD_NUMBER} --output json",
+          "run": "asc xcode archive --project \"$PROJECT_PATH\" --scheme \"$SCHEME\" --configuration \"$CONFIGURATION\" --archive-path \".asc/artifacts/FoundationLab-$VERSION-${steps.resolve_next_build.BUILD_NUMBER}.xcarchive\" --clean --overwrite --xcodebuild-flag=-destination --xcodebuild-flag=generic/platform=iOS --xcodebuild-flag=PRODUCT_BUNDLE_IDENTIFIER=$TARGET_BUNDLE_ID --xcodebuild-flag=DEVELOPMENT_TEAM=$TEAM_ID --xcodebuild-flag=MARKETING_VERSION=$VERSION --xcodebuild-flag=CURRENT_PROJECT_VERSION=${steps.resolve_next_build.BUILD_NUMBER} \"--xcodebuild-flag=FOUNDATION_LAB_PROFILE_NAME=$PROFILE_NAME\" --output json",
           "outputs": {
             "ARCHIVE_PATH": "$.archive_path",
             "VERSION": "$.version",
@@ -41,7 +41,7 @@
         },
         {
           "name": "export",
-          "run": "asc xcode export --archive-path \"${steps.archive.ARCHIVE_PATH}\" --export-options \"$EXPORT_OPTIONS\" --ipa-path \".asc/artifacts/FoundationLab-$VERSION-${steps.archive.BUILD_NUMBER}.ipa\" --overwrite --xcodebuild-flag=-allowProvisioningUpdates --xcodebuild-flag=-authenticationKeyID --xcodebuild-flag=$ASC_KEY_ID --xcodebuild-flag=-authenticationKeyIssuerID --xcodebuild-flag=$ASC_ISSUER_ID --xcodebuild-flag=-authenticationKeyPath --xcodebuild-flag=$ASC_PRIVATE_KEY_PATH --output json",
+          "run": "asc xcode export --archive-path \"${steps.archive.ARCHIVE_PATH}\" --export-options \"$EXPORT_OPTIONS\" --ipa-path \".asc/artifacts/FoundationLab-$VERSION-${steps.archive.BUILD_NUMBER}.ipa\" --overwrite --output json",
           "outputs": {
             "IPA_PATH": "$.ipa_path",
             "VERSION": "$.version",
