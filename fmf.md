@@ -17,8 +17,6 @@ Compared with the previous Xcode 27 beta interface:
 - `LanguageModelSession.AnyDynamicProfile` adds type erasure for dynamic
   profiles. The profile builder also gains limited availability handling and an
   overload that accepts `any LanguageModel`.
-- `Generable` now supplies prompt and instructions representations. `Bool`,
-  `Int`, `Float`, `Double`, and `Decimal` gain `Generable` conformances.
 - `LanguageModelError.Refusal` now exposes an async `explanation`, an
   `explanationStream`, and an initializer that accepts the explanation text.
 - `GenerationSchema.name` and `LanguageModelCapabilities.init(_:)` are new.
