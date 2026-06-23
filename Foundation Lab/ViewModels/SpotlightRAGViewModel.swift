@@ -73,7 +73,9 @@ final class SpotlightRAGViewModel {
 
     func indexSamples() async {
         guard !isIndexing else { return }
+        cancelRun()
         isIndexing = true
+        hasIndexedSamples = false
         errorMessage = nil
 
         defer { isIndexing = false }
