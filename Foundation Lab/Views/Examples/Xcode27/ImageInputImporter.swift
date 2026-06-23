@@ -12,6 +12,7 @@ import UniformTypeIdentifiers
 actor ImageInputImporter {
     static let maximumEncodedByteCount: Int64 = 64 * 1_024 * 1_024
     static let maximumDecodedByteCount: Int64 = 256 * 1_024 * 1_024
+    private static let readChunkByteCount = 1_024 * 1_024
 
     func load(_ url: URL) throws -> ImageInputSelection {
         let accessedSecurityScope = url.startAccessingSecurityScopedResource()
@@ -25,7 +26,7 @@ actor ImageInputImporter {
             try Self.validateEncodedByteCount(Int64(fileSize))
         }
 
-        guard let data = try? Data(contentsOf: url, options: .mappedIfSafe) else {
+        guard let data = try? Self.readOwnedData(from: url) else {
             throw ImageInputImportError.unreadableFile
         }
         try Self.validateEncodedByteCount(Int64(data.count))
@@ -90,6 +91,23 @@ actor ImageInputImporter {
                 maximumByteCount: maximumEncodedByteCount
             )
         }
+    }
+
+    private nonisolated static func readOwnedData(from url: URL) throws -> Data {
+        let fileHandle = try FileHandle(forReadingFrom: url)
+        defer { try? fileHandle.close() }
+
+        let maximumReadByteCount = Int(maximumEncodedByteCount) + 1
+        var data = Data()
+        while data.count < maximumReadByteCount {
+            let remainingByteCount = maximumReadByteCount - data.count
+            let chunkByteCount = min(readChunkByteCount, remainingByteCount)
+            guard let chunk = try fileHandle.read(upToCount: chunkByteCount), !chunk.isEmpty else {
+                break
+            }
+            data.append(chunk)
+        }
+        return data
     }
 
     nonisolated static func validateDecodedDimensions(width: Int, height: Int) throws {
