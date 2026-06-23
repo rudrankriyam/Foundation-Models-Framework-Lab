@@ -194,6 +194,10 @@ afm tool validate --tool echo-json --tool-dir .afm/tools
 afm tool call --tool echo-json --tool-dir .afm/tools --args @args.json
 ```
 
+The repository also includes `.afm/tools/demo-weather.yaml` for the root-help
+quick starts. It returns a deterministic Cupertino sample, never current weather,
+so it is safe for inspection, validation, dry-runs, and direct tool-call testing.
+
 ### Export transcripts and feedback
 
 Use export commands when you want artifacts you can keep, diff, or send elsewhere.
