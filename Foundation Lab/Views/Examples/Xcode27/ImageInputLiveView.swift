@@ -13,8 +13,7 @@ import UniformTypeIdentifiers
 struct ImageInputLiveView: View {
     @State private var model = ImageInputViewModel()
     @State private var isImporterPresented = false
-    @AccessibilityFocusState private var isErrorFocused: Bool
-    @AccessibilityFocusState private var isResultFocused: Bool
+    @AccessibilityFocusState private var accessibilityFocus: ImageInputAccessibilityFocusTarget?
 
     var body: some View {
         @Bindable var model = model
@@ -76,13 +75,13 @@ struct ImageInputLiveView: View {
                     .background(.quaternary, in: .rect(cornerRadius: CornerRadius.medium))
                     .accessibilityLabel("Error: \(errorMessage)")
                     .accessibilityElement(children: .combine)
-                    .accessibilityFocused($isErrorFocused)
+                    .accessibilityFocused($accessibilityFocus, equals: .error(errorMessage))
                 }
 
                 if let result = model.result {
                     ImageInputResultSection(result: result)
-                        .id("image-input-result")
-                        .accessibilityFocused($isResultFocused)
+                        .id(result.id)
+                        .accessibilityFocused($accessibilityFocus, equals: .result(result.id))
                 }
 
                 ImageInputAttachmentNotesView()
@@ -112,14 +111,10 @@ struct ImageInputLiveView: View {
         )
         .onDisappear(perform: model.cancelAll)
         .onChange(of: model.errorMessage) { _, errorMessage in
-            guard errorMessage != nil else { return }
-            isResultFocused = false
-            isErrorFocused = true
+            accessibilityFocus = errorMessage.map(ImageInputAccessibilityFocusTarget.error)
         }
         .onChange(of: model.result?.id) { _, resultID in
-            guard resultID != nil else { return }
-            isErrorFocused = false
-            isResultFocused = true
+            accessibilityFocus = resultID.map(ImageInputAccessibilityFocusTarget.result)
         }
         .sensoryFeedback(.success, trigger: model.result?.id) { oldValue, newValue in
             newValue != nil && newValue != oldValue
