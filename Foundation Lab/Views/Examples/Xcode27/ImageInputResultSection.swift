@@ -12,7 +12,7 @@ struct ImageInputResultSection: View {
     @State private var showsDetails = false
 
     var body: some View {
-        Xcode27Section(String(localized: "Model Response")) {
+        Xcode27Section(String(localized: "Last Successful Response")) {
             VStack(alignment: .leading, spacing: Spacing.medium) {
                 Text(result.response)
                     .font(.body)

@@ -78,7 +78,7 @@ struct ImageInputLiveView: View {
                     .accessibilityFocused($accessibilityFocus, equals: .error(errorMessage))
                 }
 
-                if let result = model.result {
+                if let result = model.result, !model.isRunning {
                     ImageInputResultSection(result: result)
                         .id(result.id)
                         .accessibilityFocused($accessibilityFocus, equals: .result(result.id))
@@ -112,6 +112,11 @@ struct ImageInputLiveView: View {
         .onDisappear(perform: model.cancelAll)
         .onChange(of: model.errorMessage) { _, errorMessage in
             accessibilityFocus = errorMessage.map(ImageInputAccessibilityFocusTarget.error)
+        }
+        .onChange(of: model.isRunning) { _, isRunning in
+            if isRunning, case .some(.result) = accessibilityFocus {
+                accessibilityFocus = nil
+            }
         }
         .onChange(of: model.result?.id) { _, resultID in
             accessibilityFocus = resultID.map(ImageInputAccessibilityFocusTarget.result)
