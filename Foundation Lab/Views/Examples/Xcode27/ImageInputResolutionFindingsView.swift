@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct ImageInputResolutionFindingsView: View {
+    @State private var isExpanded = false
+
     var body: some View {
-        Xcode27Section(String(localized: "Resolution Probe")) {
+        DisclosureGroup("Measured Resolution Notes", isExpanded: $isExpanded) {
             VStack(alignment: .leading, spacing: Spacing.medium) {
                 Text(
                     """
@@ -20,6 +22,16 @@ struct ImageInputResolutionFindingsView: View {
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
+
+                Label(
+                    """
+                    The interactive picker caps encoded files at 64 MB and estimated decoded buffers at 256 MB. \
+                    Use ImageInputProbe for boundary tests.
+                    """,
+                    systemImage: "shield.checkered"
+                )
+                .font(.footnote)
+                .foregroundStyle(.secondary)
 
                 Label(
                     "Observed June 14, 2026 on macOS 27.0 beta build 26A5353q using the system model and a Display P3 JPEG.",
@@ -98,6 +110,8 @@ struct ImageInputResolutionFindingsView: View {
                     tint: .blue
                 )
             }
+            .padding(.top, Spacing.small)
         }
+        .font(.callout)
     }
 }

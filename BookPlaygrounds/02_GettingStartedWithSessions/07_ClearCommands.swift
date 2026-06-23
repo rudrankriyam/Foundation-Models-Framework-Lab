@@ -10,7 +10,7 @@ import Playgrounds
 
     // Example 2: With examples
     let response2 = try await session.respond(to:
-                                               "Generate five beginner workout routines. Each should be 2-3 words " +
+                                               "Generate five workout routines for someone new to exercise. Each should be 2-3 words " +
                                                "like 'Morning Yoga' or 'Quick Cardio'")
     print("With examples: \(response2.content)")
 }

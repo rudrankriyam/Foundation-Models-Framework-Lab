@@ -65,8 +65,7 @@ final class HealthChatViewModel {
         let configuration = FoundationLabConversationConfiguration(
             baseInstructions: Self.baseInstructions,
             summaryInstructions: """
-            You are an expert at summarizing health coaching conversations.
-            Create comprehensive summaries that preserve all health metrics discussed,
+            Create comprehensive health coaching summaries that preserve all health metrics discussed,
             goals set, and advice given.
             """,
             summaryPromptPreamble: """

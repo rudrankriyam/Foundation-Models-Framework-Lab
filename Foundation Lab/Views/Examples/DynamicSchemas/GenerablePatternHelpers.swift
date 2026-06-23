@@ -55,7 +55,7 @@ extension GenerablePatternView {
 
             @Generable
             enum Difficulty {
-                case easy, medium, hard, expert
+                case easy, medium, hard, complex
             }
         }
 

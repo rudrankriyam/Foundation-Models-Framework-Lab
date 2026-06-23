@@ -76,7 +76,7 @@ struct AFMCLITokenCountTests {
         let extra = directory.appending(path: "extra.txt")
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
-        try "Answer as a Swift expert.".write(to: instructions, atomically: true, encoding: .utf8)
+        try "Answer as a senior Swift engineer.".write(to: instructions, atomically: true, encoding: .utf8)
         try "Include one code example.".write(to: extra, atomically: true, encoding: .utf8)
 
         let result = try runAFM(

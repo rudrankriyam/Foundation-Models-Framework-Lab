@@ -32,12 +32,12 @@ final class FoundationLabExperimentResilienceTests: XCTestCase {
         XCTAssertEqual(highTemperatureConfiguration.generationOptions.temperature, 2)
     }
 
-    func testConfigurationDecodesLegacyAndUnknownValuesWithSafeDefaults() throws {
+    func testConfigurationDecodesLegacyTaxonomyAndUnknownValuesWithSafeDefaults() throws {
         let data = Data(
             """
             {
               "name": "Legacy experiment",
-              "level": "future-level",
+              "level": "expert",
               "modelRuntime": "onDevice",
               "reasoningLevel": "deep",
               "selectedTools": ["weather", "weather"],
@@ -52,11 +52,15 @@ final class FoundationLabExperimentResilienceTests: XCTestCase {
         )
 
         XCTAssertEqual(configuration.name, "Legacy experiment")
-        XCTAssertEqual(configuration.level, .beginner)
         XCTAssertEqual(configuration.reasoningLevel, .none)
         XCTAssertEqual(configuration.selectedTools, [.weather])
         XCTAssertEqual(configuration.generationOptions, FoundationLabGenerationOptions())
         XCTAssertEqual(configuration.modifiedAt, configuration.createdAt)
+
+        let reencodedObject = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: JSONEncoder().encode(configuration)) as? [String: Any]
+        )
+        XCTAssertNil(reencodedObject["level"])
     }
 
     func testRunCapturesNormalizedConfigurationAndSafeMetrics() {

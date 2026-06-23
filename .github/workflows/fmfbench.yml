@@ -5,10 +5,10 @@ on:
     branches: [main]
     paths:
       - 'Tools/FMFBench/**'
-      - 'Foundation Lab/Models/ExpertWorkspace*.swift'
+      - 'Foundation Lab/Models/Workspace*.swift'
       - 'Foundation Lab/Models/ExperimentTemplate*.swift'
       - 'Foundation Lab/Views/FMFBenchStudioContent.swift'
-      - 'Foundation Lab/Views/ExpertWorkspaceView.swift'
+      - 'Foundation Lab/Views/WorkspaceView.swift'
       - 'Foundation Lab/Views/Library/**'
       - 'Package.swift'
       - 'Package.resolved'
@@ -17,10 +17,10 @@ on:
     branches: [main]
     paths:
       - 'Tools/FMFBench/**'
-      - 'Foundation Lab/Models/ExpertWorkspace*.swift'
+      - 'Foundation Lab/Models/Workspace*.swift'
       - 'Foundation Lab/Models/ExperimentTemplate*.swift'
       - 'Foundation Lab/Views/FMFBenchStudioContent.swift'
-      - 'Foundation Lab/Views/ExpertWorkspaceView.swift'
+      - 'Foundation Lab/Views/WorkspaceView.swift'
       - 'Foundation Lab/Views/Library/**'
       - 'Package.swift'
       - 'Package.resolved'

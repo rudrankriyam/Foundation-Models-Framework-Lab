@@ -23,7 +23,7 @@ struct ExperimentLibraryCatalogView: View {
         .navigationTitle(catalog.title)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.large)
-        .listStyle(.insetGrouped)
+        .listStyle(.plain)
         #else
         .navigationSubtitle(catalog.subtitle)
         .listStyle(.inset)
@@ -33,23 +33,15 @@ struct ExperimentLibraryCatalogView: View {
     @ViewBuilder
     private var schemaSections: some View {
         schemaSection(
-            "Beginner",
-            systemImage: FoundationLabExperimentLevel.beginner.systemImage,
-            examples: [.basicObject, .arraySchema, .enumSchema]
+            "Explore",
+            examples: [.basicObject, .arraySchema, .enumSchema, .nestedObjects, .generationGuides]
         )
         schemaSection(
-            "Intermediate",
-            systemImage: FoundationLabExperimentLevel.intermediate.systemImage,
-            examples: [.nestedObjects, .generationGuides, .generablePattern]
+            "Production Patterns",
+            examples: [.schemaReferences, .unionTypes, .errorHandling, .generablePattern]
         )
         schemaSection(
-            "Advanced",
-            systemImage: FoundationLabExperimentLevel.advanced.systemImage,
-            examples: [.schemaReferences, .unionTypes, .errorHandling]
-        )
-        schemaSection(
-            "Expert Projects",
-            systemImage: FoundationLabExperimentLevel.expert.systemImage,
+            "Applied Projects",
             examples: [.formBuilder, .invoiceProcessing]
         )
     }
@@ -60,14 +52,14 @@ struct ExperimentLibraryCatalogView: View {
             languageRow(.languageDetection)
             languageRow(.multilingualResponses)
         } header: {
-            Label("Explore", systemImage: "text.bubble")
+            Text("Explore")
         }
 
         Section {
             languageRow(.sessionManagement)
             languageRow(.productionExample)
         } header: {
-            Label("Production Patterns", systemImage: "shippingbox")
+            Text("Production Patterns")
         }
     }
 
@@ -75,7 +67,6 @@ struct ExperimentLibraryCatalogView: View {
     private var xcode27Sections: some View {
         exampleSection(
             ExperimentTrack.contextAndRuntime.title,
-            systemImage: ExperimentTrack.contextAndRuntime.systemImage,
             examples: [
                 .modelRuntime,
                 .contextWindowInspector,
@@ -86,7 +77,6 @@ struct ExperimentLibraryCatalogView: View {
         )
         exampleSection(
             ExperimentTrack.buildWithTools.title,
-            systemImage: ExperimentTrack.buildWithTools.systemImage,
             examples: [
                 .toolCallingModeLab,
                 .riskyToolConfirmation,
@@ -95,8 +85,7 @@ struct ExperimentLibraryCatalogView: View {
             ]
         )
         exampleSection(
-            ExperimentTrack.advancedWorkflows.title,
-            systemImage: ExperimentTrack.advancedWorkflows.systemImage,
+            ExperimentTrack.workflows.title,
             examples: [
                 .dynamicProfileBuilder,
                 .reasoningLevelComparison,
@@ -109,7 +98,6 @@ struct ExperimentLibraryCatalogView: View {
         )
         exampleSection(
             ExperimentTrack.appliedProjects.title,
-            systemImage: ExperimentTrack.appliedProjects.systemImage,
             examples: [
                 .geminiVideoInput,
                 .spotlightRAGExplorer,
@@ -117,15 +105,13 @@ struct ExperimentLibraryCatalogView: View {
             ]
         )
         exampleSection(
-            ExperimentLaunch.workspace(ExpertWorkspace.fmfBench).displayName,
-            systemImage: ExperimentLaunch.workspace(ExpertWorkspace.fmfBench).systemImage,
+            ExperimentLaunch.workspace(Workspace.fmfBench).displayName,
             examples: [.evaluationsLab, .fmCLIPythonPlayground]
         )
     }
 
     private func exampleSection(
         _ title: String,
-        systemImage: String,
         examples: [ExampleType]
     ) -> some View {
         Section {
@@ -135,13 +121,12 @@ struct ExperimentLibraryCatalogView: View {
                 }
             }
         } header: {
-            Label(title, systemImage: systemImage)
+            Text(title)
         }
     }
 
     private func schemaSection(
         _ title: LocalizedStringKey,
-        systemImage: String,
         examples: [DynamicSchemaExampleType]
     ) -> some View {
         Section {
@@ -155,7 +140,7 @@ struct ExperimentLibraryCatalogView: View {
                 }
             }
         } header: {
-            Label(title, systemImage: systemImage)
+            Text(title)
         }
     }
 
@@ -222,23 +207,23 @@ private extension ExampleType {
         case .privateCloudCompute:
             String(localized: "Probe PCC availability, quota, and context size")
         case .imageInputPlayground:
-            String(localized: "Inspect image attachment recipes and measured resolution boundaries")
+            String(localized: "Import an image, ask the on-device model, and inspect live usage evidence")
         case .usagePerformanceTrace:
             String(localized: "Run a real streamed response and inspect its reported usage")
         case .toolCallingModeLab:
-            String(localized: "Inspect allowed, required, and disallowed tool behavior")
+            String(localized: "Run allowed, required, and disallowed modes with a local read-only tool")
         case .riskyToolConfirmation:
             String(localized: "Keep side-effect authorization inside app-owned tool code")
         case .foundationModelsSecurityPlayground:
             String(localized: "Inspect the boundary between Foundation Models and your app")
         case .toolCallTrajectoryViewer:
-            String(localized: "Compare explicit fixtures, not imaginary runs")
+            String(localized: "Capture actual calls and outputs, then compare an authored expectation")
         case .dynamicProfileBuilder:
             String(localized: "Compose a LanguageModelSession.Profile recipe")
         case .reasoningLevelComparison:
-            String(localized: "Inspect light, moderate, and deep ContextOptions")
+            String(localized: "Run one prompt across light, moderate, and deep reasoning budgets")
         case .transcriptExplorer:
-            String(localized: "Inspect reasoning, attachment, and custom transcript cases")
+            String(localized: "Run a session and inspect only the entries it emits")
         case .agentFlowInspector:
             String(localized: "Know which layer owns each decision")
         case .historyTransformLab:

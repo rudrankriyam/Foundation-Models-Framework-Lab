@@ -10,17 +10,12 @@ struct LibraryView: View {
     @Environment(ExperimentStore.self) private var experimentStore
     @Environment(NavigationCoordinator.self) private var navigationCoordinator
     @State private var searchText = ""
-    @State private var selectedLevel: FoundationLabExperimentLevel?
     @State private var showsSettings = false
 
     var body: some View {
         Group {
             if !hasResults {
-                LibraryEmptyState(
-                    searchText: trimmedSearchText,
-                    selectedLevel: selectedLevel,
-                    showAllLevels: showAllLevels
-                )
+                ContentUnavailableView.search
             } else {
                 libraryList
             }
@@ -35,16 +30,15 @@ struct LibraryView: View {
             text: $searchText,
             prompt: "Search experiments and tools"
         )
-        .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                levelFilter
 #if os(iOS)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
                 Button("Settings", systemImage: "gear") {
                     showsSettings = true
                 }
-#endif
             }
         }
+#endif
         .sheet(isPresented: $showsSettings) {
             NavigationStack {
                 SettingsView()
@@ -62,8 +56,8 @@ struct LibraryView: View {
         .navigationDestination(for: ExperimentLibraryCatalog.self) { catalog in
             ExperimentLibraryCatalogView(catalog: catalog)
         }
-        .navigationDestination(for: ExpertWorkspace.self) { workspace in
-            ExpertWorkspaceView(workspace: workspace)
+        .navigationDestination(for: Workspace.self) { workspace in
+            WorkspaceView(workspace: workspace)
         }
     }
 }
@@ -89,35 +83,16 @@ private extension LibraryView {
                 }
             }
 
-            if shouldShowLibraryIntroduction {
-                Section {
-                    Text("""
-                    Recipes open in Playground so you can edit, run, and save them. Guided labs and workspaces provide \
-                    focused interfaces for specialized APIs.
-                    """)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-            }
-
             ForEach(visibleTracks) { track in
-                Section {
+                Section(track.title) {
                     ForEach(filteredTemplates(in: track)) { template in
                         templateDestination(template)
-                    }
-                } header: {
-                    VStack(alignment: .leading, spacing: Spacing.xSmall) {
-                        Text(track.title)
-                        Text(track.subtitle)
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                            .textCase(nil)
                     }
                 }
             }
         }
         #if os(iOS)
-        .listStyle(.insetGrouped)
+        .listStyle(.plain)
         #else
         .listStyle(.inset)
         #endif
@@ -148,39 +123,6 @@ private extension LibraryView {
         }
     }
 
-    private var levelFilter: some View {
-        Menu {
-            Picker("Experience Level", selection: $selectedLevel) {
-                Text("All Levels")
-                    .tag(nil as FoundationLabExperimentLevel?)
-
-                ForEach(FoundationLabExperimentLevel.allCases, id: \.self) { level in
-                    Label(level.displayName, systemImage: level.systemImage)
-                        .tag(level as FoundationLabExperimentLevel?)
-                }
-            }
-        } label: {
-            Label {
-                if let selectedLevel {
-                    Text(selectedLevel.displayName)
-                } else {
-                    Text("All Levels")
-                }
-            } icon: {
-                Image(systemName: selectedLevel?.systemImage ?? "line.3.horizontal.decrease")
-            }
-        }
-        .accessibilityLabel("Filter by experience level")
-    }
-
-    private var isShowingAllTemplates: Bool {
-        trimmedSearchText.isEmpty && selectedLevel == nil
-    }
-
-    private var shouldShowLibraryIntroduction: Bool {
-        isShowingAllTemplates && experimentStore.savedExperiments.isEmpty
-    }
-
     private var hasResults: Bool {
         !filteredTemplates.isEmpty || !filteredSavedExperiments.isEmpty
     }
@@ -202,17 +144,12 @@ private extension LibraryView {
     }
 
     private func matches(_ template: ExperimentTemplate) -> Bool {
-        if let selectedLevel, template.level != selectedLevel {
-            return false
-        }
-
         let query = trimmedSearchText
         guard !query.isEmpty else { return true }
 
         let searchableText = [
             template.title,
             template.summary,
-            template.level.displayName,
             template.launch.displayName,
             template.track.title,
             template.track.subtitle
@@ -222,10 +159,6 @@ private extension LibraryView {
     }
 
     private func matches(_ experiment: FoundationLabExperimentConfiguration) -> Bool {
-        if let selectedLevel, selectedLevel != experiment.level {
-            return false
-        }
-
         let query = trimmedSearchText
         guard !query.isEmpty else { return true }
 
@@ -234,7 +167,6 @@ private extension LibraryView {
             experiment.summary,
             experiment.prompt,
             experiment.instructions,
-            experiment.level.displayName,
             experiment.kind.displayName
         ] + experiment.selectedTools.map(\.displayName)
 
@@ -243,10 +175,6 @@ private extension LibraryView {
 
     private var trimmedSearchText: String {
         searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private func showAllLevels() {
-        selectedLevel = nil
     }
 
     private func openSavedExperiment(_ experiment: FoundationLabExperimentConfiguration) {
