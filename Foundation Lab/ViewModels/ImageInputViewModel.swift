@@ -18,6 +18,7 @@ final class ImageInputViewModel {
     private(set) var result: ImageInputRunResult?
     private(set) var isImporting = false
     private(set) var isRunning = false
+    private(set) var isStoppingRun = false
     var prompt = ImageInputRecipe.altText.prompt {
         didSet {
             if prompt != oldValue {
@@ -48,6 +49,7 @@ final class ImageInputViewModel {
             && readinessMessage == nil
             && !isImporting
             && !isRunning
+            && !isStoppingRun
     }
 
     var readinessMessage: String? {
@@ -111,12 +113,12 @@ final class ImageInputViewModel {
 
     func startRun() {
         guard canRun, let selection else { return }
-        cancelRun()
 
         let trimmedPrompt = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
         let runID = UUID()
         activeRunID = runID
         isRunning = true
+        isStoppingRun = false
         errorMessage = nil
 
         runTask = Task { @MainActor [weak self] in
@@ -125,10 +127,9 @@ final class ImageInputViewModel {
     }
 
     func cancelRun() {
-        activeRunID = nil
+        guard isRunning, !isStoppingRun else { return }
+        isStoppingRun = true
         runTask?.cancel()
-        runTask = nil
-        isRunning = false
     }
 
     func cancelImport() {
@@ -198,6 +199,7 @@ private extension ImageInputViewModel {
                 activeRunID = nil
                 runTask = nil
                 isRunning = false
+                isStoppingRun = false
             }
         }
 

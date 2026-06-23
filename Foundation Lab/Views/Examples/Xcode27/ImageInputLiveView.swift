@@ -48,14 +48,14 @@ struct ImageInputLiveView: View {
                 )
 
                 Button(
-                    model.isRunning ? "Stop" : "Analyze Image",
-                    systemImage: model.isRunning ? "stop.fill" : "sparkles",
+                    model.isStoppingRun ? "Stopping…" : (model.isRunning ? "Stop" : "Analyze Image"),
+                    systemImage: model.isStoppingRun ? "hourglass" : (model.isRunning ? "stop.fill" : "sparkles"),
                     action: toggleRun
                 )
                 .buttonStyle(.glassProminent)
                 .controlSize(.large)
                 .frame(maxWidth: .infinity, minHeight: 44)
-                .disabled(!model.isRunning && !model.canRun)
+                .disabled(model.isStoppingRun || (!model.isRunning && !model.canRun))
                 .accessibilityHint(runButtonHint)
                 #if os(macOS)
                 .keyboardShortcut(.return, modifiers: [.command])
@@ -122,7 +122,9 @@ struct ImageInputLiveView: View {
     }
 
     private var runButtonHint: String {
-        if model.isRunning {
+        if model.isStoppingRun {
+            String(localized: "Waiting for the current model request to stop")
+        } else if model.isRunning {
             String(localized: "Cancel the current model request")
         } else if model.isImporting {
             String(localized: "Wait for the image import to finish or cancel the import")
