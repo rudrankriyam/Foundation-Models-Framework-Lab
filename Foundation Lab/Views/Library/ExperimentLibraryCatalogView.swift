@@ -232,13 +232,13 @@ private extension ExampleType {
         case .foundationModelsSecurityPlayground:
             String(localized: "Inspect the boundary between Foundation Models and your app")
         case .toolCallTrajectoryViewer:
-            String(localized: "Compare explicit fixtures, not imaginary runs")
+            String(localized: "Capture actual calls and outputs, then compare an authored expectation")
         case .dynamicProfileBuilder:
             String(localized: "Compose a LanguageModelSession.Profile recipe")
         case .reasoningLevelComparison:
             String(localized: "Inspect light, moderate, and deep ContextOptions")
         case .transcriptExplorer:
-            String(localized: "Inspect reasoning, attachment, and custom transcript cases")
+            String(localized: "Run a session and inspect only the entries it emits")
         case .agentFlowInspector:
             String(localized: "Know which layer owns each decision")
         case .historyTransformLab:

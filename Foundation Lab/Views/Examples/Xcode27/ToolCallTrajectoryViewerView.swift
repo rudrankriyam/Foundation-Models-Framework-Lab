@@ -2,241 +2,63 @@
 //  ToolCallTrajectoryViewerView.swift
 //  FoundationLab
 //
-//  Created by Codex on 6/8/26.
-//
 
 import SwiftUI
 
 struct ToolCallTrajectoryViewerView: View {
-    @State private var fixture = TrajectoryFixture.match
+    @State private var model = ToolCallTrajectoryViewModel()
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Spacing.large) {
-                Text(
-                    String(
-                        localized: """
-                        A trajectory is the ordered path a model takes through tools. These are labeled teaching fixtures, not calls \
-                        captured from this device. In a real app, derive the path from the session transcript and score it in a test.
-                        """
-                    )
+        @Bindable var model = model
+
+        ExampleViewBase(
+            title: String(localized: "Tool Trajectories"),
+            description: String(localized: "Run a real tool turn and compare transcript evidence with an authored expectation"),
+            currentPrompt: $model.prompt,
+            isRunning: model.isRunning,
+            errorMessage: model.errorMessage,
+            codeExample: Self.codeExample,
+            runLabel: String(localized: "Run Trajectory"),
+            onRun: model.run,
+            onReset: model.reset
+        ) {
+            if let evaluation = model.evaluation {
+                ToolTrajectoryResultView(
+                    evaluation: evaluation,
+                    observedEvents: model.observedEvents,
+                    response: model.response,
+                    forbiddenToolNames: ToolCallTrajectoryViewModel.forbiddenToolNames
                 )
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-
-                Picker("Teaching fixture", selection: $fixture) {
-                    ForEach(TrajectoryFixture.allCases) { fixture in
-                        Text(fixture.title).tag(fixture)
-                    }
-                }
-                .pickerStyle(.segmented)
-
-                Xcode27StatusRow(
-                    title: String(localized: "Fixture comparison"),
-                    value: fixture.result.title,
-                    systemImage: fixture.result.icon,
-                    tint: fixture.result.tint
-                )
-
-                Xcode27Section(String(localized: "Expected tool path")) {
-                    TrajectoryPathView(steps: TrajectoryFixture.expected)
-                }
-
-                Xcode27Section(String(localized: "Authored fixture")) {
-                    TrajectoryPathView(steps: fixture.steps)
-                }
-
-                Xcode27Section(String(localized: "Why the fixture is classified this way")) {
-                    Text(fixture.explanation)
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                }
-
-                Xcode27Section(String(localized: "Production workflow")) {
-                    Xcode27KeyValueList(items: [
-                        (String(localized: "Observe"), "session.transcript"),
-                        (String(localized: "Extract"), String(localized: "Tool call names and arguments")),
-                        (String(localized: "Compare"), String(localized: "Declared expectation")),
-                        (String(localized: "Report"), String(localized: "Evaluations test result"))
-                    ])
-                }
-
-                CodeDisclosure(code: codeExample)
-            }
-            .padding(.horizontal, Spacing.medium)
-            .padding(.vertical, Spacing.large)
-        }
-        .navigationTitle("Tool Trajectories")
-        #if os(iOS)
-        .navigationBarTitleDisplayMode(.large)
-        .navigationSubtitle("Compare explicit fixtures, not imaginary runs")
-        #endif
-    }
-
-    private var codeExample: String {
-        """
-        let observedCalls = session.transcript.flatMap { entry -> [Transcript.ToolCall] in
-            if case .toolCalls(let calls) = entry {
-                Array(calls)
             } else {
-                []
-            }
-        }
-
-        // Pass observedCalls and your declared expectation to an
-        // evaluation in the test target. Keep the full arguments when
-        // correctness depends on more than tool names and order.
-        """
-    }
-}
-
-private struct TrajectoryPathView: View {
-    let steps: [TrajectoryStep]
-
-    var body: some View {
-        VStack(spacing: 0) {
-            ForEach(steps.enumerated(), id: \.element.id) { index, step in
-                HStack(alignment: .top, spacing: Spacing.medium) {
-                    Text(index + 1, format: .number)
-                        .font(.footnote.monospacedDigit())
-                        .bold()
-                        .frame(width: 24, height: 24)
-                        .foregroundStyle(step.tint)
-
-                    VStack(alignment: .leading, spacing: Spacing.xSmall) {
-                        Text(step.name)
-                            .font(.subheadline)
-                            .bold()
-                        Text(step.detail)
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Spacer(minLength: Spacing.small)
-                }
-                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-                .padding(.vertical, Spacing.small)
-                .accessibilityElement(children: .combine)
-
-                if index < steps.count - 1 {
-                    Divider()
-                        .padding(.leading, Spacing.xxLarge)
+                ContentUnavailableView {
+                    Label(
+                        model.isRunning ? "Tool Turn Running" : "No Observed Trajectory",
+                        systemImage: model.isRunning ? "ellipsis" : "point.topleft.down.to.point.bottomright.curvepath"
+                    )
+                } description: {
+                    Text(
+                        model.isRunning
+                            ? "The path will appear after the session finishes or the run is cancelled."
+                            : "Run the prompt to capture ordered tool calls and outputs from session.transcript."
+                    )
                 }
             }
         }
     }
-}
 
-private struct TrajectoryStep: Identifiable, Equatable {
-    let name: String
-    let detail: String
-    var tint: Color = .blue
+    private static let codeExample = """
+    let session = LanguageModelSession(profile: SessionObservabilityProfile())
+    _ = try await session.respond(to: prompt)
 
-    var id: String { "\(name)-\(detail)" }
-
-    static func == (lhs: TrajectoryStep, rhs: TrajectoryStep) -> Bool {
-        lhs.name == rhs.name && lhs.detail == rhs.detail
-    }
-}
-
-private enum TrajectoryResult {
-    case match
-    case review
-    case fail
-
-    var title: String {
-        switch self {
-        case .match: String(localized: "Exact match")
-        case .review: String(localized: "Different path")
-        case .fail: String(localized: "Forbidden call")
-        }
+    let observedCalls = session.transcript.flatMap { entry -> [Transcript.ToolCall] in
+        guard case .toolCalls(let calls) = entry else { return [] }
+        return Array(calls)
     }
 
-    var icon: String {
-        switch self {
-        case .match: "checkmark.circle.fill"
-        case .review: "exclamationmark.circle.fill"
-        case .fail: "xmark.circle.fill"
-        }
-    }
-
-    var tint: Color {
-        switch self {
-        case .match: .green
-        case .review: .orange
-        case .fail: .red
-        }
-    }
-}
-
-private enum TrajectoryFixture: String, CaseIterable, Identifiable {
-    case match
-    case repeated
-    case forbidden
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .match: String(localized: "Match")
-        case .repeated: String(localized: "Repeated")
-        case .forbidden: String(localized: "Forbidden")
-        }
-    }
-
-    static let expected = [
-        TrajectoryStep(name: "spotlightSearch", detail: String(localized: "Search notes for hikes near water")),
-        TrajectoryStep(name: "fetchItem", detail: String(localized: "Load the selected note"))
-    ]
-
-    var steps: [TrajectoryStep] {
-        switch self {
-        case .match:
-            Self.expected
-        case .repeated:
-            [
-                TrajectoryStep(name: "spotlightSearch", detail: String(localized: "Search notes for hikes near water")),
-                TrajectoryStep(name: "spotlightSearch", detail: String(localized: "Repeat the same search"), tint: .orange),
-                TrajectoryStep(name: "fetchItem", detail: String(localized: "Load the selected note"))
-            ]
-        case .forbidden:
-            [
-                TrajectoryStep(name: "spotlightSearch", detail: String(localized: "Search notes for hikes near water")),
-                TrajectoryStep(
-                    name: "deleteItem",
-                    detail: String(localized: "Delete a note the user only asked to read"),
-                    tint: .red
-                )
-            ]
-        }
-    }
-
-    var result: TrajectoryResult {
-        if steps.contains(where: { $0.name == "deleteItem" }) {
-            .fail
-        } else if steps == Self.expected {
-            .match
-        } else {
-            .review
-        }
-    }
-
-    var explanation: String {
-        switch result {
-        case .match:
-            String(
-                localized: "The authored calls exactly match the declared names, arguments, and order in this fixture."
-            )
-        case .review:
-            String(
-                localized: "The fixture reaches the same read operation through an extra call. Your evaluation must declare if that fails."
-            )
-        case .fail:
-            String(
-                localized: "The fixture contains a forbidden tool. A destructive call is a hard failure even if the answer looks useful."
-            )
-        }
-    }
+    // Compare observed names, canonical arguments, and order with an
+    // expectation declared by your app or test. Never score authored
+    // fixtures as though they came from this session.
+    """
 }
 
 #Preview {

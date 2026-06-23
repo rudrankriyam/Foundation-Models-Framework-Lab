@@ -171,7 +171,7 @@ extension ExampleType {
         case .reasoningLevelComparison:
             return "Compare light, moderate, and deep reasoning"
         case .transcriptExplorer:
-            return "Browse reasoning, attachments, and custom segments"
+            return "Run a session and inspect its observed transcript"
         case .agentFlowInspector:
             return "Inspect an agent turn from profile to usage"
         case .historyTransformLab:
@@ -183,7 +183,7 @@ extension ExampleType {
         case .contextBudgetVisualizer:
             return "Show kept, summarized, and dropped context"
         case .toolCallTrajectoryViewer:
-            return "Compare expected and actual tool paths"
+            return "Capture and verify an actual tool path"
         case .foundationModelsSecurityPlayground:
             return "Inspect framework guarantees and app-owned boundaries"
         case .usagePerformanceTrace:
