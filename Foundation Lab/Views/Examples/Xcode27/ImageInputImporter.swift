@@ -123,8 +123,10 @@ actor ImageInputImporter {
                     do {
                         try operation.checkCancellation()
                         let coordinatedURL = operation.intent.url
-                        let resourceValues = try coordinatedURL.resourceValues(forKeys: [.fileSizeKey])
-                        if let fileSize = resourceValues.fileSize {
+                        let fileSize: Int? = try? coordinatedURL
+                            .resourceValues(forKeys: [.fileSizeKey])
+                            .fileSize
+                        if let fileSize {
                             try validateEncodedByteCount(Int64(fileSize))
                         }
 

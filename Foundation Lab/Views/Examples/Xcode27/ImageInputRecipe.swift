@@ -40,8 +40,8 @@ enum ImageInputRecipe: String, CaseIterable, Identifiable {
         import FoundationModels
         import ImageIO
 
-        func analyzeImage(at imageURL: URL, prompt: String) async throws {
-            guard let source = CGImageSourceCreateWithURL(imageURL as CFURL, nil),
+        func analyzeImage(data: Data, prompt: String) async throws {
+            guard let source = CGImageSourceCreateWithData(data as CFData, nil),
                   let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
                 throw CocoaError(.fileReadCorruptFile)
             }
