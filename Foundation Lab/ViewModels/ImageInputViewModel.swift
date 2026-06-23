@@ -62,11 +62,11 @@ final class ImageInputViewModel {
     }
 
     func importImage(from result: Result<URL, any Error>) {
-        cancelImport()
-        cancelRun()
-
         switch result {
         case .success(let url):
+            cancelImport()
+            cancelRun()
+
             let importID = UUID()
             activeImportID = importID
             isImporting = true
