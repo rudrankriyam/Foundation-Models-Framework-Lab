@@ -1,11 +1,11 @@
 //
-//  ExpertWorkspaceStage.swift
+//  WorkspaceStage.swift
 //  Foundation Lab
 //
 
 import Foundation
 
-enum ExpertWorkspaceStage: String, CaseIterable, Identifiable {
+enum WorkspaceStage: String, CaseIterable, Identifiable {
     case settings
     case runs
     case evaluation

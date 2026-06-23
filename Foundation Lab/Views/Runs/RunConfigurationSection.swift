@@ -15,9 +15,6 @@ struct RunConfigurationSection: View {
             LabeledContent("Type") {
                 Text(LocalizedStringKey(run.configuration.kind.displayName))
             }
-            LabeledContent("Level") {
-                Text(LocalizedStringKey(run.configuration.level.displayName))
-            }
         }
 
         Section("Model") {

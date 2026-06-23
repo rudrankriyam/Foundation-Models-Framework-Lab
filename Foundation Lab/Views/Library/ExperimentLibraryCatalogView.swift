@@ -33,23 +33,18 @@ struct ExperimentLibraryCatalogView: View {
     @ViewBuilder
     private var schemaSections: some View {
         schemaSection(
-            "Beginner",
-            systemImage: FoundationLabExperimentLevel.beginner.systemImage,
-            examples: [.basicObject, .arraySchema, .enumSchema]
+            "Explore",
+            systemImage: "curlybraces.square",
+            examples: [.basicObject, .arraySchema, .enumSchema, .nestedObjects, .generationGuides]
         )
         schemaSection(
-            "Intermediate",
-            systemImage: FoundationLabExperimentLevel.intermediate.systemImage,
-            examples: [.nestedObjects, .generationGuides, .generablePattern]
+            "Production Patterns",
+            systemImage: "point.3.connected.trianglepath.dotted",
+            examples: [.schemaReferences, .unionTypes, .errorHandling, .generablePattern]
         )
         schemaSection(
-            "Advanced",
-            systemImage: FoundationLabExperimentLevel.advanced.systemImage,
-            examples: [.schemaReferences, .unionTypes, .errorHandling]
-        )
-        schemaSection(
-            "Expert Projects",
-            systemImage: FoundationLabExperimentLevel.expert.systemImage,
+            "Applied Projects",
+            systemImage: "shippingbox",
             examples: [.formBuilder, .invoiceProcessing]
         )
     }
@@ -95,8 +90,8 @@ struct ExperimentLibraryCatalogView: View {
             ]
         )
         exampleSection(
-            ExperimentTrack.advancedWorkflows.title,
-            systemImage: ExperimentTrack.advancedWorkflows.systemImage,
+            ExperimentTrack.workflows.title,
+            systemImage: ExperimentTrack.workflows.systemImage,
             examples: [
                 .dynamicProfileBuilder,
                 .reasoningLevelComparison,
@@ -117,8 +112,8 @@ struct ExperimentLibraryCatalogView: View {
             ]
         )
         exampleSection(
-            ExperimentLaunch.workspace(ExpertWorkspace.fmfBench).displayName,
-            systemImage: ExperimentLaunch.workspace(ExpertWorkspace.fmfBench).systemImage,
+            ExperimentLaunch.workspace(Workspace.fmfBench).displayName,
+            systemImage: ExperimentLaunch.workspace(Workspace.fmfBench).systemImage,
             examples: [.evaluationsLab, .fmCLIPythonPlayground]
         )
     }

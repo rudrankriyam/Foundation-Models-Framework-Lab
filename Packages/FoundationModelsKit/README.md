@@ -35,7 +35,7 @@ The package has two public products:
   - [Direct Tool Usage](#direct-tool-usage)
   - [Model Integration](#model-integration)
   - [Error Handling](#error-handling)
-- [Advanced Topics](#advanced-topics)
+- [Specialized Topics](#specialized-topics)
   - [Permission Management](#permission-management)
   - [Date Formats](#date-formats)
   - [Return Values](#return-values)
@@ -939,7 +939,7 @@ do {
 }
 ```
 
-## Advanced Topics
+## Specialized Topics
 
 ### Permission Management
 

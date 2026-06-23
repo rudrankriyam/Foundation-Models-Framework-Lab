@@ -10,8 +10,8 @@ quiet, precise, and familiar to users of Apple developer tools.
 
 The product serves two audiences without splitting into two apps:
 
-- Beginners start from complete, editable recipes.
-- Experienced developers compose custom prompts and tools, inspect runs, compare
+- Developers can start from complete, editable recipes.
+- They can also compose custom prompts and tools, inspect runs, compare
   adapters, and use the repository's CLI and evaluation surfaces.
 
 ## Toolchain
@@ -138,12 +138,12 @@ Tool recipes load these implementations into Playground. Do not recreate
 standalone tool screens. Preserve permission checks and require app-owned
 confirmation before side effects.
 
-## Expert Workspaces
+## Workspaces
 
 ### Adapter Comparison
 
 `Foundation Lab/AdapterStudio` contains the macOS adapter comparison engine and
-views. It is routed through `ExpertWorkspaceView` from Library. Adapter training
+views. It is routed through `WorkspaceView` from Library. Adapter training
 and export live in `Tools/AdapterStudio` through the `fmas` CLI.
 
 ### FMFBench

@@ -42,8 +42,8 @@ struct FMFBenchConfigurationView: View {
         .accessibilityHint("Runs the selected Foundation Models benchmark configuration")
         #endif
 
-        DisclosureGroup("Advanced") {
-            FMFBenchAdvancedConfigurationView(viewModel: viewModel)
+        DisclosureGroup("Tuning") {
+            FMFBenchTuningConfigurationView(viewModel: viewModel)
         }
 
         if viewModel.isRunning {

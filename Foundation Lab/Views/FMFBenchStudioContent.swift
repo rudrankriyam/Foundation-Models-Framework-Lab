@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FMFBenchStudioContent: View {
-    let stage: ExpertWorkspaceStage
+    let stage: WorkspaceStage
 
     var body: some View {
         switch stage {

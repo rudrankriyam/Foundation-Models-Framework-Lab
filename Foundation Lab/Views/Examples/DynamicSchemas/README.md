@@ -13,7 +13,6 @@ This directory contains comprehensive examples demonstrating the use of `Dynamic
 ## Examples
 
 ### 1. Basic Object Schema (`BasicDynamicSchemaView.swift`)
-- **Complexity**: Beginner
 - **Concepts**: Creating simple object schemas with properties
 - **Examples**: Person info, Product details, Custom objects
 - **Key Features**:
@@ -22,7 +21,6 @@ This directory contains comprehensive examples demonstrating the use of `Dynamic
   - Converting to GenerationSchema
 
 ### 2. Array Schemas (`ArrayDynamicSchemaView.swift`)
-- **Complexity**: Beginner
 - **Concepts**: Arrays with min/max constraints
 - **Examples**: Todo lists, Recipe ingredients, Article tags
 - **Key Features**:
@@ -31,7 +29,6 @@ This directory contains comprehensive examples demonstrating the use of `Dynamic
   - Dynamic constraint adjustment
 
 ### 3. Enum Schemas (`EnumDynamicSchemaView.swift`)
-- **Complexity**: Beginner
 - **Concepts**: String enumerations using anyOf
 - **Examples**: Sentiment analysis, Priority levels, Weather conditions
 - **Key Features**:
@@ -40,7 +37,6 @@ This directory contains comprehensive examples demonstrating the use of `Dynamic
   - Validation of generated values
 
 ### 4. Nested Objects (`NestedDynamicSchemaView.swift`)
-- **Complexity**: Intermediate
 - **Concepts**: Complex nested structures
 - **Examples**: Company structure, Order details, Event information
 - **Key Features**:
@@ -50,7 +46,6 @@ This directory contains comprehensive examples demonstrating the use of `Dynamic
   - Dependency management
 
 ### 5. Schema References (`ReferencedSchemaView.swift`)
-- **Complexity**: Advanced
 - **Concepts**: Reusing schemas through references
 - **Examples**: Blog system, Project teams, Library catalog
 - **Key Features**:
@@ -60,7 +55,6 @@ This directory contains comprehensive examples demonstrating the use of `Dynamic
   - Consistent data structures
 
 ### 6. Optional Fields (`OptionalFieldsSchemaView.swift`)
-- **Complexity**: Intermediate
 - **Concepts**: Required vs optional properties
 - **Key Features**:
   - isOptional parameter
@@ -68,7 +62,6 @@ This directory contains comprehensive examples demonstrating the use of `Dynamic
   - Validation strategies
 
 ### 7. Generation Guides (`GuidedDynamicSchemaView.swift`)
-- **Complexity**: Intermediate
 - **Concepts**: Applying constraints to values
 - **Key Features**:
   - String patterns with regex
@@ -77,7 +70,6 @@ This directory contains comprehensive examples demonstrating the use of `Dynamic
   - Array length limits
 
 ### 8. Union Types (`UnionTypesSchemaView.swift`)
-- **Complexity**: Advanced
 - **Concepts**: anyOf with different object types
 - **Key Features**:
   - Polymorphic schemas
@@ -85,12 +77,10 @@ This directory contains comprehensive examples demonstrating the use of `Dynamic
   - Multiple type alternatives
 
 ### 9. Form Builder (`FormBuilderSchemaView.swift`)
-- **Complexity**: Expert
 - **Concepts**: Building forms dynamically
 - **Use Case**: User-defined data extraction
 
 ### 10. Error Handling (`SchemaErrorHandlingView.swift`)
-- **Complexity**: Advanced
 - **Concepts**: Handling schema errors
 - **Topics**:
   - Duplicate type names
@@ -99,7 +89,6 @@ This directory contains comprehensive examples demonstrating the use of `Dynamic
   - Circular dependencies
 
 ### 11. Invoice Processing (`InvoiceProcessingSchemaView.swift`)
-- **Complexity**: Expert
 - **Concepts**: Real-world complex extraction
 - **Features**: Complete invoice data model
 

@@ -1,14 +1,14 @@
 //
-//  ExpertWorkspaceView.swift
+//  WorkspaceView.swift
 //  Foundation Lab
 //
 
 import SwiftUI
 
-struct ExpertWorkspaceView: View {
-    let workspace: ExpertWorkspace
+struct WorkspaceView: View {
+    let workspace: Workspace
 
-    @State private var selectedStage = ExpertWorkspaceStage.settings
+    @State private var selectedStage = WorkspaceStage.settings
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
@@ -64,7 +64,7 @@ struct ExpertWorkspaceView: View {
     }
 
     private var stages: some View {
-        ForEach(ExpertWorkspaceStage.allCases) { stage in
+        ForEach(WorkspaceStage.allCases) { stage in
             Label(stage.title, systemImage: stage.systemImage)
                 .tag(stage)
         }
@@ -102,6 +102,6 @@ struct ExpertWorkspaceView: View {
 
 #Preview {
     NavigationStack {
-        ExpertWorkspaceView(workspace: .fmfBench)
+        WorkspaceView(workspace: .fmfBench)
     }
 }

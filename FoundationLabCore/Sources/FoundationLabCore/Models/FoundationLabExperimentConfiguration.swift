@@ -7,7 +7,6 @@ public struct FoundationLabExperimentConfiguration: Codable, Hashable, Sendable,
         case summary
         case prompt
         case instructions
-        case level
         case kind
         case modelRuntime
         case reasoningLevel
@@ -22,7 +21,6 @@ public struct FoundationLabExperimentConfiguration: Codable, Hashable, Sendable,
     public var summary: String
     public var prompt: String
     public var instructions: String
-    public var level: FoundationLabExperimentLevel
     public var kind: FoundationLabExperimentKind
     public var modelRuntime: FoundationLabModelRuntime
     public var reasoningLevel: FoundationLabReasoningLevel
@@ -37,7 +35,6 @@ public struct FoundationLabExperimentConfiguration: Codable, Hashable, Sendable,
         summary: String = "",
         prompt: String = "",
         instructions: String = "",
-        level: FoundationLabExperimentLevel = .beginner,
         kind: FoundationLabExperimentKind = .conversation,
         modelRuntime: FoundationLabModelRuntime = .onDevice,
         reasoningLevel: FoundationLabReasoningLevel = .none,
@@ -51,7 +48,6 @@ public struct FoundationLabExperimentConfiguration: Codable, Hashable, Sendable,
         self.summary = summary
         self.prompt = prompt
         self.instructions = instructions
-        self.level = level
         self.kind = kind
         self.modelRuntime = modelRuntime
         self.reasoningLevel = reasoningLevel
@@ -108,7 +104,6 @@ public struct FoundationLabExperimentConfiguration: Codable, Hashable, Sendable,
             summary: (try? container.decode(String.self, forKey: .summary)) ?? "",
             prompt: (try? container.decode(String.self, forKey: .prompt)) ?? "",
             instructions: (try? container.decode(String.self, forKey: .instructions)) ?? "",
-            level: (try? container.decode(FoundationLabExperimentLevel.self, forKey: .level)) ?? .beginner,
             kind: (try? container.decode(FoundationLabExperimentKind.self, forKey: .kind)) ?? .conversation,
             modelRuntime: (try? container.decode(FoundationLabModelRuntime.self, forKey: .modelRuntime)) ?? .onDevice,
             reasoningLevel: (try? container.decode(FoundationLabReasoningLevel.self, forKey: .reasoningLevel)) ?? .none,

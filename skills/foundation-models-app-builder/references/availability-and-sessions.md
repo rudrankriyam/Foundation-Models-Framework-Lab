@@ -167,7 +167,7 @@ let session = LanguageModelSession(
 session.prewarm(promptPrefix: Prompt("Suggest a 20-minute workout for"))
 
 let response = try await session.respond(
-    to: Prompt("Suggest a 20-minute workout for a beginner with no equipment.")
+    to: Prompt("Suggest a 20-minute workout for someone new to exercise with no equipment.")
 )
 ```
 

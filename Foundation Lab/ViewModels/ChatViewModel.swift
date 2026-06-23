@@ -131,7 +131,7 @@ final class ChatViewModel {
         let configuration = FoundationLabConversationConfiguration(
             baseInstructions: Self.defaultInstructions,
             summaryInstructions: """
-            You are an expert at summarizing conversations. Create comprehensive summaries that \
+            Create comprehensive conversation summaries that \
             preserve all important context and details.
             """,
             summaryPromptPreamble: """
