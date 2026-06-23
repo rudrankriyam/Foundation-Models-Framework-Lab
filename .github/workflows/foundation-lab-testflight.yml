@@ -13,6 +13,12 @@ on:
       - '.asc/**'
       - '.github/workflows/foundation-lab-testflight.yml'
   workflow_dispatch:
+    inputs:
+      upload:
+        description: Upload the validated archive to the external TestFlight group
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -23,7 +29,7 @@ concurrency:
 
 jobs:
   upload:
-    runs-on: macos-latest
+    runs-on: macos-26
     timeout-minutes: 90
     env:
       ASC_BYPASS_KEYCHAIN: "1"
@@ -31,6 +37,7 @@ jobs:
       TESTFLIGHT_GROUP: ${{ vars.FOUNDATION_LAB_EXTERNAL_GROUP_ID }}
       TARGET_BUNDLE_ID: ${{ vars.FOUNDATION_LAB_BUNDLE_ID }}
       TEAM_ID: ${{ vars.FOUNDATION_LAB_TEAM_ID }}
+      UPLOAD: ${{ github.event_name == 'push' || inputs.upload }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -122,7 +129,13 @@ jobs:
         run: asc workflow validate
 
       - name: Dry run ASC workflow
-        run: asc workflow run --dry-run foundation_lab_testflight VERSION:${{ steps.version.outputs.version }}
+        run: |
+          asc workflow run --dry-run foundation_lab_testflight \
+            "VERSION:${{ steps.version.outputs.version }}" \
+            "UPLOAD:$UPLOAD"
 
-      - name: Upload to TestFlight external group
-        run: asc workflow run foundation_lab_testflight VERSION:${{ steps.version.outputs.version }}
+      - name: Build and optionally upload Foundation Lab
+        run: |
+          asc workflow run foundation_lab_testflight \
+            "VERSION:${{ steps.version.outputs.version }}" \
+            "UPLOAD:$UPLOAD"
