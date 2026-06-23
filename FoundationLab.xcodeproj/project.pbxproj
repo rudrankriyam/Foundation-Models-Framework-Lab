@@ -345,10 +345,10 @@
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "This app does not write health data.";
 				INFOPLIST_KEY_NSLocationUsageDescription = "This app needs access to your location to provide weather information and location-based services.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app needs access to your location to provide weather information and location-based services.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Foundation Lab needs access to your microphone to listen to your voice commands for creating reminders.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Foundation Lab uses the microphone to transcribe voice input in Playground.";
 				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "Foundation Lab needs full access to create and manage reminders from your voice commands.";
 				INFOPLIST_KEY_NSRemindersUsageDescription = "This app needs access to your reminders to create and manage reminder tasks.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Foundation Lab uses speech recognition to convert your voice into text for creating reminders.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Foundation Lab uses speech recognition to turn Playground voice input into text.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -428,10 +428,10 @@
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "This app does not write health data.";
 				INFOPLIST_KEY_NSLocationUsageDescription = "This app needs access to your location to provide weather information and location-based services.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app needs access to your location to provide weather information and location-based services.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Foundation Lab needs access to your microphone to listen to your voice commands for creating reminders.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Foundation Lab uses the microphone to transcribe voice input in Playground.";
 				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "Foundation Lab needs full access to create and manage reminders from your voice commands.";
 				INFOPLIST_KEY_NSRemindersUsageDescription = "This app needs access to your reminders to create and manage reminder tasks.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Foundation Lab uses speech recognition to convert your voice into text for creating reminders.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Foundation Lab uses speech recognition to turn Playground voice input into text.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
