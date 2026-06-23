@@ -54,7 +54,11 @@ final class FoundationLabModelErrorProjectionModernTests: XCTestCase {
             .init(debugDescription: "Modern guardrail", metadata: ["policy": "safety"])
         )
         let refusal = FoundationModels.LanguageModelError.refusal(
-            .init(debugDescription: "Modern refusal", metadata: ["reason": "policy"])
+            .init(
+                explanation: "The request could not be completed.",
+                debugDescription: "Modern refusal",
+                metadata: ["reason": "policy"]
+            )
         )
         let unsupportedCapability = FoundationModels.LanguageModelError.unsupportedCapability(
             .init(

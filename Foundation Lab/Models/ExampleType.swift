@@ -161,7 +161,7 @@ extension ExampleType {
         case .privateCloudCompute:
             return "Probe PCC availability, quota, and context size"
         case .imageInputPlayground:
-            return "Explore image attachments and resolution boundaries"
+            return "Run a live on-device image attachment request"
         case .geminiVideoInput:
             return "Analyze video with a custom LanguageModelSession"
         case .toolCallingModeLab:
