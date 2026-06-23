@@ -312,24 +312,6 @@ extension ExperimentTemplate {
                 ))
             ),
             keywords: ["sampling", "temperature", "tokens", "seed"]
-        ),
-        template(
-            .modelRuntime,
-            id: "model-runtime",
-            track: .contextAndRuntime,
-            summary: "Inspect the active system model, tokenizer, and capabilities."
-        ),
-        template(
-            .privateCloudCompute,
-            id: "private-cloud",
-            track: .contextAndRuntime,
-            summary: "Probe Private Cloud Compute availability, quota, and context size."
-        ),
-        template(
-            .usagePerformanceTrace,
-            id: "usage-trace",
-            track: .contextAndRuntime,
-            summary: "Run a real stream and inspect timing plus reported token usage."
         )
     ]
 
@@ -414,42 +396,6 @@ extension ExperimentTemplate {
                 ))
             ),
             keywords: ["agent", "custom tools", "workflow", "permissions"]
-        ),
-        template(
-            .contextWindowInspector,
-            id: "context-window",
-            track: .workflows,
-            summary: "Adjust each context source and learn when to compact a session."
-        ),
-        template(
-            .historyTransformLab,
-            id: "history-transforms",
-            track: .workflows,
-            summary: "Compare trimming, summarizing, redaction, and spotlighting policies."
-        ),
-        template(
-            .riskyToolConfirmation,
-            id: "tool-authorization",
-            track: .workflows,
-            summary: "Rehearse app-owned approval before a tool performs a side effect."
-        ),
-        template(
-            .contextBudgetVisualizer,
-            id: "context-budget",
-            track: .workflows,
-            summary: "Inspect which context is kept, summarized, or dropped as a budget fills."
-        ),
-        template(
-            .foundationModelsSecurityPlayground,
-            id: "agent-security",
-            track: .workflows,
-            summary: "Exercise framework guarantees and the security boundaries your app owns."
-        ),
-        template(
-            .geminiVideoInput,
-            id: "custom-video-model",
-            track: .workflows,
-            summary: "Bridge a custom video-capable model into LanguageModelSession."
         ),
         ExperimentTemplate(
             id: "xcode-27",

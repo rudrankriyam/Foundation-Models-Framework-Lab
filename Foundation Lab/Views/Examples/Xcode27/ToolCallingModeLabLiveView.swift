@@ -12,38 +12,45 @@ import SwiftUI
 struct ToolCallingModeLabLiveView: View {
     @State private var model = ToolCallingModeLabViewModel()
     @State private var selectedMode = ToolCallingExperimentMode.allowed
+    @State private var isLocalFixtureExpanded = false
+    @State private var isPolicyBoundaryExpanded = false
 
     var body: some View {
         @Bindable var model = model
 
         ScrollView {
             LazyVStack(alignment: .leading, spacing: Spacing.xLarge) {
-                VStack(alignment: .leading, spacing: Spacing.xSmall) {
-                    Text("Observe tool policy in the transcript")
-                        .font(.title2.bold())
-                    Text("Run one prompt with allowed, required, and disallowed tool calling against a read-only local fixture.")
-                        .foregroundStyle(.secondary)
+                if let issue = model.readinessIssue {
+                    readinessIssue(issue)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
 
-                runtimeStatus
                 localFixture
                 promptSection
 
                 if let errorMessage = model.errorMessage {
-                    Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
+                    Label {
+                        Text(errorMessage)
+                            .foregroundStyle(.primary)
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.red)
+                    }
                         .font(.callout)
-                        .foregroundStyle(.red)
                         .padding(Spacing.medium)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(.red.opacity(0.08), in: .rect(cornerRadius: CornerRadius.medium))
+                        .background(.quaternary, in: .rect(cornerRadius: CornerRadius.medium))
+                        .accessibilityLabel("Error: \(errorMessage)")
+                        .accessibilityElement(children: .combine)
                 }
 
-                resultsSection
+                if !model.results.isEmpty {
+                    resultsSection
+                }
+
                 policyBoundary
                 CodeDisclosure(code: selectedMode.code)
             }
-            .frame(maxWidth: 900, alignment: .leading)
+            .frame(maxWidth: 760, alignment: .leading)
             .padding(.horizontal, Spacing.medium)
             .padding(.vertical, Spacing.large)
             .frame(maxWidth: .infinity)
@@ -64,27 +71,27 @@ struct ToolCallingModeLabLiveView: View {
         .onDisappear(perform: model.cancelRun)
     }
 
-    private var runtimeStatus: some View {
-        Xcode27Section(String(localized: "Runtime")) {
-            VStack(alignment: .leading, spacing: Spacing.small) {
-                Label("On-device system language model", systemImage: "apple.intelligence")
-                    .font(.callout)
-
-                if let issue = model.readinessIssue {
-                    Label(issue, systemImage: "exclamationmark.circle")
-                        .font(.footnote)
-                        .foregroundStyle(.orange)
-                } else {
-                    Label("Available and reporting tool-calling support", systemImage: "checkmark.circle")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
+    private func readinessIssue(_ issue: String) -> some View {
+        Label {
+            VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                Text("System model unavailable")
+                    .bold()
+                Text(issue)
+                    .foregroundStyle(.secondary)
             }
+        } icon: {
+            Image(systemName: "exclamationmark.circle.fill")
+                .foregroundStyle(.orange)
         }
+        .font(.callout)
+        .padding(Spacing.medium)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.quaternary, in: .rect(cornerRadius: CornerRadius.medium))
+        .accessibilityElement(children: .combine)
     }
 
     private var localFixture: some View {
-        Xcode27Section(String(localized: "Read-only Local Tool")) {
+        DisclosureGroup("Read-only Local Tool", isExpanded: $isLocalFixtureExpanded) {
             VStack(alignment: .leading, spacing: Spacing.small) {
                 LabeledContent("Tool", value: "read_local_release_record")
                 LabeledContent("Fixture record", value: "foundation-lab")
@@ -92,8 +99,10 @@ struct ToolCallingModeLabLiveView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
+            .padding(.top, Spacing.small)
             .font(.callout)
         }
+        .font(.callout)
     }
 
     private var promptSection: some View {
@@ -105,24 +114,20 @@ struct ToolCallingModeLabLiveView: View {
                     .disabled(model.isRunning || model.isStoppingRun)
                     .accessibilityHint("The same prompt is sent to a new session for each tool-calling mode")
 
-                HStack {
-                    Button("Reset", systemImage: "arrow.counterclockwise", action: model.reset)
-                        .buttonStyle(.borderless)
-                        .padding(.vertical, Spacing.medium)
-                        .contentShape(.rect)
-                        .disabled(model.isRunning || model.isStoppingRun)
+                Button("Reset", systemImage: "arrow.counterclockwise", action: model.reset)
+                    .buttonStyle(.borderless)
+                    .frame(minHeight: 44)
+                    .disabled(model.isRunning || model.isStoppingRun)
 
-                    Spacer()
-
-                    Button(
-                        model.isStoppingRun ? "Stopping…" : (model.isRunning ? "Stop" : "Run 3 Modes"),
-                        systemImage: model.isStoppingRun ? "hourglass" : (model.isRunning ? "stop.fill" : "play.fill"),
-                        action: toggleRun
-                    )
-                    .buttonStyle(.glassProminent)
-                    .controlSize(.large)
-                    .disabled(model.isStoppingRun || (!model.isRunning && !model.canRun))
-                }
+                Button(
+                    model.isStoppingRun ? "Stopping…" : (model.isRunning ? "Stop" : "Run 3 Modes"),
+                    systemImage: model.isStoppingRun ? "hourglass" : (model.isRunning ? "stop.fill" : "play.fill"),
+                    action: toggleRun
+                )
+                .buttonStyle(.glassProminent)
+                .controlSize(.large)
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .disabled(model.isStoppingRun || (!model.isRunning && !model.canRun))
             }
         }
     }
@@ -145,7 +150,7 @@ struct ToolCallingModeLabLiveView: View {
     }
 
     private var policyBoundary: some View {
-        Xcode27Section(String(localized: "Interpretation")) {
+        DisclosureGroup("About Tool Policies", isExpanded: $isPolicyBoundaryExpanded) {
             Text(
                 """
                 Transcript calls and outputs come from the real LanguageModelSession transcript. Local executions are recorded inside \
@@ -156,7 +161,9 @@ struct ToolCallingModeLabLiveView: View {
             .font(.callout)
             .foregroundStyle(.secondary)
             .fixedSize(horizontal: false, vertical: true)
+            .padding(.top, Spacing.small)
         }
+        .font(.callout)
     }
 
     private func toggleRun() {

@@ -7,6 +7,7 @@ import SwiftUI
 
 struct TranscriptExplorerView: View {
     @State private var model = TranscriptExplorerViewModel()
+    @State private var isObservationBoundaryExpanded = false
 
     var body: some View {
         @Bindable var model = model
@@ -51,7 +52,7 @@ struct TranscriptExplorerView: View {
                     }
                 }
 
-                Xcode27Section(String(localized: "Observation Boundary")) {
+                DisclosureGroup("Observation Boundary", isExpanded: $isObservationBoundaryExpanded) {
                     Text(
                         String(
                             localized: """
@@ -63,7 +64,9 @@ struct TranscriptExplorerView: View {
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, Spacing.small)
                 }
+                .font(.callout)
             }
         }
     }

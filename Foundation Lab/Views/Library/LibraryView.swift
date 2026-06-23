@@ -83,35 +83,16 @@ private extension LibraryView {
                 }
             }
 
-            if shouldShowLibraryIntroduction {
-                Section {
-                    Text("""
-                    Recipes open in Playground so you can edit, run, and save them. Guided labs and workspaces provide \
-                    focused interfaces for specialized APIs.
-                    """)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-            }
-
             ForEach(visibleTracks) { track in
-                Section {
+                Section(track.title) {
                     ForEach(filteredTemplates(in: track)) { template in
                         templateDestination(template)
-                    }
-                } header: {
-                    VStack(alignment: .leading, spacing: Spacing.xSmall) {
-                        Text(track.title)
-                        Text(track.subtitle)
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                            .textCase(nil)
                     }
                 }
             }
         }
         #if os(iOS)
-        .listStyle(.insetGrouped)
+        .listStyle(.plain)
         #else
         .listStyle(.inset)
         #endif
@@ -140,14 +121,6 @@ private extension LibraryView {
                 LibraryTemplateRow(template: template)
             }
         }
-    }
-
-    private var isShowingAllTemplates: Bool {
-        trimmedSearchText.isEmpty
-    }
-
-    private var shouldShowLibraryIntroduction: Bool {
-        isShowingAllTemplates && experimentStore.savedExperiments.isEmpty
     }
 
     private var hasResults: Bool {
