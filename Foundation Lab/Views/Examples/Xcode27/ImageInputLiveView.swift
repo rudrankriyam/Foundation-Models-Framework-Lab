@@ -129,8 +129,12 @@ struct ImageInputLiveView: View {
     private var runButtonHint: String {
         if model.isRunning {
             String(localized: "Cancel the current model request")
+        } else if model.isImporting {
+            String(localized: "Wait for the image import to finish or cancel the import")
         } else if model.selection == nil {
             String(localized: "Choose an image before running the model")
+        } else if model.prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            String(localized: "Enter a prompt before running the model")
         } else if model.readinessMessage != nil {
             String(localized: "The on-device model must be ready for image input before this request can run")
         } else {

@@ -25,7 +25,7 @@ struct ImageInputResultSection: View {
                     Image(systemName: hasAttachmentEvidence ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                         .foregroundStyle(hasAttachmentEvidence ? Color.secondary : Color.orange)
 
-                    Text(summary)
+                    summary
                         .foregroundStyle(.secondary)
                 }
                 .font(.callout)
@@ -56,30 +56,31 @@ struct ImageInputResultSection: View {
         result.attachmentSegmentCount > 0
     }
 
-    private var summary: String {
+    private var attachmentSegmentLabel: Text {
+        Text("^[\(result.attachmentSegmentCount) attachment segment](inflect: true)")
+    }
+
+    private var summary: Text {
         if hasAttachmentEvidence {
-            String(
-                localized: """
-                \(result.totalTokens) tokens · \(result.attachmentSegmentCount) attachment segments · \(durationLabel)
-                """
-            )
+            Text("\(result.totalTokens) tokens · \(attachmentSegmentLabel) · \(durationLabel)")
         } else {
-            String(localized: "Attachment evidence missing · 0 attachment segments · \(result.totalTokens) tokens")
+            Text("Attachment evidence missing · \(attachmentSegmentLabel) · \(result.totalTokens) tokens")
         }
     }
 
-    private var accessibilitySummary: String {
+    private var accessibilitySummary: Text {
         if hasAttachmentEvidence {
-            String(
-                localized: """
-                Run completed with \(result.totalTokens) total tokens, \(result.attachmentSegmentCount) attachment segments, \
+            Text(
+                """
+                Run completed with \(result.totalTokens) total tokens, \(attachmentSegmentLabel), \
                 and \(result.transcriptEntryCount) transcript entries, in \(durationLabel)
                 """
             )
         } else {
-            String(
-                localized: """
-                Warning: run completed with no attachment segment in the transcript. Total tokens: \(result.totalTokens).
+            Text(
+                """
+                Warning: run completed with \(attachmentSegmentLabel) in the transcript. \
+                Total tokens: \(result.totalTokens).
                 """
             )
         }

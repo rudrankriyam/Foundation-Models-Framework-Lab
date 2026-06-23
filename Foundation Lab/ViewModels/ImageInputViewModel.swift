@@ -84,7 +84,6 @@ final class ImageInputViewModel {
             }
 
             cancelImport()
-            self.result = nil
 
             let importID = UUID()
             activeImportID = importID
