@@ -37,8 +37,7 @@ final class ToolCallTrajectoryViewModel {
     }
 
     func run() async {
-        let capturedPrompt = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !capturedPrompt.isEmpty else { return }
+        guard let capturedPrompt = promptForNewRun else { return }
 
         let runID = UUID()
         activeRunID = runID
@@ -63,6 +62,7 @@ final class ToolCallTrajectoryViewModel {
         }
 
         do {
+            try Task.checkCancellation()
             let snapshot = try await SessionObservabilityRunner.run(
                 prompt: capturedPrompt,
                 labIdentifier: "tool-trajectory"
@@ -106,5 +106,11 @@ final class ToolCallTrajectoryViewModel {
         evaluation = nil
         errorMessage = nil
         isRunning = false
+    }
+
+    private var promptForNewRun: String? {
+        guard !Task.isCancelled else { return nil }
+        let value = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
+        return value.isEmpty ? nil : value
     }
 }
