@@ -10,7 +10,7 @@ enum ImageInputImportError: LocalizedError {
     case unsupportedImage
     case missingDimensions
     case fileTooLarge(actualByteCount: Int64, maximumByteCount: Int64)
-    case decodedImageTooLarge(estimatedByteCount: Int64, maximumByteCount: Int64)
+    case decodedImageTooLarge(byteCount: Int64, maximumByteCount: Int64)
 
     var errorDescription: String? {
         switch self {
@@ -27,10 +27,10 @@ enum ImageInputImportError: LocalizedError {
                 \(Self.formattedByteCount(maximumByteCount)) import limit. Use Tools/ImageInputProbe for large-file stress tests.
                 """
             )
-        case .decodedImageTooLarge(let estimatedByteCount, let maximumByteCount):
+        case .decodedImageTooLarge(let byteCount, let maximumByteCount):
             String(
                 localized: """
-                This image would decode to about \(Self.formattedByteCount(estimatedByteCount)), above the interactive lab's \
+                This image needs about \(Self.formattedByteCount(byteCount)) to decode, above the interactive lab's \
                 \(Self.formattedByteCount(maximumByteCount)) safety limit. Use Tools/ImageInputProbe for resolution stress tests.
                 """
             )

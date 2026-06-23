@@ -79,6 +79,7 @@ actor ImageInputImporter {
               ) else {
             throw ImageInputImportError.unsupportedImage
         }
+        try Self.validateDecodedBuffer(bytesPerRow: image.bytesPerRow, height: image.height)
         return image
     }
 
@@ -93,12 +94,11 @@ actor ImageInputImporter {
 
     nonisolated static func validateDecodedDimensions(width: Int, height: Int) throws {
         let estimatedByteCount = estimatedDecodedByteCount(width: width, height: height)
-        guard estimatedByteCount <= maximumDecodedByteCount else {
-            throw ImageInputImportError.decodedImageTooLarge(
-                estimatedByteCount: estimatedByteCount,
-                maximumByteCount: maximumDecodedByteCount
-            )
-        }
+        try validateDecodedByteCount(estimatedByteCount)
+    }
+
+    nonisolated static func validateDecodedBuffer(bytesPerRow: Int, height: Int) throws {
+        try validateDecodedByteCount(decodedByteCount(bytesPerRow: bytesPerRow, height: height))
     }
 
     nonisolated static func estimatedDecodedByteCount(width: Int, height: Int) -> Int64 {
@@ -113,6 +113,27 @@ actor ImageInputImporter {
         let alignedRowBytes = (paddedRowBytes / 16) * 16
         let (decodedByteCount, decodedOverflow) = alignedRowBytes.multipliedReportingOverflow(by: Int64(height))
         return decodedOverflow ? .max : decodedByteCount
+    }
+
+    nonisolated static func decodedByteCount(bytesPerRow: Int, height: Int) -> Int64 {
+        guard let rowByteCount = Int64(exactly: bytesPerRow),
+              let rowCount = Int64(exactly: height),
+              rowByteCount >= 0,
+              rowCount >= 0 else {
+            return .max
+        }
+
+        let (decodedByteCount, overflow) = rowByteCount.multipliedReportingOverflow(by: rowCount)
+        return overflow ? .max : decodedByteCount
+    }
+
+    private nonisolated static func validateDecodedByteCount(_ byteCount: Int64) throws {
+        guard byteCount <= maximumDecodedByteCount else {
+            throw ImageInputImportError.decodedImageTooLarge(
+                byteCount: byteCount,
+                maximumByteCount: maximumDecodedByteCount
+            )
+        }
     }
 }
 #endif
