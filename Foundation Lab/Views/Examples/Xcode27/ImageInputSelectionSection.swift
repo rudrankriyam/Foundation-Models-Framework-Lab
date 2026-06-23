@@ -8,6 +8,7 @@ import SwiftUI
 
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
 struct ImageInputSelectionSection: View {
+    @State private var isImageDetailsExpanded = false
     let selection: ImageInputSelection?
     let isImporting: Bool
     let isRunning: Bool
@@ -47,7 +48,11 @@ struct ImageInputSelectionSection: View {
             .background(.quaternary, in: .rect(cornerRadius: CornerRadius.medium))
             .clipShape(.rect(cornerRadius: CornerRadius.medium))
 
-            metadata(for: selection)
+            DisclosureGroup("Image Details", isExpanded: $isImageDetailsExpanded) {
+                metadata(for: selection)
+                    .padding(.top, Spacing.small)
+            }
+            .font(.callout)
 
             if isImporting {
                 ImageInputImportProgressView(
@@ -55,18 +60,19 @@ struct ImageInputSelectionSection: View {
                     cancel: cancelImport
                 )
             } else {
-                VStack(spacing: Spacing.small) {
-                    Button("Replace Image", systemImage: "photo.badge.plus", action: chooseImage)
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.large)
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                        .disabled(isRunning)
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: Spacing.small) {
+                        replaceImageButton
+                        Spacer()
+                        removeImageButton
+                    }
 
-                    Button("Remove", systemImage: "trash", action: removeImage)
-                        .buttonStyle(.bordered)
-                        .controlSize(.large)
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                        .disabled(isRunning)
+                    VStack(spacing: Spacing.small) {
+                        replaceImageButton
+                            .frame(maxWidth: .infinity)
+                        removeImageButton
+                            .frame(maxWidth: .infinity)
+                    }
                 }
             }
         }
@@ -82,6 +88,22 @@ struct ImageInputSelectionSection: View {
         .font(.callout)
     }
 
+    private var replaceImageButton: some View {
+        Button("Replace Image", systemImage: "photo.badge.plus", action: chooseImage)
+            .buttonStyle(.bordered)
+            .controlSize(.large)
+            .frame(minHeight: 44)
+            .disabled(isRunning)
+    }
+
+    private var removeImageButton: some View {
+        Button("Remove", systemImage: "trash", role: .destructive, action: removeImage)
+            .buttonStyle(.borderless)
+            .controlSize(.large)
+            .frame(minHeight: 44)
+            .disabled(isRunning)
+    }
+
     private var emptyContent: some View {
         ContentUnavailableView {
             Label("Choose an Image", systemImage: "photo.on.rectangle.angled")
@@ -93,7 +115,7 @@ struct ImageInputSelectionSection: View {
                 .controlSize(.large)
                 .frame(minHeight: 44)
         }
-        .frame(minHeight: 220)
+        .frame(minHeight: 160)
     }
 }
 #endif

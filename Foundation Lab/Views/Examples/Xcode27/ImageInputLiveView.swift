@@ -20,15 +20,9 @@ struct ImageInputLiveView: View {
 
         ScrollView {
             LazyVStack(alignment: .leading, spacing: Spacing.xLarge) {
-                VStack(alignment: .leading, spacing: Spacing.xSmall) {
-                    Text("Ask the on-device model about an image")
-                        .font(.title2.bold())
-                    Text("Choose one image, edit the prompt, then inspect the model's answer and run evidence.")
-                        .foregroundStyle(.secondary)
+                if let readinessMessage = model.readinessMessage {
+                    ImageInputAvailabilityView(message: readinessMessage)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                ImageInputAvailabilityView(message: model.readinessMessage)
 
                 ImageInputSelectionSection(
                     selection: model.selection,
@@ -91,7 +85,7 @@ struct ImageInputLiveView: View {
                 CodeDisclosure(code: model.recipe.code)
                     .id("image-input-code")
             }
-            .frame(maxWidth: 900, alignment: .leading)
+            .frame(maxWidth: 760, alignment: .leading)
             .padding(.horizontal, Spacing.medium)
             .padding(.vertical, Spacing.large)
             .frame(maxWidth: .infinity)

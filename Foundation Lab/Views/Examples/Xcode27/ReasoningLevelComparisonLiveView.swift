@@ -12,37 +12,43 @@ import SwiftUI
 struct ReasoningLevelComparisonLiveView: View {
     @State private var model = ReasoningLevelComparisonViewModel()
     @State private var selectedLevel = ReasoningComparisonLevel.moderate
+    @State private var isComparisonNotesExpanded = false
 
     var body: some View {
         @Bindable var model = model
 
         ScrollView {
             LazyVStack(alignment: .leading, spacing: Spacing.xLarge) {
-                VStack(alignment: .leading, spacing: Spacing.xSmall) {
-                    Text("Compare requested reasoning budgets")
-                        .font(.title2.bold())
-                    Text("Send one prompt through fresh light, moderate, and deep Private Cloud Compute sessions.")
-                        .foregroundStyle(.secondary)
+                if let issue = model.readinessIssue {
+                    readinessIssue(issue)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
 
-                runtimeStatus
                 promptSection
 
                 if let errorMessage = model.errorMessage {
-                    Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
+                    Label {
+                        Text(errorMessage)
+                            .foregroundStyle(.primary)
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.red)
+                    }
                         .font(.callout)
-                        .foregroundStyle(.red)
                         .padding(Spacing.medium)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(.red.opacity(0.08), in: .rect(cornerRadius: CornerRadius.medium))
+                        .background(.quaternary, in: .rect(cornerRadius: CornerRadius.medium))
+                        .accessibilityLabel("Error: \(errorMessage)")
+                        .accessibilityElement(children: .combine)
                 }
 
-                resultsSection
-                measurementBoundary
+                if !model.results.isEmpty {
+                    resultsSection
+                }
+
+                comparisonNotes
                 CodeDisclosure(code: selectedLevel.code)
             }
-            .frame(maxWidth: 900, alignment: .leading)
+            .frame(maxWidth: 760, alignment: .leading)
             .padding(.horizontal, Spacing.medium)
             .padding(.vertical, Spacing.large)
             .frame(maxWidth: .infinity)
@@ -63,27 +69,23 @@ struct ReasoningLevelComparisonLiveView: View {
         .onDisappear(perform: model.cancelRun)
     }
 
-    private var runtimeStatus: some View {
-        Xcode27Section(String(localized: "Runtime")) {
-            VStack(alignment: .leading, spacing: Spacing.small) {
-                Label("Private Cloud Compute", systemImage: "icloud")
-                    .font(.callout)
-
-                if let issue = model.readinessIssue {
-                    Label(issue, systemImage: "exclamationmark.circle")
-                        .font(.footnote)
-                        .foregroundStyle(.orange)
-                } else {
-                    Label("Available and reporting reasoning support", systemImage: "checkmark.circle")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-
-                Text("Running the comparison makes three separate PCC requests and consumes the corresponding usage quota.")
-                    .font(.footnote)
+    private func readinessIssue(_ issue: String) -> some View {
+        Label {
+            VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                Text("Private Cloud Compute unavailable")
+                    .bold()
+                Text(issue)
                     .foregroundStyle(.secondary)
             }
+        } icon: {
+            Image(systemName: "exclamationmark.circle.fill")
+                .foregroundStyle(.orange)
         }
+        .font(.callout)
+        .padding(Spacing.medium)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.quaternary, in: .rect(cornerRadius: CornerRadius.medium))
+        .accessibilityElement(children: .combine)
     }
 
     private var promptSection: some View {
@@ -95,24 +97,20 @@ struct ReasoningLevelComparisonLiveView: View {
                     .disabled(model.isRunning || model.isStoppingRun)
                     .accessibilityHint("The same prompt is sent to a new session for each reasoning level")
 
-                HStack {
-                    Button("Reset", systemImage: "arrow.counterclockwise", action: model.reset)
-                        .buttonStyle(.borderless)
-                        .padding(.vertical, Spacing.medium)
-                        .contentShape(.rect)
-                        .disabled(model.isRunning || model.isStoppingRun)
+                Button("Reset", systemImage: "arrow.counterclockwise", action: model.reset)
+                    .buttonStyle(.borderless)
+                    .frame(minHeight: 44)
+                    .disabled(model.isRunning || model.isStoppingRun)
 
-                    Spacer()
-
-                    Button(
-                        model.isStoppingRun ? "Stopping…" : (model.isRunning ? "Stop" : "Run 3 Levels"),
-                        systemImage: model.isStoppingRun ? "hourglass" : (model.isRunning ? "stop.fill" : "play.fill"),
-                        action: toggleRun
-                    )
-                    .buttonStyle(.glassProminent)
-                    .controlSize(.large)
-                    .disabled(model.isStoppingRun || (!model.isRunning && !model.canRun))
-                }
+                Button(
+                    model.isStoppingRun ? "Stopping…" : (model.isRunning ? "Stop" : "Run 3 Levels"),
+                    systemImage: model.isStoppingRun ? "hourglass" : (model.isRunning ? "stop.fill" : "play.fill"),
+                    action: toggleRun
+                )
+                .buttonStyle(.glassProminent)
+                .controlSize(.large)
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .disabled(model.isStoppingRun || (!model.isRunning && !model.canRun))
             }
         }
     }
@@ -134,19 +132,23 @@ struct ReasoningLevelComparisonLiveView: View {
         }
     }
 
-    private var measurementBoundary: some View {
-        Xcode27Section(String(localized: "Interpretation")) {
-            Text(
-                """
-                Token counts come from Response.Usage. Elapsed time is this app's wall-clock observation of sequential requests. \
-                Network conditions, service load, caching, generation variance, and run order are uncontrolled, so these results do \
-                not establish that a reasoning level caused a latency or quality difference.
-                """
-            )
-            .font(.callout)
+    private var comparisonNotes: some View {
+        DisclosureGroup("About This Comparison", isExpanded: $isComparisonNotesExpanded) {
+            VStack(alignment: .leading, spacing: Spacing.small) {
+                Text("Each comparison makes three separate PCC requests and consumes the corresponding usage quota.")
+                Text(
+                    """
+                    Token counts come from Response.Usage. Elapsed time is this app's wall-clock observation of sequential requests. \
+                    Network conditions, service load, caching, generation variance, and run order are uncontrolled, so these results do \
+                    not establish that a reasoning level caused a latency or quality difference.
+                    """
+                )
+            }
             .foregroundStyle(.secondary)
             .fixedSize(horizontal: false, vertical: true)
+            .padding(.top, Spacing.small)
         }
+        .font(.callout)
     }
 
     private func toggleRun() {
