@@ -66,6 +66,7 @@ final class ImageInputViewModel {
         case .success(let url):
             cancelImport()
             cancelRun()
+            self.result = nil
 
             let importID = UUID()
             activeImportID = importID
