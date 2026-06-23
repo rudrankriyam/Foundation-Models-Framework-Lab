@@ -33,7 +33,7 @@ struct LibraryTemplateRow: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(template.title)
         .accessibilityValue(
-            "\(template.summary) \(template.launch.displayName), \(template.level.displayName)"
+            "\(template.summary) \(template.launch.displayName)"
         )
     }
 

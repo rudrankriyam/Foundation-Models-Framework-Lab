@@ -1,8 +1,8 @@
 included:
   - "Foundation Lab/AdapterStudio"
-  - "Foundation Lab/Models/ExpertWorkspace.swift"
-  - "Foundation Lab/Models/ExpertWorkspaceStage.swift"
-  - "Foundation Lab/Views/ExpertWorkspaceView.swift"
+  - "Foundation Lab/Models/Workspace.swift"
+  - "Foundation Lab/Models/WorkspaceStage.swift"
+  - "Foundation Lab/Views/WorkspaceView.swift"
 
 excluded:
   - DerivedData

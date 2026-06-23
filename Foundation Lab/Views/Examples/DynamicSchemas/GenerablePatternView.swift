@@ -57,7 +57,7 @@ struct Recipe {
         case easy
         case medium
         case hard
-        case expert
+        case complex
     }
 }
 

@@ -486,7 +486,7 @@ private let groundedExplanationBases: [SampleBase] = [
 private func groundedExplanationBase(topic: String, sourceID: String, required: [String])
     -> SampleBase {
     (
-        "Explain \(topic) for a beginner using source \(sourceID).",
+        "Explain \(topic) to someone new to it using source \(sourceID).",
         [
             .toolCalled("lookupKnowledge"),
             .toolArgumentEquals(tool: "lookupKnowledge", argument: "topic", value: .string(topic)),

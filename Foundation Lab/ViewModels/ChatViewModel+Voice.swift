@@ -10,6 +10,7 @@ extension ChatViewModel {
 
     /// Releases microphone and speech resources without canceling an active text response.
     func suspendVoiceMode() {
+        activeVoiceStartID = nil
         stopSpeechObservation()
         speechRecognizer?.stopRecognition()
         speechRecognizer = nil
@@ -18,39 +19,76 @@ extension ChatViewModel {
     }
 
     func startVoiceMode() async {
-        guard !isLoading, !session.isResponding else { return }
+        guard let startID = beginVoiceStart() else { return }
+
+        let granted = await permissionManager.requestAllPermissions()
+        guard canContinueVoiceStart(startID) else { return }
+        guard granted else {
+            handleVoiceError(permissionManager.permissionAlertMessage)
+            return
+        }
+
+        await activateVoiceRecognizer(for: startID)
+    }
+
+    private func beginVoiceStart() -> UUID? {
+        guard !isLoading, !session.isResponding else { return nil }
 
         if case .error = voiceState {
             errorMessage = nil
             showError = false
             voiceState = .idle
         } else if voiceState.isActive {
-            return
+            return nil
         }
 
-        if !permissionManager.allPermissionsGranted {
-            let granted = await permissionManager.requestAllPermissions()
-            if !granted {
-                errorMessage = permissionManager.permissionAlertMessage
-                showError = true
-                return
-            }
-        }
-
+        let startID = UUID()
+        activeVoiceStartID = startID
         voiceState = .preparing
+        return startID
+    }
+
+    private func activateVoiceRecognizer(for startID: UUID) async {
         conversationEngine.prewarm()
         stopSpeechObservation()
         speechRecognizer?.stopRecognition()
         speechRecognizer = nil
 
-        let didStart = await initializeSpeechRecognizer()
-        guard didStart, case .preparing = voiceState else {
-            speechRecognizer?.stopRecognition()
-            speechRecognizer = nil
+        let recognizer: SpeechRecognizer
+        do {
+            recognizer = try await makeStartedSpeechRecognizer()
+        } catch is CancellationError {
+            abandonVoiceStart(startID)
+            return
+        } catch {
+            guard activeVoiceStartID == startID else { return }
+            handleVoiceError(error.localizedDescription)
             return
         }
+
+        guard canContinueVoiceStart(startID) else {
+            recognizer.stopRecognition()
+            return
+        }
+        speechRecognizer = recognizer
+        activeVoiceStartID = nil
         voiceState = .listening(partialText: "")
         startSpeechObservation()
+    }
+
+    private func canContinueVoiceStart(_ startID: UUID) -> Bool {
+        if Task.isCancelled {
+            abandonVoiceStart(startID)
+            return false
+        }
+        guard activeVoiceStartID == startID, case .preparing = voiceState else { return false }
+        return true
+    }
+
+    private func abandonVoiceStart(_ startID: UUID) {
+        guard activeVoiceStartID == startID else { return }
+        activeVoiceStartID = nil
+        voiceState = .idle
     }
 
     func cancelVoiceMode() {
@@ -125,18 +163,14 @@ extension ChatViewModel {
         }
     }
 
-    func initializeSpeechRecognizer() async -> Bool {
+    func makeStartedSpeechRecognizer() async throws -> SpeechRecognizer {
         let recognizer = SpeechRecognizer()
-        speechRecognizer = recognizer
-
         do {
             try await recognizer.startRecognition()
-            return true
-        } catch is CancellationError {
-            return false
+            return recognizer
         } catch {
-            handleVoiceError(error.localizedDescription)
-            return false
+            recognizer.stopRecognition()
+            throw error
         }
     }
 
@@ -170,6 +204,7 @@ extension ChatViewModel {
     }
 
     func handleVoiceError(_ message: String) {
+        activeVoiceStartID = nil
         stopSpeechObservation()
         speechRecognizer?.stopRecognition()
         speechRecognizer = nil

@@ -12,7 +12,6 @@ final class FoundationLabExperimentTests: XCTestCase {
             summary: "Answers weather questions using live data.",
             prompt: "Do I need an umbrella in Cupertino?",
             instructions: "Answer concisely and cite the tool result.",
-            level: .expert,
             kind: .toolUse,
             modelRuntime: .privateCloudCompute,
             reasoningLevel: .moderate,
@@ -33,8 +32,6 @@ final class FoundationLabExperimentTests: XCTestCase {
         )
 
         XCTAssertEqual(decoded, configuration)
-        XCTAssertEqual(decoded.level.displayName, "Expert")
-        XCTAssertEqual(decoded.level.systemImage, "graduationcap")
     }
 
     @MainActor
@@ -59,7 +56,6 @@ final class FoundationLabExperimentTests: XCTestCase {
             summary: "Extracts typed fields.",
             prompt: "Extract the title and author.",
             instructions: "Return only supported fields.",
-            level: .advanced,
             kind: .structuredOutput,
             selectedTools: [.webMetadata],
             createdAt: originalDate
@@ -74,7 +70,6 @@ final class FoundationLabExperimentTests: XCTestCase {
         XCTAssertEqual(copy.summary, original.summary)
         XCTAssertEqual(copy.prompt, original.prompt)
         XCTAssertEqual(copy.instructions, original.instructions)
-        XCTAssertEqual(copy.level, original.level)
         XCTAssertEqual(copy.kind, original.kind)
         XCTAssertEqual(copy.modelRuntime, original.modelRuntime)
         XCTAssertEqual(copy.reasoningLevel, original.reasoningLevel)

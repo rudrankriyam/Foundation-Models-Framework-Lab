@@ -1,7 +1,7 @@
 import FMFBenchCore
 import SwiftUI
 
-struct FMFBenchAdvancedConfigurationView: View {
+struct FMFBenchTuningConfigurationView: View {
     @Bindable var viewModel: FMFBenchViewModel
 
     var body: some View {

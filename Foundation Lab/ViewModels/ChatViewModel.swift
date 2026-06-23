@@ -25,6 +25,7 @@ final class ChatViewModel {
     var voiceState: VoiceState = .idle
     @ObservationIgnored var speechRecognizer: SpeechRecognizer?
     @ObservationIgnored var speechObservationTask: Task<Void, Never>?
+    @ObservationIgnored var activeVoiceStartID: UUID?
     @ObservationIgnored private var activeGenerationTask: Task<String, Error>?
     @ObservationIgnored private var activeGenerationID: UUID?
     @ObservationIgnored let permissionManager: PermissionManager
@@ -131,7 +132,7 @@ final class ChatViewModel {
         let configuration = FoundationLabConversationConfiguration(
             baseInstructions: Self.defaultInstructions,
             summaryInstructions: """
-            You are an expert at summarizing conversations. Create comprehensive summaries that \
+            Create comprehensive conversation summaries that \
             preserve all important context and details.
             """,
             summaryPromptPreamble: """
