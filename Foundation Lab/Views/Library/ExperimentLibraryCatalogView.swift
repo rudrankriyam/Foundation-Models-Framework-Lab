@@ -217,23 +217,23 @@ private extension ExampleType {
         case .privateCloudCompute:
             String(localized: "Probe PCC availability, quota, and context size")
         case .imageInputPlayground:
-            String(localized: "Inspect image attachment recipes and measured resolution boundaries")
+            String(localized: "Import an image, ask the on-device model, and inspect live usage evidence")
         case .usagePerformanceTrace:
             String(localized: "Run a real streamed response and inspect its reported usage")
         case .toolCallingModeLab:
-            String(localized: "Inspect allowed, required, and disallowed tool behavior")
+            String(localized: "Run allowed, required, and disallowed modes with a local read-only tool")
         case .riskyToolConfirmation:
             String(localized: "Keep side-effect authorization inside app-owned tool code")
         case .foundationModelsSecurityPlayground:
             String(localized: "Inspect the boundary between Foundation Models and your app")
         case .toolCallTrajectoryViewer:
-            String(localized: "Compare explicit fixtures, not imaginary runs")
+            String(localized: "Capture actual calls and outputs, then compare an authored expectation")
         case .dynamicProfileBuilder:
             String(localized: "Compose a LanguageModelSession.Profile recipe")
         case .reasoningLevelComparison:
-            String(localized: "Inspect light, moderate, and deep ContextOptions")
+            String(localized: "Run one prompt across light, moderate, and deep reasoning budgets")
         case .transcriptExplorer:
-            String(localized: "Inspect reasoning, attachment, and custom transcript cases")
+            String(localized: "Run a session and inspect only the entries it emits")
         case .agentFlowInspector:
             String(localized: "Know which layer owns each decision")
         case .historyTransformLab:

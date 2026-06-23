@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FoundationLabCore
 import Speech
 
 #if os(iOS)
@@ -75,7 +76,7 @@ protocol PermissionServiceProtocol: AnyObject {
 // MARK: - Permission Manager Implementation
 
 @MainActor
-class PermissionManager: PermissionServiceProtocol {
+final class PermissionManager: PermissionServiceProtocol {
 
 #if os(iOS)
     var microphonePermissionStatus: AVAudioApplication.recordPermission = .undetermined {
@@ -93,6 +94,7 @@ class PermissionManager: PermissionServiceProtocol {
     var allPermissionsGranted = false
     var showPermissionAlert = false
     var permissionAlertMessage = ""
+    private var activePermissionRequest: Task<Bool, Never>?
 
     init() {
         initializeAudioSessionIfNeeded()
@@ -115,10 +117,33 @@ class PermissionManager: PermissionServiceProtocol {
     }
 
     func requestAllPermissions() async -> Bool {
-        _ = await requestMicrophonePermission()
+        if let activePermissionRequest {
+            return await activePermissionRequest.value
+        }
 
-        _ = await requestSpeechPermission()
+        let request = Task { @MainActor [weak self] in
+            guard let self else { return false }
+            return await self.performPermissionRequest()
+        }
+        activePermissionRequest = request
+        let granted = await request.value
+        activePermissionRequest = nil
+        return granted
+    }
 
+    private func performPermissionRequest() async -> Bool {
+        checkAllPermissions()
+        guard await requestMicrophonePermission() else {
+            showSettingsAlert()
+            return false
+        }
+
+        guard await requestSpeechPermission() else {
+            showSettingsAlert()
+            return false
+        }
+
+        checkAllPermissions()
         updateAllPermissionsStatus()
         if allPermissionsGranted {
             permissionAlertMessage = ""
@@ -138,71 +163,50 @@ class PermissionManager: PermissionServiceProtocol {
     }
 
     private func requestMicrophonePermission() async -> Bool {
-        if microphonePermissionStatus == .granted {
+        checkMicrophonePermission()
+        switch microphoneAuthorization.requestAction {
+        case .returnAuthorized:
             return true
+        case .returnDenied:
+            return false
+        case .requestAccess:
+            let granted = await AVAudioApplication.requestRecordPermission()
+            microphonePermissionStatus = granted ? .granted : .denied
+            return granted
         }
-
-        let granted = await AVAudioApplication.requestRecordPermission()
-        microphonePermissionStatus = granted ? .granted : .denied
-        return granted
     }
 #else
-    // macOS implementations for microphone permission
-
     private func checkMicrophonePermission() {
-        // On macOS, we can't directly check microphone permission status
-        // We need to attempt access to determine the status
-        // For now, keep the current status unless it's the initial state
-        if microphonePermissionStatus == .undetermined {
-            // Try to determine status by attempting a quick access test
-            Task { @MainActor in
-                _ = await self.testMicrophoneAccess()
-            }
-        }
-    }
-
-    private func testMicrophoneAccess() async -> Bool {
-        let audioEngine = AVAudioEngine()
-        let inputNode = audioEngine.inputNode
-
-        let inputFormat = inputNode.outputFormat(forBus: 0)
-        let recordingFormat: AVAudioFormat
-
-        if inputFormat.sampleRate > 0 && inputFormat.channelCount > 0 {
-            recordingFormat = inputFormat
-        } else {
-            guard let fallbackFormat = AVAudioFormat(standardFormatWithSampleRate: 16000, channels: 1) else {
-                self.microphonePermissionStatus = .denied
-                return false
-            }
-            recordingFormat = fallbackFormat
-        }
-
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { _, _ in
-            // Empty tap
-        }
-
-        do {
-            try audioEngine.start()
-            audioEngine.stop()
-            inputNode.removeTap(onBus: 0)
-            self.microphonePermissionStatus = .granted
-            return true
-        } catch {
-            audioEngine.stop()
-            inputNode.removeTap(onBus: 0)
-            self.microphonePermissionStatus = .denied
-            return false
+        // This startup check must stay side-effect free. Starting an audio input path here
+        // asks for access when the status is undetermined and can repeatedly prompt as views reload.
+        switch AVCaptureDevice.authorizationStatus(for: .audio) {
+        case .notDetermined:
+            microphonePermissionStatus = .undetermined
+        case .restricted, .denied:
+            microphonePermissionStatus = .denied
+        case .authorized:
+            microphonePermissionStatus = .granted
+        @unknown default:
+            microphonePermissionStatus = .denied
         }
     }
 
     private func requestMicrophonePermission() async -> Bool {
-
-        if microphonePermissionStatus == .granted {
+        checkMicrophonePermission()
+        switch microphoneAuthorization.requestAction {
+        case .returnAuthorized:
             return true
+        case .returnDenied:
+            return false
+        case .requestAccess:
+            let granted = await withCheckedContinuation { continuation in
+                AVCaptureDevice.requestAccess(for: .audio) { granted in
+                    continuation.resume(returning: granted)
+                }
+            }
+            microphonePermissionStatus = granted ? .granted : .denied
+            return granted
         }
-
-        return await testMicrophoneAccess()
     }
     #endif
 
@@ -213,27 +217,52 @@ class PermissionManager: PermissionServiceProtocol {
     }
 
     private func requestSpeechPermission() async -> Bool {
-        if speechPermissionStatus == .authorized {
+        checkSpeechPermission()
+        switch speechAuthorization.requestAction {
+        case .returnAuthorized:
             return true
+        case .returnDenied:
+            return false
+        case .requestAccess:
+            let status = await SpeechAuthorizationRequester.request()
+            speechPermissionStatus = status
+            return status == .authorized
         }
-
-        let status = await SpeechAuthorizationRequester.request()
-        speechPermissionStatus = status
-        return status == .authorized
     }
 
     // MARK: - Helpers
 
     private func updateAllPermissionsStatus() {
-        #if os(iOS)
         let micGranted = microphonePermissionStatus == .granted
-        #else
-        let micGranted = microphonePermissionStatus == .granted
-        #endif
-
         let speechGranted = speechPermissionStatus == .authorized
 
         allPermissionsGranted = micGranted && speechGranted
+    }
+
+    private var microphoneAuthorization: VoicePermissionAuthorization {
+        switch microphonePermissionStatus {
+        case .undetermined:
+            .notDetermined
+        case .denied:
+            .denied
+        case .granted:
+            .authorized
+        @unknown default:
+            .denied
+        }
+    }
+
+    private var speechAuthorization: VoicePermissionAuthorization {
+        switch speechPermissionStatus {
+        case .notDetermined:
+            .notDetermined
+        case .denied, .restricted:
+            .denied
+        case .authorized:
+            .authorized
+        @unknown default:
+            .denied
+        }
     }
 
     func showSettingsAlert() {

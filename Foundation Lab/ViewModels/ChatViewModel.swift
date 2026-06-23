@@ -25,6 +25,7 @@ final class ChatViewModel {
     var voiceState: VoiceState = .idle
     @ObservationIgnored var speechRecognizer: SpeechRecognizer?
     @ObservationIgnored var speechObservationTask: Task<Void, Never>?
+    @ObservationIgnored var activeVoiceStartID: UUID?
     @ObservationIgnored private var activeGenerationTask: Task<String, Error>?
     @ObservationIgnored private var activeGenerationID: UUID?
     @ObservationIgnored let permissionManager: PermissionManager
