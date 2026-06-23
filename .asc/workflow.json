@@ -50,6 +50,7 @@
         },
         {
           "name": "publish",
+          "if": "UPLOAD",
           "run": "asc publish testflight --app \"$APP_ID\" --ipa \"${steps.export.IPA_PATH}\" --group \"$TESTFLIGHT_GROUP\" --wait --poll-interval 10s --output json",
           "outputs": {
             "BUILD_ID": "$.buildId",
