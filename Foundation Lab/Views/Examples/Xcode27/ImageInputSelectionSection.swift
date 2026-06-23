@@ -10,8 +10,10 @@ import SwiftUI
 struct ImageInputSelectionSection: View {
     let selection: ImageInputSelection?
     let isImporting: Bool
+    let isRunning: Bool
     let chooseImage: () -> Void
     let removeImage: () -> Void
+    let cancelImport: () -> Void
 
     var body: some View {
         Xcode27Section(String(localized: "Image")) {
@@ -21,11 +23,11 @@ struct ImageInputSelectionSection: View {
 
     @ViewBuilder
     private var content: some View {
-        if isImporting {
-            ProgressView("Importing image…")
-                .frame(maxWidth: .infinity, minHeight: 160)
-        } else if let selection {
+        if let selection {
             selectedImageContent(selection)
+        } else if isImporting {
+            ImageInputImportProgressView(retainedFileName: nil, cancel: cancelImport)
+                .frame(maxWidth: .infinity, minHeight: 160)
         } else {
             emptyContent
         }
@@ -47,16 +49,25 @@ struct ImageInputSelectionSection: View {
 
             metadata(for: selection)
 
-            VStack(spacing: Spacing.small) {
-                Button("Replace Image", systemImage: "photo.badge.plus", action: chooseImage)
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            if isImporting {
+                ImageInputImportProgressView(
+                    retainedFileName: selection.fileName,
+                    cancel: cancelImport
+                )
+            } else {
+                VStack(spacing: Spacing.small) {
+                    Button("Replace Image", systemImage: "photo.badge.plus", action: chooseImage)
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.large)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .disabled(isRunning)
 
-                Button("Remove", systemImage: "trash", action: removeImage)
-                    .buttonStyle(.bordered)
-                    .controlSize(.large)
-                    .frame(maxWidth: .infinity, minHeight: 44)
+                    Button("Remove", systemImage: "trash", action: removeImage)
+                        .buttonStyle(.bordered)
+                        .controlSize(.large)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .disabled(isRunning)
+                }
             }
         }
     }

@@ -18,8 +18,22 @@ final class ImageInputViewModel {
     private(set) var result: ImageInputRunResult?
     private(set) var isImporting = false
     private(set) var isRunning = false
-    var prompt = ImageInputRecipe.altText.prompt
-    var recipe = ImageInputRecipe.altText
+    var prompt = ImageInputRecipe.altText.prompt {
+        didSet {
+            if prompt != oldValue {
+                result = nil
+                errorMessage = nil
+            }
+        }
+    }
+    var recipe = ImageInputRecipe.altText {
+        didSet {
+            if recipe != oldValue {
+                result = nil
+                errorMessage = nil
+            }
+        }
+    }
     var errorMessage: String?
 
     private let importer = ImageInputImporter()
@@ -64,8 +78,12 @@ final class ImageInputViewModel {
     func importImage(from result: Result<URL, any Error>) {
         switch result {
         case .success(let url):
+            guard !isRunning else {
+                errorMessage = String(localized: "Stop the current analysis before replacing the image.")
+                return
+            }
+
             cancelImport()
-            cancelRun()
             self.result = nil
 
             let importID = UUID()
@@ -80,13 +98,13 @@ final class ImageInputViewModel {
             if (error as? CocoaError)?.code == .userCancelled {
                 return
             }
-            errorMessage = error.localizedDescription
+            errorMessage = importFailureMessage(for: error)
         }
     }
 
     func removeImage() {
+        guard !isRunning else { return }
         cancelImport()
-        cancelRun()
         selection = nil
         result = nil
         errorMessage = nil
@@ -115,6 +133,13 @@ final class ImageInputViewModel {
         isRunning = false
     }
 
+    func cancelImport() {
+        activeImportID = nil
+        importTask?.cancel()
+        importTask = nil
+        isImporting = false
+    }
+
     func reset() {
         cancelImport()
         cancelRun()
@@ -133,13 +158,6 @@ final class ImageInputViewModel {
 
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
 private extension ImageInputViewModel {
-    func cancelImport() {
-        activeImportID = nil
-        importTask?.cancel()
-        importTask = nil
-        isImporting = false
-    }
-
     func performImport(url: URL, id: UUID) async {
         defer {
             if activeImportID == id {
@@ -159,8 +177,21 @@ private extension ImageInputViewModel {
             return
         } catch {
             guard activeImportID == id else { return }
-            errorMessage = error.localizedDescription
+            errorMessage = importFailureMessage(for: error, attemptedFileName: url.lastPathComponent)
         }
+    }
+
+    func importFailureMessage(for error: any Error, attemptedFileName: String? = nil) -> String {
+        guard let retainedFileName = selection?.fileName else {
+            return error.localizedDescription
+        }
+
+        if let attemptedFileName {
+            return String(
+                localized: "Couldn't import \(attemptedFileName). Keeping \(retainedFileName). \(error.localizedDescription)"
+            )
+        }
+        return String(localized: "Couldn't open a replacement image. Keeping \(retainedFileName). \(error.localizedDescription)")
     }
 
     func performRun(prompt: String, selection: ImageInputSelection, id: UUID) async {

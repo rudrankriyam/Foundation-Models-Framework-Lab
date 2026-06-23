@@ -36,20 +36,36 @@ enum ImageInputRecipe: String, CaseIterable, Identifiable {
 
     var code: String {
         """
+        import Foundation
         import FoundationModels
+        import ImageIO
 
-        let image = Attachment<ImageAttachmentContent>(cgImage)
+        func analyzeImage(at imageURL: URL, prompt: String) async throws {
+            guard let source = CGImageSourceCreateWithURL(imageURL as CFURL, nil),
+                  let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
+                throw CocoaError(.fileReadCorruptFile)
+            }
+
+            let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as NSDictionary?
+            let orientationValue = (properties?[kCGImagePropertyOrientation] as? NSNumber)?.uint32Value ?? 1
+            let orientation = CGImagePropertyOrientation(rawValue: orientationValue) ?? .up
+
+            let image = Attachment<ImageAttachmentContent>(
+                cgImage,
+                orientation: orientation
+            )
             .label("selected-image")
 
-        let session = LanguageModelSession()
-        let response = try await session.respond {
-            prompt
-            image
-        }
+            let session = LanguageModelSession()
+            let response = try await session.respond {
+                prompt
+                image
+            }
 
-        print(response.content)
-        print(response.usage.totalTokenCount)
-        print(session.transcript)
+            print(response.content)
+            print(response.usage.totalTokenCount)
+            print(session.transcript)
+        }
         """
     }
 }

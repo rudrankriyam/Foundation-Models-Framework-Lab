@@ -21,10 +21,16 @@ struct ImageInputResultSection: View {
 
                 Divider()
 
-                Label(summary, systemImage: "checkmark.circle.fill")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .accessibilityLabel(accessibilitySummary)
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Image(systemName: hasAttachmentEvidence ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
+                        .foregroundStyle(hasAttachmentEvidence ? Color.secondary : Color.orange)
+
+                    Text(summary)
+                        .foregroundStyle(.secondary)
+                }
+                .font(.callout)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(accessibilitySummary)
 
                 DisclosureGroup("Run Evidence", isExpanded: $showsDetails) {
                     VStack(spacing: Spacing.small) {
@@ -46,18 +52,37 @@ struct ImageInputResultSection: View {
         }
     }
 
+    private var hasAttachmentEvidence: Bool {
+        result.attachmentSegmentCount > 0
+    }
+
     private var summary: String {
-        String(
-            localized: "\(result.totalTokens) tokens · \(result.transcriptEntryCount) transcript entries · \(durationLabel)"
-        )
+        if hasAttachmentEvidence {
+            String(
+                localized: """
+                \(result.totalTokens) tokens · \(result.attachmentSegmentCount) attachment segments · \(durationLabel)
+                """
+            )
+        } else {
+            String(localized: "Attachment evidence missing · 0 attachment segments · \(result.totalTokens) tokens")
+        }
     }
 
     private var accessibilitySummary: String {
-        String(
-            localized: """
-            Run completed with \(result.totalTokens) total tokens, \(result.transcriptEntryCount) transcript entries, in \(durationLabel)
-            """
-        )
+        if hasAttachmentEvidence {
+            String(
+                localized: """
+                Run completed with \(result.totalTokens) total tokens, \(result.attachmentSegmentCount) attachment segments, \
+                and \(result.transcriptEntryCount) transcript entries, in \(durationLabel)
+                """
+            )
+        } else {
+            String(
+                localized: """
+                Warning: run completed with no attachment segment in the transcript. Total tokens: \(result.totalTokens).
+                """
+            )
+        }
     }
 
     private var durationLabel: String {

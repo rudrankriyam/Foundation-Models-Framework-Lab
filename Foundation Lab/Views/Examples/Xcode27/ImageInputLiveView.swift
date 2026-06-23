@@ -13,6 +13,8 @@ import UniformTypeIdentifiers
 struct ImageInputLiveView: View {
     @State private var model = ImageInputViewModel()
     @State private var isImporterPresented = false
+    @AccessibilityFocusState private var isErrorFocused: Bool
+    @AccessibilityFocusState private var isResultFocused: Bool
 
     var body: some View {
         @Bindable var model = model
@@ -32,8 +34,10 @@ struct ImageInputLiveView: View {
                 ImageInputSelectionSection(
                     selection: model.selection,
                     isImporting: model.isImporting,
+                    isRunning: model.isRunning,
                     chooseImage: presentImporter,
-                    removeImage: model.removeImage
+                    removeImage: model.removeImage,
+                    cancelImport: model.cancelImport
                 )
 
                 ImageInputPromptSection(
@@ -59,18 +63,26 @@ struct ImageInputLiveView: View {
                 #endif
 
                 if let errorMessage = model.errorMessage {
-                    Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
-                        .font(.callout)
-                        .foregroundStyle(.red)
-                        .padding(Spacing.medium)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(.red.opacity(0.08), in: .rect(cornerRadius: CornerRadius.medium))
-                        .accessibilityLabel("Error: \(errorMessage)")
+                    Label {
+                        Text(errorMessage)
+                            .foregroundStyle(.primary)
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.red)
+                    }
+                    .font(.callout)
+                    .padding(Spacing.medium)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.quaternary, in: .rect(cornerRadius: CornerRadius.medium))
+                    .accessibilityLabel("Error: \(errorMessage)")
+                    .accessibilityElement(children: .combine)
+                    .accessibilityFocused($isErrorFocused)
                 }
 
                 if let result = model.result {
                     ImageInputResultSection(result: result)
                         .id("image-input-result")
+                        .accessibilityFocused($isResultFocused)
                 }
 
                 ImageInputAttachmentNotesView()
@@ -99,6 +111,16 @@ struct ImageInputLiveView: View {
             onCompletion: model.importImage
         )
         .onDisappear(perform: model.cancelAll)
+        .onChange(of: model.errorMessage) { _, errorMessage in
+            guard errorMessage != nil else { return }
+            isResultFocused = false
+            isErrorFocused = true
+        }
+        .onChange(of: model.result != nil) { _, hasResult in
+            guard hasResult else { return }
+            isErrorFocused = false
+            isResultFocused = true
+        }
         .sensoryFeedback(.success, trigger: model.result != nil) { oldValue, newValue in
             !oldValue && newValue
         }
