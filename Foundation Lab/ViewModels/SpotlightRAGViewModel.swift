@@ -168,6 +168,7 @@ private extension SpotlightRAGViewModel {
         }
 
         guard SystemLanguageModel.default.isAvailable else {
+            guard activeRunID == id else { return }
             errorMessage = String(localized: "The on-device system language model is unavailable.")
             return
         }
