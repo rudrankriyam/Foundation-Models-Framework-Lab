@@ -42,7 +42,7 @@ struct RAGChatView: View {
             .padding(.horizontal, Spacing.medium)
             .padding(.vertical, Spacing.large)
         }
-        .navigationTitle("Doc Q&A")
+        .navigationTitle("Document Q&A")
         .task {
             await viewModel.loadFromDatabase()
         }
@@ -58,7 +58,7 @@ struct RAGChatView: View {
                 Button {
                     viewModel.showDocumentPicker = true
                 } label: {
-                    Label("Documents", systemImage: "doc.text")
+                    Label("Sources", systemImage: "doc.text")
                 }
             }
         }
@@ -66,14 +66,14 @@ struct RAGChatView: View {
             RAGDocumentPickerView(viewModel: viewModel)
         }
         .alert(
-            "Error",
+            "Couldn’t Answer",
             isPresented: $viewModel.showError,
-            actions: { Button("OK") { viewModel.dismissError() } },
+            actions: { Button("Dismiss") { viewModel.dismissError() } },
             message: {
                 if let message = viewModel.errorMessage {
                     Text(message)
                 } else {
-                    Text("An unknown error occurred")
+                    Text("Something went wrong. Try asking the question again.")
                 }
             }
         )
@@ -81,32 +81,32 @@ struct RAGChatView: View {
 
     private var documentsSection: some View {
         VStack(alignment: .leading, spacing: Spacing.small) {
-            Text("Documents")
+            Text("Sources")
                 .font(.headline)
-                .foregroundStyle(.secondary)
 
-            HStack(spacing: Spacing.medium) {
-                Image(systemName: "doc.text.magnifyingglass")
-                    .font(.title3)
-                    .foregroundStyle(.tint)
+            GroupBox {
+                HStack(spacing: Spacing.medium) {
+                    Image(systemName: "doc.text.magnifyingglass")
+                        .font(.title3)
+                        .foregroundStyle(.tint)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(documentStatusTitle)
-                        .font(.headline)
-                    Text(documentStatusSubtitle)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(documentStatusTitle)
+                            .font(.headline)
+                        Text(documentStatusSubtitle)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    Button("Manage") {
+                        viewModel.showDocumentPicker = true
+                    }
+                    .buttonStyle(.bordered)
+                    .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
                 }
-
-                Spacer()
-
-                Button("Manage") {
-                    viewModel.showDocumentPicker = true
-                }
-                .buttonStyle(.glassProminent)
             }
-            .padding(Spacing.medium)
-            .background(.quaternary, in: .rect(cornerRadius: CornerRadius.medium))
         }
     }
 
@@ -117,11 +117,9 @@ struct RAGChatView: View {
                     .font(.headline)
                     .foregroundStyle(.secondary)
 
-                TextField("Ask a question about your documents...", text: $question, axis: .vertical)
-                    .textFieldStyle(.plain)
+                TextField("Ask about your sources", text: $question, axis: .vertical)
+                    .textFieldStyle(.roundedBorder)
                     .focused($isTextFieldFocused)
-                    .padding(Spacing.medium)
-                    .background(.quaternary, in: .rect(cornerRadius: CornerRadius.medium))
                     .onSubmit {
                         askQuestion()
                     }
@@ -157,6 +155,10 @@ struct RAGChatView: View {
 
             ForEach(Array(sources.enumerated()), id: \.offset) { index, source in
                 RAGSourceCard(index: index + 1, source: source)
+
+                if index < sources.count - 1 {
+                    Divider()
+                }
             }
         }
     }
@@ -167,7 +169,7 @@ struct RAGChatView: View {
 
     private var documentStatusTitle: String {
         if viewModel.indexedDocumentCount > 0 {
-            return String(localized: "\(viewModel.indexedDocumentCount) sources indexed")
+            return String(localized: "\(viewModel.indexedDocumentCount) indexed sources")
         }
         if viewModel.hasIndexedContent {
             return String(localized: "Indexed content available")
@@ -177,14 +179,14 @@ struct RAGChatView: View {
 
     private var documentStatusSubtitle: String {
         hasDocuments
-            ? String(localized: "Ask a question and we'll cite the top sources.")
-            : String(localized: "Import a PDF or text file to get started.")
+            ? String(localized: "Answers cite the most relevant source passages.")
+            : String(localized: "Import a file or add text to begin.")
     }
 
     private var statusText: String {
         viewModel.isSearching
-            ? String(localized: "Processing...")
-            : String(localized: "Generating answer...")
+            ? String(localized: "Searching sources…")
+            : String(localized: "Generating answer…")
     }
 
     private var trimmedQuestion: String {

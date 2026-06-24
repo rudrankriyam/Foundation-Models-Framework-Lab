@@ -24,7 +24,7 @@ struct HealthExampleView: View {
             HealthUnavailableView()
 #endif
         }
-        .navigationTitle("Health Dashboard")
+        .navigationTitle("Health")
 #if os(iOS)
         .navigationBarTitleDisplayMode(.large)
 #endif

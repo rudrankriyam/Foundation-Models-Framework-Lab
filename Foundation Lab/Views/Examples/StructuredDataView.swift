@@ -15,7 +15,7 @@ struct StructuredDataView: View {
   var body: some View {
     ExampleViewBase(
       title: "Structured Data",
-      description: "Generate and parse structured information",
+      description: "Generate a book recommendation that conforms to a Swift type.",
       currentPrompt: $currentPrompt,
       isRunning: executor.isRunning,
       errorMessage: executor.errorMessage,
@@ -24,18 +24,12 @@ struct StructuredDataView: View {
       onReset: resetToDefaults
     ) {
       VStack(spacing: 16) {
-        // Info Banner
-        HStack {
-          Image(systemName: "info.circle")
-            .foregroundStyle(.tint)
-          Text("Generates structured book recommendations with title, author, genre, and description")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-          Spacer()
-        }
-        .padding()
-        .background(Color.main.opacity(0.1))
-        .clipShape(.rect(cornerRadius: 8))
+        Label(
+          "The response includes a title, author, genre, and description.",
+          systemImage: "info.circle"
+        )
+        .font(.callout)
+        .foregroundStyle(.secondary)
 
         // Prompt Suggestions
         PromptSuggestions(
@@ -54,7 +48,7 @@ struct StructuredDataView: View {
         // Result Display
         if !executor.result.isEmpty {
           VStack(alignment: .leading, spacing: 12) {
-            Label("Generated Book Recommendation", systemImage: "book")
+            Label("Book Recommendation", systemImage: "book")
               .font(.headline)
 
             ResultDisplay(

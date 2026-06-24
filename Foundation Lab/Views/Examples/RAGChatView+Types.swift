@@ -25,27 +25,24 @@ struct RAGSourceCard: View {
     let source: RAGChunk
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: Spacing.small) {
-                Text("[\(index)]")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.blue)
+        HStack(alignment: .top, spacing: Spacing.medium) {
+            Image(systemName: "\(min(index, 50)).circle.fill")
+                .foregroundStyle(.tint)
+                .accessibilityHidden(true)
 
+            VStack(alignment: .leading, spacing: Spacing.xSmall) {
                 Text(source.documentTitle)
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.primary)
-            }
+                    .font(.subheadline.weight(.semibold))
 
-            Text(source.content)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(3)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                Text(source.content)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(4)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
-        .padding(Spacing.small)
-        .background(Color.blue.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .padding(.vertical, Spacing.xSmall)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Source \(index): \(source.documentTitle). \(source.content)")
     }
 }

@@ -15,9 +15,18 @@ struct RAGDocumentPickerView: View {
     @State private var showFilePicker = false
     @State private var showAddTextSheet = false
 
-    enum DocumentPickerTab: String, CaseIterable {
-        case documents = "Documents"
-        case samples = "Samples"
+    enum DocumentPickerTab: CaseIterable {
+        case documents
+        case samples
+
+        var title: LocalizedStringKey {
+            switch self {
+            case .documents:
+                "Sources"
+            case .samples:
+                "Samples"
+            }
+        }
     }
 
     private var allowedDocumentTypes: [UTType] {
@@ -30,7 +39,7 @@ struct RAGDocumentPickerView: View {
             VStack(spacing: 0) {
                 Picker("Tab", selection: $selectedTab) {
                     ForEach(DocumentPickerTab.allCases, id: \.self) { tab in
-                        Text(tab.rawValue).tag(tab)
+                        Text(tab.title).tag(tab)
                     }
                 }
                 .pickerStyle(.segmented)
@@ -43,7 +52,7 @@ struct RAGDocumentPickerView: View {
                     SamplesView(viewModel: viewModel)
                 }
             }
-            .navigationTitle("RAG Documents")
+            .navigationTitle("Sources")
 #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
 #endif
@@ -55,7 +64,7 @@ struct RAGDocumentPickerView: View {
                 }
 
                 ToolbarItem(placement: .primaryAction) {
-                    Menu("Add Document", systemImage: "plus") {
+                    Menu("Add Source", systemImage: "plus") {
                         Button("Import File", action: { showFilePicker = true })
                         Button("Add Text", action: { showAddTextSheet = true })
                     }
@@ -74,7 +83,9 @@ struct RAGDocumentPickerView: View {
                         }
                     }
                 case .failure(let error):
-                    viewModel.errorMessage = String(localized: "Failed to access file: \(error.localizedDescription)")
+                    viewModel.errorMessage = String(
+                        localized: "The file couldn’t be opened. \(error.localizedDescription)"
+                    )
                     viewModel.showError = true
                 }
             }
@@ -97,26 +108,18 @@ struct DocumentListView: View {
                 Button {
                     showFilePicker = true
                 } label: {
-                    HStack {
-                        Image(systemName: "doc.badge.plus")
-                            .font(.title2)
-                            .foregroundStyle(.blue)
-                            .frame(width: 40, height: 40)
-                            .background(Color.blue.opacity(0.1))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                        VStack(alignment: .leading) {
-                            Text("Import Document")
+                    Label {
+                        VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                            Text("Import a File")
                                 .font(.headline)
-                            Text("PDF, Markdown, Text, HTML, RTF")
-                                .font(.caption)
+                            Text("PDF, Markdown, plain text, HTML, or RTF")
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
-
-                        Spacer()
-
-                        Image(systemName: "chevron.right")
-                            .foregroundStyle(.secondary)
+                    } icon: {
+                        Image(systemName: "doc.badge.plus")
+                            .foregroundStyle(.tint)
+                            .symbolRenderingMode(.hierarchical)
                     }
                 }
                 .buttonStyle(.plain)
@@ -126,20 +129,20 @@ struct DocumentListView: View {
                 if viewModel.indexedDocumentCount > 0 {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                        Text("\(viewModel.indexedDocumentCount) sources indexed")
+                            .foregroundStyle(.secondary)
+                        Text("\(viewModel.indexedDocumentCount) indexed sources")
                     }
                 } else if viewModel.hasIndexedContent {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                        Text("Indexed content present")
+                            .foregroundStyle(.secondary)
+                        Text("Indexed sources are available")
                     }
                 } else {
                     ContentUnavailableView(
-                        "No Documents",
+                        "No Sources",
                         systemImage: "doc.text",
-                        description: Text("Import documents to enable RAG-powered conversations")
+                        description: Text("Import a file or add text to ask grounded questions.")
                     )
                 }
             } header: {
@@ -165,27 +168,18 @@ struct SamplesView: View {
                         await viewModel.loadSampleDocuments()
                     }
                 } label: {
-                    HStack {
-                        Image(systemName: "book.pages")
-                            .font(.title2)
-                            .foregroundStyle(.purple)
-                            .frame(width: 40, height: 40)
-                            .background(Color.purple.opacity(0.1))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                        VStack(alignment: .leading) {
-                            Text("Load Sample Documents")
+                    Label {
+                        VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                            Text("Add Sample Sources")
                                 .font(.headline)
-                            Text("Swift Concurrency, Foundation Models, HealthKit")
-                                .font(.caption)
+                            Text("Swift Concurrency, Foundation Models, and HealthKit")
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
-
-                        Spacer()
-
-                        if viewModel.isSearching {
-                            ProgressView()
-                        }
+                    } icon: {
+                        Image(systemName: "book.pages")
+                            .foregroundStyle(.tint)
+                            .symbolRenderingMode(.hierarchical)
                     }
                 }
                 .buttonStyle(.plain)
@@ -193,7 +187,7 @@ struct SamplesView: View {
             } header: {
                 Text("Sample Data")
             } footer: {
-                Text("Load pre-built sample documents to test RAG functionality")
+                Text("Sample sources are clearly labeled and can be removed at any time.")
             }
 
             if viewModel.indexedDocumentCount > 0 || viewModel.hasIndexedContent {
@@ -204,22 +198,25 @@ struct SamplesView: View {
                         HStack {
                             Image(systemName: "trash")
                                 .foregroundStyle(.red)
-                            Text("Clear All Documents")
+                            Text("Delete All Sources")
                         }
                     }
                 }
             }
         }
         .listStyle(.inset)
-        .alert("Clear All Documents?", isPresented: $showClearConfirmation) {
-            Button("Clear All", role: .destructive) {
+        .confirmationDialog(
+            "Delete all indexed sources?",
+            isPresented: $showClearConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Delete All Sources", role: .destructive) {
                 Task {
                     await viewModel.resetDatabase()
                 }
             }
-            Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This will permanently delete all indexed documents. This action cannot be undone.")
+            Text("This permanently deletes imported files, added text, and sample sources from the index.")
         }
     }
 }
@@ -236,13 +233,19 @@ struct AddTextSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Document Info") {
+                Section("Source") {
                     TextField("Title", text: $title)
                 }
 
-                Section("Content") {
+                Section("Text") {
                     TextEditor(text: $content)
                         .frame(minHeight: 200)
+                }
+
+                if isIndexing {
+                    Section {
+                        ProgressView("Adding source…")
+                    }
                 }
 
                 if let errorMessage = viewModel.errorMessage {
@@ -256,7 +259,7 @@ struct AddTextSheet: View {
                     }
                 }
             }
-            .navigationTitle("Add Text")
+            .navigationTitle("Add Text Source")
 #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
 #endif
@@ -268,18 +271,10 @@ struct AddTextSheet: View {
                 }
 
                 ToolbarItem(placement: .primaryAction) {
-                    Button("Add") {
+                    Button("Add Source") {
                         addDocument()
                     }
                     .disabled(trimmedTitle.isEmpty || trimmedContent.isEmpty || isIndexing)
-                }
-            }
-            .overlay {
-                if isIndexing {
-                    ProgressView("Indexing...")
-                        .padding()
-                        .background(.regularMaterial)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
             }
         }

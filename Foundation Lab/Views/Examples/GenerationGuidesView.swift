@@ -15,7 +15,7 @@ struct GenerationGuidesView: View {
   var body: some View {
     ExampleViewBase(
       title: "Generation Guides",
-      description: "Guided generation with constraints and structured output",
+      description: "Constrain a structured response with @Guide annotations.",
       currentPrompt: $currentPrompt,
       isRunning: executor.isRunning,
       errorMessage: executor.errorMessage,
@@ -24,18 +24,12 @@ struct GenerationGuidesView: View {
       onReset: resetToDefaults
     ) {
       VStack(spacing: 16) {
-        // Info Banner
-        HStack {
-          Image(systemName: "info.circle")
-            .foregroundStyle(.blue)
-          Text("Uses @Guide annotations to structure product reviews with ratings, pros, cons, and recommendations")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-          Spacer()
-        }
-        .padding()
-        .background(Color.blue.opacity(0.1))
-        .clipShape(.rect(cornerRadius: 8))
+        Label(
+          "The schema uses @Guide annotations for the rating, strengths, limitations, and recommendation.",
+          systemImage: "info.circle"
+        )
+        .font(.callout)
+        .foregroundStyle(.secondary)
 
         // Prompt Suggestions
         PromptSuggestions(
@@ -54,7 +48,7 @@ struct GenerationGuidesView: View {
         // Result Display
         if !executor.result.isEmpty {
           VStack(alignment: .leading, spacing: 12) {
-            Label("Generated Product Review", systemImage: "star.leadinghalf.filled")
+            Label("Product Review", systemImage: "star.leadinghalf.filled")
               .font(.headline)
 
             ResultDisplay(

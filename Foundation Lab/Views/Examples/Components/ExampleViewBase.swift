@@ -16,6 +16,7 @@ struct ExampleViewBase<Content: View>: View {
   let errorMessage: String?
   let codeExample: String?
   let runLabel: String
+  let showsPrompt: Bool
   let onRun: () async -> Void
   let onReset: () -> Void
   let content: Content
@@ -29,6 +30,7 @@ struct ExampleViewBase<Content: View>: View {
     errorMessage: String? = nil,
     codeExample: String? = nil,
     runLabel: String = "Run",
+    showsPrompt: Bool = true,
     onRun: @escaping () async -> Void,
     onReset: @escaping () -> Void,
     @ViewBuilder content: () -> Content
@@ -40,6 +42,7 @@ struct ExampleViewBase<Content: View>: View {
     self.errorMessage = errorMessage
     self.codeExample = codeExample
     self.runLabel = runLabel
+    self.showsPrompt = showsPrompt
     self.onRun = onRun
     self.onReset = onReset
     self.content = content()
@@ -52,7 +55,11 @@ struct ExampleViewBase<Content: View>: View {
           .font(.subheadline)
           .foregroundStyle(.secondary)
 
-        promptSection
+        if showsPrompt {
+          promptSection
+        } else {
+          runButton
+        }
 
         if let error = errorMessage {
           Label {
@@ -78,7 +85,7 @@ struct ExampleViewBase<Content: View>: View {
       }
       .padding(.horizontal, Spacing.medium)
       .padding(.vertical, Spacing.large)
-      .frame(maxWidth: 760, alignment: .leading)
+      .frame(maxWidth: FoundationLabLayout.readableContentWidth, alignment: .leading)
       .frame(maxWidth: .infinity)
     }
     #if os(iOS)
@@ -103,7 +110,7 @@ struct ExampleViewBase<Content: View>: View {
 
         Button("Reset", systemImage: "arrow.counterclockwise", action: reset)
           .buttonStyle(.borderless)
-          .frame(minHeight: 44)
+          .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
           .disabled(isExecuting)
           .accessibilityHint("Restore this example's defaults")
       }
@@ -113,19 +120,25 @@ struct ExampleViewBase<Content: View>: View {
         .textFieldStyle(.roundedBorder)
         .accessibilityLabel("Prompt")
 
-      Button(action: toggleRun) {
-        Label {
-          Text(LocalizedStringKey(isExecuting ? "Stop" : runLabel))
-            .font(.callout)
-            .fontWeight(.medium)
-        } icon: {
-          Image(systemName: isExecuting ? "stop.fill" : "play.fill")
-        }
-        .frame(maxWidth: .infinity, minHeight: 44)
-      }
-      .buttonStyle(.glassProminent)
-      .disabled(!isExecuting && currentPrompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+      runButton
     }
+  }
+
+  private var runButton: some View {
+    Button(action: toggleRun) {
+      Label {
+        Text(LocalizedStringKey(isExecuting ? "Stop" : runLabel))
+          .font(.callout.weight(.semibold))
+      } icon: {
+        Image(systemName: isExecuting ? "stop.fill" : "play.fill")
+      }
+      .frame(maxWidth: .infinity, minHeight: FoundationLabLayout.minimumTouchTarget)
+    }
+    .buttonStyle(.glassProminent)
+    .disabled(
+      !isExecuting && showsPrompt
+        && currentPrompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    )
   }
 
   private var isExecuting: Bool {
@@ -165,23 +178,24 @@ struct PromptSuggestions: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Spacing.small) {
-      Text("Suggestions")
+      Text("Try a Prompt")
         .font(.headline)
-        .foregroundStyle(.secondary)
 
-      ScrollView(.horizontal) {
-        HStack(spacing: Spacing.small) {
-          ForEach(suggestions, id: \.self) { suggestion in
-            Button(action: { onSelect(suggestion) }, label: {
-              Text(suggestion)
-                .font(.callout)
-            })
-            .buttonStyle(.bordered)
-            .buttonBorderShape(.capsule)
-          }
+      LazyVGrid(
+        columns: [GridItem(.adaptive(minimum: 180), spacing: Spacing.small)],
+        alignment: .leading,
+        spacing: Spacing.small
+      ) {
+        ForEach(suggestions, id: \.self) { suggestion in
+          Button(action: { onSelect(suggestion) }, label: {
+            Text(suggestion)
+              .font(.callout)
+              .multilineTextAlignment(.leading)
+              .frame(maxWidth: .infinity, alignment: .leading)
+          })
+          .buttonStyle(.bordered)
         }
       }
-      .scrollIndicators(.hidden)
     }
   }
 }
