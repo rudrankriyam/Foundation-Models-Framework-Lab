@@ -7,6 +7,7 @@
 
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 import HealthKit
 
 /// A tool for reading health data from HealthKit.
@@ -39,7 +40,7 @@ public struct HealthTool: Tool {
 
   /// Arguments for health data operations.
   @Generable
-  public struct Arguments {
+  public struct Arguments: RuntimeCompatibleGenerable {
     /// Type of health data: "steps", "heartRate", "weight", "height", "bloodPressure", "workouts", etc.
     @Guide(
       description:

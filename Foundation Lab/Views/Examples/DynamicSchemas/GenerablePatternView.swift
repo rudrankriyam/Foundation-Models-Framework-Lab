@@ -5,13 +5,14 @@
 //  Created by Rudrank Riyam on 27/10/2025.
 //
 
-import SwiftUI
 import FoundationModels
+import FoundationModelsKit
+import SwiftUI
 
 // MARK: - Generable Models
 
 @Generable
-struct Recipe {
+struct Recipe: RuntimeCompatibleGenerable {
     @Guide(description: "A creative and appetizing recipe name")
     let name: String
 
@@ -34,14 +35,14 @@ struct Recipe {
     let servings: Int
 
     @Generable
-    struct Ingredient {
+    struct Ingredient: RuntimeCompatibleGenerable {
         let name: String
         let quantity: String
         let unit: MeasurementUnit
     }
 
     @Generable
-    enum MeasurementUnit {
+    enum MeasurementUnit: RuntimeCompatibleGenerable {
         case cups
         case tablespoons
         case teaspoons
@@ -53,7 +54,7 @@ struct Recipe {
     }
 
     @Generable
-    enum Difficulty {
+    enum Difficulty: RuntimeCompatibleGenerable {
         case easy
         case medium
         case hard
@@ -62,7 +63,7 @@ struct Recipe {
 }
 
 @Generable
-struct MovieReview {
+struct MovieReview: RuntimeCompatibleGenerable {
     @Guide(description: "The movie title")
     let title: String
 
@@ -82,7 +83,7 @@ struct MovieReview {
     let wouldRecommend: Bool
 
     @Generable
-    enum Genre {
+    enum Genre: RuntimeCompatibleGenerable {
         case action
         case comedy
         case drama

@@ -7,6 +7,7 @@
 
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 import SwiftData
 import SwiftUI
 
@@ -15,7 +16,7 @@ struct HealthDataTool: Tool {
     let description = "Read authorized HealthKit measurements for today, this week, or a specific metric"
 
     @Generable
-    struct Arguments {
+    struct Arguments: RuntimeCompatibleGenerable {
         @Guide(
             description: """
             The type of health data to fetch: 'today', 'weekly', or specific metric like 'steps', 'heartRate',

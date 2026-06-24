@@ -1,8 +1,9 @@
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 
 @Generable
-struct FMFBenchSearchContactsArguments {
+struct FMFBenchSearchContactsArguments: RuntimeCompatibleGenerable {
     @Guide(description: "The full contact name from the user's request")
     let name: String
 }

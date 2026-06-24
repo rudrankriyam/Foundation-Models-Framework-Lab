@@ -7,6 +7,7 @@
 
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 import LinkPresentation
 
 /// A tool for extracting metadata from web pages using LinkPresentation.
@@ -34,7 +35,7 @@ public struct WebMetadataTool: Tool {
 
   /// Arguments for web metadata extraction.
   @Generable
-  public struct Arguments {
+  public struct Arguments: RuntimeCompatibleGenerable {
     /// The URL to extract metadata from
     @Guide(description: "The URL to extract metadata from")
     public var url: String

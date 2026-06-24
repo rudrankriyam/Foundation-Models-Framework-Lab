@@ -1,8 +1,9 @@
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 
 @Generable
-public struct BookRecommendation: Sendable, Hashable, Codable {
+public struct BookRecommendation: RuntimeCompatibleGenerable, Sendable, Hashable, Codable {
     @Guide(description: "The title of the book")
     public let title: String
 
@@ -29,7 +30,7 @@ public struct BookRecommendation: Sendable, Hashable, Codable {
 }
 
 @Generable
-public enum BookGenre: Sendable, Hashable, Codable {
+public enum BookGenre: RuntimeCompatibleGenerable, Sendable, Hashable, Codable {
     case fiction
     case nonFiction
     case mystery

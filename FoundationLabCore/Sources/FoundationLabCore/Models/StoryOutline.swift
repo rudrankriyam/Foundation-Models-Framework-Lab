@@ -1,8 +1,9 @@
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 
 @Generable
-public struct StoryOutline: Sendable, Hashable, Codable {
+public struct StoryOutline: RuntimeCompatibleGenerable, Sendable, Hashable, Codable {
     @Guide(description: "The title of the story")
     public let title: String
 
@@ -39,7 +40,7 @@ public struct StoryOutline: Sendable, Hashable, Codable {
 }
 
 @Generable
-public enum StoryGenre: Sendable, Hashable, Codable {
+public enum StoryGenre: RuntimeCompatibleGenerable, Sendable, Hashable, Codable {
     case adventure
     case mystery
     case romance

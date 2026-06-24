@@ -8,6 +8,7 @@
 @preconcurrency import EventKit
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 
 /// A tool for managing reminders using EventKit.
 ///
@@ -40,7 +41,7 @@ public struct RemindersTool: Tool {
 
   /// Arguments for reminder operations.
   @Generable
-  public struct Arguments {
+  public struct Arguments: RuntimeCompatibleGenerable {
     /// The action to perform: "create", "query", "complete", "update", "delete"
     @Guide(description: "The action to perform: 'create', 'query', 'complete', 'update', 'delete'")
     public var action: String

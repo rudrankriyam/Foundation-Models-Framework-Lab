@@ -1,8 +1,9 @@
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 
 @Generable
-public struct JournalEntrySummary: Sendable, Hashable, Codable {
+public struct JournalEntrySummary: RuntimeCompatibleGenerable, Sendable, Hashable, Codable {
     @Guide(description: "A gentle journaling prompt inspired by the user's mood, sleep, and any quote or affirmation.")
     public let prompt: String
 

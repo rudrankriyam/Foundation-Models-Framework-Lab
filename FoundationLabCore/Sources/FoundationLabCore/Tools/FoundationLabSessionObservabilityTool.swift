@@ -1,4 +1,5 @@
 import FoundationModels
+import FoundationModelsKit
 
 /// A deterministic, read-only tool for labs that need an observable tool call without external data.
 public struct FoundationLabSessionObservabilityTool: Tool {
@@ -8,7 +9,7 @@ public struct FoundationLabSessionObservabilityTool: Tool {
     public init() {}
 
     @Generable
-    public struct Arguments {
+    public struct Arguments: RuntimeCompatibleGenerable {
         @Guide(description: "The Foundation Lab topic to read")
         public let topic: Topic
 
@@ -18,7 +19,7 @@ public struct FoundationLabSessionObservabilityTool: Tool {
     }
 
     @Generable
-    public enum Topic {
+    public enum Topic: RuntimeCompatibleGenerable {
         case transcript
         case tools
         case privacy

@@ -1,11 +1,29 @@
 #if compiler(>=6.4)
+import Darwin
 import Foundation
 import FoundationModels
 import XCTest
 @testable import FoundationLabCore
 
+private enum FoundationModelsModernRuntimeSupport {
+    private static let requiredSymbol =
+        "_$s16FoundationModels9GenerablePAAE20promptRepresentationAA6PromptVvg"
+
+    static let isAvailable = dlsym(
+        UnsafeMutableRawPointer(bitPattern: -2),
+        requiredSymbol
+    ) != nil
+}
+
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
 final class FoundationLabModelErrorProjectionModernTests: XCTestCase {
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        guard FoundationModelsModernRuntimeSupport.isAvailable else {
+            throw XCTSkip("The installed Foundation Models runtime predates the Xcode 27 SDK.")
+        }
+    }
+
     func testLanguageModelErrorPreservesStableContextAndRateLimitDetails() throws {
         let resetDate = Date(timeIntervalSince1970: 1_800_000_000)
         let overflowContext = FoundationModels.LanguageModelError.ContextSizeExceeded(

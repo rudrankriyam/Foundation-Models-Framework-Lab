@@ -8,6 +8,7 @@
 @preconcurrency import CoreLocation
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 @preconcurrency import MapKit
 
 /// A tool for location services and geocoding using CoreLocation and MapKit.
@@ -39,7 +40,7 @@ public struct LocationTool: Tool {
 
   /// Arguments for location operations.
   @Generable
-  public struct Arguments {
+  public struct Arguments: RuntimeCompatibleGenerable {
     /// The action to perform: "current", "geocode", "reverse", "search", "distance"
     @Guide(
       description: "The action to perform: 'current', 'geocode', 'reverse', 'search', 'distance'")

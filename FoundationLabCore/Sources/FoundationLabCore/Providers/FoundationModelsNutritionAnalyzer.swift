@@ -275,7 +275,7 @@ private func nutritionInsightsPrompt(
 }
 
 @Generable
-private struct NutritionParsePayload {
+private struct NutritionParsePayload: RuntimeCompatibleGenerable {
     @Guide(description: "The name or description of the food item")
     let foodName: String
 

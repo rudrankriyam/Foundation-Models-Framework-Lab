@@ -1,10 +1,11 @@
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 import XCTest
 @testable import FoundationLabCore
 
 @Generable
-struct ModelConfigurationTestOutput {
+struct ModelConfigurationTestOutput: RuntimeCompatibleGenerable {
     let value: String
 }
 

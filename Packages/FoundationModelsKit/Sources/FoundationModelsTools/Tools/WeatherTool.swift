@@ -12,6 +12,7 @@
 import CoreLocation
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 import MapKit
 
 /// A tool for fetching real-time weather information using the OpenMeteo API.
@@ -38,7 +39,7 @@ public struct WeatherTool: Tool {
   public init() {}
 
   /// Arguments required to fetch weather information.
-  public struct Arguments: Generable, Sendable {
+  public struct Arguments: RuntimeCompatibleGenerable, Sendable {
     /// The city to get weather information for (e.g., "New York", "London", "Tokyo").
     @Guide(
       description: "The city to get weather information for (e.g., 'New York', 'London', 'Tokyo')")

@@ -1,5 +1,6 @@
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 
 actor FMFBenchToolRecorder {
     private var calls: [FMFBenchToolCall] = []
@@ -18,7 +19,7 @@ actor FMFBenchToolRecorder {
 }
 
 @Generable
-struct KnowledgeLookupArguments {
+struct KnowledgeLookupArguments: RuntimeCompatibleGenerable {
     @Guide(description: "The exact topic requested by the user")
     let topic: String
 
@@ -63,7 +64,7 @@ struct KnowledgeLookupTool: Tool {
 }
 
 @Generable
-struct ExerciseSubstitutionArguments {
+struct ExerciseSubstitutionArguments: RuntimeCompatibleGenerable {
     @Guide(description: "The exact exercise that cannot be performed")
     let unavailableExercise: String
 

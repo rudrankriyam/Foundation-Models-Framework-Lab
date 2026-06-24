@@ -7,6 +7,7 @@
 
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 import SwiftUI
 
 /// A tool for web search using the Exa API.
@@ -35,7 +36,7 @@ public struct WebTool: Tool {
 
   /// Arguments for web search operations.
   @Generable
-  public struct Arguments {
+  public struct Arguments: RuntimeCompatibleGenerable {
     /// The search query to execute
     @Guide(description: "The search query to execute")
     public var query: String
