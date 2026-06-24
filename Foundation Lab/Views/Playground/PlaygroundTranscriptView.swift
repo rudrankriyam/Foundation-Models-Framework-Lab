@@ -103,9 +103,13 @@ private struct PlaygroundEmptyState: View {
             if configuration.prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 Button("Browse Library", systemImage: "books.vertical", action: openLibrary)
                     .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
             } else {
                 Button("Run Suggested Prompt", systemImage: "play.fill", action: runSuggestedPrompt)
                     .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
             }
         }
         .frame(maxWidth: 620, minHeight: 320)

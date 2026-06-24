@@ -29,7 +29,7 @@ struct LibraryView: View {
         #endif
         .searchable(
             text: $searchText,
-            prompt: "Search experiments and tools"
+            prompt: "Search Library"
         )
 #if os(iOS)
         .toolbar {

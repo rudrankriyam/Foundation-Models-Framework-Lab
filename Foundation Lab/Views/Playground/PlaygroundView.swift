@@ -78,42 +78,53 @@ struct PlaygroundView: View {
             }
         }
         .inspector(isPresented: $showsInspector) {
-            Group {
+            if showsInspector {
+                Group {
 #if os(iOS)
-                if horizontalSizeClass == .compact {
-                    NavigationStack {
+                    if horizontalSizeClass == .compact {
+                        VStack(spacing: 0) {
+                            HStack {
+                                Text("Configuration")
+                                    .font(.headline)
+
+                                Spacer()
+
+                                Button("Done", action: dismissInspector)
+                                    .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
+                            }
+                            .padding(.horizontal, Spacing.medium)
+                            .frame(minHeight: 56)
+                            .background(.regularMaterial)
+
+                            Divider()
+
+                            PlaygroundInspectorView(
+                                experimentStore: experimentStore,
+                                viewModel: viewModel,
+                                applyConfiguration: applyInspectorConfiguration
+                            )
+                        }
+                    } else {
                         PlaygroundInspectorView(
                             experimentStore: experimentStore,
                             viewModel: viewModel,
                             applyConfiguration: applyInspectorConfiguration
                         )
-                        .navigationTitle("Configuration")
-                        .toolbar {
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button("Done", action: dismissInspector)
-                            }
-                        }
                     }
-                } else {
+#else
                     PlaygroundInspectorView(
                         experimentStore: experimentStore,
                         viewModel: viewModel,
                         applyConfiguration: applyInspectorConfiguration
                     )
-                }
-#else
-                PlaygroundInspectorView(
-                    experimentStore: experimentStore,
-                    viewModel: viewModel,
-                    applyConfiguration: applyInspectorConfiguration
-                )
 #endif
+                }
+                .inspectorColumnWidth(
+                    min: FoundationLabLayout.inspectorMinimumWidth,
+                    ideal: FoundationLabLayout.inspectorIdealWidth,
+                    max: FoundationLabLayout.inspectorMaximumWidth
+                )
             }
-            .inspectorColumnWidth(
-                min: FoundationLabLayout.inspectorMinimumWidth,
-                ideal: FoundationLabLayout.inspectorIdealWidth,
-                max: FoundationLabLayout.inspectorMaximumWidth
-            )
         }
 #if os(iOS)
         .sheet(isPresented: $showsSettings) {
@@ -138,10 +149,9 @@ struct PlaygroundView: View {
             loadActiveExperiment()
         }
         .task {
-            showsInspector = horizontalSizeClass != .compact
-        }
-        .onChange(of: horizontalSizeClass) { _, sizeClass in
-            showsInspector = sizeClass != .compact
+#if os(macOS)
+            showsInspector = true
+#endif
         }
     }
 }

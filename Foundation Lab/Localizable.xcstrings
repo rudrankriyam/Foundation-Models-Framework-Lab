@@ -8696,66 +8696,66 @@
         }
       }
     },
-    "Search experiments and tools" : {
+    "Search Library" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Suchen Sie nach Experimenten und Tools"
+            "value" : "Bibliothek durchsuchen"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Search experiments and tools"
+            "value" : "Search Library"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Buscar experimentos y herramientas"
+            "value" : "Buscar en la biblioteca"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rechercher des expériences et des outils"
+            "value" : "Rechercher dans la bibliothèque"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cerca esperimenti e strumenti"
+            "value" : "Cerca nella libreria"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "実験とツールを検索する"
+            "value" : "ライブラリを検索"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "실험 및 도구 검색"
+            "value" : "라이브러리 검색"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pesquisar experimentos e ferramentas"
+            "value" : "Pesquisar na Biblioteca"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "搜索实验和工具"
+            "value" : "搜索资源库"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "搜尋實驗和工具"
+            "value" : "搜尋資料庫"
           }
         }
       }
