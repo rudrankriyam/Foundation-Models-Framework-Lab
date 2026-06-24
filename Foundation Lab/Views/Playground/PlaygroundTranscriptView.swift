@@ -44,7 +44,7 @@ struct PlaygroundTranscriptView: View {
                         .frame(height: 1)
                         .id("bottom")
                 }
-                .frame(maxWidth: 900)
+                .frame(maxWidth: FoundationLabLayout.transcriptContentWidth)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Spacing.large)
             }

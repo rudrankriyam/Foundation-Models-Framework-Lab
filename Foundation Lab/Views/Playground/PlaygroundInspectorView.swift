@@ -46,23 +46,27 @@ struct PlaygroundInspectorView: View {
                     Toggle("Use Fixed Seed", isOn: fixedSeedBinding)
                 } else if samplingBinding.wrappedValue == .probabilityThreshold {
                     LabeledContent("Top-P") {
-                        Text(
-                            topPBinding.wrappedValue,
-                            format: .number.precision(.fractionLength(2))
-                        )
-                        .monospacedDigit()
+                        HStack {
+                            Slider(
+                                value: topPBinding,
+                                in: 0.05...1,
+                                step: 0.05
+                            )
+                            .accessibilityLabel("Top-P")
+                            .accessibilityValue(
+                                topPBinding.wrappedValue.formatted(
+                                    .number.precision(.fractionLength(2))
+                                )
+                            )
+
+                            Text(
+                                topPBinding.wrappedValue,
+                                format: .number.precision(.fractionLength(2))
+                            )
+                            .monospacedDigit()
+                            .frame(width: 36, alignment: .trailing)
+                        }
                     }
-                    Slider(
-                        value: topPBinding,
-                        in: 0.05...1,
-                        step: 0.05
-                    )
-                    .accessibilityLabel("Top-P")
-                    .accessibilityValue(
-                        topPBinding.wrappedValue.formatted(
-                            .number.precision(.fractionLength(2))
-                        )
-                    )
                     Toggle("Use Fixed Seed", isOn: fixedSeedBinding)
                 }
 
@@ -89,21 +93,9 @@ struct PlaygroundInspectorView: View {
 
             Section("Tools") {
                 ForEach(FoundationLabBuiltInTool.allCases) { tool in
-                    Button {
-                        experimentStore.updateActiveExperiment { configuration in
-                            if let index = configuration.selectedTools.firstIndex(of: tool) {
-                                configuration.selectedTools.remove(at: index)
-                            } else {
-                                configuration.selectedTools.append(tool)
-                            }
-                        }
-                    } label: {
-                        ToolSelectionLabel(
-                            tool: tool,
-                            isSelected: experimentStore.activeExperiment.selectedTools.contains(tool)
-                        )
+                    Toggle(isOn: toolSelectionBinding(for: tool)) {
+                        ToolSelectionLabel(tool: tool)
                     }
-                    .buttonStyle(.plain)
                     .disabled(viewModel.isLoading)
                 }
             }
@@ -120,6 +112,8 @@ struct PlaygroundInspectorView: View {
                     }
                 }
                 .disabled(viewModel.isLoading)
+            } footer: {
+                Text("Apply changes to rebuild the current session. Save the experiment to keep it in Library.")
             }
 
             Section("Swift") {
@@ -261,6 +255,23 @@ private extension PlaygroundInspectorView {
         experimentStore.activeExperiment.generationOptions
     }
 
+    private func toolSelectionBinding(for tool: FoundationLabBuiltInTool) -> Binding<Bool> {
+        Binding(
+            get: { experimentStore.activeExperiment.selectedTools.contains(tool) },
+            set: { isSelected in
+                experimentStore.updateActiveExperiment { configuration in
+                    if isSelected {
+                        if !configuration.selectedTools.contains(tool) {
+                            configuration.selectedTools.append(tool)
+                        }
+                    } else {
+                        configuration.selectedTools.removeAll { $0 == tool }
+                    }
+                }
+            }
+        )
+    }
+
     private func updateSampling(
         _ sampling: FoundationLabGenerationOptions.SamplingMode?
     ) {
@@ -320,38 +331,5 @@ private extension PlaygroundInspectorView {
         case .greedy, nil:
             nil
         }
-    }
-}
-
-private struct ToolSelectionLabel: View {
-    let tool: FoundationLabBuiltInTool
-    let isSelected: Bool
-
-    var body: some View {
-        HStack(alignment: .top, spacing: Spacing.medium) {
-            Image(systemName: tool.systemImage)
-                .frame(width: 24)
-                .foregroundStyle(isSelected ? Color.accentColor : .secondary)
-
-            VStack(alignment: .leading, spacing: Spacing.xSmall) {
-                Text(LocalizedStringKey(tool.displayName))
-                    .foregroundStyle(.primary)
-                Text(LocalizedStringKey(tool.summary))
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer(minLength: Spacing.small)
-
-            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                .foregroundStyle(isSelected ? Color.accentColor : .secondary)
-                .accessibilityHidden(true)
-        }
-        .frame(minHeight: 44)
-        .contentShape(.rect)
-        .accessibilityElement(children: .combine)
-        .accessibilityValue(
-            isSelected ? String(localized: "Selected") : String(localized: "Not selected")
-        )
     }
 }

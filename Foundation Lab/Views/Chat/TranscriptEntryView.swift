@@ -51,21 +51,21 @@ struct TranscriptEntryView: View {
             }
 
         case .toolCalls(let toolCalls):
-            ForEach(Array(toolCalls.enumerated()), id: \.offset) { _, toolCall in
-                MessageBubbleView(message: ChatMessage(
-                    entryID: entry.id,
-                    content: "🔧 Calling tool: \(toolCall.toolName)",
-                    isFromUser: false
-                ))
+            ForEach(toolCalls.enumerated(), id: \.offset) { _, toolCall in
+                TranscriptToolEventView(
+                    kind: .call,
+                    toolName: toolCall.toolName,
+                    detail: toolCall.arguments.jsonString
+                )
             }
 
         case .toolOutput(let toolOutput):
             if let text = toolOutput.segments.textContentJoined() {
-                MessageBubbleView(message: ChatMessage(
-                    entryID: entry.id,
-                    content: "🔧 Tool result: \(text)",
-                    isFromUser: false
-                ))
+                TranscriptToolEventView(
+                    kind: .result,
+                    toolName: toolOutput.toolName,
+                    detail: text
+                )
             }
 
         #if compiler(>=6.4)
