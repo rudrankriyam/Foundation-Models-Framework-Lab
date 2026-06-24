@@ -12,7 +12,7 @@ import FoundationLabCore
 struct GenerateBookRecommendationIntent: AppIntent {
     static let title: LocalizedStringResource = "Generate Book Recommendation"
     static let description = IntentDescription(
-        "Generates a book recommendation using Foundation Lab's shared capability."
+        "Creates a structured book recommendation from your prompt."
     )
     static let openAppWhenRun = false
 

@@ -21,7 +21,7 @@ struct HealthDashboardView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.large) {
                 if isLoading {
-                    ProgressView("Loading health data...")
+                    ProgressView("Loading Health data…")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding()
                 } else if let loadErrorMessage {

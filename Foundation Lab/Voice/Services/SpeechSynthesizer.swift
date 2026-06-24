@@ -51,11 +51,11 @@ enum SpeechSynthesizerError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidInput:
-            return String(localized: "Invalid input text")
+            return String(localized: "There’s no response text to speak.")
         case .alreadySpeaking:
-            return String(localized: "Speech synthesis already in progress")
+            return String(localized: "A response is already being spoken.")
         case .cancelled:
-            return String(localized: "Speech synthesis was cancelled")
+            return String(localized: "Speech playback was stopped.")
         }
     }
 }

@@ -5,7 +5,7 @@ import FoundationLabCore
 struct SearchWebIntent: AppIntent {
     static let title: LocalizedStringResource = "Search Web"
     static let description = IntentDescription(
-        "Searches the web using Foundation Lab's shared web search capability."
+        "Searches the web for your query and returns grounded results."
     )
     static let openAppWhenRun = false
 

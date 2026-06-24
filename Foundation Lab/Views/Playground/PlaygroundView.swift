@@ -122,7 +122,7 @@ struct PlaygroundView: View {
             }
         }
 #endif
-        .alert("Experiment Error", isPresented: $viewModel.showError) {
+        .alert("Experiment Couldn’t Run", isPresented: $viewModel.showError) {
             if viewModel.shouldOfferPermissionSettings {
                 Button("Open Settings", action: viewModel.openPermissionSettings)
             }
@@ -131,7 +131,7 @@ struct PlaygroundView: View {
             if let message = viewModel.errorMessage {
                 Text(message)
             } else {
-                Text("The experiment could not run.")
+                Text("The experiment didn’t start. Check model availability and try again.")
             }
         }
         .task(id: experimentStore.activeExperimentLoadRevision) {

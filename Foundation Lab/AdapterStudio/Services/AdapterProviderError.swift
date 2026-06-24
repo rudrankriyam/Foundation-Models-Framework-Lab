@@ -13,21 +13,21 @@ enum AdapterProviderError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .directoryCreationFailed(let message):
-            String(localized: "Failed to prepare the adapter directory: \(message)")
+            String(localized: "The adapter folder couldn’t be prepared. \(message)")
         case .directoryNotWritable(let path):
-            String(localized: "The adapter directory is not writable: \(path)")
+            String(localized: "Foundation Lab can’t write to the adapter folder at \(path). Choose another folder.")
         case .invalidFileExtension(let url):
             String(localized: "\"\(url.lastPathComponent)\" is not an .fmadapter package.")
         case .copyFailed(let message):
-            String(localized: "Could not import the adapter: \(message)")
+            String(localized: "The adapter couldn’t be imported. \(message)")
         case .loadFailed(let message):
-            String(localized: "Could not load the adapter: \(message)")
+            String(localized: "The adapter couldn’t be loaded. \(message)")
         case .fileTooLarge(let size):
             String(
                 localized: "The adapter is too large (\(ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .file)))."
             )
         case .sizeCalculationFailed(let url, let message):
-            String(localized: "Could not measure \"\(url.lastPathComponent)\": \(message)")
+            String(localized: "The size of \"\(url.lastPathComponent)\" couldn’t be read. \(message)")
         }
     }
 }

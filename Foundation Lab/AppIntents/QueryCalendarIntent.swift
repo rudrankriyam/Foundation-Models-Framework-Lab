@@ -3,9 +3,9 @@ import Foundation
 import FoundationLabCore
 
 struct QueryCalendarIntent: AppIntent {
-    static let title: LocalizedStringResource = "Query Calendar"
+    static let title: LocalizedStringResource = "Ask Calendar"
     static let description = IntentDescription(
-        "Queries your calendar using Foundation Lab's shared calendar capability."
+        "Answers a request using Calendar data you have authorized Foundation Lab to read."
     )
     static let openAppWhenRun = true
 

@@ -87,7 +87,9 @@ final class RAGChatViewModel {
             config = try RAGConfig.makeDefault()
         } catch {
             config = nil
-            errorMessage = String(localized: "Failed to initialize RAG configuration: \(error.localizedDescription)")
+            errorMessage = String(
+                localized: "Document Q&A couldn’t prepare its source index. \(error.localizedDescription)"
+            )
             showError = true
         }
     }
@@ -103,7 +105,9 @@ extension RAGChatViewModel {
         }
 
         guard let config = config else {
-            errorMessage = errorMessage ?? String(localized: "RAG configuration is not available")
+            errorMessage = errorMessage ?? String(
+                localized: "The source index isn’t available. Close Document Q&A and try again."
+            )
             showError = true
             return
         }
@@ -128,7 +132,7 @@ extension RAGChatViewModel {
 
         let urlKey = url.absoluteString
         guard !indexedURLs.contains(urlKey) else {
-            errorMessage = String(localized: "This document has already been indexed")
+            errorMessage = String(localized: "This file is already in the source index.")
             showError = true
             return
         }
@@ -143,7 +147,7 @@ extension RAGChatViewModel {
             indexedDocumentCount += 1
             hasIndexedContent = true
         } catch {
-            errorMessage = String(localized: "Failed to index document: \(error.localizedDescription)")
+            errorMessage = String(localized: "The file couldn’t be added to the source index. \(error.localizedDescription)")
             showError = true
         }
         isSearching = false
@@ -159,7 +163,7 @@ extension RAGChatViewModel {
 
         let urlKey = "text://\(title)"
         guard !indexedURLs.contains(urlKey) else {
-            errorMessage = String(localized: "A document with this title already exists")
+            errorMessage = String(localized: "A text source with this title already exists. Choose a different title.")
             showError = true
             return false
         }
@@ -176,7 +180,7 @@ extension RAGChatViewModel {
             isSearching = false
             return true
         } catch {
-            errorMessage = String(localized: "Failed to index text: \(error.localizedDescription)")
+            errorMessage = String(localized: "The text couldn’t be added to the source index. \(error.localizedDescription)")
             showError = true
             isSearching = false
             return false
@@ -199,7 +203,7 @@ extension RAGChatViewModel {
             indexedDocumentCount = 0
             hasIndexedContent = false
         } catch {
-            errorMessage = String(localized: "Failed to reset database: \(error.localizedDescription)")
+            errorMessage = String(localized: "The source index couldn’t be cleared. \(error.localizedDescription)")
             showError = true
         }
     }
@@ -241,7 +245,7 @@ extension RAGChatViewModel {
         }
 
         if let error = firstError {
-            errorMessage = String(localized: "Failed to load samples: \(error.localizedDescription)")
+            errorMessage = String(localized: "Some sample sources couldn’t be added. \(error.localizedDescription)")
             showError = true
         }
         isSearching = false
@@ -262,7 +266,7 @@ extension RAGChatViewModel {
         guard !trimmedContent.isEmpty else { return }
 
         guard hasIndexedContent || indexedDocumentCount > 0 else {
-            errorMessage = String(localized: "Index documents before asking a question.")
+            errorMessage = String(localized: "Add at least one source before asking a question.")
             showError = true
             return
         }
@@ -334,13 +338,13 @@ private extension RAGChatViewModel {
             return
         } catch {
             guard initializationID == id else { return }
-            errorMessage = String(localized: "Failed to initialize RAG: \(error.localizedDescription)")
+            errorMessage = String(localized: "The source index couldn’t be opened. \(error.localizedDescription)")
             showError = true
         }
     }
 
     func showServiceUnavailableError() {
-        errorMessage = String(localized: "RAG service is not available. Please restart the app.")
+        errorMessage = String(localized: "The source index isn’t available. Close and reopen Foundation Lab, then try again.")
         showError = true
     }
 
@@ -369,7 +373,7 @@ private extension RAGChatViewModel {
                 )
             }
         } catch {
-            errorMessage = String(localized: "Search failed: \(error.localizedDescription)")
+            errorMessage = String(localized: "The sources couldn’t be searched. \(error.localizedDescription)")
             showError = true
         }
 
@@ -418,7 +422,7 @@ private extension RAGChatViewModel {
                 return
             }
         } catch {
-            onUpdate(String(localized: "Failed to answer: \(error.localizedDescription)"))
+            onUpdate(String(localized: "The model couldn’t answer from these sources. \(error.localizedDescription)"))
         }
     }
 

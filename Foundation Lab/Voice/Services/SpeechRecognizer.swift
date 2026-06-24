@@ -59,13 +59,13 @@ enum SpeechRecognitionError: LocalizedError, Equatable {
     var errorDescription: String? {
         switch self {
         case .notAuthorized:
-            return String(localized: "Speech recognition is not authorized. Please enable it in Settings.")
+            return String(localized: "Allow Speech Recognition in Settings, then try again.")
         case .recognizerNotAvailable:
             return String(localized: "Speech recognition is not available on this device.")
         case .audioSessionFailed:
-            return String(localized: "Failed to configure audio session for speech recognition.")
+            return String(localized: "Voice input couldn’t start because the audio session isn’t available.")
         case .recognitionFailed(let message):
-            return String(localized: "Speech recognition failed: \(message)")
+            return String(localized: "Speech recognition stopped unexpectedly. \(message)")
         }
     }
 

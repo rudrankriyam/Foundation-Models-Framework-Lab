@@ -317,8 +317,8 @@ extension ChatViewModel {
 
 extension ChatViewModel {
     static let defaultInstructions = """
-    You are a helpful, friendly AI assistant. Engage in natural conversation and provide
-    thoughtful, detailed responses.
+    You are a clear, helpful assistant. Answer directly and be concise by default.
+    Explain uncertainty, and never invent tool results or user data.
     """
 
     func syncConversationState() {

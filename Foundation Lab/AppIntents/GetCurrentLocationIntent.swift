@@ -5,7 +5,7 @@ import FoundationLabCore
 struct GetCurrentLocationIntent: AppIntent {
     static let title: LocalizedStringResource = "Get Current Location"
     static let description = IntentDescription(
-        "Gets your current location using Foundation Lab's shared location capability."
+        "Returns your current location after you grant permission."
     )
     static let openAppWhenRun = true
 

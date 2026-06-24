@@ -9,7 +9,7 @@ import AppIntents
 
 struct OpenExampleIntent: AppIntent {
     static let title: LocalizedStringResource = "Open Example"
-    static let description = IntentDescription("Opens a specific Foundation Lab example")
+    static let description = IntentDescription("Opens a selected example from the Foundation Lab Library.")
     static let supportedModes: IntentModes = .foreground
 
     @Parameter(title: "Example")
