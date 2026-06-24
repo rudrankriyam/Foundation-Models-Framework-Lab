@@ -9,6 +9,18 @@ import SwiftUI
 
 struct SidebarView: View {
     @Binding var selection: TabSelection?
+    let preferredWidth: CGFloat
+    let onWidthChange: (CGFloat) -> Void
+
+    init(
+        selection: Binding<TabSelection?>,
+        preferredWidth: CGFloat = FoundationLabLayout.sidebarIdealWidth,
+        onWidthChange: @escaping (CGFloat) -> Void = { _ in }
+    ) {
+        _selection = selection
+        self.preferredWidth = preferredWidth
+        self.onWidthChange = onWidthChange
+    }
 
     var body: some View {
         List(selection: $selection) {
@@ -20,7 +32,16 @@ struct SidebarView: View {
         .listStyle(.sidebar)
         .navigationTitle("Foundation Lab")
 #if os(macOS)
-        .navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 280)
+        .navigationSplitViewColumnWidth(
+            min: FoundationLabLayout.sidebarMinimumWidth,
+            ideal: preferredWidth,
+            max: FoundationLabLayout.sidebarMaximumWidth
+        )
+        .onGeometryChange(for: CGFloat.self) { proxy in
+            proxy.size.width
+        } action: { width in
+            onWidthChange(width)
+        }
 #endif
     }
 }

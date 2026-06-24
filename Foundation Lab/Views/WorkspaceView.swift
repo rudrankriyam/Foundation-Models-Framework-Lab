@@ -8,13 +8,21 @@ import SwiftUI
 struct WorkspaceView: View {
     let workspace: Workspace
 
-    @State private var selectedStage = WorkspaceStage.settings
+    @AppStorage private var selectedStageRawValue: String
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
 #if os(macOS)
     @State private var adapterStudioViewModel = AdapterStudioViewModel()
 #endif
+
+    init(workspace: Workspace) {
+        self.workspace = workspace
+        _selectedStageRawValue = AppStorage(
+            wrappedValue: WorkspaceStage.settings.rawValue,
+            FoundationLabPreferenceKey.workspaceStage(for: workspace)
+        )
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -43,7 +51,7 @@ struct WorkspaceView: View {
     @ViewBuilder
     private var stagePicker: some View {
         if horizontalSizeClass == .compact || dynamicTypeSize.isAccessibilitySize {
-            Picker("Stage", selection: $selectedStage) {
+            Picker("Stage", selection: $selectedStageRawValue) {
                 stages
             }
             .pickerStyle(.menu)
@@ -52,7 +60,7 @@ struct WorkspaceView: View {
             .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
             .background(.bar)
         } else {
-            Picker("Stage", selection: $selectedStage) {
+            Picker("Stage", selection: $selectedStageRawValue) {
                 stages
             }
             .pickerStyle(.segmented)
@@ -68,7 +76,7 @@ struct WorkspaceView: View {
     private var stages: some View {
         ForEach(WorkspaceStage.allCases) { stage in
             Label(workspace.title(for: stage), systemImage: workspace.systemImage(for: stage))
-                .tag(stage)
+                .tag(stage.rawValue)
         }
     }
 
@@ -86,6 +94,7 @@ struct WorkspaceView: View {
 
     @ViewBuilder
     private var workspaceContent: some View {
+        let selectedStage = WorkspaceStage(rawValue: selectedStageRawValue) ?? .settings
         switch workspace {
         case .adapterComparison:
 #if os(macOS)

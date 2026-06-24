@@ -17,6 +17,14 @@ struct AdaptiveNavigationView: View {
     @State private var persistenceFlushTask: Task<Void, Never>?
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.scenePhase) private var scenePhase
+#if os(macOS)
+    @AppStorage(FoundationLabPreferenceKey.navigationSelection)
+    private var persistedSelection = TabSelection.library.rawValue
+    @AppStorage(FoundationLabPreferenceKey.sidebarIsVisible)
+    private var persistedSidebarIsVisible = true
+    @AppStorage(FoundationLabPreferenceKey.sidebarWidth)
+    private var persistedSidebarWidth = Double(FoundationLabLayout.sidebarIdealWidth)
+#endif
 
     var body: some View {
         Group {
@@ -40,10 +48,12 @@ struct AdaptiveNavigationView: View {
         .focusedSceneValue(\.foundationLabNavigationCoordinator, navigationCoordinator)
 #endif
         .onAppear {
+            restorePersistedNavigationState()
             navigationCoordinator.activate()
             experimentStore.activate()
         }
         .onChange(of: navigationCoordinator.tabSelection) { oldValue, newValue in
+            persistNavigationSelection(newValue)
             if oldValue == .playground, newValue != .playground {
                 playgroundViewModel.suspendVoiceMode()
             }
@@ -116,7 +126,11 @@ struct AdaptiveNavigationView: View {
         NavigationSplitView(
             columnVisibility: $columnVisibility
         ) {
-            SidebarView(selection: $navigationCoordinator.splitViewSelection)
+            SidebarView(
+                selection: $navigationCoordinator.splitViewSelection,
+                preferredWidth: sidebarPreferredWidth,
+                onWidthChange: persistSidebarWidth
+            )
         } detail: {
             detailView
         }
@@ -125,6 +139,9 @@ struct AdaptiveNavigationView: View {
             if let newValue {
                 navigationCoordinator.tabSelection = newValue
             }
+        }
+        .onChange(of: columnVisibility) { _, newValue in
+            persistSidebarVisibility(newValue)
         }
     }
 
@@ -163,6 +180,49 @@ struct AdaptiveNavigationView: View {
         persistenceFlushTask = Task {
             _ = await experimentStore.flushPendingPersistence()
         }
+    }
+
+    private var sidebarPreferredWidth: CGFloat {
+#if os(macOS)
+        min(
+            max(CGFloat(persistedSidebarWidth), FoundationLabLayout.sidebarMinimumWidth),
+            FoundationLabLayout.sidebarMaximumWidth
+        )
+#else
+        FoundationLabLayout.sidebarIdealWidth
+#endif
+    }
+
+    private func restorePersistedNavigationState() {
+#if os(macOS)
+        if let selection = TabSelection(rawValue: persistedSelection) {
+            navigationCoordinator.tabSelection = selection
+            navigationCoordinator.splitViewSelection = selection
+        }
+        columnVisibility = persistedSidebarIsVisible ? .all : .detailOnly
+#endif
+    }
+
+    private func persistNavigationSelection(_ selection: TabSelection) {
+#if os(macOS)
+        persistedSelection = selection.rawValue
+#endif
+    }
+
+    private func persistSidebarVisibility(_ visibility: NavigationSplitViewVisibility) {
+#if os(macOS)
+        persistedSidebarIsVisible = visibility != .detailOnly
+#endif
+    }
+
+    private func persistSidebarWidth(_ width: CGFloat) {
+#if os(macOS)
+        guard (FoundationLabLayout.sidebarMinimumWidth ... FoundationLabLayout.sidebarMaximumWidth).contains(width),
+              abs(persistedSidebarWidth - Double(width)) >= 0.5 else {
+            return
+        }
+        persistedSidebarWidth = Double(width)
+#endif
     }
 }
 
