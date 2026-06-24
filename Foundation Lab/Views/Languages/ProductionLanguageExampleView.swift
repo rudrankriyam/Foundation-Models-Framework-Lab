@@ -21,34 +21,36 @@ struct ProductionLanguageExampleView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.large) {
+                Text("Adapt a structured model response to the device language while keeping one typed result.")
+                    .foregroundStyle(.secondary)
+
+                Label(
+                    "Values are estimates from your description. This example does not read Health data or provide medical guidance.",
+                    systemImage: "info.circle"
+                )
+                .font(.callout)
+                .foregroundStyle(.secondary)
+
                 languageSelectionSection
                 inputSection
 
-                Button("Analyze Nutrition") {
-                    Task {
-                        await analyzeNutrition()
-                    }
+                ToolExecuteButton(
+                    "Generate Estimate",
+                    systemImage: "text.badge.checkmark",
+                    isRunning: isRunning
+                ) {
+                    Task { await analyzeNutrition() }
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
                 .disabled(isRunning || foodDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                .padding(.horizontal)
-
-                if isRunning {
-                    HStack {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                        Text("Analyzing nutrition...")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.horizontal)
-                }
 
                 if let errorMessage {
-                    Text(errorMessage)
-                        .foregroundStyle(.red)
-                        .padding(.horizontal)
+                    Label {
+                        Text(errorMessage)
+                            .foregroundStyle(.primary)
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.red)
+                    }
                 }
 
                 if let result = nutritionResult {
@@ -57,49 +59,40 @@ struct ProductionLanguageExampleView: View {
 
                 implementationSectionView()
             }
-            .padding(.vertical)
+            .padding(.horizontal, Spacing.medium)
+            .padding(.vertical, Spacing.large)
+            .frame(maxWidth: FoundationLabLayout.readableContentWidth, alignment: .leading)
+            .frame(maxWidth: .infinity)
         }
-        .navigationTitle("Insights Example")
+        .navigationTitle("Localized App Pattern")
 #if os(iOS)
         .navigationBarTitleDisplayMode(.large)
 #endif
-        .onAppear {
+        .task {
+            if languageService.supportedLanguages.isEmpty {
+                await languageService.loadSupportedLanguages()
+            }
             detectUserLanguage()
         }
     }
 
     private var languageSelectionSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.medium) {
-            Text("Language Configuration")
-                .font(.headline)
-                .padding(.horizontal)
-
+        GroupBox("Language") {
             VStack(alignment: .leading, spacing: Spacing.small) {
-                Text("Detected Language: \(detectedLanguage)")
-                    .font(.body)
-                    .foregroundStyle(.secondary)
+                LabeledContent("Device Language", value: detectedLanguage)
 
                 if languageService.isLoading {
-                    HStack {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                        Text("Loading supported languages...")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+                    ProgressView("Loading supported languages…")
                 } else {
                     Picker("Response Language", selection: $selectedLanguage) {
-                        // Always include the detected language first
                         if !detectedLanguage.isEmpty {
                             Text(detectedLanguage).tag(detectedLanguage)
                         }
 
-                        // Add English (en-US) if it's not the detected language
                         if detectedLanguage != "English (en-US)" {
                             Text("English (en-US)").tag("English (en-US)")
                         }
 
-                        // Add other supported languages, excluding duplicates
                         ForEach(languageService.getSupportedLanguageNames().filter {
                             $0 != detectedLanguage && $0 != "English (en-US)"
                         }, id: \.self) { language in
@@ -108,99 +101,69 @@ struct ProductionLanguageExampleView: View {
                     }
                     .pickerStyle(.menu)
                 }
-
             }
-            .padding(.horizontal)
+            .padding(.top, Spacing.small)
         }
     }
 
     private var inputSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.medium) {
-            Text("Food Description")
-                .font(.headline)
-                .padding(.horizontal)
-
+        GroupBox("Meal Description") {
             VStack(alignment: .leading, spacing: Spacing.small) {
-                TextEditor(text: $foodDescription)
-                    .font(.body)
-                    .padding()
-                    .frame(height: 100)
-                    .background(Color.gray.opacity(0.1))
-                    .clipShape(.rect(cornerRadius: 12))
+                TextField("Describe a meal", text: $foodDescription, axis: .vertical)
+                    .lineLimit(3...8)
+                    .textFieldStyle(.roundedBorder)
 
-                Text("Example: \"I had a chicken salad with avocado and olive oil dressing\"")
-                    .font(.caption)
+                Text("Try: I had a chicken salad with avocado and olive oil dressing.")
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
-            .padding(.horizontal)
+            .padding(.top, Spacing.small)
         }
     }
 
     private func resultSection(result: NutritionAnalysis) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.medium) {
-            Text("Nutrition Analysis")
-                .font(.headline)
-                .padding(.horizontal)
-
-            VStack(spacing: Spacing.medium) {
-                NutritionCard(
-                    title: "Parsed Food",
-                    value: result.foodName,
-                    color: .blue
-                )
-
-                HStack(spacing: Spacing.medium) {
-                    NutritionCard(
-                        title: "Calories",
-                        value: "\(result.calories)",
-                        color: .orange
-                    )
-
-                    NutritionCard(
-                        title: "Protein",
-                        value: "\(result.proteinGrams)g",
-                        color: .green
-                    )
+        GroupBox("Generated Estimate") {
+            VStack(alignment: .leading, spacing: Spacing.medium) {
+                LabeledContent("Parsed Meal", value: result.foodName)
+                LabeledContent("Estimated Calories") {
+                    Text(result.calories, format: .number)
+                        .monospacedDigit()
                 }
-
-                HStack(spacing: Spacing.medium) {
-                    NutritionCard(
-                        title: "Carbs",
-                        value: "\(result.carbsGrams)g",
-                        color: .blue
-                    )
-
-                    NutritionCard(
-                        title: "Fat",
-                        value: "\(result.fatGrams)g",
-                        color: .red
-                    )
+                LabeledContent("Estimated Protein") {
+                    Text("\(result.proteinGrams) g")
+                        .monospacedDigit()
+                }
+                LabeledContent("Estimated Carbohydrates") {
+                    Text("\(result.carbsGrams) g")
+                        .monospacedDigit()
+                }
+                LabeledContent("Estimated Fat") {
+                    Text("\(result.fatGrams) g")
+                        .monospacedDigit()
                 }
 
                 if !result.insights.isEmpty {
+                    Divider()
+
                     VStack(alignment: .leading, spacing: Spacing.small) {
-                        Text("AI Insights")
-                            .font(.headline)
+                        Text("Model Summary")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.secondary)
 
                         Text(result.insights)
                             .font(.body)
-                            .padding()
-                            .background(Color.tertiaryBackgroundColor, in: .rect(cornerRadius: CornerRadius.large))
-                            .overlay {
-                                RoundedRectangle(cornerRadius: CornerRadius.large)
-                                    .stroke(.quaternary, lineWidth: 1)
-                            }
+                            .textSelection(.enabled)
                     }
                 }
             }
-            .padding(.horizontal)
+            .padding(.top, Spacing.small)
         }
     }
 
     private func detectUserLanguage() {
         let detected = languageService.getCurrentUserLanguageDisplayName()
         detectedLanguage = detected
-        selectedLanguage = detected // Set the detected language as the default selection
+        selectedLanguage = detected
     }
 
     @MainActor
@@ -223,37 +186,12 @@ struct ProductionLanguageExampleView: View {
             nutritionResult = response.analysis
 
         } catch {
-            errorMessage = String(localized: "Analysis failed: \(error.localizedDescription)")
+            errorMessage = String(
+                localized: "The estimate couldn’t be generated. \(error.localizedDescription)"
+            )
         }
 
         isRunning = false
-    }
-}
-
-struct NutritionCard: View {
-    let title: String
-    let value: String
-    let color: Color
-
-    var body: some View {
-        VStack(spacing: Spacing.small) {
-            Text(title)
-                .font(.caption)
-                .fontWeight(.medium)
-                .foregroundStyle(.secondary)
-
-            Text(value)
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundStyle(.primary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color.tertiaryBackgroundColor, in: .rect(cornerRadius: CornerRadius.large))
-        .overlay {
-            RoundedRectangle(cornerRadius: CornerRadius.large)
-                .stroke(.quaternary, lineWidth: 1)
-        }
     }
 }
 

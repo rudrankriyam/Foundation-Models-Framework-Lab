@@ -12,13 +12,8 @@ import SwiftUI
 extension ProductionLanguageExampleView {
     @ViewBuilder
     func implementationSectionView() -> some View {
-        VStack(alignment: .leading, spacing: Spacing.medium) {
-            Text("Implementation Details")
-                .font(.headline)
-                .padding(.horizontal)
-
-            CodeViewer(
-                code: """
+        CodeDisclosure(
+            code: """
 let result = try await AnalyzeNutritionUseCase().execute(
     AnalyzeNutritionRequest(
         foodDescription: description,
@@ -35,8 +30,6 @@ print(analysis.foodName)
 print(analysis.insights)
 print(result.metadata.tokenCount ?? 0)
 """
-            )
-        }
-        .padding(.horizontal)
+        )
     }
 }

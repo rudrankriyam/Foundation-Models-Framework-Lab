@@ -19,52 +19,47 @@ struct MultilingualResponsesView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.large) {
-                descriptionSection
+                Text("Run the same task in several supported languages and compare the model’s responses.")
+                    .foregroundStyle(.secondary)
 
-                Button("Generate Multilingual Responses") {
-                    Task {
-                        await generateMultilingualResponses()
-                    }
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .disabled(isRunning)
-                .padding(.horizontal)
-
-                if isRunning {
-                    HStack {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                        Text("Generating responses...")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.horizontal)
+                ToolExecuteButton(
+                    "Generate Responses",
+                    systemImage: "character.bubble",
+                    isRunning: isRunning
+                ) {
+                    Task { await generateMultilingualResponses() }
                 }
 
                 if let errorMessage {
-                    Text(errorMessage)
-                        .foregroundStyle(.red)
-                        .padding(.horizontal)
+                    Label {
+                        Text(errorMessage)
+                            .foregroundStyle(.primary)
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.red)
+                    }
+                    .accessibilityElement(children: .combine)
                 }
 
                 if !results.isEmpty {
                     resultsSection
                 }
+
+                CodeDisclosure(code: codeExample)
             }
-            .padding(.vertical)
+            .padding(.horizontal, Spacing.medium)
+            .padding(.vertical, Spacing.large)
+            .frame(maxWidth: FoundationLabLayout.readableContentWidth, alignment: .leading)
+            .frame(maxWidth: .infinity)
         }
-        .navigationTitle("Multilingual Play")
+        .navigationTitle("Multilingual Responses")
 #if os(iOS)
         .navigationBarTitleDisplayMode(.large)
 #endif
     }
 
-    private var descriptionSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.medium) {
-
-            CodeViewer(
-                code: """
+    private var codeExample: String {
+        """
 import FoundationLabCore
 
 let prompts: [LanguagePrompt] = [
@@ -84,23 +79,18 @@ for prompt in prompts {
     print("\\(prompt.name): \\(result.content)")
 }
 """
-            )
-        }
-        .padding(.horizontal)
     }
 
     private var resultsSection: some View {
         VStack(alignment: .leading, spacing: Spacing.medium) {
-            Text("Generated Responses")
+            Text("Responses")
                 .font(.headline)
-                .padding(.horizontal)
 
             LazyVStack(spacing: Spacing.medium) {
                 ForEach(results) { result in
                     LanguageResponseCard(result: result)
                 }
             }
-            .padding(.horizontal)
         }
     }
 
@@ -128,51 +118,46 @@ for prompt in prompts {
     }
 }
 
-struct LanguageResponseCard: View {
+private struct LanguageResponseCard: View {
     let result: MultilingualResponseEntry
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.medium) {
-            HStack {
+        GroupBox {
+            VStack(alignment: .leading, spacing: Spacing.medium) {
+                LabeledContent("Prompt") {
+                    Text(result.prompt)
+                        .multilineTextAlignment(.trailing)
+                }
+
+                Divider()
+
+                VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                    Text("Response")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.secondary)
+
+                    Text(result.response)
+                        .font(.body)
+                        .foregroundStyle(result.isError ? Color.red : Color.primary)
+                        .textSelection(.enabled)
+                }
+            }
+            .padding(.top, Spacing.small)
+        } label: {
+            HStack(spacing: Spacing.small) {
                 Text(result.flag)
-                    .font(.title2)
+                    .accessibilityHidden(true)
 
                 Text(result.language)
                     .font(.headline)
-                    .fontWeight(.medium)
-
-                Spacer()
 
                 if result.isError {
                     Image(systemName: "exclamationmark.triangle")
                         .foregroundStyle(.red)
+                        .accessibilityLabel("Error")
                 }
             }
-
-            VStack(alignment: .leading, spacing: Spacing.small) {
-                Text("PROMPT")
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundStyle(.secondary)
-
-                Text(result.prompt)
-                    .font(.body)
-                    .padding(.bottom, Spacing.small)
-
-                Text("RESPONSE")
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundStyle(.secondary)
-
-                Text(result.response)
-                    .font(.body)
-                    .fontWeight(.medium)
-                    .foregroundStyle(result.isError ? .red : .primary)
-            }
         }
-        .padding()
-        .background(Color.gray.opacity(0.1))
-        .clipShape(.rect(cornerRadius: 12))
     }
 }
 

@@ -10,50 +10,51 @@ import FoundationLabCore
 
 struct LanguageDetectionView: View {
     @Environment(LanguageService.self) private var languageService
-    @State private var errorMessage: String?
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.large) {
-                descriptionSection
-
-                Button("Refresh Supported Languages") {
-                    Task {
-                        await languageService.loadSupportedLanguages()
-                    }
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .disabled(languageService.isLoading)
-                .padding(.horizontal)
+                Text("See which languages and locales the current Foundation Models runtime reports as supported.")
+                    .foregroundStyle(.secondary)
 
                 if languageService.isLoading {
-                    HStack {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                        Text("Loading languages...")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.horizontal)
-                }
-
-                if !languageService.supportedLanguages.isEmpty {
+                    ProgressView("Checking language support…")
+                        .frame(maxWidth: .infinity, minHeight: 160)
+                } else if languageService.supportedLanguages.isEmpty {
+                    ContentUnavailableView(
+                        "No Languages Reported",
+                        systemImage: "character.book.closed",
+                        description: Text("Refresh to ask the current runtime again.")
+                    )
+                } else {
                     languageListSection
                 }
+
+                CodeDisclosure(code: codeExample)
             }
-            .padding(.vertical)
+            .padding(.horizontal, Spacing.medium)
+            .padding(.vertical, Spacing.large)
+            .frame(maxWidth: FoundationLabLayout.readableContentWidth, alignment: .leading)
+            .frame(maxWidth: .infinity)
         }
         .navigationTitle("Language Detection")
 #if os(iOS)
         .navigationBarTitleDisplayMode(.large)
 #endif
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("Refresh Languages", systemImage: "arrow.clockwise") {
+                    Task {
+                        await languageService.loadSupportedLanguages()
+                    }
+                }
+                .disabled(languageService.isLoading)
+            }
+        }
     }
 
-    private var descriptionSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.medium) {
-            CodeViewer(
-                code: """
+    private var codeExample: String {
+        """
 import FoundationLabCore
 
 let result = ListSupportedLanguagesUseCase().execute(locale: .current)
@@ -68,49 +69,55 @@ for language in result.languages {
     print(displayName)
 }
 """
-            )
-        }
-        .padding(.horizontal)
     }
 
     private var languageListSection: some View {
         VStack(alignment: .leading, spacing: Spacing.medium) {
-            Text("Supported Languages (\(languageService.supportedLanguages.count))")
-                .font(.headline)
-                .padding(.horizontal)
+            HStack {
+                Text("Supported Languages")
+                    .font(.headline)
+                Spacer()
+                Text(languageService.supportedLanguages.count, format: .number)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+                    .accessibilityLabel("\(languageService.supportedLanguages.count) languages")
+            }
 
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ], spacing: Spacing.small) {
+            LazyVStack(alignment: .leading, spacing: 0) {
                 ForEach(languageService.supportedLanguages.indices, id: \.self) { index in
                     let language = languageService.supportedLanguages[index]
-                    LanguageCard(language: language, languageService: languageService)
+
+                    LanguageRow(language: language, languageService: languageService)
+
+                    if index < languageService.supportedLanguages.count - 1 {
+                        Divider()
+                    }
                 }
             }
-            .padding(.horizontal)
+            .padding(.horizontal, Spacing.medium)
+            .background(Color.secondaryBackgroundColor, in: .rect(cornerRadius: CornerRadius.medium))
         }
     }
 }
 
-struct LanguageCard: View {
+private struct LanguageRow: View {
     let language: SupportedLanguageDescriptor
     let languageService: LanguageService
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.small) {
+        Label {
             Text(displayName)
                 .font(.body)
-                .fontWeight(.medium)
                 .frame(maxWidth: .infinity, alignment: .leading)
+        } icon: {
+            Image(systemName: "character.book.closed")
+                .foregroundStyle(.secondary)
         }
-        .padding()
-        .background(Color.gray.opacity(0.1))
-        .clipShape(.rect(cornerRadius: 12))
+        .padding(.vertical, Spacing.medium)
     }
 
     private var displayName: String {
-        return languageService.getDisplayName(for: language)
+        languageService.getDisplayName(for: language)
     }
 }
 

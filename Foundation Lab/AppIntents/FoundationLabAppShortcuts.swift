@@ -30,10 +30,10 @@ nonisolated struct FoundationLabAppShortcuts: AppShortcutsProvider {
         AppShortcut(
             intent: AnalyzeNutritionIntent(),
             phrases: [
-                "Analyze nutrition in \(.applicationName)",
-                "Check calories with \(.applicationName)"
+                "Estimate meal nutrition in \(.applicationName)",
+                "Get a meal estimate with \(.applicationName)"
             ],
-            shortTitle: LocalizedStringResource("Analyze Nutrition", table: "Localizable"),
+            shortTitle: LocalizedStringResource("Estimate Nutrition", table: "Localizable"),
             systemImageName: "fork.knife"
         )
         AppShortcut(

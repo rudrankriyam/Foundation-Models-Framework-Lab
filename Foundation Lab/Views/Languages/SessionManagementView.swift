@@ -17,51 +17,46 @@ struct SessionManagementView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.large) {
-                descriptionSection
+                Text("Use one session to switch languages while preserving the conversation’s context.")
+                    .foregroundStyle(.secondary)
 
-                Button("Start Multilingual Conversation") {
-                    Task {
-                        await startMultilingualConversation()
-                    }
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .disabled(isRunning)
-                .padding(.horizontal)
-
-                if isRunning {
-                    HStack {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                        Text("Running conversation...")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.horizontal)
+                ToolExecuteButton(
+                    "Run Conversation",
+                    systemImage: "bubble.left.and.bubble.right",
+                    isRunning: isRunning
+                ) {
+                    Task { await startMultilingualConversation() }
                 }
 
                 if let errorMessage {
-                    Text(errorMessage)
-                        .foregroundStyle(.red)
-                        .padding(.horizontal)
+                    Label {
+                        Text(errorMessage)
+                            .foregroundStyle(.primary)
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.red)
+                    }
                 }
 
                 if !conversationResults.isEmpty {
                     conversationSection
                 }
+
+                CodeDisclosure(code: codeExample)
             }
-            .padding(.vertical)
+            .padding(.horizontal, Spacing.medium)
+            .padding(.vertical, Spacing.large)
+            .frame(maxWidth: FoundationLabLayout.readableContentWidth, alignment: .leading)
+            .frame(maxWidth: .infinity)
         }
-        .navigationTitle("Multiple Sessions")
+        .navigationTitle("Language Sessions")
 #if os(iOS)
         .navigationBarTitleDisplayMode(.large)
 #endif
     }
 
-    private var descriptionSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.medium) {
-            CodeViewer(
-                code: """
+    private var codeExample: String {
+        """
 import FoundationLabCore
 
 let result = try await RunConversationUseCase().execute(
@@ -77,16 +72,12 @@ let result = try await RunConversationUseCase().execute(
     )
 )
 """
-            )
-        }
-        .padding(.horizontal)
     }
 
     private var conversationSection: some View {
         VStack(alignment: .leading, spacing: Spacing.medium) {
-            Text("Conversation Flow")
+            Text("Conversation")
                 .font(.headline)
-                .padding(.horizontal)
 
             LazyVStack(spacing: Spacing.small) {
                 ForEach(conversationResults.indices, id: \.self) { index in
@@ -96,7 +87,6 @@ let result = try await RunConversationUseCase().execute(
                     )
                 }
             }
-            .padding(.horizontal)
         }
     }
 
@@ -108,7 +98,7 @@ let result = try await RunConversationUseCase().execute(
 
         do {
             let steps = FoundationLabLanguageCatalog.defaultConversationSteps.map {
-                LanguageConversationStep(label: "🌐 \($0.label)", prompt: $0.prompt)
+                LanguageConversationStep(label: $0.label, prompt: $0.prompt)
             }
             let result = try await runLanguageSessionDemoUseCase.execute(
                 RunLanguageSessionDemoRequest(
@@ -129,75 +119,50 @@ let result = try await RunConversationUseCase().execute(
     }
 }
 
-struct ConversationStepCard: View {
+private struct ConversationStepCard: View {
     let step: LanguageSessionExchange
     let stepNumber: Int
 
     var body: some View {
-        VStack(spacing: Spacing.medium) {
-            HStack {
-                Text("\(stepNumber)")
-                    .font(.caption)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.white)
-                    .frame(width: 24, height: 24)
-                    .background(Circle().fill(.blue))
+        GroupBox {
+            VStack(alignment: .leading, spacing: Spacing.medium) {
+                VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                    Text("Prompt")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Text(step.prompt)
+                        .font(.body)
+                }
+
+                Divider()
+
+                VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                    Text("Model Response")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Text(step.response)
+                        .font(.body)
+                        .foregroundStyle(step.isError ? Color.red : Color.primary)
+                        .textSelection(.enabled)
+                }
+            }
+            .padding(.top, Spacing.small)
+        } label: {
+            HStack(spacing: Spacing.small) {
+                Image(systemName: "\(min(stepNumber, 50)).circle.fill")
+                    .foregroundStyle(.tint)
+                    .accessibilityHidden(true)
 
                 Text(step.label)
                     .font(.headline)
-                    .fontWeight(.medium)
-
-                Spacer()
 
                 if step.isError {
                     Image(systemName: "exclamationmark.triangle")
                         .foregroundStyle(.red)
-                }
-            }
-
-            VStack(alignment: .leading, spacing: Spacing.medium) {
-                // User message
-                HStack {
-                    Spacer()
-                    VStack(alignment: .trailing, spacing: Spacing.small) {
-                        Text("You")
-                            .font(.caption)
-                            .fontWeight(.medium)
-                            .foregroundStyle(.secondary)
-
-                        Text(step.prompt)
-                            .font(.body)
-                            .padding(.horizontal, Spacing.medium)
-                            .padding(.vertical, Spacing.small)
-                            .background(.blue.opacity(0.1))
-                            .foregroundStyle(.blue)
-                            .clipShape(.rect(cornerRadius: 16))
-                    }
-                }
-
-                // AI response
-                HStack {
-                    VStack(alignment: .leading, spacing: Spacing.small) {
-                        Text("Assistant")
-                            .font(.caption)
-                            .fontWeight(.medium)
-                            .foregroundStyle(.secondary)
-
-                        Text(step.response)
-                            .font(.body)
-                            .padding(.horizontal, Spacing.medium)
-                            .padding(.vertical, Spacing.small)
-                            .background(step.isError ? .red.opacity(0.1) : .gray.opacity(0.1))
-                            .foregroundStyle(step.isError ? .red : .primary)
-                            .clipShape(.rect(cornerRadius: 16))
-                    }
-                    Spacer()
+                        .accessibilityLabel("Error")
                 }
             }
         }
-        .padding()
-        .background(Color.gray.opacity(0.05))
-        .clipShape(.rect(cornerRadius: 16))
     }
 }
 
