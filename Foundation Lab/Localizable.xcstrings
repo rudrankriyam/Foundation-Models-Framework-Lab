@@ -79072,66 +79072,66 @@
         }
       }
     },
-    "Searches the Apple Music catalog for songs, albums, and artists." : {
+    "Searches the music catalog for songs, albums, and artists." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Durchsucht den Apple Music-Katalog nach Titeln, Alben und Künstlern."
+            "value" : "Durchsucht den Musikkatalog nach Titeln, Alben und Künstlern."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Searches the Apple Music catalog for songs, albums, and artists."
+            "value" : "Searches the music catalog for songs, albums, and artists."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Busca canciones, álbumes y artistas en el catálogo de Apple Music."
+            "value" : "Busca canciones, álbumes y artistas en el catálogo de música."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recherche dans le catalogue Apple Music des chansons, des albums et des artistes."
+            "value" : "Recherche des chansons, des albums et des artistes dans le catalogue musical."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cerca brani, album e artisti nel catalogo di Apple Music."
+            "value" : "Cerca brani, album e artisti nel catalogo musicale."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Music カタログで曲、アルバム、アーティストを検索します。"
+            "value" : "音楽カタログで曲、アルバム、アーティストを検索します。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Music 카탈로그에서 노래, 앨범 및 아티스트를 검색합니다."
+            "value" : "음악 카탈로그에서 노래, 앨범 및 아티스트를 검색합니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pesquisa músicas, álbuns e artistas no catálogo do Apple Music."
+            "value" : "Pesquisa músicas, álbuns e artistas no catálogo de música."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在 Apple Music 目录中搜索歌曲、专辑和艺术家。"
+            "value" : "在音乐目录中搜索歌曲、专辑和艺术家。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在 Apple Music 目錄中搜尋歌曲、專輯和藝人。"
+            "value" : "在音樂目錄中搜尋歌曲、專輯和藝人。"
           }
         }
       }
