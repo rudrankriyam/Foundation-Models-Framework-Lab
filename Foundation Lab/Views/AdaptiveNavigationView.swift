@@ -5,12 +5,13 @@
 //  Created by Rudrank Riyam on 6/22/25.
 //
 
-import SwiftUI
+import Foundation
 import FoundationModels
+import SwiftUI
 
 struct AdaptiveNavigationView: View {
     @State private var languageService = LanguageService()
-    @State private var columnVisibility: NavigationSplitViewVisibility = .automatic
+    @State private var columnVisibility: NavigationSplitViewVisibility
     @State private var navigationCoordinator = NavigationCoordinator()
     @State private var experimentStore = ExperimentStore()
     @State private var playgroundViewModel = ChatViewModel()
@@ -222,6 +223,21 @@ struct AdaptiveNavigationView: View {
             return
         }
         persistedSidebarWidth = Double(width)
+#endif
+    }
+}
+
+extension AdaptiveNavigationView {
+    init() {
+#if os(macOS)
+        let isSidebarVisible = UserDefaults.standard.object(
+            forKey: FoundationLabPreferenceKey.sidebarIsVisible
+        ) as? Bool ?? true
+        _columnVisibility = State(
+            initialValue: isSidebarVisible ? .all : .detailOnly
+        )
+#else
+        _columnVisibility = State(initialValue: .automatic)
 #endif
     }
 }
