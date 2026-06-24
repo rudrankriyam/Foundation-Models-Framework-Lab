@@ -23,7 +23,10 @@ struct FoundationLabApp: App {
             AdaptiveNavigationView()
                 .modelContainer(for: [HealthMetric.self, HealthSession.self])
 #if os(macOS)
-                .frame(minWidth: 800, minHeight: 600)
+                .frame(
+                    minWidth: FoundationLabLayout.macOSMinimumWindowWidth,
+                    minHeight: FoundationLabLayout.macOSMinimumWindowHeight
+                )
                 .environment(agentBridgeController)
                 .task {
                     agentBridgeController.activatePersistedPreference()
@@ -38,6 +41,18 @@ struct FoundationLabApp: App {
                     ModelUnavailableView(reason: unavailabilityReason)
                 }
         }
+#if os(macOS)
+        .defaultSize(
+            width: FoundationLabLayout.macOSDefaultWindowWidth,
+            height: FoundationLabLayout.macOSDefaultWindowHeight
+        )
+        .commands {
+            SidebarCommands()
+            InspectorCommands()
+            FoundationLabNavigationCommands()
+        }
+#endif
+
 #if os(macOS)
         Settings {
             SettingsView()

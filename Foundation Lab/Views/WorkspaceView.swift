@@ -8,13 +8,21 @@ import SwiftUI
 struct WorkspaceView: View {
     let workspace: Workspace
 
-    @State private var selectedStage = WorkspaceStage.settings
+    @AppStorage private var selectedStageRawValue: String
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
 #if os(macOS)
     @State private var adapterStudioViewModel = AdapterStudioViewModel()
 #endif
+
+    init(workspace: Workspace) {
+        self.workspace = workspace
+        _selectedStageRawValue = AppStorage(
+            wrappedValue: WorkspaceStage.settings.rawValue,
+            FoundationLabPreferenceKey.workspaceStage(for: workspace)
+        )
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -23,7 +31,10 @@ struct WorkspaceView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.xLarge) {
-                    workspaceHeader
+                    WorkspacePhaseHeader(
+                        workspace: workspace,
+                        stage: selectedStage
+                    )
                     workspaceContent
                 }
                 .padding(.horizontal, Spacing.xxLarge)
@@ -31,6 +42,15 @@ struct WorkspaceView: View {
                 .frame(maxWidth: FoundationLabLayout.workspaceContentWidth, alignment: .leading)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+
+            Divider()
+
+            WorkspaceStatusRail(
+                title: workspaceStatusTitle,
+                context: workspace.title(for: selectedStage),
+                systemImage: workspaceStatusSystemImage,
+                isActive: workspaceStatusIsActive
+            )
         }
         .navigationTitle(workspace.title)
 #if os(iOS)
@@ -43,7 +63,7 @@ struct WorkspaceView: View {
     @ViewBuilder
     private var stagePicker: some View {
         if horizontalSizeClass == .compact || dynamicTypeSize.isAccessibilitySize {
-            Picker("Stage", selection: $selectedStage) {
+            Picker("Phase", selection: $selectedStageRawValue) {
                 stages
             }
             .pickerStyle(.menu)
@@ -52,7 +72,7 @@ struct WorkspaceView: View {
             .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
             .background(.bar)
         } else {
-            Picker("Stage", selection: $selectedStage) {
+            Picker("Phase", selection: $selectedStageRawValue) {
                 stages
             }
             .pickerStyle(.segmented)
@@ -68,20 +88,12 @@ struct WorkspaceView: View {
     private var stages: some View {
         ForEach(WorkspaceStage.allCases) { stage in
             Label(workspace.title(for: stage), systemImage: workspace.systemImage(for: stage))
-                .tag(stage)
+                .tag(stage.rawValue)
         }
     }
 
-    private var workspaceHeader: some View {
-        VStack(alignment: .leading, spacing: Spacing.xSmall) {
-            Label(workspace.title, systemImage: workspace.systemImage)
-                .font(.title2.bold())
-
-            Text(workspace.summary)
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
+    private var selectedStage: WorkspaceStage {
+        WorkspaceStage(rawValue: selectedStageRawValue) ?? .settings
     }
 
     @ViewBuilder
@@ -99,6 +111,49 @@ struct WorkspaceView: View {
         case .fmfBench:
             FMFBenchStudioContent(stage: selectedStage)
         }
+    }
+
+    private var workspaceStatusTitle: String {
+        switch workspace {
+        case .adapterComparison:
+#if os(macOS)
+            adapterStudioViewModel.statusDescription
+#else
+            String(localized: "Adapter Comparison Requires macOS")
+#endif
+        case .fmfBench:
+            String(localized: "Reference workspace")
+        }
+    }
+
+    private var workspaceStatusSystemImage: String {
+        switch workspace {
+        case .adapterComparison:
+#if os(macOS)
+            switch adapterStudioViewModel.state {
+            case .idle:
+                adapterStudioViewModel.adapterContext == nil ? "shippingbox" : "circle"
+            case .running:
+                "circle.dotted"
+            case .failed:
+                "exclamationmark.triangle"
+            case .completed:
+                "checkmark.circle"
+            }
+#else
+            "macbook"
+#endif
+        case .fmfBench:
+            "terminal"
+        }
+    }
+
+    private var workspaceStatusIsActive: Bool {
+#if os(macOS)
+        workspace == .adapterComparison && adapterStudioViewModel.isRunning
+#else
+        false
+#endif
     }
 }
 

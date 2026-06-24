@@ -9,7 +9,14 @@ struct PlaygroundView: View {
     let viewModel: ChatViewModel
     @State private var messageText = ""
     @State private var scrollID: String?
+#if os(macOS)
+    @AppStorage(FoundationLabPreferenceKey.playgroundInspectorIsVisible)
+    private var showsInspector = true
+    @AppStorage(FoundationLabPreferenceKey.playgroundInspectorWidth)
+    private var persistedInspectorWidth = Double(FoundationLabLayout.inspectorIdealWidth)
+#else
     @State private var showsInspector = false
+#endif
 #if os(iOS)
     @State private var showsSettings = false
 #endif
@@ -61,9 +68,6 @@ struct PlaygroundView: View {
                 Button("Configure Experiment", systemImage: "sidebar.trailing") {
                     showsInspector.toggle()
                 }
-#if os(macOS)
-                .keyboardShortcut("i", modifiers: [.command, .option])
-#endif
 
                 ExperimentActionsMenu(
                     isShowingDiscardConfirmation: $showsDiscardConfirmation,
@@ -121,9 +125,16 @@ struct PlaygroundView: View {
                 }
                 .inspectorColumnWidth(
                     min: FoundationLabLayout.inspectorMinimumWidth,
-                    ideal: FoundationLabLayout.inspectorIdealWidth,
+                    ideal: inspectorPreferredWidth,
                     max: FoundationLabLayout.inspectorMaximumWidth
                 )
+#if os(macOS)
+                .onGeometryChange(for: CGFloat.self) { proxy in
+                    proxy.size.width
+                } action: { width in
+                    persistInspectorWidth(width)
+                }
+#endif
             }
         }
 #if os(iOS)
@@ -148,15 +159,31 @@ struct PlaygroundView: View {
         .task(id: experimentStore.activeExperimentLoadRevision) {
             loadActiveExperiment()
         }
-        .task {
-#if os(macOS)
-            showsInspector = true
-#endif
-        }
     }
 }
 
 private extension PlaygroundView {
+    private var inspectorPreferredWidth: CGFloat {
+#if os(macOS)
+        min(
+            max(CGFloat(persistedInspectorWidth), FoundationLabLayout.inspectorMinimumWidth),
+            FoundationLabLayout.inspectorMaximumWidth
+        )
+#else
+        FoundationLabLayout.inspectorIdealWidth
+#endif
+    }
+
+    private func persistInspectorWidth(_ width: CGFloat) {
+#if os(macOS)
+        guard (FoundationLabLayout.inspectorMinimumWidth ... FoundationLabLayout.inspectorMaximumWidth).contains(width),
+              abs(persistedInspectorWidth - Double(width)) >= 0.5 else {
+            return
+        }
+        persistedInspectorWidth = Double(width)
+#endif
+    }
+
     private func loadActiveExperiment() {
         guard viewModel.activeExperimentLoadRevision != experimentStore.activeExperimentLoadRevision else {
             return
