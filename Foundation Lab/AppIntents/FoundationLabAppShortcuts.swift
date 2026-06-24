@@ -93,10 +93,10 @@ nonisolated struct FoundationLabAppShortcuts: AppShortcutsProvider {
         AppShortcut(
             intent: QueryHealthDataIntent(),
             phrases: [
-                "Check health data in \(.applicationName)",
-                "Ask health data with \(.applicationName)"
+                "Read health data in \(.applicationName)",
+                "Ask about health data with \(.applicationName)"
             ],
-            shortTitle: LocalizedStringResource("Query Health", table: "Localizable"),
+            shortTitle: LocalizedStringResource("Read Health Data", table: "Localizable"),
             systemImageName: "heart.text.square"
         )
     }

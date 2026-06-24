@@ -12,7 +12,7 @@ import SwiftUI
 
 struct HealthDataTool: Tool {
     let name = "fetchHealthData"
-    let description = "Fetch current health data including steps, heart rate, sleep, and other metrics"
+    let description = "Read authorized HealthKit measurements for today, this week, or a specific metric"
 
     @Generable
     struct Arguments {
@@ -32,7 +32,7 @@ struct HealthDataTool: Tool {
         // Validate input
         let dataType = arguments.dataType.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !dataType.isEmpty else {
-            return createErrorOutput(error: "Data type cannot be empty. Please specify 'today', 'weekly', or a specific metric.")
+            return createErrorOutput(error: "Choose today, weekly, steps, heartRate, sleep, activeEnergy, or distance.")
         }
 
         let healthManager = await MainActor.run { HealthDataManager.shared }
@@ -127,7 +127,7 @@ private extension HealthDataTool {
             message = "\(availableMetricCount) of 5 requested health measurements were available"
         } else {
             status = "success"
-            message = "Today's health data retrieved successfully"
+            message = "All requested HealthKit measurements were available"
         }
 
         return GeneratedContent(properties: [
@@ -173,7 +173,7 @@ private extension HealthDataTool {
             message = "Health data was available for \(availableDayCount) of \(requestedDayCount) daily samples"
         } else {
             status = "success"
-            message = "Weekly health data retrieved successfully"
+            message = "All requested weekly HealthKit samples were available"
         }
 
         return GeneratedContent(properties: [
@@ -264,7 +264,7 @@ private extension HealthDataTool {
         return GeneratedContent(properties: [
             "status": "error",
             "error": error,
-            "message": "Failed to fetch health data"
+            "message": "HealthKit data could not be read"
         ])
     }
 }

@@ -3,15 +3,15 @@ import Foundation
 import FoundationLabCore
 
 struct QueryHealthDataIntent: AppIntent {
-    static let title: LocalizedStringResource = "Query Health Data"
+    static let title: LocalizedStringResource = "Read Health Data"
     static let description = IntentDescription(
-        "Queries your health data using Foundation Lab's shared health capability."
+        "Answers a question using Health data you have authorized Foundation Lab to read."
     )
     static let openAppWhenRun = true
 
     @Parameter(
         title: "Request",
-        requestValueDialog: IntentDialog("What health question do you want to ask?")
+        requestValueDialog: IntentDialog("What do you want to know about your available Health data?")
     )
     var query: String
 
@@ -19,6 +19,10 @@ struct QueryHealthDataIntent: AppIntent {
         let response = try await QueryHealthDataUseCase().execute(
             QueryHealthDataRequest(
                 query: query,
+                systemPrompt: """
+                Use only measurements returned by the Health tool. Never invent missing values, trends, goals,
+                correlations, diagnoses, or predictions. State unavailable data plainly. Do not provide medical advice.
+                """,
                 referenceDate: .now,
                 timeZoneIdentifier: TimeZone.current.identifier,
                 context: CapabilityInvocationContext(

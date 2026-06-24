@@ -65,18 +65,17 @@ final class HealthChatViewModel {
         let configuration = FoundationLabConversationConfiguration(
             baseInstructions: Self.baseInstructions,
             summaryInstructions: """
-            Create comprehensive health coaching summaries that preserve all health metrics discussed,
-            goals set, and advice given.
+            Preserve the HealthKit measurements, date ranges, unavailable fields, and user questions already discussed.
+            Do not add interpretations, goals, diagnoses, or advice.
             """,
             summaryPromptPreamble: """
-            Please summarize the following health coaching conversation.
-            Include all health metrics discussed, goals mentioned, advice given, and user's health concerns:
+            Summarize this Health data conversation using only information already present in the transcript:
             """,
             conversationUserLabel: String(localized: "User:"),
-            conversationAssistantLabel: String(localized: "Health AI:"),
+            conversationAssistantLabel: String(localized: "Foundation Models:"),
             continuationNote: "Continue the conversation naturally, referencing this context when relevant.",
             overflowResetMessage: """
-            I need to start a fresh conversation to keep your health coaching accurate.
+            This conversation reached its context limit, so a fresh session has started.
             Please send your last message again.
             """,
             modelUseCase: .general,
@@ -187,13 +186,13 @@ final class HealthChatViewModel {
 
 private extension HealthChatViewModel {
     static let baseInstructions = """
-    You are a friendly and knowledgeable health coach AI assistant.
+    You help users understand HealthKit measurements that Foundation Lab can read.
     Use the HealthDataTool whenever a response depends on the user's measurements.
     Never invent measurements, trends, correlations, diagnoses, or predictions.
-    If the requested data is unavailable, say so plainly and suggest what the user can check next.
-    Explain that health information is educational and not a substitute for professional medical advice when appropriate.
-    Based only on available health data, provide personalized, encouraging responses.
-    Be supportive and celebrate small wins. Use emojis occasionally.
+    Never infer a goal, score, or health status from the available measurements.
+    If requested data is unavailable, say so plainly and identify which measurement is missing.
+    Keep summaries factual and distinguish today's values, latest values, and weekly aggregates.
+    Do not provide medical advice. Suggest professional care when a request requires medical interpretation.
     """
 
     func syncConversationState() {
