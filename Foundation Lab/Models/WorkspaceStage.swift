@@ -13,4 +13,8 @@ enum WorkspaceStage: String, CaseIterable, Identifiable {
     case output
 
     var id: Self { self }
+
+    var ordinal: Int {
+        Self.allCases.firstIndex(of: self).map { $0 + 1 } ?? 1
+    }
 }
