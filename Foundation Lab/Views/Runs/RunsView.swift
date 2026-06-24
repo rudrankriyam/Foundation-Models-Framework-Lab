@@ -11,6 +11,7 @@ struct RunsView: View {
     @Environment(ExperimentStore.self) private var store
     @Environment(NavigationCoordinator.self) private var navigationCoordinator
     @State private var searchText = ""
+    @State private var showsSettings = false
 
     var body: some View {
         Group {
@@ -41,12 +42,24 @@ struct RunsView: View {
             }
         }
         .toolbar {
+#if os(iOS)
+            ToolbarItem(placement: .primaryAction) {
+                SettingsToolbarButton(isPresented: $showsSettings)
+            }
+#endif
             if !store.runs.isEmpty {
                 ToolbarItem(placement: .primaryAction) {
                     ClearRunsButton()
                 }
             }
         }
+#if os(iOS)
+        .sheet(isPresented: $showsSettings) {
+            NavigationStack {
+                SettingsView()
+            }
+        }
+#endif
     }
 
     private var emptyState: some View {
@@ -98,7 +111,7 @@ struct RunsView: View {
             }
         }
         #if os(iOS)
-        .listStyle(.insetGrouped)
+        .listStyle(.plain)
         #else
         .listStyle(.inset)
         #endif

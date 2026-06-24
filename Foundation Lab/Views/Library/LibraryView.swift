@@ -33,9 +33,7 @@ struct LibraryView: View {
 #if os(iOS)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button("Settings", systemImage: "gear") {
-                    showsSettings = true
-                }
+                SettingsToolbarButton(isPresented: $showsSettings)
             }
         }
 #endif

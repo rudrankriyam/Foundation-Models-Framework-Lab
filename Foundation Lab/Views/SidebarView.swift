@@ -12,14 +12,12 @@ struct SidebarView: View {
 
     var body: some View {
         List(selection: $selection) {
-            Section("Workspace") {
-                ForEach(TabSelection.allCases, id: \.self) { tab in
-                    Label(tab.displayName, systemImage: tab.systemImage)
-                        .tag(tab)
+            ForEach(TabSelection.allCases, id: \.self) { tab in
+                Label(tab.displayName, systemImage: tab.systemImage)
+                    .tag(tab)
 #if os(macOS)
-                        .keyboardShortcut(tab.keyboardShortcut, modifiers: .command)
+                    .keyboardShortcut(tab.keyboardShortcut, modifiers: .command)
 #endif
-                }
             }
         }
         .listStyle(.sidebar)

@@ -10,14 +10,7 @@ struct SavedExperimentRow: View {
     let experiment: FoundationLabExperimentConfiguration
 
     var body: some View {
-        HStack(alignment: .top, spacing: Spacing.medium) {
-            Image(systemName: experiment.kind.systemImage)
-                .font(.title3)
-                .foregroundStyle(.tint)
-                .symbolRenderingMode(.hierarchical)
-                .frame(width: 32, height: 32)
-                .accessibilityHidden(true)
-
+        Label {
             VStack(alignment: .leading, spacing: Spacing.xSmall) {
                 Text(experiment.name)
                     .font(.headline)
@@ -40,12 +33,17 @@ struct SavedExperimentRow: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             }
+        } icon: {
+            Image(systemName: experiment.kind.systemImage)
+                .font(.title3)
+                .foregroundStyle(.tint)
+                .symbolRenderingMode(.hierarchical)
+                .accessibilityHidden(true)
         }
         .padding(.vertical, Spacing.xSmall)
         .contentShape(.rect)
         .accessibilityElement(children: .combine)
     }
-
 }
 
 #Preview {
