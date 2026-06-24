@@ -49,7 +49,7 @@ struct WorkspaceView: View {
             .pickerStyle(.menu)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, Spacing.medium)
-            .frame(minHeight: 44)
+            .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
             .background(.bar)
         } else {
             Picker("Stage", selection: $selectedStage) {

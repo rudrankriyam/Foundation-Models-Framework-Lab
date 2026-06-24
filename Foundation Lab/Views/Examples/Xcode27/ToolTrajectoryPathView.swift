@@ -72,7 +72,11 @@ struct ToolTrajectoryPathView: View {
 
                     Spacer(minLength: Spacing.small)
                 }
-                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                .frame(
+                    maxWidth: .infinity,
+                    minHeight: FoundationLabLayout.minimumTouchTarget,
+                    alignment: .leading
+                )
                 .padding(.vertical, Spacing.small)
                 .accessibilityElement(children: .combine)
 

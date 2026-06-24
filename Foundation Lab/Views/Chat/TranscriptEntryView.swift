@@ -142,7 +142,7 @@ private struct ReasoningTraceView: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            .frame(minHeight: 44)
+            .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
         }
         .tint(.secondary)
         .frame(maxWidth: .infinity, alignment: .leading)

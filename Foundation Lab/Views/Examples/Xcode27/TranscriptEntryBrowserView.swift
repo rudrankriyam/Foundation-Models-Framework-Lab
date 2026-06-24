@@ -38,7 +38,11 @@ struct TranscriptEntryBrowserView: View {
                                 .foregroundStyle(entry.id == selectedEntryID ? Color.accentColor : .secondary)
                                 .accessibilityHidden(true)
                         }
-                        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                        .frame(
+                            maxWidth: .infinity,
+                            minHeight: FoundationLabLayout.minimumTouchTarget,
+                            alignment: .leading
+                        )
                         .padding(.horizontal, Spacing.small)
                         .padding(.vertical, Spacing.small)
                         .contentShape(.rect)

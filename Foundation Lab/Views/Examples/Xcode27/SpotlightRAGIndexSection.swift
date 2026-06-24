@@ -32,7 +32,10 @@ struct SpotlightRAGIndexSection: View {
                             Button("Clear Index", systemImage: "trash", role: .destructive, action: clearIndex)
                         }
                         .labelStyle(.iconOnly)
-                        .frame(minWidth: 44, minHeight: 44)
+                        .frame(
+                            minWidth: FoundationLabLayout.minimumTouchTarget,
+                            minHeight: FoundationLabLayout.minimumTouchTarget
+                        )
                     }
                 } else {
                     Button(
@@ -65,7 +68,11 @@ struct SpotlightRAGIndexSection: View {
                     .padding(.top, Spacing.small)
                 } label: {
                     Text("Preview sample notes")
-                        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                        .frame(
+                            maxWidth: .infinity,
+                            minHeight: FoundationLabLayout.minimumTouchTarget,
+                            alignment: .leading
+                        )
                 }
                 .font(.callout)
             }

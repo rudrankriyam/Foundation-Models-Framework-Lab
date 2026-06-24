@@ -47,7 +47,7 @@ struct ProviderBridgeWalkthroughView: View {
                                             .accessibilityHidden(true)
                                     }
                                 }
-                                .frame(minHeight: 44)
+                                .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
                                 .contentShape(.rect)
                             }
                             .buttonStyle(.plain)

@@ -29,7 +29,7 @@ struct ImageInputImportProgressView: View {
             Button("Cancel Import", systemImage: "xmark", action: cancel)
                 .buttonStyle(.bordered)
                 .controlSize(.large)
-                .frame(minHeight: 44)
+                .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
         }
         .font(.callout)
         .frame(maxWidth: .infinity)
