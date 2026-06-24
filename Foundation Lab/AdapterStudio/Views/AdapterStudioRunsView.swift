@@ -78,6 +78,7 @@ struct AdapterStudioRunsView: View {
 
     private var hasComparisonOutput: Bool {
         viewModel.isRunning
+            || viewModel.lastResult != nil
             || !viewModel.baseColumn.text.isEmpty
             || !viewModel.adapterColumn.text.isEmpty
             || viewModel.baseColumn.errorMessage != nil
