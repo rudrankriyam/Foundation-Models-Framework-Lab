@@ -59,7 +59,7 @@ private extension ChatInputView {
                         .foregroundStyle(.tint)
                 }
             } else {
-                TextField("Message", text: $messageText, axis: .vertical)
+                TextField("Enter a prompt", text: $messageText, axis: .vertical)
                     .lineLimit(1...5)
                     .textFieldStyle(.plain)
                     .focused($isTextFieldFocused)

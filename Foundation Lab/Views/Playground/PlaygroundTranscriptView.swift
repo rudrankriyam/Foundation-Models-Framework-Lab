@@ -96,12 +96,12 @@ private struct PlaygroundEmptyState: View {
 
     var body: some View {
         ContentUnavailableView {
-            Label("Ready to Run", systemImage: configuration.kind.systemImage)
+            Label(emptyTitle, systemImage: configuration.kind.systemImage)
         } description: {
             Text(emptyDescription)
         } actions: {
             if configuration.prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                Button("Choose an Example", systemImage: "books.vertical", action: openLibrary)
+                Button("Browse Library", systemImage: "books.vertical", action: openLibrary)
                     .buttonStyle(.borderedProminent)
             } else {
                 Button("Run Suggested Prompt", systemImage: "play.fill", action: runSuggestedPrompt)
@@ -119,5 +119,11 @@ private struct PlaygroundEmptyState: View {
         } else {
             configuration.summary
         }
+    }
+
+    private var emptyTitle: LocalizedStringKey {
+        configuration.prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? "Start an Experiment"
+            : "Ready to Run"
     }
 }

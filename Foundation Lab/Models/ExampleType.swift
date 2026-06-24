@@ -72,7 +72,7 @@ extension ExampleType {
     var title: String {
         switch self {
         case .basicChat:
-            return "One-shot"
+            return "One-Shot Prompt"
         case .journaling:
             return "Journaling"
         case .creativeWriting:
@@ -98,108 +98,108 @@ extension ExampleType {
         case .geminiVideoInput:
             return "Gemini Video"
         case .toolCallingModeLab:
-            return "Tool Modes"
+            return "Tool Calling Modes"
         case .dynamicProfileBuilder:
-            return "Dynamic Profile"
+            return "Session Profile Builder"
         case .reasoningLevelComparison:
             return "Reasoning Levels"
         case .transcriptExplorer:
             return "Transcript Explorer"
         case .agentFlowInspector:
-            return "Agent Flow"
+            return "Agent Turn Map"
         case .historyTransformLab:
-            return "History Lab"
+            return "Transcript Transforms"
         case .riskyToolConfirmation:
             return "Tool Authorization"
         case .modelRouterDashboard:
             return "Model Router"
         case .contextBudgetVisualizer:
-            return "Budget Visualizer"
+            return "Context Budget"
         case .toolCallTrajectoryViewer:
-            return "Trajectory"
+            return "Tool Call Trajectory"
         case .foundationModelsSecurityPlayground:
-            return "Agent Security"
+            return "Security Boundaries"
         case .usagePerformanceTrace:
-            return "Response Usage"
+            return "Usage & Performance"
         case .spotlightRAGExplorer:
             return "Spotlight RAG"
         case .providerBridgeWalkthrough:
-            return "Provider Bridge"
+            return "Custom Model Provider"
         case .evaluationsLab:
             return "Evaluations"
         case .fmCLIPythonPlayground:
-            return "fm Scripts"
+            return "fm CLI & Python"
         case .health:
-            return "Health Dashboard"
+            return "Health"
         case .rag:
-            return "Doc Q&A"
+            return "Document Q&A"
         }
     }
 
     var subtitle: String {
         switch self {
         case .basicChat:
-            return "Single prompt-response interaction"
+            return "Send one prompt and inspect one complete response"
         case .journaling:
-            return "Prompts, starters, and reflective summaries"
+            return "Turn reflections into summaries and follow-up questions"
         case .creativeWriting:
-            return "Stories, poems, and creative content"
+            return "Compare how voice and constraints shape creative output"
         case .structuredData:
-            return "Parse and generate structured information"
+            return "Generate typed Swift values instead of parsing prose"
         case .streamingResponse:
-            return "Real-time response streaming"
+            return "Watch a response arrive as the model generates it"
         case .modelAvailability:
-            return "Check Apple Intelligence status"
+            return "Check whether the on-device model is ready"
         case .generationGuides:
-            return "Guided generation with constraints"
+            return "Constrain generated values with @Guide"
         case .generationOptions:
-            return "Experiment with model parameters"
+            return "Compare sampling, temperature, and token limits"
         case .modelRuntime:
-            return "Inspect this device's system model and tokenizer"
+            return "Inspect the system model, capabilities, and tokenizer"
         case .contextWindowInspector:
-            return "Inspect context size and token budget"
+            return "See what consumes a session's context budget"
         case .privateCloudCompute:
-            return "Probe PCC availability, quota, and context size"
+            return "Inspect Private Cloud Compute availability, quota, and context size"
         case .imageInputPlayground:
-            return "Run a live on-device image attachment request"
+            return "Send an image and prompt to the on-device model"
         case .geminiVideoInput:
-            return "Analyze video with a custom LanguageModelSession"
+            return "Connect a video-capable model to LanguageModelSession"
         case .toolCallingModeLab:
-            return "Compare allowed, required, and disallowed tools"
+            return "Compare allowed, required, and disallowed tool calling"
         case .dynamicProfileBuilder:
-            return "Compose Xcode 27 session profiles"
+            return "Build a LanguageModelSession profile from runtime controls"
         case .reasoningLevelComparison:
-            return "Compare light, moderate, and deep reasoning"
+            return "Compare one prompt across three reasoning levels"
         case .transcriptExplorer:
-            return "Run a session and inspect its observed transcript"
+            return "Run a session and inspect its actual transcript entries"
         case .agentFlowInspector:
-            return "Inspect an agent turn from profile to usage"
+            return "Trace one agent turn from profile selection to usage"
         case .historyTransformLab:
-            return "Compare trimming, redaction, and spotlighting"
+            return "Compare trimming, redaction, and relevance transforms"
         case .riskyToolConfirmation:
-            return "Review app-owned authorization before side effects"
+            return "Keep side-effect approval in app-owned code"
         case .modelRouterDashboard:
-            return "Make routing an explicit app policy"
+            return "Route requests with an explicit app-owned policy"
         case .contextBudgetVisualizer:
-            return "Show kept, summarized, and dropped context"
+            return "Decide what to keep, summarize, or drop"
         case .toolCallTrajectoryViewer:
-            return "Capture and verify an actual tool path"
+            return "Compare actual tool calls with an expected path"
         case .foundationModelsSecurityPlayground:
-            return "Inspect framework guarantees and app-owned boundaries"
+            return "Separate framework guarantees from app responsibilities"
         case .usagePerformanceTrace:
-            return "Measure streaming time and inspect reported token usage"
+            return "Measure response timing and reported token usage"
         case .spotlightRAGExplorer:
-            return "Explore Core Spotlight grounded answers"
+            return "Ground responses in content indexed by your app"
         case .providerBridgeWalkthrough:
-            return "Map custom models into LanguageModelSession"
+            return "Connect a custom model to LanguageModelSession"
         case .evaluationsLab:
-            return "Evaluate judges, samples, and tool trajectories"
+            return "Design datasets, graders, and tool trajectory checks"
         case .fmCLIPythonPlayground:
-            return "Prototype workflows with fm CLI and Python"
+            return "Run Foundation Models workflows from the fm CLI and Python"
         case .health:
-            return "AI-powered health insights and tracking"
+            return "Review authorized HealthKit data and ask grounded questions"
         case .rag:
-            return "Ask questions with source citations"
+            return "Index documents, ask questions, and inspect citations"
         }
     }
 
@@ -287,24 +287,24 @@ enum LanguageExample: String, CaseIterable, Identifiable {
         case .languageDetection:
             return "Language Detection"
         case .multilingualResponses:
-            return "Multilingual Play"
+            return "Multilingual Responses"
         case .sessionManagement:
-            return "Multiple Sessions"
+            return "Language Sessions"
         case .productionExample:
-            return "Insights Example"
+            return "Localized App Pattern"
         }
     }
 
     var subtitle: String {
         switch self {
         case .languageDetection:
-            return "Query and display supported languages"
+            return "Check language support before creating a session"
         case .multilingualResponses:
-            return "Generate responses in different languages"
+            return "Generate the same response in several languages"
         case .sessionManagement:
-            return "Persistent session patterns across languages"
+            return "Keep separate conversation state for each language"
         case .productionExample:
-            return "Real-world multilingual implementation"
+            return "Build localized, language-aware app responses"
         }
     }
 

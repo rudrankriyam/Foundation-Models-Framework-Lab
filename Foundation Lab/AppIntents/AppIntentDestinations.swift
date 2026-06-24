@@ -23,7 +23,7 @@ enum ExampleDestination: String, AppEnum, CaseIterable {
     static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Example")
 
     static let caseDisplayRepresentations: [ExampleDestination: DisplayRepresentation] = [
-        .basicChat: DisplayRepresentation(title: "One-shot"),
+        .basicChat: DisplayRepresentation(title: "One-Shot Prompt"),
         .journaling: DisplayRepresentation(title: "Journaling"),
         .creativeWriting: DisplayRepresentation(title: "Creative Writing"),
         .structuredData: DisplayRepresentation(title: "Structured Data"),
@@ -31,8 +31,8 @@ enum ExampleDestination: String, AppEnum, CaseIterable {
         .modelAvailability: DisplayRepresentation(title: "Model Availability"),
         .generationGuides: DisplayRepresentation(title: "Generation Guides"),
         .generationOptions: DisplayRepresentation(title: "Generation Options"),
-        .health: DisplayRepresentation(title: "Health Dashboard"),
-        .rag: DisplayRepresentation(title: "RAG Chat")
+        .health: DisplayRepresentation(title: "Health"),
+        .rag: DisplayRepresentation(title: "Document Q&A")
     ]
 
     var exampleType: ExampleType {
@@ -126,16 +126,16 @@ enum SchemaDestination: String, AppEnum, CaseIterable {
     static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Schema Example")
 
     static let caseDisplayRepresentations: [SchemaDestination: DisplayRepresentation] = [
-        .basicObject: DisplayRepresentation(title: "Basic Object Schema"),
-        .arraySchema: DisplayRepresentation(title: "Array Schemas"),
-        .enumSchema: DisplayRepresentation(title: "Enum Schemas"),
+        .basicObject: DisplayRepresentation(title: "Basic Object"),
+        .arraySchema: DisplayRepresentation(title: "Arrays"),
+        .enumSchema: DisplayRepresentation(title: "Enumerations"),
         .nestedObjects: DisplayRepresentation(title: "Nested Objects"),
         .schemaReferences: DisplayRepresentation(title: "Schema References"),
         .generationGuides: DisplayRepresentation(title: "Generation Guides"),
         .generablePattern: DisplayRepresentation(title: "@Generable Pattern"),
         .unionTypes: DisplayRepresentation(title: "Union Types"),
-        .formBuilder: DisplayRepresentation(title: "Dynamic Form Builder"),
-        .errorHandling: DisplayRepresentation(title: "Error Handling"),
+        .formBuilder: DisplayRepresentation(title: "Form Builder"),
+        .errorHandling: DisplayRepresentation(title: "Schema Errors"),
         .invoiceProcessing: DisplayRepresentation(title: "Invoice Processing")
     ]
 
@@ -177,9 +177,9 @@ enum LanguageDestination: String, AppEnum, CaseIterable {
 
     static let caseDisplayRepresentations: [LanguageDestination: DisplayRepresentation] = [
         .languageDetection: DisplayRepresentation(title: "Language Detection"),
-        .multilingualResponses: DisplayRepresentation(title: "Multilingual Play"),
-        .sessionManagement: DisplayRepresentation(title: "Multiple Sessions"),
-        .productionExample: DisplayRepresentation(title: "Insights Example")
+        .multilingualResponses: DisplayRepresentation(title: "Multilingual Responses"),
+        .sessionManagement: DisplayRepresentation(title: "Language Sessions"),
+        .productionExample: DisplayRepresentation(title: "Localized App Pattern")
     ]
 
     var languageExample: LanguageExample {

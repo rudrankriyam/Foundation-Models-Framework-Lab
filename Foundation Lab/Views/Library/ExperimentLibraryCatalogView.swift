@@ -41,7 +41,7 @@ struct ExperimentLibraryCatalogView: View {
             examples: [.schemaReferences, .unionTypes, .errorHandling, .generablePattern]
         )
         schemaSection(
-            "Applied Projects",
+            "Projects",
             examples: [.formBuilder, .invoiceProcessing]
         )
     }
@@ -256,7 +256,7 @@ private extension ExperimentLibraryCatalog {
         case .languages:
             String(localized: "Explore multilingual model behavior")
         case .xcode27:
-            String(localized: "Compose and measure production-grade experiments.")
+            String(localized: "Build and measure experiments with the latest SDK.")
         }
     }
 }

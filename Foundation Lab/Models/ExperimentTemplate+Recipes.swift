@@ -75,19 +75,19 @@ extension ExperimentTemplate {
         case .web:
             "Search the web and return current, attributable results."
         case .contacts:
-            "Find people with permission-aware Contacts access."
+            "Search authorized Contacts data by name."
         case .calendar:
             "Read and manage events through EventKit."
         case .reminders:
-            "Turn natural-language requests into real reminders."
+            "Create and update reminders from natural-language requests."
         case .location:
-            "Resolve the current location for grounded responses."
+            "Use the current location to ground a response."
         case .health:
-            "Query authorized HealthKit data with a focused tool."
+            "Answer questions using authorized HealthKit data only."
         case .music:
             "Search the Apple Music catalog from a model request."
         case .webMetadata:
-            "Extract useful metadata from a URL for model context."
+            "Read a page title, description, and preview metadata from a URL."
         }
     }
 

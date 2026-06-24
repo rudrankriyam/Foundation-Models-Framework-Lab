@@ -20,15 +20,15 @@ nonisolated enum FoundationModelsError: LocalizedError, Sendable {
     var errorDescription: String? {
         switch self {
         case .sessionCreationFailed:
-            return String(localized: "Failed to create language model session")
+            return String(localized: "The model session couldn’t start. Check model availability and try again.")
         case .responseGenerationFailed(let message):
-            return String(localized: "Response generation failed: \(message)")
+            return String(localized: "The model couldn’t generate a response. \(message)")
         case .toolCallFailed(let message):
-            return String(localized: "Tool call failed: \(message)")
+            return String(localized: "The tool couldn’t finish. \(message)")
         case .streamingFailed(let message):
-            return String(localized: "Streaming failed: \(message)")
+            return String(localized: "The response stream ended unexpectedly. \(message)")
         case .modelUnavailable(let message):
-            return String(localized: "Model unavailable: \(message)")
+            return String(localized: "The model isn’t available. \(message)")
         }
     }
 }
@@ -38,31 +38,59 @@ struct FoundationModelsErrorHandler: Sendable {
     static func handleGenerationError(_ error: LanguageModelSession.GenerationError) -> String {
         switch error {
         case .exceededContextWindowSize(let context):
-            return String(localized: "Context window exceeded: \(context.debugDescription)")
+            return detailedMessage(
+                String(localized: "This session ran out of context. Shorten the prompt or start a new experiment."),
+                details: context.debugDescription
+            )
         case .assetsUnavailable(let context):
-            return String(localized: "Model assets unavailable: \(context.debugDescription)")
+            return detailedMessage(
+                String(localized: "The model isn’t ready. Wait for Apple Intelligence to finish downloading, then try again."),
+                details: context.debugDescription
+            )
         case .guardrailViolation(let context):
-            return String(localized: "Content policy violation: \(context.debugDescription)")
+            return detailedMessage(
+                String(localized: "The request or response triggered a safety guardrail. Revise the prompt and try again."),
+                details: context.debugDescription
+            )
         case .decodingFailure(let context):
-            return String(localized: "Failed to decode response: \(context.debugDescription)")
+            return detailedMessage(
+                String(localized: "The response didn’t match the requested schema. Review the schema and generation guides."),
+                details: context.debugDescription
+            )
         case .unsupportedGuide(let context):
-            return String(localized: "Unsupported generation guide: \(context.debugDescription)")
+            return detailedMessage(
+                String(localized: "The model doesn’t support one of these generation guides. Simplify or remove the guide."),
+                details: context.debugDescription
+            )
         case .unsupportedLanguageOrLocale(let context):
-            return String(localized: "Unsupported language/locale: \(context.debugDescription)")
+            return detailedMessage(
+                String(localized: "The model doesn’t support this language or locale. Choose a supported language and try again."),
+                details: context.debugDescription
+            )
         case .rateLimited(let context):
-            return String(localized: "Rate limited: \(context.debugDescription)")
+            return detailedMessage(
+                String(localized: "The model is receiving too many requests. Wait a moment, then try again."),
+                details: context.debugDescription
+            )
         case .concurrentRequests(let context):
-            return String(localized: "Too many concurrent requests: \(context.debugDescription)")
-            // Refusal is async throws
+            return detailedMessage(
+                String(localized: "Another request is already running in this session. Wait for it to finish or stop it first."),
+                details: context.debugDescription
+            )
         case .refusal(_, let context):
-            return String(localized: "Model refused to respond: \(context.debugDescription)")
+            return detailedMessage(
+                String(localized: "The model declined this request. Revise the prompt or try a different task."),
+                details: context.debugDescription
+            )
         @unknown default:
-            return String(localized: "Unknown generation error")
+            return String(localized: "The model couldn’t generate a response. Try again or start a new experiment.")
         }
     }
 
     static func handleToolCallError(_ error: LanguageModelSession.ToolCallError) -> String {
-        return String(localized: "Tool '\(error.tool.name)' failed: \(error.underlyingError.localizedDescription)")
+        return String(
+            localized: "The \(error.tool.name) tool couldn’t finish. \(error.underlyingError.localizedDescription)"
+        )
     }
 
     #if compiler(>=6.4)
@@ -70,13 +98,22 @@ struct FoundationModelsErrorHandler: Sendable {
     static func handlePrivateCloudComputeError(_ error: PrivateCloudComputeLanguageModel.Error) -> String {
         switch error {
         case .networkFailure(let context):
-            return String(localized: "PCC network failure: \(context.debugDescription)")
+            return detailedMessage(
+                String(localized: "Private Cloud Compute couldn’t connect. Check the network and try again."),
+                details: context.debugDescription
+            )
         case .quotaLimitReached(let context):
-            return String(localized: "PCC quota limit reached: \(context.debugDescription)")
+            return detailedMessage(
+                String(localized: "Private Cloud Compute has reached its request limit. Wait before trying again."),
+                details: context.debugDescription
+            )
         case .serviceUnavailable(let context):
-            return String(localized: "PCC service unavailable: \(context.debugDescription)")
+            return detailedMessage(
+                String(localized: "Private Cloud Compute is temporarily unavailable. Try again later."),
+                details: context.debugDescription
+            )
         @unknown default:
-            return String(localized: "PCC failed with an unknown service error.")
+            return String(localized: "Private Cloud Compute couldn’t complete the request. Try again later.")
         }
     }
     #endif
@@ -106,6 +143,10 @@ struct FoundationModelsErrorHandler: Sendable {
             return customError.localizedDescription
         }
 
-        return String(localized: "Unexpected error: \(error.localizedDescription)")
+        return String(localized: "Something went wrong. \(error.localizedDescription)")
+    }
+
+    private static func detailedMessage(_ message: String, details: String) -> String {
+        "\(message) \(String(localized: "Details:")) \(details)"
     }
 }

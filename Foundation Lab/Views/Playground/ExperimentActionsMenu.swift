@@ -19,14 +19,14 @@ struct ExperimentActionsMenu: View {
                 .keyboardShortcut("s", modifiers: .command)
         }
         .confirmationDialog(
-            "Discard unsaved experiment?",
+            "Create a new experiment?",
             isPresented: $isShowingDiscardConfirmation,
             titleVisibility: .visible
         ) {
-            Button("Discard and Create New", role: .destructive, action: discardAndCreate)
-            Button("Cancel", role: .cancel) {}
+            Button("Discard Changes and Create New", role: .destructive, action: discardAndCreate)
+            Button("Keep Editing", role: .cancel) {}
         } message: {
-            Text("Save this experiment first if you want to keep its configuration.")
+            Text("Unsaved changes to this experiment will be lost.")
         }
     }
 }

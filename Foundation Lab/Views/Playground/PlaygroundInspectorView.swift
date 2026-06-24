@@ -101,7 +101,7 @@ struct PlaygroundInspectorView: View {
             }
 
             Section {
-                Button("Apply Configuration", systemImage: "checkmark", action: applyConfiguration)
+                Button("Apply to Session", systemImage: "checkmark", action: applyConfiguration)
                     .buttonStyle(.borderedProminent)
                     .disabled(viewModel.isLoading)
 
@@ -113,10 +113,10 @@ struct PlaygroundInspectorView: View {
                 }
                 .disabled(viewModel.isLoading)
             } footer: {
-                Text("Apply changes to rebuild the current session. Save the experiment to keep it in Library.")
+                Text("Apply changes to start a new session. Save the experiment to keep it in the Library.")
             }
 
-            Section("Swift") {
+            Section("Swift Code") {
                 CodeDisclosure(code: ExperimentCodeGenerator.code(for: exportConfiguration))
                 ShareLink(item: ExperimentCodeGenerator.code(for: exportConfiguration)) {
                     Label("Share Swift Code", systemImage: "square.and.arrow.up")

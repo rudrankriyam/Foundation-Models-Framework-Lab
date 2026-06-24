@@ -27,7 +27,7 @@ enum ExperimentTrack: String, CaseIterable, Hashable, Identifiable {
         case .contextAndRuntime:
             return String(localized: "Context & Runtime")
         case .appliedProjects:
-            return String(localized: "Applied Projects")
+            return String(localized: "Projects")
         case .workflows:
             return String(localized: "Workflows")
         }
@@ -46,7 +46,7 @@ enum ExperimentTrack: String, CaseIterable, Hashable, Identifiable {
         case .appliedProjects:
             return String(localized: "Study complete patterns you can adapt to your app.")
         case .workflows:
-            return String(localized: "Compose and measure production-grade experiments.")
+            return String(localized: "Combine tools, inspect behavior, and measure results.")
         }
     }
 
@@ -165,7 +165,7 @@ extension ExperimentTemplate {
         ExperimentTemplate(
             id: "blank-playground",
             title: "New Experiment",
-            summary: "Start with an empty prompt and build at your own pace.",
+            summary: "Start with a blank prompt and configure the model yourself.",
             systemImage: "plus.square",
             track: .startHere,
             launch: .recipe(
@@ -177,14 +177,14 @@ extension ExperimentTemplate {
         ),
         ExperimentTemplate(
             id: "one-shot",
-            title: "One-shot Prompt",
-            summary: "Send one prompt and inspect the complete response.",
+            title: "One-Shot Prompt",
+            summary: "Send one prompt and inspect one complete response.",
             systemImage: "ellipsis.message",
             track: .startHere,
             launch: .recipe(
                 localizedConfiguration(FoundationLabExperimentConfiguration(
-                    name: "One-shot Prompt",
-                    summary: "The shortest path from a prompt to a model response",
+                    name: "One-Shot Prompt",
+                    summary: "Send one prompt and inspect the complete response",
                     prompt: "Explain why on-device language models are useful in an iOS app.",
                     instructions: "Answer clearly in three short paragraphs and include one concrete example.",
                     kind: .generation
@@ -195,13 +195,13 @@ extension ExperimentTemplate {
         ExperimentTemplate(
             id: "streaming",
             title: "Streaming Response",
-            summary: "Watch a response arrive incrementally in real time.",
+            summary: "Watch the response arrive as the model generates it.",
             systemImage: "text.line.first.and.arrowtriangle.forward",
             track: .startHere,
             launch: .recipe(
                 localizedConfiguration(FoundationLabExperimentConfiguration(
                     name: "Streaming Response",
-                    summary: "See the model response appear as it is generated",
+                    summary: "Watch the response arrive as the model generates it",
                     prompt: "Write a short field guide for observing the night sky from a city balcony.",
                     instructions: "Use a brief introduction followed by five practical tips.",
                     kind: .generation,
@@ -213,7 +213,7 @@ extension ExperimentTemplate {
         ExperimentTemplate(
             id: "guided-conversation",
             title: "Guided Conversation",
-            summary: "Open a ready-made session with editable instructions and prompt.",
+            summary: "See how editable instructions shape a model response.",
             systemImage: "bubble.left.and.text.bubble.right",
             track: .startHere,
             launch: .recipe(
@@ -233,13 +233,13 @@ extension ExperimentTemplate {
         ExperimentTemplate(
             id: "tool-composer",
             title: "Tool-Enabled Assistant",
-            summary: "Fork a two-tool setup, mix in system capabilities, then export the Swift.",
+            summary: "Start with two tools, customize the configuration, and generate reusable Swift code.",
             systemImage: "wrench.and.screwdriver",
             track: .buildWithTools,
             launch: .recipe(
                 localizedConfiguration(FoundationLabExperimentConfiguration(
                     name: "Tool-Enabled Assistant",
-                    summary: "A customizable assistant grounded by live tools",
+                    summary: "A customizable assistant grounded in current tool results",
                     prompt: "Compare today's weather in Cupertino with a good indoor alternative nearby.",
                     instructions: "Use tools when they provide fresher or more reliable information. Explain which evidence you used.",
                     kind: .toolUse,
@@ -365,12 +365,12 @@ extension ExperimentTemplate {
             .health,
             id: "health-dashboard",
             track: .appliedProjects,
-            summary: "Study an end-to-end HealthKit experience powered by model tools."
+            summary: "Review authorized HealthKit data and ask grounded questions."
         ),
         ExperimentTemplate(
             id: "language-catalog",
             title: "Multilingual Workshop",
-            summary: "Detect support, generate in multiple languages, and manage sessions.",
+            summary: "Check language support, generate localized responses, and manage sessions.",
             systemImage: "character.book.closed",
             track: .appliedProjects,
             launch: .workshop(.languages),
@@ -382,13 +382,13 @@ extension ExperimentTemplate {
         ExperimentTemplate(
             id: "agent-workbench",
             title: "Agent Workbench",
-            summary: "Tune a multi-tool setup, inspect its runs, and export it as Swift.",
+            summary: "Configure a multi-tool workflow, inspect each run, and generate Swift code.",
             systemImage: "point.topleft.down.curvedto.point.bottomright.up",
             track: .workflows,
             launch: .recipe(
                 localizedConfiguration(FoundationLabExperimentConfiguration(
                     name: "Agent Workbench",
-                    summary: "Tune a multi-tool setup, inspect its runs, and export it as Swift.",
+                    summary: "Configure a multi-tool workflow, inspect each run, and generate Swift code.",
                     prompt: "Plan a focused afternoon around my next calendar event and create any useful follow-up reminder.",
                     instructions: "Use the minimum number of tools needed. Ask before making changes and summarize every side effect.",
                     kind: .toolUse,
@@ -400,7 +400,7 @@ extension ExperimentTemplate {
         ExperimentTemplate(
             id: "xcode-27",
             title: "Xcode 27",
-            summary: "Compose and measure production-grade experiments.",
+            summary: "Build and measure experiments with the Xcode 27 SDK.",
             systemImage: "apple.intelligence",
             track: .workflows,
             launch: .workshop(.xcode27),
@@ -409,7 +409,7 @@ extension ExperimentTemplate {
         ExperimentTemplate(
             id: "adapter-comparison",
             title: "Adapter Comparison",
-            summary: "Compare a custom .fmadapter package against the base model in fresh sessions.",
+            summary: "Compare a custom .fmadapter package with the base model in fresh sessions.",
             systemImage: "square.split.2x1",
             track: .workflows,
             launch: .workspace(.adapterComparison),
@@ -418,7 +418,7 @@ extension ExperimentTemplate {
         ExperimentTemplate(
             id: "fmfbench",
             title: "FMFBench",
-            summary: "Run repeatable app-shaped quality and performance evaluations.",
+            summary: "Run repeatable quality and performance evaluations based on real app tasks.",
             systemImage: "gauge.with.dots.needle.67percent",
             track: .workflows,
             launch: .workspace(.fmfBench),
