@@ -23,45 +23,14 @@ struct AdapterStudioOutputView: View {
                 )
                 .frame(maxWidth: .infinity, minHeight: 220)
             } else {
-                ViewThatFits(in: .horizontal) {
-                    HStack(alignment: .top, spacing: Spacing.large) {
-                        AdapterStudioResponseColumn(
-                            title: String(localized: "Base Model"),
-                            subtitle: String(localized: "System language model"),
-                            column: viewModel.baseColumn,
-                            isActive: false
-                        )
-
-                        Divider()
-
-                        AdapterStudioResponseColumn(
-                            title: String(localized: "Custom Adapter"),
-                            subtitle: viewModel.adapterContext?.metadata.fileName
-                                ?? String(localized: "Adapter"),
-                            column: viewModel.adapterColumn,
-                            isActive: false
-                        )
-                    }
-
-                    VStack(spacing: Spacing.large) {
-                        AdapterStudioResponseColumn(
-                            title: String(localized: "Base Model"),
-                            subtitle: String(localized: "System language model"),
-                            column: viewModel.baseColumn,
-                            isActive: false
-                        )
-
-                        Divider()
-
-                        AdapterStudioResponseColumn(
-                            title: String(localized: "Custom Adapter"),
-                            subtitle: viewModel.adapterContext?.metadata.fileName
-                                ?? String(localized: "Adapter"),
-                            column: viewModel.adapterColumn,
-                            isActive: false
-                        )
-                    }
-                }
+                AdapterStudioResponseComparisonView(
+                    baseSubtitle: String(localized: "System language model"),
+                    adapterSubtitle: viewModel.adapterContext?.metadata.fileName
+                        ?? String(localized: "Adapter"),
+                    baseColumn: viewModel.baseColumn,
+                    adapterColumn: viewModel.adapterColumn,
+                    isActive: false
+                )
             }
         }
     }
