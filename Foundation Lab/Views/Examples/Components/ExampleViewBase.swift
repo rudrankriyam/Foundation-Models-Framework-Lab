@@ -17,6 +17,8 @@ struct ExampleViewBase<Content: View>: View {
   let codeExample: String?
   let runLabel: String
   let showsPrompt: Bool
+  let promptTitle: LocalizedStringKey
+  let promptPlaceholder: LocalizedStringKey
   let onRun: () async -> Void
   let onReset: () -> Void
   let content: Content
@@ -31,6 +33,8 @@ struct ExampleViewBase<Content: View>: View {
     codeExample: String? = nil,
     runLabel: String = "Run",
     showsPrompt: Bool = true,
+    promptTitle: LocalizedStringKey = "Prompt",
+    promptPlaceholder: LocalizedStringKey = "Enter a prompt",
     onRun: @escaping () async -> Void,
     onReset: @escaping () -> Void,
     @ViewBuilder content: () -> Content
@@ -43,6 +47,8 @@ struct ExampleViewBase<Content: View>: View {
     self.codeExample = codeExample
     self.runLabel = runLabel
     self.showsPrompt = showsPrompt
+    self.promptTitle = promptTitle
+    self.promptPlaceholder = promptPlaceholder
     self.onRun = onRun
     self.onReset = onReset
     self.content = content()
@@ -103,7 +109,7 @@ struct ExampleViewBase<Content: View>: View {
   private var promptSection: some View {
     VStack(alignment: .leading, spacing: Spacing.medium) {
       HStack {
-        Text("Prompt")
+        Text(promptTitle)
           .font(.headline)
 
         Spacer()
@@ -115,7 +121,7 @@ struct ExampleViewBase<Content: View>: View {
           .accessibilityHint("Restore this example's defaults")
       }
 
-      TextField("Enter a prompt", text: $currentPrompt, axis: .vertical)
+      TextField(promptPlaceholder, text: $currentPrompt, axis: .vertical)
         .lineLimit(3...6)
         .textFieldStyle(.roundedBorder)
         .accessibilityLabel("Prompt")

@@ -12,7 +12,6 @@ struct SchemaErrorHandlingView: View {
     @State private var executor = ExampleExecutor()
     @State private var testInput = "The product costs $49.99 and comes in red, blue, or green colors. It weighs 2.5 kg."
     @State private var selectedScenario = 0
-    @State private var showDetailedError = true
 
     private let scenarios = [
         "Basic Extraction",
@@ -23,12 +22,14 @@ struct SchemaErrorHandlingView: View {
 
     var body: some View {
         ExampleViewBase(
-            title: "Error Handling",
-            description: "Handle schema validation errors and edge cases gracefully",
+            title: "Schema Errors",
+            description: "Compare valid extraction with missing fields, type mismatches, and validation failures.",
             currentPrompt: $testInput,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
+            promptTitle: "Source Text",
+            promptPlaceholder: "Enter product details to extract",
             onRun: { await runExample() },
             onReset: {
                 executor.reset()
@@ -36,58 +37,33 @@ struct SchemaErrorHandlingView: View {
             },
             content: {
                 VStack(alignment: .leading, spacing: Spacing.medium) {
-                    // Scenario selector
-                    VStack(alignment: .leading, spacing: Spacing.small) {
-                        Text("Error Scenario")
-                            .font(.headline)
-
+                    GroupBox("Scenario") {
                     Picker("Scenario", selection: $selectedScenario) {
                         ForEach(0..<scenarios.count, id: \.self) { index in
                             Text(scenarios[index]).tag(index)
                         }
                     }
-                    .pickerStyle(.segmented)
-                }
+                    .pickerStyle(.menu)
+                    .padding(.top, Spacing.small)
+                    }
 
-                // Options
-                Toggle("Show detailed error information", isOn: $showDetailedError)
-                    .padding(.vertical, 8)
-
-                // Scenario description
-                VStack(alignment: .leading, spacing: Spacing.small) {
-                    Label("Scenario Details", systemImage: "exclamationmark.triangle")
-                        .font(.headline)
-                        .foregroundStyle(.orange)
-
-                    Text(scenarioDescription(for: selectedScenario))
-                        .font(.caption)
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.orange.opacity(0.1))
-                        .clipShape(.rect(cornerRadius: 8))
-                }
+                SchemaTextView(
+                    title: "Scenario Details",
+                    text: scenarioDescription(for: selectedScenario),
+                    systemImage: "exclamationmark.triangle",
+                    maximumHeight: 180,
+                    usesMonospacedFont: false
+                )
 
                 // Results
                 if !executor.results.isEmpty {
-                    VStack(alignment: .leading, spacing: Spacing.small) {
-                        Text("Extraction Result")
-                            .font(.headline)
-
-                        ScrollView {
-                            Text(executor.results)
-                                .font(.system(.caption, design: .monospaced))
-                                .padding()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(executor.errorMessage != nil ?
-                                    Color.red.opacity(0.1) :
-                                    Color.green.opacity(0.1))
-                                .clipShape(.rect(cornerRadius: 8))
-                        }
-                        .frame(maxHeight: 250)
-                    }
+                    SchemaTextView(
+                        title: "Extraction Result",
+                        text: executor.results,
+                        isError: executor.errorMessage != nil
+                    )
                 }
             }
-            .padding()
         }
         )
     }
@@ -99,17 +75,13 @@ struct SchemaErrorHandlingView: View {
             withPrompt: "Extract product information from: \(testInput)",
             schema: schema
         ) { result in
-            let status = executor.errorMessage != nil ? "Error Occurred" : "Success"
-
             return """
-            \(status)
+            Scenario: \(scenarios[selectedScenario])
 
-            Schema: \(scenarios[selectedScenario])
-
-            Result:
+            Result
             \(result)
 
-            💡 Error Handling Tips:
+            Error-Handling Notes
             - Use optional fields for data that might be missing
             - Provide clear descriptions to guide extraction
             - Natural language descriptions help with type conversion

@@ -27,6 +27,8 @@ struct EnumDynamicSchemaView: View {
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
+            promptTitle: "Source Text",
+            promptPlaceholder: "Enter text to classify",
             onRun: { await runExample() },
             onReset: {
                 executor.reset()
@@ -47,53 +49,30 @@ struct EnumDynamicSchemaView: View {
                     }
                     .pickerStyle(.segmented)
 
-                    // Current choices display
-                    VStack(alignment: .leading, spacing: Spacing.small) {
-                        Text("Available Choices")
-                            .font(.headline)
+                    SchemaTextView(
+                        title: "Allowed Values",
+                        text: currentChoices.joined(separator: ", "),
+                        systemImage: "list.bullet",
+                        maximumHeight: 140
+                    )
 
-                        Text(currentChoices.joined(separator: ", "))
-                            .font(.system(.body, design: .monospaced))
-                            .padding(8)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.blue.opacity(0.1))
-                            .clipShape(.rect(cornerRadius: 8))
-                    }
-
-                    // Custom choices option
-                    VStack(alignment: .leading, spacing: Spacing.small) {
+                    GroupBox("Options") {
+                        VStack(alignment: .leading, spacing: Spacing.small) {
                         Toggle("Use Custom Choices", isOn: $useCustomChoices)
-                            .font(.caption)
 
                         if useCustomChoices {
                             TextField("Comma-separated choices", text: $customChoices)
                                 .textFieldStyle(.roundedBorder)
-                                .font(.caption)
+                            }
                         }
+                        .padding(.top, Spacing.small)
                     }
-                    .padding()
-                    .background(Color.gray.opacity(0.1))
-                    .clipShape(.rect(cornerRadius: 8))
 
                     // Results section
                     if !executor.results.isEmpty {
-                        VStack(alignment: .leading, spacing: Spacing.small) {
-                            Text("Generated Data")
-                                .font(.headline)
-
-                            ScrollView {
-                                Text(executor.results)
-                                    .font(.system(.caption, design: .monospaced))
-                                    .padding()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(Color.gray.opacity(0.1))
-                                    .clipShape(.rect(cornerRadius: 8))
-                            }
-                            .frame(maxHeight: 250)
-                        }
+                        SchemaTextView(title: "Generated Data", text: executor.results)
                     }
                 }
-                .padding()
             }
         )
     }

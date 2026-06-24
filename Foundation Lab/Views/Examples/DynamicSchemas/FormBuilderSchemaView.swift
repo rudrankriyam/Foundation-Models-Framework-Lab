@@ -23,76 +23,44 @@ struct FormBuilderSchemaView: View {
     Remote Work: Yes
     """
     @State private var generationMode = 0
-    @State private var includeValidation = true
 
-    private let modes = ["Generate & Extract", "Generate Schema Only", "Use Predefined"]
+    private let modes = ["Build and Extract", "Build Schema", "Use Template"]
 
     var body: some View {
         ExampleViewBase(
-            title: "Dynamic Form Builder",
-            description: "Generate form schemas from natural language descriptions",
+            title: "Form Builder",
+            description: "Build a runtime schema from a field description, then extract matching data.",
             currentPrompt: $formDescription,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
+            promptTitle: "Form Description",
+            promptPlaceholder: "Describe the fields the form needs",
             onRun: { await runExample() },
             onReset: {
                 executor.reset()
                 formDescription = "Create a job application form with fields for personal info, experience, and skills"
                 generationMode = 0
-                includeValidation = true
             },
             content: {
             VStack(alignment: .leading, spacing: Spacing.medium) {
-                // Mode selector
-                VStack(alignment: .leading, spacing: Spacing.small) {
-                    Text("Generation Mode")
-                        .font(.headline)
-
+                GroupBox("Configuration") {
                     Picker("Mode", selection: $generationMode) {
                         ForEach(0..<modes.count, id: \.self) { index in
                             Text(modes[index]).tag(index)
                         }
                     }
-                    .pickerStyle(.segmented)
+                    .pickerStyle(.menu)
+                    .padding(.top, Spacing.small)
                 }
 
-                // Options
-                Toggle("Include validation rules", isOn: $includeValidation)
-                    .padding(.vertical, 8)
-
-                // Sample data display (read-only)
-                VStack(alignment: .leading, spacing: Spacing.small) {
-                    Text("Sample Form Data")
-                        .font(.headline)
-
-                    Text(formData)
-                        .font(.system(.caption, design: .monospaced))
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.gray.opacity(0.1))
-                        .clipShape(.rect(cornerRadius: 8))
-                }
+                SchemaTextView(title: "Sample Form Data", text: formData, maximumHeight: 240)
 
                 // Results
                 if !executor.results.isEmpty {
-                    VStack(alignment: .leading, spacing: Spacing.small) {
-                        Text("Generated Form Schema & Extracted Data")
-                            .font(.headline)
-
-                        ScrollView {
-                            Text(executor.results)
-                                .font(.system(.caption, design: .monospaced))
-                                .padding()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.gray.opacity(0.1))
-                                .clipShape(.rect(cornerRadius: 8))
-                        }
-                        .frame(maxHeight: 300)
-                    }
+                    SchemaTextView(title: "Schema and Extracted Data", text: executor.results)
                 }
             }
-            .padding()
         }
     )
 }
@@ -110,13 +78,13 @@ struct FormBuilderSchemaView: View {
                 ) { content in
                     let extractedData = formatGeneratedContent(content)
                     return """
-                    📋 Generated Form Schema:
+                    Generated Form Schema
+
                     \(describeSchema(formSchema))
 
-                    📊 Extracted Data:
-                    \(extractedData)
+                    Extracted Data
 
-                    ✅ Validation: All fields processed successfully
+                    \(extractedData)
                     """
                 }
             } catch {
@@ -128,10 +96,11 @@ struct FormBuilderSchemaView: View {
             await executor.execute {
                 let formSchema = createFormSchemaFromDescription(formDescription)
                 return """
-                📋 Generated Form Schema:
+                Generated Form Schema
+
                 \(describeSchema(formSchema))
 
-                💡 Use this schema to extract structured data from unstructured text
+                Use this schema to extract structured data from unstructured text.
                 """
             }
 
@@ -146,9 +115,10 @@ struct FormBuilderSchemaView: View {
                 ) { content in
                     let extractedData = formatGeneratedContent(content)
                     return """
-                    📋 Using Predefined Job Application Schema
+                    Job Application Schema Template
 
-                    📊 Extracted Data:
+                    Extracted Data
+
                     \(extractedData)
                     """
                 }
@@ -158,7 +128,7 @@ struct FormBuilderSchemaView: View {
             }
 
         default:
-            await executor.execute { "Invalid mode" }
+            await executor.execute { "The selected mode is unavailable." }
         }
     }
 

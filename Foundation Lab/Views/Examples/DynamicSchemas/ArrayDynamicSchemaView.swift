@@ -27,6 +27,8 @@ struct ArrayDynamicSchemaView: View {
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
+            promptTitle: "Source Text",
+            promptPlaceholder: "Enter text to turn into an array",
             onRun: { await runExample() },
             onReset: {
                 executor.reset()
@@ -47,68 +49,32 @@ struct ArrayDynamicSchemaView: View {
                     }
                     .pickerStyle(.segmented)
 
-                    // Constraints controls
-                    VStack(alignment: .leading, spacing: Spacing.small) {
-                        Text("Array Constraints")
-                            .font(.headline)
-
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text("Min Items: \(minItems)")
-                                    .font(.caption)
-                                Stepper("", value: $minItems, in: 0...10)
-                                    .labelsHidden()
-                            }
-
-                            Spacer()
-
-                            VStack(alignment: .leading) {
-                                Text("Max Items: \(maxItems)")
-                                    .font(.caption)
-                                Stepper("", value: $maxItems, in: minItems...20)
-                                    .labelsHidden()
-                            }
+                    GroupBox("Array Constraints") {
+                        VStack(spacing: Spacing.small) {
+                            Stepper("Minimum items: \(minItems)", value: $minItems, in: 0...10)
+                            Stepper("Maximum items: \(maxItems)", value: $maxItems, in: minItems...20)
                         }
-                        .padding()
-                        .background(Color.gray.opacity(0.1))
-                        .clipShape(.rect(cornerRadius: 8))
+                        .padding(.top, Spacing.small)
                     }
 
-                    // Schema info
-                    VStack(alignment: .leading, spacing: Spacing.small) {
-                        Text("Schema Info")
-                            .font(.headline)
-
-                        Text(schemaInfo(for: selectedExample, minItems: minItems, maxItems: maxItems))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .padding(8)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.orange.opacity(0.1))
-                            .clipShape(.rect(cornerRadius: 8))
-                    }
+                    SchemaTextView(
+                        title: "Schema Summary",
+                        text: schemaInfo(for: selectedExample, minItems: minItems, maxItems: maxItems),
+                        systemImage: "info.circle",
+                        maximumHeight: 180,
+                        usesMonospacedFont: false
+                    )
 
                     // Results section
                     if !executor.results.isEmpty {
-                        VStack(alignment: .leading, spacing: Spacing.small) {
-                            Text("Generated Data")
-                                .font(.headline)
-
-                            ScrollView {
-                                Text(executor.results)
-                                    .font(.system(.caption, design: .monospaced))
-                                    .padding()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(Color.gray.opacity(0.1))
-                                    .clipShape(.rect(cornerRadius: 8))
-                            }
-                            .frame(maxHeight: 250)
-                        }
+                        SchemaTextView(title: "Generated Data", text: executor.results)
                     }
                 }
-                .padding()
             }
         )
+        .onChange(of: minItems) { _, newValue in
+            maxItems = max(maxItems, newValue)
+        }
     }
 
     private var bindingForSelectedExample: Binding<String> {

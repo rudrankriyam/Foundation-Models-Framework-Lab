@@ -43,10 +43,9 @@ struct InvoiceProcessingSchemaView: View {
     """
 
     @State private var extractionMode = 0
-    @State private var includeLineItems = true
     @State private var calculateTotals = true
 
-    private let modes = ["Full Invoice", "Summary Only", "Line Items Focus"]
+    private let modes = ["Full", "Summary", "Line Items"]
 
     private var modeSelectorSection: some View {
         VStack(alignment: .leading, spacing: Spacing.small) {
@@ -63,15 +62,10 @@ struct InvoiceProcessingSchemaView: View {
     }
 
     private var optionsSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.small) {
-            Toggle("Extract line items", isOn: $includeLineItems)
-                .disabled(extractionMode == 1) // Disabled for summary only
-
+        GroupBox("Options") {
             Toggle("Validate calculations", isOn: $calculateTotals)
+                .padding(.top, Spacing.small)
         }
-        .padding()
-        .background(Color.gray.opacity(0.05))
-        .clipShape(.rect(cornerRadius: 8))
     }
 
     private var sampleInvoiceLoaderSection: some View {
@@ -88,16 +82,17 @@ struct InvoiceProcessingSchemaView: View {
     var body: some View {
         ExampleViewBase(
             title: "Invoice Processing",
-            description: "Extract structured data from real-world invoices using complex schemas",
+            description: "Extract typed fields and line items from invoice text.",
             currentPrompt: $invoiceText,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
+            promptTitle: "Invoice Text",
+            promptPlaceholder: "Paste invoice text",
             onRun: { await runExample() },
             onReset: {
                 executor.reset()
                 extractionMode = 0
-                includeLineItems = true
                 calculateTotals = true
                 loadSampleInvoice()
             },
@@ -109,23 +104,9 @@ struct InvoiceProcessingSchemaView: View {
 
                 // Results
                 if !executor.results.isEmpty {
-                    VStack(alignment: .leading, spacing: Spacing.small) {
-                        Text("Extracted Invoice Data")
-                            .font(.headline)
-
-                        ScrollView {
-                            Text(executor.results)
-                                .font(.system(.caption, design: .monospaced))
-                                .padding()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.gray.opacity(0.1))
-                                .clipShape(.rect(cornerRadius: 8))
-                        }
-                        .frame(maxHeight: 300)
-                    }
+                    SchemaTextView(title: "Extracted Invoice Data", text: executor.results)
                 }
             }
-            .padding()
         }
     )
 }

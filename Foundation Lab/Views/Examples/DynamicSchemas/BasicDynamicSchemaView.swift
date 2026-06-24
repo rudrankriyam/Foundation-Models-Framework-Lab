@@ -25,6 +25,8 @@ struct BasicDynamicSchemaView: View {
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
+            promptTitle: "Source Text",
+            promptPlaceholder: "Enter text to structure",
             onRun: { await runExample() },
             onReset: {
                 executor.reset()
@@ -42,40 +44,18 @@ struct BasicDynamicSchemaView: View {
                         }
                     }
                     .pickerStyle(.segmented)
-                    .padding(.bottom)
 
-                    // Schema preview
-                    VStack(alignment: .leading, spacing: Spacing.small) {
-                        Text("Generated Schema")
-                            .font(.headline)
-
-                        Text(schemaDescription)
-                            .font(.system(.caption, design: .monospaced))
-                            .padding(8)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.gray.opacity(0.1))
-                            .clipShape(.rect(cornerRadius: 8))
-                    }
+                    SchemaTextView(
+                        title: "Schema Preview",
+                        text: schemaDescription,
+                        maximumHeight: 260
+                    )
 
                     // Results section
                     if !executor.results.isEmpty {
-                        VStack(alignment: .leading, spacing: Spacing.small) {
-                            Text("Generated Data")
-                                .font(.headline)
-
-                            ScrollView {
-                                Text(executor.results)
-                                    .font(.system(.caption, design: .monospaced))
-                                    .padding()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(Color.gray.opacity(0.1))
-                                    .clipShape(.rect(cornerRadius: 8))
-                            }
-                            .frame(maxHeight: 250)
-                        }
+                        SchemaTextView(title: "Generated Data", text: executor.results)
                     }
                 }
-                .padding()
             }
         )
     }

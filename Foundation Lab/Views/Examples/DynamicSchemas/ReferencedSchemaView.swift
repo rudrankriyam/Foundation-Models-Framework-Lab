@@ -39,11 +39,13 @@ struct ReferencedSchemaView: View {
     var body: some View {
         ExampleViewBase(
             title: "Schema References",
-            description: "Use schema references to avoid duplication and create reusable components",
-            currentPrompt: .constant(currentInput),
+            description: "Reuse shared schema definitions without duplicating their properties.",
+            currentPrompt: bindingForSelectedExample,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
+            promptTitle: "Source Text",
+            promptPlaceholder: "Enter text to structure",
             onRun: { await runExample() },
             onReset: {
                 executor.reset()
@@ -63,60 +65,19 @@ struct ReferencedSchemaView: View {
                 }
                 .pickerStyle(.segmented)
 
-                // Reference visualization
-                VStack(alignment: .leading, spacing: Spacing.small) {
-                    HStack {
-                        Text("Schema References")
-                            .font(.headline)
-
-                        Spacer()
-
-                        Toggle("Show", isOn: $showReferences)
-                            .font(.caption)
-                    }
-
-                    if showReferences {
+                DisclosureGroup("Schema References", isExpanded: $showReferences) {
                         Text(referenceVisualization(for: selectedExample))
-                            .font(.system(.caption, design: .monospaced))
-                            .padding(8)
+                            .font(.system(.callout, design: .monospaced))
+                            .textSelection(.enabled)
+                            .padding(.top, Spacing.small)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.blue.opacity(0.1))
-                            .clipShape(.rect(cornerRadius: 8))
-                    }
-                }
-
-                // Input text
-                VStack(alignment: .leading, spacing: Spacing.small) {
-                    Text("Input Text")
-                        .font(.headline)
-
-                    TextEditor(text: bindingForSelectedExample)
-                        .font(.body)
-                        .frame(minHeight: 100)
-                        .padding(8)
-                        .background(Color.gray.opacity(0.1))
-                        .clipShape(.rect(cornerRadius: 8))
                 }
 
                 // Results section
                 if !executor.results.isEmpty {
-                    VStack(alignment: .leading, spacing: Spacing.small) {
-                        Text("Generated Data")
-                            .font(.headline)
-
-                        ScrollView {
-                            Text(executor.results)
-                                .font(.system(.caption, design: .monospaced))
-                                .padding()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.gray.opacity(0.1))
-                                .clipShape(.rect(cornerRadius: 8))
-                        }
-                        .frame(maxHeight: 250)
-                    }
+                    SchemaTextView(title: "Generated Data", text: executor.results)
                 }
             }
-            .padding()
         }
         )
     }
@@ -151,20 +112,19 @@ struct ReferencedSchemaView: View {
                 generationOptions: .init(temperature: 0.1)
             ) { content in
                 """
-                📝 Input:
+                Source Text
+
                 \(currentInput)
 
-                📊 Extracted Data:
+                Extracted Data
+
                 \(formatReferencedContent(content))
 
-                🔗 Referenced Schemas Used:
+                Referenced Schemas
+
                 \(referencedSchemas.map { "• \($0)" }.joined(separator: "\n"))
 
-                ✅ Benefits:
-                • No schema duplication
-                • Consistent data structure
-                • Easier maintenance
-                • Type safety across references
+                The referenced definitions keep shared properties consistent without duplicating the schema.
                 """
             }
         } catch {
