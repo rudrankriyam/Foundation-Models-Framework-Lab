@@ -70,7 +70,7 @@ enum DynamicSchemaExampleType: String, CaseIterable, Identifiable {
         case .formBuilder:
             return "Build a schema and form from field definitions"
         case .errorHandling:
-            return "Surface invalid schemas and generation failures"
+            return "Inspect invalid schemas and generation failures"
         case .invoiceProcessing:
             return "Extract structured fields from invoice text"
         }

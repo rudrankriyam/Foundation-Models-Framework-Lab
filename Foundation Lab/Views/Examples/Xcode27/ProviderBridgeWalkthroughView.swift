@@ -15,19 +15,17 @@ struct ProviderBridgeWalkthroughView: View {
             VStack(alignment: .leading, spacing: Spacing.large) {
                 Label {
                     VStack(alignment: .leading, spacing: Spacing.xSmall) {
-                        Text("Reference walkthrough")
-                            .bold()
+                        Text("Inspect the Provider Contract")
+                            .font(.headline)
                         Text("No model is loaded and no request is sent. Select a layer to inspect the provider contract.")
                             .foregroundStyle(.secondary)
                     }
                 } icon: {
                     Image(systemName: "book.pages")
-                        .foregroundStyle(.purple)
+                        .foregroundStyle(.secondary)
                 }
                 .font(.callout)
-                .padding(Spacing.medium)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.purple.opacity(0.08), in: .rect(cornerRadius: CornerRadius.medium))
 
                 Xcode27Section(String(localized: "Bridge Layers")) {
                     VStack(spacing: 0) {
@@ -40,12 +38,12 @@ struct ProviderBridgeWalkthroughView: View {
                                         title: layer.title,
                                         detail: layer.detail,
                                         systemImage: layer.icon,
-                                        tint: layer == selectedLayer ? .purple : .secondary
+                                        tint: layer == selectedLayer ? .accentColor : .secondary
                                     )
 
                                     if layer == selectedLayer {
                                         Image(systemName: "checkmark")
-                                            .foregroundStyle(.purple)
+                                            .foregroundStyle(.tint)
                                             .accessibilityHidden(true)
                                     }
                                 }
@@ -67,9 +65,6 @@ struct ProviderBridgeWalkthroughView: View {
                         Text(selectedLayer.explanation)
                             .font(.callout)
                             .foregroundStyle(.secondary)
-
-                        Button("Inspect Next Layer", systemImage: "arrow.down", action: nextLayer)
-                            .buttonStyle(.glassProminent)
                     }
                 }
 
@@ -77,18 +72,14 @@ struct ProviderBridgeWalkthroughView: View {
             }
             .padding(.horizontal, Spacing.medium)
             .padding(.vertical, Spacing.large)
+            .frame(maxWidth: FoundationLabLayout.readableContentWidth, alignment: .leading)
+            .frame(maxWidth: .infinity)
         }
         .navigationTitle("Provider Bridge")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.large)
         .navigationSubtitle("How a custom LanguageModel executes session requests")
         #endif
-    }
-
-    private func nextLayer() {
-        let cases = ProviderBridgeLayer.allCases
-        guard let index = cases.firstIndex(of: selectedLayer) else { return }
-        selectedLayer = cases[(index + 1) % cases.count]
     }
 
     private func select(_ layer: ProviderBridgeLayer) {

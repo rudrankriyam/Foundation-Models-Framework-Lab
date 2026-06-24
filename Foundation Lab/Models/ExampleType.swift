@@ -92,7 +92,7 @@ extension ExampleType {
         case .contextWindowInspector:
             return "Context Window"
         case .privateCloudCompute:
-            return "Private Cloud"
+            return "Private Cloud Compute"
         case .imageInputPlayground:
             return "Image Input"
         case .geminiVideoInput:

@@ -16,7 +16,7 @@ struct ModelRouterDashboardView: View {
                 Text(
                     String(
                         localized: """
-                        Foundation Models provides model surfaces, not an automatic router. Your app chooses a model after evaluating \
+                        Foundation Models provides model types, not an automatic router. Your app chooses a model after evaluating \
                         quality, capabilities, availability, privacy, and fallback behavior.
                         """
                     )
@@ -57,7 +57,7 @@ struct ModelRouterDashboardView: View {
                     }
                 }
 
-                Xcode27Section(String(localized: "Actual model surfaces")) {
+                Xcode27Section(String(localized: "Available Model Types")) {
                     VStack(spacing: 0) {
                         ForEach(ModelSurface.allCases) { surface in
                             ModelSurfaceRow(surface: surface)
@@ -112,7 +112,7 @@ private struct ModelSurfaceRow: View {
 
             Spacer(minLength: Spacing.small)
         }
-        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: FoundationLabLayout.minimumTouchTarget, alignment: .leading)
         .padding(.vertical, Spacing.small)
         .accessibilityElement(children: .combine)
     }
@@ -185,7 +185,7 @@ private enum ModelRequirement: String, CaseIterable, Identifiable {
     var recommendation: String {
         switch self {
         case .offline: String(localized: "System model")
-        case .reasoning: String(localized: "Evaluate PCC")
+        case .reasoning: String(localized: "Evaluate Private Cloud")
         case .provider: String(localized: "Custom model")
         }
     }
@@ -197,7 +197,8 @@ private enum ModelRequirement: String, CaseIterable, Identifiable {
         case .reasoning:
             String(
                 localized: """
-                Start on device, evaluate the feature, then choose PCC if measured quality requires its reasoning or larger context.
+                Start on device, evaluate the feature, then choose Private Cloud Compute if measured quality requires more reasoning \
+                or a larger context window.
                 """
             )
         case .provider:

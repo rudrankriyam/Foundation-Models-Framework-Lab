@@ -395,20 +395,22 @@ extension ChatViewModel {
             switch model.availability {
             case .available:
                 if model.quotaUsage.isLimitReached {
-                    return String(localized: "PCC daily usage limit reached.")
+                    return String(localized: "Private Cloud Compute daily usage limit reached.")
                 }
                 return String(localized: "Routes requests through Private Cloud Compute.")
             case .unavailable(.deviceNotEligible):
-                return String(localized: "This device is not eligible for PCC.")
+                return String(localized: "This device is not eligible for Private Cloud Compute.")
             case .unavailable(.systemNotReady):
-                return String(localized: "PCC is not ready on this system.")
+                return String(localized: "Private Cloud Compute is not ready on this system.")
             @unknown default:
-                return String(localized: "PCC is currently unavailable.")
+                return String(localized: "Private Cloud Compute is currently unavailable.")
             }
         }
         #endif
 
-        return String(localized: "PCC requires Xcode 27 and iOS, macOS, visionOS, or watchOS 27.")
+        return String(
+            localized: "Private Cloud Compute requires Xcode 27 and iOS, macOS, visionOS, or watchOS 27."
+        )
     }
 
     func privateCloudComputeContextSize() async -> Int {

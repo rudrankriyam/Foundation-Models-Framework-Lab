@@ -50,7 +50,7 @@ struct ToolCallingModeLabLiveView: View {
                 policyBoundary
                 CodeDisclosure(code: selectedMode.code)
             }
-            .frame(maxWidth: 760, alignment: .leading)
+            .frame(maxWidth: FoundationLabLayout.readableContentWidth, alignment: .leading)
             .padding(.horizontal, Spacing.medium)
             .padding(.vertical, Spacing.large)
             .frame(maxWidth: .infinity)
@@ -94,7 +94,7 @@ struct ToolCallingModeLabLiveView: View {
         DisclosureGroup("Read-only Local Tool", isExpanded: $isLocalFixtureExpanded) {
             VStack(alignment: .leading, spacing: Spacing.small) {
                 LabeledContent("Tool", value: "read_local_release_record")
-                LabeledContent("Fixture record", value: "foundation-lab")
+                LabeledContent("Sample record", value: "foundation-lab")
                 Text("The tool reads deterministic sample text bundled with this lab. It performs no network request and changes no data.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
@@ -108,7 +108,7 @@ struct ToolCallingModeLabLiveView: View {
     private var promptSection: some View {
         Xcode27Section(String(localized: "Shared Prompt")) {
             VStack(alignment: .leading, spacing: Spacing.medium) {
-                TextField("Ask about the local fixture", text: Bindable(model).prompt, axis: .vertical)
+                TextField("Ask about the sample record", text: Bindable(model).prompt, axis: .vertical)
                     .lineLimit(3...7)
                     .textFieldStyle(.roundedBorder)
                     .disabled(model.isRunning || model.isStoppingRun)
@@ -116,7 +116,7 @@ struct ToolCallingModeLabLiveView: View {
 
                 Button("Reset", systemImage: "arrow.counterclockwise", action: model.reset)
                     .buttonStyle(.borderless)
-                    .frame(minHeight: 44)
+                    .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
                     .disabled(model.isRunning || model.isStoppingRun)
 
                 Button(
@@ -126,7 +126,7 @@ struct ToolCallingModeLabLiveView: View {
                 )
                 .buttonStyle(.glassProminent)
                 .controlSize(.large)
-                .frame(maxWidth: .infinity, minHeight: 44)
+                .frame(maxWidth: .infinity, minHeight: FoundationLabLayout.minimumTouchTarget)
                 .disabled(model.isStoppingRun || (!model.isRunning && !model.canRun))
             }
         }

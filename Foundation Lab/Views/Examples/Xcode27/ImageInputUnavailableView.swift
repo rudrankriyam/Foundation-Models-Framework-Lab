@@ -31,7 +31,7 @@ struct ImageInputUnavailableView: View {
                 ImageInputResolutionFindingsView()
                 CodeDisclosure(code: ImageInputRecipe.altText.code)
             }
-            .frame(maxWidth: 900, alignment: .leading)
+            .frame(maxWidth: FoundationLabLayout.readableContentWidth, alignment: .leading)
             .padding(.horizontal, Spacing.medium)
             .padding(.vertical, Spacing.large)
             .frame(maxWidth: .infinity)

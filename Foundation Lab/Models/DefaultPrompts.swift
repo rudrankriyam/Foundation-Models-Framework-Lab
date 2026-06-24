@@ -134,7 +134,7 @@ enum DefaultPrompts {
   static let modelAvailabilitySuggestions = [
     "Check if Apple Intelligence is available",
     "Show me the current model status",
-    "What AI capabilities are enabled?"
+    "What model capabilities are enabled?"
   ]
 }
 

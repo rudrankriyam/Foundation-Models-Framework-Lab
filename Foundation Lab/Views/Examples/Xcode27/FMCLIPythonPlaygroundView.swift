@@ -15,8 +15,8 @@ struct FMCLIPythonPlaygroundView: View {
             VStack(alignment: .leading, spacing: Spacing.large) {
                 Label {
                     VStack(alignment: .leading, spacing: Spacing.xSmall) {
-                        Text("Reference playground")
-                            .bold()
+                        Text("Run Outside Foundation Lab")
+                            .font(.headline)
                         Text(
                             String(
                                 localized: """
@@ -29,14 +29,12 @@ struct FMCLIPythonPlaygroundView: View {
                     }
                 } icon: {
                     Image(systemName: "terminal")
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(.secondary)
                 }
                 .font(.callout)
-                .padding(Spacing.medium)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.orange.opacity(0.08), in: .rect(cornerRadius: CornerRadius.medium))
 
-                Picker("Surface", selection: $surface) {
+                Picker("Tool", selection: $surface) {
                     ForEach(ScriptingSurface.allCases) { surface in
                         Text(surface.title).tag(surface)
                     }
@@ -50,9 +48,6 @@ struct FMCLIPythonPlaygroundView: View {
                             .foregroundStyle(.secondary)
 
                         Xcode27KeyValueList(items: surface.uses)
-
-                        Button("Inspect Next Surface", systemImage: "arrow.right", action: cycleSurface)
-                            .buttonStyle(.glassProminent)
                     }
                 }
 
@@ -60,6 +55,8 @@ struct FMCLIPythonPlaygroundView: View {
             }
             .padding(.horizontal, Spacing.medium)
             .padding(.vertical, Spacing.large)
+            .frame(maxWidth: FoundationLabLayout.readableContentWidth, alignment: .leading)
+            .frame(maxWidth: .infinity)
         }
         .navigationTitle("macOS Scripting")
         #if os(iOS)
@@ -68,11 +65,6 @@ struct FMCLIPythonPlaygroundView: View {
         #endif
     }
 
-    private func cycleSurface() {
-        let cases = ScriptingSurface.allCases
-        guard let index = cases.firstIndex(of: surface) else { return }
-        surface = cases[(index + 1) % cases.count]
-    }
 }
 
 private enum ScriptingSurface: String, CaseIterable, Identifiable {

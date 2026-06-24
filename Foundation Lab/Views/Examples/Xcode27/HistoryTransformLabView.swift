@@ -17,7 +17,7 @@ struct HistoryTransformLabView: View {
             codeExample: transform.code,
             referenceNote: String(
                 localized: """
-                These authored transcript and token fixtures compare app-owned transforms. This page does not call a model or tokenizer.
+                These sample transcripts and token counts compare app-owned transforms. This page does not call a model or tokenizer.
                 """
             )
         ) {

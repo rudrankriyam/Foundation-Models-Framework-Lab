@@ -205,7 +205,7 @@ private extension ExampleType {
         case .contextWindowInspector:
             String(localized: "Inspect the pieces that consume a session budget")
         case .privateCloudCompute:
-            String(localized: "Probe PCC availability, quota, and context size")
+            String(localized: "Inspect Private Cloud Compute availability, quota, and context size")
         case .imageInputPlayground:
             String(localized: "Import an image, ask the on-device model, and inspect live usage evidence")
         case .usagePerformanceTrace:
