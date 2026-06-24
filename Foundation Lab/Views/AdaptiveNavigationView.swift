@@ -36,6 +36,9 @@ struct AdaptiveNavigationView: View {
         .environment(languageService)
         .environment(navigationCoordinator)
         .environment(experimentStore)
+#if os(macOS)
+        .focusedSceneValue(\.foundationLabNavigationCoordinator, navigationCoordinator)
+#endif
         .onAppear {
             navigationCoordinator.activate()
             experimentStore.activate()

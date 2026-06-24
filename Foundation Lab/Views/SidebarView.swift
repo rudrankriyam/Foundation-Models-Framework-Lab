@@ -15,9 +15,6 @@ struct SidebarView: View {
             ForEach(TabSelection.allCases, id: \.self) { tab in
                 Label(tab.displayName, systemImage: tab.systemImage)
                     .tag(tab)
-#if os(macOS)
-                    .keyboardShortcut(tab.keyboardShortcut, modifiers: .command)
-#endif
             }
         }
         .listStyle(.sidebar)
@@ -40,15 +37,6 @@ extension TabSelection {
         }
     }
 
-#if os(macOS)
-    var keyboardShortcut: KeyEquivalent {
-        switch self {
-        case .library: return "1"
-        case .playground: return "2"
-        case .runs: return "3"
-        }
-    }
-#endif
 }
 
 #Preview {

@@ -13,4 +13,11 @@ enum FoundationLabLayout {
     static let inspectorMinimumWidth: CGFloat = 300
     static let inspectorIdealWidth: CGFloat = 360
     static let inspectorMaximumWidth: CGFloat = 440
+
+#if os(macOS)
+    static let macOSMinimumWindowWidth: CGFloat = 960
+    static let macOSMinimumWindowHeight: CGFloat = 640
+    static let macOSDefaultWindowWidth: CGFloat = 1_320
+    static let macOSDefaultWindowHeight: CGFloat = 820
+#endif
 }
