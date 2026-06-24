@@ -11,7 +11,7 @@ struct WorkspaceStatusRail: View {
             if isActive {
                 ProgressView()
                     .controlSize(.small)
-                    .accessibilityLabel(title)
+                    .accessibilityHidden(true)
             } else {
                 Image(systemName: systemImage)
                     .foregroundStyle(.secondary)
@@ -20,7 +20,6 @@ struct WorkspaceStatusRail: View {
 
             Text(title)
                 .lineLimit(1)
-                .help(title)
 
             Spacer(minLength: Spacing.medium)
 
