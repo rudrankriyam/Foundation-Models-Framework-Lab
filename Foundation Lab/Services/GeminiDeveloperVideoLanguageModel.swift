@@ -15,7 +15,7 @@ import FoundationModels
 struct GeminiDeveloperVideoLanguageModel: LanguageModel {
     typealias Executor = GeminiDeveloperVideoLanguageModelExecutor
 
-    let capabilities = LanguageModelCapabilities(capabilities: [])
+    let capabilities = LanguageModelCapabilities([])
     let executorConfiguration: Executor.Configuration
 
     init(apiKey: String, modelName: String) {

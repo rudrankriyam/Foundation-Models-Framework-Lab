@@ -19,7 +19,7 @@ struct SettingsView: View {
             Section("About") {
                 LabeledContent("Version", value: version)
 
-                Text("Learn with ready-made experiments, then compose and inspect your own Foundation Models sessions.")
+                Text("Start with ready-made experiments, then configure, run, and inspect your own model sessions.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }

@@ -12,7 +12,7 @@ struct RunTranscriptSections: View {
     var body: some View {
         Section("Transcript") {
             if run.events.isEmpty {
-                Label("No transcript events were recorded", systemImage: "text.bubble")
+                Label("No transcript was recorded for this run", systemImage: "text.bubble")
                     .foregroundStyle(.secondary)
             } else {
                 ForEach(run.events) { event in

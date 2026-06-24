@@ -58,6 +58,9 @@ let package = Package(
         ),
         .target(
             name: "FMFBenchCore",
+            dependencies: [
+                .product(name: "FoundationModelsKit", package: "FoundationModelsKit")
+            ],
             path: "Tools/FMFBench/BenchmarkCore/Sources/FMFBenchCore"
         ),
         .executableTarget(
@@ -81,7 +84,10 @@ let package = Package(
         ),
         .testTarget(
             name: "FoundationLabCoreTests",
-            dependencies: ["FoundationLabCore"],
+            dependencies: [
+                "FoundationLabCore",
+                .product(name: "FoundationModelsKit", package: "FoundationModelsKit")
+            ],
             path: "FoundationLabCore/Tests/FoundationLabCoreTests"
         ),
         .testTarget(

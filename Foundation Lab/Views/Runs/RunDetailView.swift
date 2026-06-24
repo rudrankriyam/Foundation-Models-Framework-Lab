@@ -19,6 +19,11 @@ struct RunDetailView: View {
             RunConfigurationSection(run: run)
             RunToolsSection(tools: run.configuration.selectedTools)
         }
+#if os(iOS)
+        .listStyle(.insetGrouped)
+#else
+        .listStyle(.inset)
+#endif
         .navigationTitle(
             run.configuration.name.isEmpty ? String(localized: "Run Detail") : run.configuration.name
         )

@@ -48,7 +48,7 @@ struct ImageInputLiveView: View {
                 )
                 .buttonStyle(.glassProminent)
                 .controlSize(.large)
-                .frame(maxWidth: .infinity, minHeight: 44)
+                .frame(maxWidth: .infinity, minHeight: FoundationLabLayout.minimumTouchTarget)
                 .disabled(model.isStoppingRun || (!model.isRunning && !model.canRun))
                 .accessibilityHint(runButtonHint)
                 #if os(macOS)
@@ -85,7 +85,7 @@ struct ImageInputLiveView: View {
                 CodeDisclosure(code: model.recipe.code)
                     .id("image-input-code")
             }
-            .frame(maxWidth: 760, alignment: .leading)
+            .frame(maxWidth: FoundationLabLayout.readableContentWidth, alignment: .leading)
             .padding(.horizontal, Spacing.medium)
             .padding(.vertical, Spacing.large)
             .frame(maxWidth: .infinity)

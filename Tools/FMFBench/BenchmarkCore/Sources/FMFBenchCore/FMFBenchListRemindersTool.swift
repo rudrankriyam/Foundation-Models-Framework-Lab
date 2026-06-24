@@ -1,8 +1,9 @@
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 
 @Generable
-struct FMFBenchListRemindersArguments {
+struct FMFBenchListRemindersArguments: RuntimeCompatibleGenerable {
     @Guide(description: "The exact proposed reminder title")
     let title: String
 }

@@ -1,8 +1,9 @@
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 
 @Generable
-public struct ProductReview: Sendable, Hashable, Codable {
+public struct ProductReview: RuntimeCompatibleGenerable, Sendable, Hashable, Codable {
     @Guide(description: "Product name")
     public let productName: String
 

@@ -41,7 +41,7 @@ struct ExperimentLibraryCatalogView: View {
             examples: [.schemaReferences, .unionTypes, .errorHandling, .generablePattern]
         )
         schemaSection(
-            "Applied Projects",
+            "Projects",
             examples: [.formBuilder, .invoiceProcessing]
         )
     }
@@ -205,7 +205,7 @@ private extension ExampleType {
         case .contextWindowInspector:
             String(localized: "Inspect the pieces that consume a session budget")
         case .privateCloudCompute:
-            String(localized: "Probe PCC availability, quota, and context size")
+            String(localized: "Inspect Private Cloud Compute availability, quota, and context size")
         case .imageInputPlayground:
             String(localized: "Import an image, ask the on-device model, and inspect live usage evidence")
         case .usagePerformanceTrace:
@@ -256,7 +256,7 @@ private extension ExperimentLibraryCatalog {
         case .languages:
             String(localized: "Explore multilingual model behavior")
         case .xcode27:
-            String(localized: "Compose and measure production-grade experiments.")
+            String(localized: "Build and measure experiments with the latest SDK.")
         }
     }
 }

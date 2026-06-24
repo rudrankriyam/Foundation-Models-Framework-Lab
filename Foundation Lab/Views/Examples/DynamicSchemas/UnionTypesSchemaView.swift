@@ -19,12 +19,14 @@ struct UnionTypesSchemaView: View {
 
     var body: some View {
         ExampleViewBase(
-            title: "Union Types (anyOf)",
-            description: "Create schemas that can be one of several different types",
+            title: "Union Types",
+            description: "Use anyOf when a result can conform to more than one schema shape.",
             currentPrompt: bindingForSelectedExample,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
+            promptTitle: "Source Text",
+            promptPlaceholder: "Enter text to match against the union",
             onRun: { await runExample() },
             onReset: {
                 executor.reset()
@@ -42,40 +44,19 @@ struct UnionTypesSchemaView: View {
                     }
                 }
                 .pickerStyle(.segmented)
-                .padding(.bottom)
 
-                // Schema visualization
-                VStack(alignment: .leading, spacing: Spacing.small) {
-                    Text("Schema Structure")
-                        .font(.headline)
-
-                    Text(schemaDescription(for: selectedExample))
-                        .font(.caption)
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.blue.opacity(0.1))
-                        .clipShape(.rect(cornerRadius: 8))
-                }
+                SchemaTextView(
+                    title: "Schema Structure",
+                    text: schemaDescription(for: selectedExample),
+                    maximumHeight: 200,
+                    usesMonospacedFont: false
+                )
 
                 // Results
                 if !executor.results.isEmpty {
-                    VStack(alignment: .leading, spacing: Spacing.small) {
-                        Text("Extracted Data")
-                            .font(.headline)
-
-                        ScrollView {
-                            Text(executor.results)
-                                .font(.system(.caption, design: .monospaced))
-                                .padding()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.gray.opacity(0.1))
-                                .clipShape(.rect(cornerRadius: 8))
-                        }
-                        .frame(maxHeight: 200)
-                    }
+                    SchemaTextView(title: "Extracted Data", text: executor.results)
                 }
                 }
-                .padding()
             }
         )
     }
@@ -106,13 +87,13 @@ struct UnionTypesSchemaView: View {
             schema: schema
         ) { result in
             """
-            Union Type Detection:
-            The model automatically determined which variant matches the input.
+            Matched Variant
 
-            Extracted Data:
+            The model selected the schema variant that best matches the source text.
+
+            Extracted Data
+
             \(result)
-
-            Note: anyOf schemas allow flexible data extraction when the exact type isn't known in advance.
             """
         }
     }

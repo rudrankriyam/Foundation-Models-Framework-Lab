@@ -7,6 +7,7 @@
 
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 import MusicKit
 
 /// A tool for controlling Apple Music playback using MusicKit.
@@ -39,7 +40,7 @@ public struct MusicTool: Tool {
 
   /// Arguments for music operations.
   @Generable
-  public struct Arguments {
+  public struct Arguments: RuntimeCompatibleGenerable {
     /// The action to perform: "play", "pause", "stop", "skip", "previous", "search", "nowPlaying"
     @Guide(
       description:

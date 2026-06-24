@@ -26,22 +26,22 @@ public enum FoundationLabSchemaExample: String, CaseIterable, Sendable, Codable,
     public var title: String {
         switch self {
         case .basicObject:
-            return "Basic Object Schema"
+            return "Basic Object"
         case .arraySchema:
-            return "Array Schemas"
+            return "Arrays"
         case .enumSchema:
-            return "Enum Schemas"
+            return "Enumerations"
         }
     }
 
     public var summary: String {
         switch self {
         case .basicObject:
-            return "Create simple object schemas at runtime using DynamicGenerationSchema."
+            return "Create an object schema at runtime and generate data that conforms to it."
         case .arraySchema:
-            return "Create array schemas with minimum and maximum element constraints."
+            return "Constrain generated arrays with minimum and maximum item counts."
         case .enumSchema:
-            return "Create schemas with predefined string choices using anyOf."
+            return "Limit generated values to a defined set of string choices."
         }
     }
 

@@ -11,6 +11,7 @@ struct LibraryView: View {
     @Environment(NavigationCoordinator.self) private var navigationCoordinator
     @State private var searchText = ""
     @State private var showsSettings = false
+    @State private var experimentPendingDeletion: FoundationLabExperimentConfiguration?
 
     var body: some View {
         Group {
@@ -28,20 +29,29 @@ struct LibraryView: View {
         #endif
         .searchable(
             text: $searchText,
-            prompt: "Search experiments and tools"
+            prompt: "Search Library"
         )
 #if os(iOS)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button("Settings", systemImage: "gear") {
-                    showsSettings = true
-                }
+                SettingsToolbarButton(isPresented: $showsSettings)
             }
         }
 #endif
         .sheet(isPresented: $showsSettings) {
             NavigationStack {
                 SettingsView()
+            }
+        }
+        .confirmationDialog(
+            "Delete this saved experiment?",
+            isPresented: deletionConfirmationBinding,
+            titleVisibility: .visible
+        ) {
+            Button("Delete Experiment", role: .destructive, action: confirmDeletion)
+        } message: {
+            if let experimentPendingDeletion {
+                Text("\(experimentPendingDeletion.name) will be permanently deleted. Recorded runs are not affected.")
             }
         }
         .navigationDestination(for: ExampleType.self) { example in
@@ -75,8 +85,8 @@ private extension LibraryView {
                         .buttonStyle(.plain)
                         .accessibilityHint("Opens this saved experiment in Playground")
                         .swipeActions {
-                            Button("Delete", systemImage: "trash", role: .destructive) {
-                                deleteSavedExperiment(experiment)
+                            Button("Delete Experiment", systemImage: "trash", role: .destructive) {
+                                experimentPendingDeletion = experiment
                             }
                         }
                     }
@@ -182,8 +192,21 @@ private extension LibraryView {
         navigationCoordinator.openPlayground()
     }
 
-    private func deleteSavedExperiment(_ experiment: FoundationLabExperimentConfiguration) {
-        experimentStore.deleteSavedExperiment(id: experiment.id)
+    private var deletionConfirmationBinding: Binding<Bool> {
+        Binding(
+            get: { experimentPendingDeletion != nil },
+            set: { isPresented in
+                if !isPresented {
+                    experimentPendingDeletion = nil
+                }
+            }
+        )
+    }
+
+    private func confirmDeletion() {
+        guard let experimentPendingDeletion else { return }
+        experimentStore.deleteSavedExperiment(id: experimentPendingDeletion.id)
+        self.experimentPendingDeletion = nil
     }
 
     private func openTemplate(_ configuration: FoundationLabExperimentConfiguration) {

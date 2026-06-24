@@ -9,7 +9,7 @@ import AppIntents
 
 struct OpenLanguageIntent: AppIntent {
     static let title: LocalizedStringResource = "Open Language Example"
-    static let description = IntentDescription("Opens a language integration example in Foundation Lab")
+    static let description = IntentDescription("Opens a selected language lab in Foundation Lab.")
     static let supportedModes: IntentModes = .foreground
 
     @Parameter(title: "Language Example")

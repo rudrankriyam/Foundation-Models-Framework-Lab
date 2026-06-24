@@ -26,11 +26,13 @@ struct GuidedDynamicSchemaView: View {
     var body: some View {
         ExampleViewBase(
             title: "Generation Guides",
-            description: "Apply constraints to generated values using schema properties",
+            description: "Apply pattern, range, and collection constraints to generated values.",
             currentPrompt: bindingForSelectedGuide,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
+            promptTitle: "Generation Request",
+            promptPlaceholder: "Describe the constrained data to generate",
             onRun: { await runExample() },
             onReset: {
                 executor.reset()
@@ -55,39 +57,19 @@ struct GuidedDynamicSchemaView: View {
                     .pickerStyle(.segmented)
                 }
 
-                // Guide explanation
-                VStack(alignment: .leading, spacing: Spacing.small) {
-                    Label("How it works", systemImage: "info.circle")
-                        .font(.headline)
-                        .foregroundStyle(.blue)
-
-                    Text(guideExplanation)
-                        .font(.caption)
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.blue.opacity(0.1))
-                        .clipShape(.rect(cornerRadius: 8))
-                }
+                SchemaTextView(
+                    title: "How It Works",
+                    text: guideExplanation,
+                    systemImage: "info.circle",
+                    maximumHeight: 180,
+                    usesMonospacedFont: false
+                )
 
                 // Results
                 if !executor.results.isEmpty {
-                    VStack(alignment: .leading, spacing: Spacing.small) {
-                        Text("Generated Data with Constraints")
-                            .font(.headline)
-
-                        ScrollView {
-                            Text(executor.results)
-                                .font(.system(.caption, design: .monospaced))
-                                .padding()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.gray.opacity(0.1))
-                                .clipShape(.rect(cornerRadius: 8))
-                        }
-                        .frame(maxHeight: 250)
-                    }
+                    SchemaTextView(title: "Generated Data", text: executor.results)
                 }
             }
-            .padding()
         }
     )
 }
@@ -139,8 +121,8 @@ struct GuidedDynamicSchemaView: View {
                    let jsonString = String(data: formatted, encoding: .utf8) {
 
                     // Add validation summary
-                    var result = "=== Generated Data ===\n" + jsonString
-                    result += "\n\n=== Constraint Validation ==="
+                    var result = "Generated Data\n\n" + jsonString
+                    result += "\n\nConstraint Validation"
                     result += validateConstraints(json, for: selectedGuideType)
 
                     return result

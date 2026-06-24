@@ -10,7 +10,9 @@ struct PlaygroundView: View {
     @State private var messageText = ""
     @State private var scrollID: String?
     @State private var showsInspector = false
+#if os(iOS)
     @State private var showsSettings = false
+#endif
     @State private var showsDiscardConfirmation = false
     @State private var pendingVoiceConfiguration: FoundationLabExperimentConfiguration?
     @FocusState private var isPromptFocused: Bool
@@ -63,35 +65,75 @@ struct PlaygroundView: View {
                 .keyboardShortcut("i", modifiers: [.command, .option])
 #endif
 
-                Menu("Experiment Actions", systemImage: "ellipsis.circle") {
-                    Button("New Experiment", systemImage: "plus", action: requestNewExperiment)
-                        .keyboardShortcut("n", modifiers: .command)
-                    Button("Save Experiment", systemImage: "square.and.arrow.down") {
-                        Task {
-                            await saveExperiment()
-                        }
-                    }
-                        .keyboardShortcut("s", modifiers: .command)
-                    Button("Settings", systemImage: "gear") {
-                        showsSettings = true
-                    }
-                }
+                ExperimentActionsMenu(
+                    isShowingDiscardConfirmation: $showsDiscardConfirmation,
+                    requestNewExperiment: requestNewExperiment,
+                    saveExperiment: requestSaveExperiment,
+                    discardAndCreate: createExperiment
+                )
+
+#if os(iOS)
+                SettingsToolbarButton(isPresented: $showsSettings)
+#endif
             }
         }
         .inspector(isPresented: $showsInspector) {
-            PlaygroundInspectorView(
-                experimentStore: experimentStore,
-                viewModel: viewModel,
-                applyConfiguration: applyInspectorConfiguration
-            )
-            .inspectorColumnWidth(min: 300, ideal: 360, max: 440)
+            if showsInspector {
+                Group {
+#if os(iOS)
+                    if horizontalSizeClass == .compact {
+                        VStack(spacing: 0) {
+                            HStack {
+                                Text("Configuration")
+                                    .font(.headline)
+
+                                Spacer()
+
+                                Button("Done", action: dismissInspector)
+                                    .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
+                            }
+                            .padding(.horizontal, Spacing.medium)
+                            .frame(minHeight: 56)
+                            .background(.regularMaterial)
+
+                            Divider()
+
+                            PlaygroundInspectorView(
+                                experimentStore: experimentStore,
+                                viewModel: viewModel,
+                                applyConfiguration: applyInspectorConfiguration
+                            )
+                        }
+                    } else {
+                        PlaygroundInspectorView(
+                            experimentStore: experimentStore,
+                            viewModel: viewModel,
+                            applyConfiguration: applyInspectorConfiguration
+                        )
+                    }
+#else
+                    PlaygroundInspectorView(
+                        experimentStore: experimentStore,
+                        viewModel: viewModel,
+                        applyConfiguration: applyInspectorConfiguration
+                    )
+#endif
+                }
+                .inspectorColumnWidth(
+                    min: FoundationLabLayout.inspectorMinimumWidth,
+                    ideal: FoundationLabLayout.inspectorIdealWidth,
+                    max: FoundationLabLayout.inspectorMaximumWidth
+                )
+            }
         }
+#if os(iOS)
         .sheet(isPresented: $showsSettings) {
             NavigationStack {
                 SettingsView()
             }
         }
-        .alert("Experiment Error", isPresented: $viewModel.showError) {
+#endif
+        .alert("Experiment Couldn’t Run", isPresented: $viewModel.showError) {
             if viewModel.shouldOfferPermissionSettings {
                 Button("Open Settings", action: viewModel.openPermissionSettings)
             }
@@ -100,27 +142,16 @@ struct PlaygroundView: View {
             if let message = viewModel.errorMessage {
                 Text(message)
             } else {
-                Text("The experiment could not run.")
+                Text("The experiment didn’t start. Check model availability and try again.")
             }
-        }
-        .confirmationDialog(
-            "Discard unsaved experiment?",
-            isPresented: $showsDiscardConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button("Discard and Create New", role: .destructive, action: createExperiment)
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Save this experiment first if you want to keep its configuration.")
         }
         .task(id: experimentStore.activeExperimentLoadRevision) {
             loadActiveExperiment()
         }
         .task {
-            showsInspector = horizontalSizeClass != .compact
-        }
-        .onChange(of: horizontalSizeClass) { _, sizeClass in
-            showsInspector = sizeClass != .compact
+#if os(macOS)
+            showsInspector = true
+#endif
         }
     }
 }
@@ -236,6 +267,16 @@ private extension PlaygroundView {
         let configuration = ensureConfigurationIsApplied(configurationSnapshot())
         experimentStore.updateActiveExperiment(configuration)
         await experimentStore.saveActiveExperiment()
+    }
+
+    private func requestSaveExperiment() {
+        Task {
+            await saveExperiment()
+        }
+    }
+
+    private func dismissInspector() {
+        showsInspector = false
     }
 
     private func prepareVoiceRun() {

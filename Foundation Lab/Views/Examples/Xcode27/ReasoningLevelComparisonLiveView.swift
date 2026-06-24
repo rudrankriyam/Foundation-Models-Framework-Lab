@@ -48,7 +48,7 @@ struct ReasoningLevelComparisonLiveView: View {
                 comparisonNotes
                 CodeDisclosure(code: selectedLevel.code)
             }
-            .frame(maxWidth: 760, alignment: .leading)
+            .frame(maxWidth: FoundationLabLayout.readableContentWidth, alignment: .leading)
             .padding(.horizontal, Spacing.medium)
             .padding(.vertical, Spacing.large)
             .frame(maxWidth: .infinity)
@@ -99,7 +99,7 @@ struct ReasoningLevelComparisonLiveView: View {
 
                 Button("Reset", systemImage: "arrow.counterclockwise", action: model.reset)
                     .buttonStyle(.borderless)
-                    .frame(minHeight: 44)
+                    .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
                     .disabled(model.isRunning || model.isStoppingRun)
 
                 Button(
@@ -109,7 +109,7 @@ struct ReasoningLevelComparisonLiveView: View {
                 )
                 .buttonStyle(.glassProminent)
                 .controlSize(.large)
-                .frame(maxWidth: .infinity, minHeight: 44)
+                .frame(maxWidth: .infinity, minHeight: FoundationLabLayout.minimumTouchTarget)
                 .disabled(model.isStoppingRun || (!model.isRunning && !model.canRun))
             }
         }
@@ -135,7 +135,9 @@ struct ReasoningLevelComparisonLiveView: View {
     private var comparisonNotes: some View {
         DisclosureGroup("About This Comparison", isExpanded: $isComparisonNotesExpanded) {
             VStack(alignment: .leading, spacing: Spacing.small) {
-                Text("Each comparison makes three separate PCC requests and consumes the corresponding usage quota.")
+                Text(
+                    "Each comparison makes three separate Private Cloud Compute requests and uses the corresponding quota."
+                )
                 Text(
                     """
                     Token counts come from Response.Usage. Elapsed time is this app's wall-clock observation of sequential requests. \

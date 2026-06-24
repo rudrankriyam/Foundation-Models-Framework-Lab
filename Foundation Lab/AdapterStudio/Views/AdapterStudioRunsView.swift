@@ -56,46 +56,33 @@ struct AdapterStudioRunsView: View {
                 .foregroundStyle(.secondary)
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: Spacing.large) {
-                    AdapterStudioResponseColumn(
-                        title: String(localized: "Base Model"),
-                        subtitle: String(localized: "Fresh system model session"),
-                        column: viewModel.baseColumn,
-                        isActive: viewModel.isRunning
-                    )
-
-                    Divider()
-
-                    AdapterStudioResponseColumn(
-                        title: String(localized: "Custom Adapter"),
-                        subtitle: viewModel.adapterContext?.metadata.fileName
-                            ?? String(localized: "No adapter loaded"),
-                        column: viewModel.adapterColumn,
-                        isActive: viewModel.isRunning
-                    )
-                }
-
-                VStack(spacing: Spacing.large) {
-                    AdapterStudioResponseColumn(
-                        title: String(localized: "Base Model"),
-                        subtitle: String(localized: "Fresh system model session"),
-                        column: viewModel.baseColumn,
-                        isActive: viewModel.isRunning
-                    )
-
-                    Divider()
-
-                    AdapterStudioResponseColumn(
-                        title: String(localized: "Custom Adapter"),
-                        subtitle: viewModel.adapterContext?.metadata.fileName
-                            ?? String(localized: "No adapter loaded"),
-                        column: viewModel.adapterColumn,
-                        isActive: viewModel.isRunning
-                    )
-                }
+            if hasComparisonOutput {
+                AdapterStudioResponseComparisonView(
+                    baseSubtitle: String(localized: "Fresh system model session"),
+                    adapterSubtitle: viewModel.adapterContext?.metadata.fileName
+                        ?? String(localized: "No adapter loaded"),
+                    baseColumn: viewModel.baseColumn,
+                    adapterColumn: viewModel.adapterColumn,
+                    isActive: viewModel.isRunning
+                )
+            } else {
+                ContentUnavailableView(
+                    "Ready to Compare",
+                    systemImage: "square.split.2x1",
+                    description: Text("Enter one prompt to inspect the base model and custom adapter side by side.")
+                )
+                .frame(maxWidth: .infinity, minHeight: 220)
             }
         }
+    }
+
+    private var hasComparisonOutput: Bool {
+        viewModel.isRunning
+            || viewModel.lastResult != nil
+            || !viewModel.baseColumn.text.isEmpty
+            || !viewModel.adapterColumn.text.isEmpty
+            || viewModel.baseColumn.errorMessage != nil
+            || viewModel.adapterColumn.errorMessage != nil
     }
 }
 #endif

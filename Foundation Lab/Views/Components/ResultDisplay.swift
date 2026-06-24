@@ -18,19 +18,26 @@ struct ResultDisplay: View {
   @State private var isCopied = false
 
   var body: some View {
-    VStack(alignment: .leading, spacing: Spacing.small) {
-      HStack {
+    GroupBox {
+      ScrollView {
+        Text(formattedResult)
+          .font(.body)
+          .textSelection(.enabled)
+          .padding(.top, Spacing.small)
+          .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .frame(maxHeight: 300)
+    } label: {
+      HStack(spacing: Spacing.small) {
         Label(statusTitle, systemImage: statusImage)
           .font(.headline)
-          .foregroundStyle(statusColor)
+          .foregroundStyle(isSuccess ? Color.primary : Color.red)
 
         if let tokenCount {
           Text("\(tokenCount) tokens")
-            .font(.caption2)
-            .foregroundStyle(.tertiary)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(.quaternary, in: .capsule)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .monospacedDigit()
         }
 
         Spacer()
@@ -42,18 +49,12 @@ struct ResultDisplay: View {
             .padding(.vertical, 4)
         }
         .accessibilityLabel(isCopied ? "Copied" : "Copy result")
-        .buttonStyle(.glass)
+        .buttonStyle(.borderless)
+        .frame(
+          minWidth: FoundationLabLayout.minimumTouchTarget,
+          minHeight: FoundationLabLayout.minimumTouchTarget
+        )
       }
-
-      ScrollView {
-        Text(formattedResult)
-          .font(.body)
-          .textSelection(.enabled)
-          .padding(Spacing.medium)
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .background(.quaternary, in: .rect(cornerRadius: CornerRadius.medium))
-      }
-      .frame(maxHeight: 300)
     }
   }
 
@@ -65,10 +66,6 @@ struct ResultDisplay: View {
     isSuccess ? "checkmark.circle" : "exclamationmark.triangle"
   }
 
-  private var statusColor: Color {
-    isSuccess ? .secondary : .red
-  }
-
   private var formattedResult: AttributedString {
     (try? AttributedString(markdown: result)) ?? AttributedString(result)
   }
@@ -76,7 +73,10 @@ struct ResultDisplay: View {
   private func copyToClipboard() {
     #if os(iOS)
     UIPasteboard.general.string = result
-    UIAccessibility.post(notification: .announcement, argument: "Result copied to clipboard")
+    UIAccessibility.post(
+      notification: .announcement,
+      argument: String(localized: "Result copied to the clipboard")
+    )
     #elseif os(macOS)
     NSPasteboard.general.clearContents()
     NSPasteboard.general.setString(result, forType: .string)

@@ -1,5 +1,6 @@
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 
 public struct Search1WebSearchTool: Tool {
     public let name = "searchWeb"
@@ -8,7 +9,7 @@ public struct Search1WebSearchTool: Tool {
     public init() {}
 
     @Generable
-    public struct Arguments {
+    public struct Arguments: RuntimeCompatibleGenerable {
         @Guide(description: "The search query to look up on the web.")
         public var query: String
 

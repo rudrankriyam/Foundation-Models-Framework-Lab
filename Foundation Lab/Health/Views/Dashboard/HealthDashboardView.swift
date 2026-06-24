@@ -5,58 +5,62 @@
 //  Created by Rudrank Riyam on 6/23/25.
 //
 
-import FoundationLabCore
 import SwiftUI
 import SwiftData
 
 struct HealthDashboardView: View {
-    @State private var showingBuddyChat = false
+    @State private var isShowingHealthChat = false
     @State private var isLoading = true
     @State private var loadErrorMessage: String?
     @State private var healthDataManager = HealthDataManager.shared
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.modelContext) private var modelContext
 
     @State private var todayMetrics: [MetricType: Double] = [:]
-    @State private var encouragementMessage = "Loading today's summary..."
-    @State private var isGeneratingMessage = false
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.large) {
                 if isLoading {
-                    ProgressView("Loading health data...")
+                    ProgressView("Loading Health data…")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding()
                 } else if let loadErrorMessage {
                     healthDataUnavailableView(message: loadErrorMessage)
                 } else {
                     headerSection
-                    dailyProgressSection
-                    metricsSection
+
+                    if todayMetrics.isEmpty {
+                        ContentUnavailableView(
+                            "No Health Data Available",
+                            systemImage: "heart.slash",
+                            description: Text(
+                                "HealthKit did not return any of the requested measurements. Missing data is never estimated."
+                            )
+                        )
+                        .frame(maxWidth: .infinity, minHeight: 240)
+                    } else {
+                        metricsSection
+                    }
                 }
             }
-            .frame(maxWidth: 760)
+            .frame(maxWidth: FoundationLabLayout.readableContentWidth, alignment: .leading)
             .frame(maxWidth: .infinity)
-            .padding()
+            .padding(.horizontal, Spacing.medium)
+            .padding(.vertical, Spacing.large)
         }
-        .navigationTitle("Health Dashboard")
+        .navigationTitle("Health")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.large)
         #endif
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button {
-                    showingBuddyChat = true
-                } label: {
-                    Image(systemName: "bubble.left.and.bubble.right.fill")
-                        .foregroundStyle(.primary)
+                Button("Ask About Health Data", systemImage: "bubble.left.and.bubble.right") {
+                    isShowingHealthChat = true
                 }
-                .accessibilityLabel("Open Health AI chat")
                 .disabled(isLoading)
             }
         }
-        .sheet(isPresented: $showingBuddyChat) {
+        .sheet(isPresented: $isShowingHealthChat) {
             HealthChatView()
         }
         .task {
@@ -71,77 +75,12 @@ struct HealthDashboardView: View {
 
 private extension HealthDashboardView {
     var headerSection: some View {
-        GroupBox {
-            VStack(alignment: .leading, spacing: Spacing.medium) {
-                if dynamicTypeSize.isAccessibilitySize {
-                    VStack(alignment: .leading, spacing: Spacing.medium) {
-                        healthSummary
-                        healthScore
-                    }
-                } else {
-                    HStack {
-                        healthSummary
-                        Spacer()
-                        healthScore
-                    }
-                }
-
-                Text(encouragementMessage)
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-            }
-        }
-    }
-
-    var healthSummary: some View {
         VStack(alignment: .leading, spacing: Spacing.xSmall) {
-            Text("Good \(timeOfDay)!")
-                .font(.title2)
-                .fontWeight(.semibold)
-            Text("Today's progress across steps, sleep, and active energy")
+            Text(Date.now, format: .dateTime.weekday(.wide).month(.wide).day())
+                .font(.title2.weight(.semibold))
+            Text("Measurements returned by HealthKit for this device. Missing values stay unavailable.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-        }
-    }
-
-    var healthScore: some View {
-        Group {
-            if let score = calculateHealthScore() {
-                HealthScoreRing(score: score)
-                    .accessibilityValue("\(Int(score)) out of 100")
-            } else {
-                VStack(spacing: Spacing.xSmall) {
-                    Image(systemName: "heart.slash")
-                        .font(.title2)
-                    Text("Unavailable")
-                        .font(.caption)
-                }
-                .foregroundStyle(.secondary)
-                .accessibilityValue("Unavailable")
-            }
-        }
-        .frame(width: 80, height: 80)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Daily progress score")
-    }
-
-    var dailyProgressSection: some View {
-        GroupBox {
-            VStack(spacing: Spacing.medium) {
-                ForEach(Array(dailyMetricTypes.enumerated()), id: \.element) { index, type in
-                    DailyProgressRow(
-                        metricType: type,
-                        currentValue: todayMetrics[type],
-                        goalValue: type.defaultGoal
-                    )
-
-                    if index < dailyMetricTypes.count - 1 {
-                        Divider()
-                    }
-                }
-            }
-        } label: {
-            Label("Daily Progress", systemImage: "chart.bar.fill")
         }
     }
 
@@ -160,39 +99,12 @@ private extension HealthDashboardView {
                 }
             }
         } label: {
-            Label("Health Metrics", systemImage: "heart.text.square.fill")
+            Label("Available Today", systemImage: "heart.text.square")
         }
-    }
-
-    var dailyMetricTypes: [MetricType] {
-        [.steps, .activeEnergy, .sleep]
     }
 
     var displayedMetricTypes: [MetricType] {
         [.steps, .heartRate, .sleep, .activeEnergy, .distance]
-    }
-
-    var timeOfDay: String {
-        let hour = Calendar.current.component(.hour, from: Date())
-        switch hour {
-        case 0..<12: return String(localized: "morning")
-        case 12..<17: return String(localized: "afternoon")
-        default: return String(localized: "evening")
-        }
-    }
-
-    func calculateHealthScore() -> Double? {
-        guard let steps = todayMetrics[.steps],
-              let sleep = todayMetrics[.sleep],
-              let activeEnergy = todayMetrics[.activeEnergy] else {
-            return nil
-        }
-
-        let stepsScore = min(steps / MetricType.steps.defaultGoal, 1.0)
-        let sleepScore = min(sleep / MetricType.sleep.defaultGoal, 1.0)
-        let activityScore = min(activeEnergy / MetricType.activeEnergy.defaultGoal, 1.0)
-
-        return (stepsScore + sleepScore + activityScore) / 3.0 * 100
     }
 
     func healthDataUnavailableView(message: String) -> some View {
@@ -214,46 +126,6 @@ private extension HealthDashboardView {
 
 @MainActor
 private extension HealthDashboardView {
-    func generateEncouragementMessage() async {
-        guard !isGeneratingMessage else { return }
-        isGeneratingMessage = true
-        defer { isGeneratingMessage = false }
-
-        guard let score = calculateHealthScore() else {
-            encouragementMessage = String(localized: "Health Data Unavailable")
-            return
-        }
-        let stepsProgress = (todayMetrics[.steps] ?? 0) / MetricType.steps.defaultGoal * 100
-        let sleepHours = todayMetrics[.sleep] ?? 0
-        let activeEnergy = Int(todayMetrics[.activeEnergy] ?? 0)
-
-        do {
-            let response = try await GenerateHealthEncouragementUseCase().execute(
-                GenerateHealthEncouragementRequest(
-                    healthScore: Int(score),
-                    stepsProgressPercentage: Int(stepsProgress),
-                    sleepHours: sleepHours,
-                    activeEnergy: activeEnergy,
-                    timeOfDay: timeOfDay,
-                    context: CapabilityInvocationContext(
-                        source: .app,
-                        localeIdentifier: Locale.current.identifier
-                    )
-                )
-            )
-            encouragementMessage = response.message
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-                .replacingOccurrences(of: "\"", with: "")
-                .replacingOccurrences(of: "\u{201C}", with: "")
-                .replacingOccurrences(of: "\u{201D}", with: "")
-        } catch {
-            encouragementMessage = score >= 75
-                ? String(localized: "Great progress today!")
-                : String(localized: "Keep working towards your goals!")
-        }
-
-    }
-
     func loadHealthData() async {
         isLoading = true
         loadErrorMessage = nil
@@ -284,55 +156,6 @@ private extension HealthDashboardView {
         todayMetrics = healthDataManager.currentMetrics
 
         isLoading = false
-
-        await generateEncouragementMessage()
-    }
-}
-
-// MARK: - Health Score Ring
-struct HealthScoreRing: View {
-    let score: Double
-
-    var body: some View {
-        ZStack {
-            Circle()
-                .stroke(Color.primary.opacity(0.1), lineWidth: 6)
-
-            Circle()
-                .trim(from: 0, to: score / 100)
-                .stroke(
-                    Color.primary,
-                    style: StrokeStyle(lineWidth: 6, lineCap: .round)
-                )
-                .rotationEffect(.degrees(-90))
-
-            VStack(spacing: 2) {
-                Text("\(Int(score))")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.primary)
-
-                Text("Score")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-        }
-    }
-}
-
-// MARK: - MetricType Extension
-extension MetricType {
-    var defaultGoal: Double {
-        switch self {
-        case .steps: return 10000
-        case .heartRate: return 80
-        case .sleep: return 8
-        case .activeEnergy: return 500
-        case .distance: return 5
-        case .weight: return 70
-        case .bloodPressure: return 120
-        case .bloodOxygen: return 98
-        }
     }
 }
 

@@ -14,7 +14,7 @@ struct ModelUnavailableView: View {
 
     var body: some View {
         ContentUnavailableView {
-            Label("Apple Intelligence Not Available", systemImage: "sparkles.slash")
+            Label("Apple Intelligence Is Unavailable", systemImage: "sparkles.slash")
         } description: {
             Text(descriptionText)
                 .multilineTextAlignment(.center)
@@ -26,7 +26,7 @@ struct ModelUnavailableView: View {
                 .buttonStyle(.borderedProminent)
             }
 
-            Button("Continue Anyway") {
+            Button("Browse Foundation Lab") {
                 dismiss()
             }
             .buttonStyle(.bordered)
@@ -41,22 +41,21 @@ struct ModelUnavailableView: View {
 
     private var descriptionText: String {
         guard let reason = reason else {
-            return "Apple Intelligence is not available on this device."
+            return "The on-device model isn’t available right now. You can still browse recipes and saved runs."
         }
 
         switch reason {
         case .deviceNotEligible:
-            return "This device is not eligible for Apple Intelligence. Foundation Models Framework requires an " +
-                   "iPhone 15 Pro or later, iPad with A17 Pro or M1 and newer, Apple Vision Pro, " +
-                   "or a Mac with Apple silicon."
+            return "This device doesn’t support Apple Intelligence, which Foundation Lab needs to run the " +
+                   "on-device model. You can still browse recipes and saved runs."
         case .appleIntelligenceNotEnabled:
-            return "Apple Intelligence is not enabled. Please enable Apple Intelligence in Settings to use " +
-                   "Foundation Models Framework."
+            return "Turn on Apple Intelligence in Settings, then return to Foundation Lab and try again."
         case .modelNotReady:
-            return "Apple Intelligence models are still downloading. Please wait for the download to complete " +
-                   "and try again."
+            return "The on-device model is still downloading. You can browse Foundation Lab now and try again " +
+                   "when the download finishes."
         case .unknown:
-            return "Apple Intelligence is currently unavailable. Please try again later."
+            return "Apple Intelligence is temporarily unavailable. You can browse recipes and saved runs, then " +
+                   "try the model again later."
         }
     }
 

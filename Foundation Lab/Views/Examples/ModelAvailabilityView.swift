@@ -9,67 +9,57 @@ import FoundationLabCore
 import SwiftUI
 
 struct ModelAvailabilityView: View {
-  @State private var availabilityStatus = "Tap 'Check Availability' to verify Apple Intelligence status"
+  @State private var availabilityStatus = "Run the check to see whether the on-device model is ready."
   @State private var isChecking = false
   @State private var isAvailable: Bool?
 
   var body: some View {
     ExampleViewBase(
       title: "Model Availability",
-      description: "Check if Apple Intelligence is available on this device",
+      description: "Check whether Apple Intelligence and the on-device model are ready.",
       currentPrompt: .constant(DefaultPrompts.modelAvailability),
       isRunning: isChecking,
       errorMessage: nil,
       codeExample: DefaultPrompts.modelAvailabilityCode,
+      runLabel: "Check Availability",
+      showsPrompt: false,
       onRun: checkAvailability,
       onReset: resetStatus
     ) {
       VStack(spacing: Spacing.large) {
-        // Status Card
-        VStack(spacing: Spacing.medium) {
-          Image(systemName: isAvailable == true ? "checkmark.circle.fill" :
-                              isAvailable == false ? "xmark.circle.fill" : "questionmark.circle")
-            .font(.largeTitle)
-            .foregroundStyle(isAvailable == true ? .green : isAvailable == false ? .red : .gray)
+        GroupBox("Availability") {
+          HStack(alignment: .top, spacing: Spacing.medium) {
+            Image(systemName: availabilitySymbol)
+              .font(.title2)
+              .foregroundStyle(availabilityColor)
+              .accessibilityHidden(true)
 
-          Text(availabilityStatus)
-            .font(.body)
-            .multilineTextAlignment(.center)
-            .foregroundStyle(.primary)
+            Text(availabilityStatus)
+              .font(.body)
+              .frame(maxWidth: .infinity, alignment: .leading)
+          }
+          .padding(.top, Spacing.small)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, Spacing.xxLarge)
-        .background(Color.tertiaryBackgroundColor)
-        .clipShape(.rect(cornerRadius: CornerRadius.large))
 
-        // Info Section
-        VStack(alignment: .leading, spacing: 12) {
-          Label("Requirements", systemImage: "info.circle")
-            .font(.headline)
-
-          VStack(alignment: .leading, spacing: 8) {
+        GroupBox("Requirements") {
+          VStack(alignment: .leading, spacing: Spacing.medium) {
             RequirementRow(
               icon: "iphone",
-              text: "Compatible Apple device with Apple Silicon",
-              isMet: isAvailable
+              text: "A device that supports Apple Intelligence"
             )
 
             RequirementRow(
               icon: "gear",
-              text: "iOS 26.0+, macOS 26.0+, or visionOS 26.0+",
-              isMet: isAvailable
+              text: "iOS 26, macOS 26, or visionOS 26 or later"
             )
 
             RequirementRow(
               icon: "brain",
-              text: "Apple Intelligence enabled in Settings",
-              isMet: isAvailable
+              text: "Apple Intelligence turned on and its model downloaded"
             )
           }
+          .padding(.top, Spacing.small)
         }
-        .padding()
-        .background(Color.tertiaryBackgroundColor)
-        .clipShape(.rect(cornerRadius: CornerRadius.large))
       }
     }
   }
@@ -85,14 +75,14 @@ struct ModelAvailabilityView: View {
   }
 
   private func resetStatus() {
-    availabilityStatus = "Tap 'Check Availability' to verify Apple Intelligence status"
+    availabilityStatus = "Run the check to see whether the on-device model is ready."
     isAvailable = nil
     isChecking = false // Also reset the checking state
   }
 
   private func availabilityMessage(for result: ModelAvailabilityResult) -> String {
     guard !result.isAvailable else {
-      return "✅ Apple Intelligence is available and ready to use!"
+      return "Apple Intelligence is available and the on-device model is ready."
     }
 
     switch result.reason {
@@ -103,12 +93,32 @@ struct ModelAvailabilityView: View {
     case .appleIntelligenceNotEnabled:
       return "Apple Intelligence is not enabled. Turn it on in Settings, then try again."
     case .modelNotReady:
-      return "Apple Intelligence is still preparing model assets on this device. Please wait a bit and try again."
+      return "The on-device model is still downloading. Wait for it to finish, then check again."
     case .unknown, .none:
       return "Apple Intelligence is not available on this device right now. "
         + "This feature requires iOS 26.0+, macOS 26.0+, or visionOS 26.0+ "
         + "and a compatible Apple device with Apple Intelligence enabled."
     }
+  }
+
+  private var availabilitySymbol: String {
+    if isAvailable == true {
+      return "checkmark.circle.fill"
+    }
+    if isAvailable == false {
+      return "xmark.circle.fill"
+    }
+    return "questionmark.circle"
+  }
+
+  private var availabilityColor: Color {
+    if isAvailable == true {
+      return .green
+    }
+    if isAvailable == false {
+      return .red
+    }
+    return .secondary
   }
 }
 
@@ -117,25 +127,16 @@ struct ModelAvailabilityView: View {
 private struct RequirementRow: View {
   let icon: String
   let text: String
-  let isMet: Bool?
 
   var body: some View {
     HStack(spacing: 12) {
       Image(systemName: icon)
-        .foregroundStyle(isMet == true ? .green : isMet == false ? .red : .secondary)
+        .foregroundStyle(.secondary)
         .frame(width: 24)
 
       Text(text)
         .font(.subheadline)
         .foregroundStyle(.primary)
-
-      Spacer()
-
-      if let isMet = isMet {
-        Image(systemName: isMet ? "checkmark" : "xmark")
-          .foregroundStyle(isMet ? .green : .red)
-          .font(.caption)
-      }
     }
   }
 }

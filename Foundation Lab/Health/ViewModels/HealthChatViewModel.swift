@@ -18,6 +18,11 @@ import SwiftUI
 @Observable
 final class HealthChatViewModel {
 
+    private enum ErrorContext {
+        case healthData
+        case response
+    }
+
     // MARK: - Constants
 
     private let sessionTimeout: TimeInterval = AppConfiguration.Health.sessionTimeout
@@ -31,6 +36,25 @@ final class HealthChatViewModel {
     var currentHealthMetrics: [MetricType: Double] = [:]
     var errorMessage: String?
     var showError = false
+    private var errorContext: ErrorContext = .healthData
+
+    var errorTitle: String {
+        switch errorContext {
+        case .healthData:
+            String(localized: "Couldn’t Load Health Data")
+        case .response:
+            String(localized: "Couldn’t Generate a Response")
+        }
+    }
+
+    var fallbackErrorMessage: String {
+        switch errorContext {
+        case .healthData:
+            String(localized: "Health data is unavailable right now. Try again later.")
+        case .response:
+            String(localized: "The model couldn’t generate a response. Try again.")
+        }
+    }
 
     // MARK: - Token Usage Tracking
 
@@ -65,18 +89,17 @@ final class HealthChatViewModel {
         let configuration = FoundationLabConversationConfiguration(
             baseInstructions: Self.baseInstructions,
             summaryInstructions: """
-            Create comprehensive health coaching summaries that preserve all health metrics discussed,
-            goals set, and advice given.
+            Preserve the HealthKit measurements, date ranges, unavailable fields, and user questions already discussed.
+            Do not add interpretations, goals, diagnoses, or advice.
             """,
             summaryPromptPreamble: """
-            Please summarize the following health coaching conversation.
-            Include all health metrics discussed, goals mentioned, advice given, and user's health concerns:
+            Summarize this Health data conversation using only information already present in the transcript:
             """,
             conversationUserLabel: String(localized: "User:"),
-            conversationAssistantLabel: String(localized: "Health AI:"),
+            conversationAssistantLabel: String(localized: "Foundation Models:"),
             continuationNote: "Continue the conversation naturally, referencing this context when relevant.",
             overflowResetMessage: """
-            I need to start a fresh conversation to keep your health coaching accurate.
+            This conversation reached its context limit, so a fresh session has started.
             Please send your last message again.
             """,
             modelUseCase: .general,
@@ -138,8 +161,7 @@ final class HealthChatViewModel {
         } catch {
             logger.error("Failed to generate response: \(error.localizedDescription, privacy: .public)")
             let errorText = FoundationModelsErrorHandler.handleError(error)
-            errorMessage = errorText
-            showError = true
+            presentError(errorText, context: .response)
             await saveMessageToSession(errorText, isFromUser: false)
         }
     }
@@ -162,6 +184,7 @@ final class HealthChatViewModel {
     }
 
     func loadInitialHealthData() async {
+        errorContext = .healthData
         errorMessage = nil
         showError = false
 
@@ -177,8 +200,7 @@ final class HealthChatViewModel {
         } catch {
             logger.error("Failed to load health data: \(error.localizedDescription, privacy: .public)")
             let errorText = FoundationModelsErrorHandler.handleError(error)
-            errorMessage = errorText
-            showError = true
+            presentError(errorText, context: .healthData)
         }
 
         currentHealthMetrics = healthDataManager.currentMetrics
@@ -187,13 +209,13 @@ final class HealthChatViewModel {
 
 private extension HealthChatViewModel {
     static let baseInstructions = """
-    You are a friendly and knowledgeable health coach AI assistant.
+    You help users understand HealthKit measurements that Foundation Lab can read.
     Use the HealthDataTool whenever a response depends on the user's measurements.
     Never invent measurements, trends, correlations, diagnoses, or predictions.
-    If the requested data is unavailable, say so plainly and suggest what the user can check next.
-    Explain that health information is educational and not a substitute for professional medical advice when appropriate.
-    Based only on available health data, provide personalized, encouraging responses.
-    Be supportive and celebrate small wins. Use emojis occasionally.
+    Never infer a goal, score, or health status from the available measurements.
+    If requested data is unavailable, say so plainly and identify which measurement is missing.
+    Keep summaries factual and distinguish today's values, latest values, and weekly aggregates.
+    Do not provide medical advice. Suggest professional care when a request requires medical interpretation.
     """
 
     func syncConversationState() {
@@ -203,6 +225,12 @@ private extension HealthChatViewModel {
         maxContextSize = conversationEngine.maxContextSize
         isSummarizing = conversationEngine.isSummarizing
         sessionCount = conversationEngine.sessionCount
+    }
+
+    private func presentError(_ message: String, context: ErrorContext) {
+        errorContext = context
+        errorMessage = message
+        showError = true
     }
 
 }

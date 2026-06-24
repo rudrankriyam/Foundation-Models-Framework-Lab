@@ -15,24 +15,34 @@ struct TokenUsageBar: View {
 
     var body: some View {
         if currentTokenCount > 0 {
-            VStack(spacing: 2) {
+            VStack(spacing: Spacing.xSmall) {
                 ProgressView(value: tokenUsageFraction)
                     .tint(tokenUsageColor)
+                    .accessibilityLabel("Context usage")
+                    .accessibilityValue(usageAccessibilityValue)
 
                 HStack {
-                    Text("\(currentTokenCount) / \(maxContextSize) tokens")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                    Label {
+                        Text("\(currentTokenCount) of \(maxContextSize) tokens")
+                    } icon: {
+                        Image(systemName: usageSystemImage)
+                            .foregroundStyle(tokenUsageColor)
+                    }
+
                     Spacer()
-                    Text("\(Int(tokenUsageFraction * 100))%")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+
+                    Text(tokenUsageFraction, format: .percent.precision(.fractionLength(0)))
                 }
+                .font(.footnote)
+                .foregroundStyle(.secondary)
             }
-            .padding(.horizontal)
-            .padding(.vertical, 4)
-            .transition(.move(edge: .top).combined(with: .opacity))
-            .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: currentTokenCount)
+            .padding(.horizontal, Spacing.large)
+            .padding(.vertical, Spacing.small)
+            .frame(maxWidth: FoundationLabLayout.transcriptContentWidth)
+            .frame(maxWidth: .infinity)
+            .background(Color.secondaryBackgroundColor)
+            .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.2), value: currentTokenCount)
         }
     }
 
@@ -47,5 +57,21 @@ struct TokenUsageBar: View {
         default:
             return .red
         }
+    }
+
+    private var usageSystemImage: String {
+        switch tokenUsageFraction {
+        case 0..<0.75:
+            "circle.dotted"
+        case 0.75..<0.9:
+            "exclamationmark.circle.fill"
+        default:
+            "exclamationmark.triangle.fill"
+        }
+    }
+
+    private var usageAccessibilityValue: String {
+        let percentage = tokenUsageFraction.formatted(.percent.precision(.fractionLength(0)))
+        return String(localized: "\(currentTokenCount) of \(maxContextSize) tokens, \(percentage) used")
     }
 }

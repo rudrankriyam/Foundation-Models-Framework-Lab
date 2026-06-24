@@ -25,11 +25,11 @@ enum DynamicSchemaExampleType: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .basicObject:
-            return "Basic Object Schema"
+            return "Basic Object"
         case .arraySchema:
-            return "Array Schemas"
+            return "Arrays"
         case .enumSchema:
-            return "Enum Schemas"
+            return "Enumerations"
         case .nestedObjects:
             return "Nested Objects"
         case .schemaReferences:
@@ -41,9 +41,9 @@ enum DynamicSchemaExampleType: String, CaseIterable, Identifiable {
         case .unionTypes:
             return "Union Types (anyOf)"
         case .formBuilder:
-            return "Dynamic Form Builder"
+            return "Form Builder"
         case .errorHandling:
-            return "Error Handling"
+            return "Schema Errors"
         case .invoiceProcessing:
             return "Invoice Processing"
         }
@@ -52,27 +52,27 @@ enum DynamicSchemaExampleType: String, CaseIterable, Identifiable {
     var subtitle: String {
         switch self {
         case .basicObject:
-            return "Create simple object schemas at runtime"
+            return "Create an object schema at runtime"
         case .arraySchema:
-            return "Arrays with min/max constraints"
+            return "Add minimum and maximum item counts to arrays"
         case .enumSchema:
-            return "String enumerations and choices"
+            return "Limit string output to a defined set of choices"
         case .nestedObjects:
-            return "Complex nested object structures"
+            return "Compose objects with nested properties"
         case .schemaReferences:
-            return "Schemas referencing other schemas"
+            return "Reuse shared definitions across schemas"
         case .generationGuides:
-            return "Apply constraints to generated values"
+            return "Constrain generated values with guides"
         case .generablePattern:
-            return "Type-safe generation with @Generable"
+            return "Compare @Generable models with runtime schemas"
         case .unionTypes:
-            return "Multiple type alternatives"
+            return "Allow several valid output shapes with anyOf"
         case .formBuilder:
-            return "Build forms dynamically from user input"
+            return "Build a schema and form from field definitions"
         case .errorHandling:
-            return "Handle schema errors gracefully"
+            return "Inspect invalid schemas and generation failures"
         case .invoiceProcessing:
-            return "Real-world invoice data extraction"
+            return "Extract structured fields from invoice text"
         }
     }
 

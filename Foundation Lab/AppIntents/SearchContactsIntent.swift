@@ -5,7 +5,7 @@ import FoundationLabCore
 struct SearchContactsIntent: AppIntent {
     static let title: LocalizedStringResource = "Search Contacts"
     static let description = IntentDescription(
-        "Searches your contacts using Foundation Lab's shared contacts capability."
+        "Searches Contacts data you have authorized Foundation Lab to read."
     )
     static let openAppWhenRun = true
 

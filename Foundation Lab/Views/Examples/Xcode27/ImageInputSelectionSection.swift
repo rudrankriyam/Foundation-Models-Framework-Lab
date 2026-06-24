@@ -92,7 +92,7 @@ struct ImageInputSelectionSection: View {
         Button("Replace Image", systemImage: "photo.badge.plus", action: chooseImage)
             .buttonStyle(.bordered)
             .controlSize(.large)
-            .frame(minHeight: 44)
+            .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
             .disabled(isRunning)
     }
 
@@ -100,7 +100,7 @@ struct ImageInputSelectionSection: View {
         Button("Remove", systemImage: "trash", role: .destructive, action: removeImage)
             .buttonStyle(.borderless)
             .controlSize(.large)
-            .frame(minHeight: 44)
+            .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
             .disabled(isRunning)
     }
 
@@ -113,7 +113,7 @@ struct ImageInputSelectionSection: View {
             Button("Choose Image", systemImage: "photo.badge.plus", action: chooseImage)
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
-                .frame(minHeight: 44)
+                .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
         }
         .frame(minHeight: 160)
     }

@@ -30,7 +30,7 @@ struct ImageInputPromptSection: View {
                         chooseRecipe(newValue)
                     }
                 }
-                .frame(minHeight: 44)
+                .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
 
                 TextField("Ask about the image", text: $prompt, axis: .vertical)
                     .lineLimit(3...8)
@@ -41,7 +41,7 @@ struct ImageInputPromptSection: View {
                 Button("Reset Lab", systemImage: "arrow.counterclockwise", action: reset)
                     .buttonStyle(.borderless)
                     .controlSize(.large)
-                    .frame(minHeight: 44)
+                    .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
                     .disabled(isBusy)
             }
         }

@@ -44,7 +44,7 @@ struct PlaygroundTranscriptView: View {
                         .frame(height: 1)
                         .id("bottom")
                 }
-                .frame(maxWidth: 900)
+                .frame(maxWidth: FoundationLabLayout.transcriptContentWidth)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Spacing.large)
             }
@@ -96,16 +96,20 @@ private struct PlaygroundEmptyState: View {
 
     var body: some View {
         ContentUnavailableView {
-            Label("Ready to Run", systemImage: configuration.kind.systemImage)
+            Label(emptyTitle, systemImage: configuration.kind.systemImage)
         } description: {
             Text(emptyDescription)
         } actions: {
             if configuration.prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                Button("Choose an Example", systemImage: "books.vertical", action: openLibrary)
+                Button("Browse Library", systemImage: "books.vertical", action: openLibrary)
                     .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
             } else {
                 Button("Run Suggested Prompt", systemImage: "play.fill", action: runSuggestedPrompt)
                     .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
             }
         }
         .frame(maxWidth: 620, minHeight: 320)
@@ -119,5 +123,11 @@ private struct PlaygroundEmptyState: View {
         } else {
             configuration.summary
         }
+    }
+
+    private var emptyTitle: LocalizedStringKey {
+        configuration.prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? "Start an Experiment"
+            : "Ready to Run"
     }
 }

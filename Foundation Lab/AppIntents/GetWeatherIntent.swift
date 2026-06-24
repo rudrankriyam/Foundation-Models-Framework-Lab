@@ -5,7 +5,7 @@ import FoundationLabCore
 struct GetWeatherIntent: AppIntent {
     static let title: LocalizedStringResource = "Get Weather"
     static let description = IntentDescription(
-        "Gets the latest weather information using Foundation Lab's shared weather capability."
+        "Looks up current weather for a location."
     )
     static let openAppWhenRun = false
 

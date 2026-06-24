@@ -28,7 +28,7 @@ struct WorkspaceView: View {
                 }
                 .padding(.horizontal, Spacing.xxLarge)
                 .padding(.vertical, Spacing.xLarge)
-                .frame(maxWidth: 960, alignment: .leading)
+                .frame(maxWidth: FoundationLabLayout.workspaceContentWidth, alignment: .leading)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
@@ -49,7 +49,8 @@ struct WorkspaceView: View {
             .pickerStyle(.menu)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, Spacing.medium)
-            .frame(minHeight: 44)
+            .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
+            .background(.bar)
         } else {
             Picker("Stage", selection: $selectedStage) {
                 stages
@@ -60,12 +61,13 @@ struct WorkspaceView: View {
             .padding(.horizontal, Spacing.xLarge)
             .padding(.vertical, Spacing.small)
             .frame(maxWidth: .infinity, alignment: .leading)
+            .background(.bar)
         }
     }
 
     private var stages: some View {
         ForEach(WorkspaceStage.allCases) { stage in
-            Label(stage.title, systemImage: stage.systemImage)
+            Label(workspace.title(for: stage), systemImage: workspace.systemImage(for: stage))
                 .tag(stage)
         }
     }

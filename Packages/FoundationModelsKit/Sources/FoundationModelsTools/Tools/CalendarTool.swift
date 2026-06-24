@@ -8,6 +8,7 @@
 @preconcurrency import EventKit
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 
 /// A tool for managing calendar events using EventKit.
 ///
@@ -36,7 +37,7 @@ public struct CalendarTool: Tool {
 
   /// Arguments for calendar operations.
   @Generable
-  public struct Arguments {
+  public struct Arguments: RuntimeCompatibleGenerable {
     /// The action to perform: "create", "query", "read", "update"
     @Guide(description: "The action to perform: 'create', 'query', 'read', 'update'")
     public var action: String

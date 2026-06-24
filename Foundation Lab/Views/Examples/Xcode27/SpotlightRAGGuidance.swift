@@ -27,7 +27,7 @@ enum SpotlightRAGGuidance: String, CaseIterable, Identifiable, Sendable {
         case .dynamic:
             String(localized: "Dynamic guidance lets the model combine keyword, semantic, date, and content-type queries.")
         case .complete:
-            String(localized: "Complete guidance exposes the full Spotlight query surface to the model.")
+            String(localized: "Complete guidance exposes every supported Spotlight query field to the model.")
         }
     }
 }

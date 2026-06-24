@@ -41,11 +41,13 @@ struct NestedDynamicSchemaView: View {
     var body: some View {
         ExampleViewBase(
             title: "Nested Objects",
-            description: "Create complex nested object structures with multiple levels",
+            description: "Extract nested properties into a runtime object schema.",
             currentPrompt: bindingForSelectedExample,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
+            promptTitle: "Source Text",
+            promptPlaceholder: "Enter text with nested details",
             onRun: { await runExample() },
             onReset: {
                 executor.reset()
@@ -65,38 +67,17 @@ struct NestedDynamicSchemaView: View {
                 }
                 .pickerStyle(.segmented)
 
-                // Nesting visualization
-                VStack(alignment: .leading, spacing: Spacing.small) {
-                    Text("Schema Structure")
-                        .font(.headline)
-
-                    Text(schemaVisualization(for: selectedExample))
-                        .font(.system(.caption, design: .monospaced))
-                        .padding(8)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.gray.opacity(0.1))
-                        .clipShape(.rect(cornerRadius: 8))
-                }
+                SchemaTextView(
+                    title: "Schema Structure",
+                    text: schemaVisualization(for: selectedExample),
+                    maximumHeight: 260
+                )
 
                 // Results section
                 if !executor.results.isEmpty {
-                    VStack(alignment: .leading, spacing: Spacing.small) {
-                        Text("Generated Data")
-                            .font(.headline)
-
-                        ScrollView {
-                            Text(executor.results)
-                                .font(.system(.caption, design: .monospaced))
-                                .padding()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.gray.opacity(0.1))
-                                .clipShape(.rect(cornerRadius: 8))
-                        }
-                        .frame(maxHeight: 250)
-                    }
+                    SchemaTextView(title: "Generated Data", text: executor.results)
                 }
             }
-            .padding()
         }
         )
     }
@@ -131,13 +112,15 @@ struct NestedDynamicSchemaView: View {
                 generationOptions: .init(temperature: 0.1)
             ) { content in
                 """
-                📝 Input:
+                Source Text
+
                 \(currentInput)
 
-                📊 Extracted Nested Structure:
+                Extracted Structure
+
                 \(NestedSchemaFormatter.formatNestedContent(content, indent: 0))
 
-                🔍 Nesting Levels Found: \(NestedSchemaFormatter.countNestingLevels(content))
+                Nesting Levels: \(NestedSchemaFormatter.countNestingLevels(content))
                 """
             }
         } catch {

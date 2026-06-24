@@ -10,10 +10,16 @@ struct RunDetailOverviewSection: View {
     let run: FoundationLabExperimentRun
 
     var body: some View {
-        Section {
-            LabeledContent("Status") {
+        Section("Overview") {
+            VStack(alignment: .leading, spacing: Spacing.small) {
                 RunStatusLabel(status: run.status)
+
+                Text(promptSummary)
+                    .foregroundStyle(run.prompt.isEmpty ? .secondary : .primary)
+                    .textSelection(.enabled)
+                    .fixedSize(horizontal: false, vertical: true)
             }
+            .padding(.vertical, Spacing.xSmall)
 
             LabeledContent("Started") {
                 Text(
@@ -39,5 +45,9 @@ struct RunDetailOverviewSection: View {
                 }
             }
         }
+    }
+
+    private var promptSummary: String {
+        run.prompt.isEmpty ? String(localized: "No prompt was recorded") : run.prompt
     }
 }

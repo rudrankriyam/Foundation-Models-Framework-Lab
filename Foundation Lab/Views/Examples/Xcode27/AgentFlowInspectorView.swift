@@ -100,7 +100,11 @@ private struct AgentTurnPhaseRow: View {
                 .foregroundStyle(isSelected ? phase.tint : .secondary)
                 .accessibilityHidden(true)
         }
-        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        .frame(
+            maxWidth: .infinity,
+            minHeight: FoundationLabLayout.minimumTouchTarget,
+            alignment: .leading
+        )
         .padding(.vertical, Spacing.small)
         .contentShape(.rect)
     }

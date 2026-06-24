@@ -21,8 +21,9 @@ struct PlaygroundHeaderView: View {
         }
         .padding(.horizontal, Spacing.large)
         .padding(.vertical, Spacing.medium)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.bar)
+        .frame(maxWidth: FoundationLabLayout.transcriptContentWidth, alignment: .leading)
+        .frame(maxWidth: .infinity)
+        .background(Color.secondaryBackgroundColor)
     }
 
     private var title: some View {

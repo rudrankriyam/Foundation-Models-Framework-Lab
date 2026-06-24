@@ -27,7 +27,7 @@ struct FMFBenchStudioContent: View {
 
     private var settingsContent: some View {
         VStack(alignment: .leading, spacing: Spacing.xLarge) {
-            section(title: "Execution Surfaces") {
+            section(title: "Execution Environments") {
                 VStack(spacing: 0) {
                     detailRow(title: "Mac", value: "fmfbench CLI")
                     Divider()
@@ -90,7 +90,10 @@ struct FMFBenchStudioContent: View {
                 VStack(alignment: .leading, spacing: Spacing.medium) {
                     note(title: "Latency", detail: "TTFT, decode duration, and end-to-end duration.")
                     note(title: "Throughput", detail: "Output tokens per second after the first streamed update.")
-                    note(title: "Runtime", detail: "Memory, thermal state, context use, failures, and PCC quota state.")
+                    note(
+                        title: "Runtime",
+                        detail: "Memory, thermal state, context use, failures, and Private Cloud Compute quota state."
+                    )
                 }
             }
         }

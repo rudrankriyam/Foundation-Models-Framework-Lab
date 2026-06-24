@@ -1,8 +1,6 @@
 //
 //  ChatInputView.swift
-//  FoundationLab
-//
-//  Created by Rudrank Riyam on 6/20/25.
+//  Foundation Lab
 //
 
 import SwiftUI
@@ -14,7 +12,6 @@ struct ChatInputView: View {
     var onSend: (@MainActor (String) async -> Void)?
     var onVoiceWillSend: (@MainActor () -> Void)?
     var onVoiceCompleted: (@MainActor (String, String, Date, TimeInterval) -> Void)?
-    @Namespace private var glassNamespace
 
     init(
         messageText: Binding<String>,
@@ -33,248 +30,164 @@ struct ChatInputView: View {
     }
 
     var body: some View {
-#if os(iOS) || os(macOS)
-        glassComposer
-#else
-        standardComposer
-#endif
+        VStack(spacing: 0) {
+            Divider()
+
+            HStack(alignment: .bottom, spacing: Spacing.small) {
+                composerField
+                composerAction
+            }
+            .padding(.horizontal, Spacing.large)
+            .padding(.vertical, Spacing.medium)
+            .frame(maxWidth: FoundationLabLayout.transcriptContentWidth)
+            .frame(maxWidth: .infinity)
+        }
+        .background(.bar)
     }
 }
 
 private extension ChatInputView {
-#if os(iOS) || os(macOS)
-    var glassComposer: some View {
-        GlassEffectContainer(spacing: Spacing.medium) {
-            HStack(spacing: Spacing.medium) {
-                Group {
-                    if case .listening(let partialText) = chatViewModel.voiceState {
-                        Group {
-                            if partialText.isEmpty {
-                                Text("Listening...")
-                            } else {
-                                Text(partialText)
-                            }
-                        }
+    var composerField: some View {
+        Group {
+            if case .listening(let partialText) = chatViewModel.voiceState {
+                Label {
+                    Text(partialText.isEmpty ? String(localized: "Listening…") : partialText)
                         .foregroundStyle(.secondary)
                         .italic()
-                    } else {
-                        TextField("Type your message...", text: $messageText, axis: .vertical)
-                            .textFieldStyle(.plain)
-                            .focused($isTextFieldFocused)
-                            .onSubmit {
-                                sendMessage()
-                            }
-#if os(iOS)
-                            .submitLabel(.send)
-#endif
-                    }
+                } icon: {
+                    Image(systemName: "waveform")
+                        .foregroundStyle(.tint)
                 }
-                .padding(.horizontal, Spacing.medium)
-                .padding(.vertical, Spacing.medium)
-                .glassEffect(.regular, in: .rect(cornerRadius: CornerRadius.xLarge))
-                .glassEffectID("textField", in: glassNamespace)
-
-                if chatViewModel.voiceState == .preparing {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        .padding(Spacing.medium)
-
-                    Button("Cancel") {
-                        chatViewModel.cancelVoiceMode()
-                    }
-                    .foregroundStyle(.white)
-                    .padding(Spacing.medium)
-                } else if chatViewModel.isLoading {
-                    Button("Stop") {
-                        chatViewModel.cancelGeneration()
-                    }
-                    .keyboardShortcut(".", modifiers: .command)
-                    .foregroundStyle(.white)
-                    .font(.subheadline.weight(.medium))
-                    .padding(Spacing.medium)
-                    .glassEffect(
-                        .regular
-                            .tint(.red)
-                            .interactive(true), in: .circle
-                    )
-                } else if case .listening = chatViewModel.voiceState {
-                    Button("End") {
-                        Task {
-                            await endVoiceAndSend()
-                        }
-                    }
-                    .foregroundStyle(.white)
-                    .font(.subheadline.weight(.medium))
-                    .padding(Spacing.medium)
-                    .glassEffect(
-                        .regular
-                            .tint(.red)
-                            .interactive(true), in: .circle
-                    )
-                } else if case .speaking = chatViewModel.voiceState {
-                    Button("Stop") {
-                        chatViewModel.stopSpeaking()
-                    }
-                    .foregroundStyle(.white)
-                    .font(.subheadline.weight(.medium))
-                    .padding(Spacing.medium)
-                    .glassEffect(
-                        .regular
-                            .tint(.orange)
-                            .interactive(true), in: .circle
-                    )
-                } else if messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    Button {
-                        Task {
-                            await chatViewModel.startVoiceMode()
-                        }
-                    } label: {
-                        Image(systemName: "waveform")
-                            .font(.subheadline)
-                            .foregroundStyle(.white)
-                    }
-                    .accessibilityLabel("Voice mode")
-                    .padding(Spacing.medium)
-                    .glassEffect(
-                        .regular
-                            .tint(.blue)
-                            .interactive(true), in: .circle
-                    )
-                    .glassEffectID("voiceButton", in: glassNamespace)
-                    .disabled(chatViewModel.voiceState.isActive && !chatViewModel.voiceState.isError)
-                } else {
-                    Button(action: sendMessage) {
-                        Image(systemName: "arrow.up")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                    }
-                    .accessibilityLabel("Send message")
-                    .keyboardShortcut("r", modifiers: .command)
-                    .padding(Spacing.medium)
-                    .glassEffect(
-                        .regular
-                            .tint(.main)
-                            .interactive(true), in: .circle
-                    )
-                    .glassEffectID("sendButton", in: glassNamespace)
-                    .disabled(chatViewModel.isLoading || chatViewModel.isSummarizing)
-#if os(macOS)
-                    .buttonStyle(.plain)
-#endif
-                }
-            }
-        }
-        .padding()
-    }
-#endif
-
-    var standardComposer: some View {
-        HStack(spacing: Spacing.medium) {
-            Group {
-                if case .listening(let partialText) = chatViewModel.voiceState {
-                    Group {
-                        if partialText.isEmpty {
-                            Text("Listening...")
-                        } else {
-                            Text(partialText)
-                        }
-                    }
-                    .foregroundStyle(.secondary)
-                    .italic()
-                } else {
-                    TextField("Type your message...", text: $messageText, axis: .vertical)
-                        .textFieldStyle(.plain)
-                        .focused($isTextFieldFocused)
-                        .onSubmit {
-                            sendMessage()
-                        }
-                }
-            }
-            .padding(.horizontal, Spacing.medium)
-            .padding(.vertical, Spacing.small)
-
-            if chatViewModel.voiceState == .preparing {
-                ProgressView()
-                    .padding(.vertical, Spacing.small)
-
-                Button("Cancel") {
-                    chatViewModel.cancelVoiceMode()
-                }
-                .padding(Spacing.small)
-            } else if chatViewModel.isLoading {
-                Button("Stop") {
-                    chatViewModel.cancelGeneration()
-                }
-                .keyboardShortcut(".", modifiers: .command)
-                .padding(Spacing.small)
-            } else if case .listening = chatViewModel.voiceState {
-                Button("End") {
-                    Task {
-                        await endVoiceAndSend()
-                    }
-                }
-                .padding(Spacing.small)
-            } else if case .speaking = chatViewModel.voiceState {
-                Button("Stop") {
-                    chatViewModel.stopSpeaking()
-                }
-                .padding(Spacing.small)
-            } else if messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                Button {
-                    Task {
-                        await chatViewModel.startVoiceMode()
-                    }
-                } label: {
-                    Image(systemName: "waveform.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(.blue)
-                }
-                .accessibilityLabel("Voice mode")
-                .buttonStyle(.plain)
-                .padding(Spacing.small)
-                .disabled(chatViewModel.voiceState.isActive && !chatViewModel.voiceState.isError)
             } else {
-                Button(action: sendMessage) {
-                    Image(systemName: "arrow.up.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(
-                            messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .gray : Color.accentColor
-                        )
-                }
-                .accessibilityLabel("Send message")
-                .keyboardShortcut("r", modifiers: .command)
-                .buttonStyle(.plain)
-                .padding(Spacing.small)
-                .disabled(
-                    messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-                    chatViewModel.isLoading ||
-                    chatViewModel.isSummarizing
-                )
+                TextField("Enter a prompt", text: $messageText, axis: .vertical)
+                    .lineLimit(1...5)
+                    .textFieldStyle(.plain)
+                    .focused($isTextFieldFocused)
+                    .onSubmit(sendMessage)
+#if os(iOS)
+                    .submitLabel(.send)
+#endif
             }
         }
-        .padding()
-        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: messageText.isEmpty)
+        .padding(.horizontal, Spacing.medium)
+        .padding(.vertical, Spacing.small)
+        .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
+        .background(Color.secondaryBackgroundColor, in: .rect(cornerRadius: CornerRadius.medium))
     }
 
-    private func sendMessage() {
-        let trimmedMessage = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
+    @ViewBuilder
+    var composerAction: some View {
+        if chatViewModel.voiceState == .preparing {
+            ProgressView()
+                .controlSize(.small)
+                .frame(
+                    minWidth: FoundationLabLayout.minimumTouchTarget,
+                    minHeight: FoundationLabLayout.minimumTouchTarget
+                )
+                .accessibilityLabel("Preparing voice mode")
+
+            composerButton(
+                "Cancel Voice Mode",
+                systemImage: "xmark",
+                tint: .secondary,
+                action: chatViewModel.cancelVoiceMode
+            )
+        } else if chatViewModel.isLoading {
+            composerButton(
+                "Stop Generating",
+                systemImage: "stop.fill",
+                tint: .red,
+                action: chatViewModel.cancelGeneration
+            )
+            .keyboardShortcut(".", modifiers: .command)
+        } else if case .listening = chatViewModel.voiceState {
+            composerButton(
+                "Finish Voice Message",
+                systemImage: "stop.fill",
+                tint: .red,
+                action: finishVoiceMessage
+            )
+        } else if case .speaking = chatViewModel.voiceState {
+            composerButton(
+                "Stop Speaking",
+                systemImage: "speaker.slash.fill",
+                tint: .orange,
+                action: chatViewModel.stopSpeaking
+            )
+        } else if trimmedMessage.isEmpty {
+            composerButton(
+                "Start Voice Mode",
+                systemImage: "waveform",
+                tint: .accentColor,
+                action: startVoiceMode
+            )
+            .disabled(chatViewModel.voiceState.isActive && !chatViewModel.voiceState.isError)
+        } else {
+            Button("Send Message", systemImage: "arrow.up", action: sendMessage)
+                .labelStyle(.iconOnly)
+                .buttonStyle(.glassProminent)
+                .controlSize(.large)
+                .frame(
+                    minWidth: FoundationLabLayout.minimumTouchTarget,
+                    minHeight: FoundationLabLayout.minimumTouchTarget
+                )
+                .keyboardShortcut("r", modifiers: .command)
+                .disabled(!chatViewModel.canStartTextGeneration)
+        }
+    }
+
+    func composerButton(
+        _ title: LocalizedStringKey,
+        systemImage: String,
+        tint: Color,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(title, systemImage: systemImage, action: action)
+            .labelStyle(.iconOnly)
+            .buttonStyle(.glass)
+            .controlSize(.large)
+            .tint(tint)
+            .frame(
+                minWidth: FoundationLabLayout.minimumTouchTarget,
+                minHeight: FoundationLabLayout.minimumTouchTarget
+            )
+    }
+
+    var trimmedMessage: String {
+        messageText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    func sendMessage() {
         guard !trimmedMessage.isEmpty,
               chatViewModel.canStartTextGeneration else { return }
 
+        let outgoingMessage = trimmedMessage
         messageText = ""
-        isTextFieldFocused = true // Keep focus for continuous conversation
+        isTextFieldFocused = true
 
         Task {
             if let onSend {
-                await onSend(trimmedMessage)
+                await onSend(outgoingMessage)
             } else {
-                await chatViewModel.sendMessage(trimmedMessage)
+                await chatViewModel.sendMessage(outgoingMessage)
             }
+        }
+    }
+
+    func startVoiceMode() {
+        Task {
+            await chatViewModel.startVoiceMode()
+        }
+    }
+
+    func finishVoiceMessage() {
+        Task {
+            await endVoiceAndSend()
         }
     }
 
     @MainActor
-    private func endVoiceAndSend() async {
+    func endVoiceAndSend() async {
         onVoiceWillSend?()
         let startedAt = Date.now
         guard let result = await chatViewModel.stopVoiceModeAndSend() else { return }

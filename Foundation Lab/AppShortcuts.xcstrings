@@ -1,642 +1,132 @@
 {
   "sourceLanguage": "en",
   "strings": {
-    "Recommend a book in ${applicationName}": {
+    "Ask ${applicationName} about health data": {
+      "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recommend a book in ${applicationName}"
+            "value": "Frage ${applicationName} nach Gesundheitsdaten"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recommend a book in ${applicationName}"
+            "value": "Ask ${applicationName} about health data"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recommend a book in ${applicationName}"
+            "value": "Pregunta a ${applicationName} por datos de salud"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recommend a book in ${applicationName}"
+            "value": "Demande à ${applicationName} des informations sur les données de santé"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recommend a book in ${applicationName}"
+            "value": "Chiedi a ${applicationName} informazioni sui dati sanitari"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recommend a book in ${applicationName}"
+            "value": "${applicationName}にヘルスケアデータについて聞いて"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recommend a book in ${applicationName}"
+            "value": "${applicationName}에 건강 데이터에 대해 물어보기"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recommend a book in ${applicationName}"
+            "value": "Pergunte sobre dados de saúde com ${applicationName}"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recommend a book in ${applicationName}"
+            "value": "向${applicationName}询问健康数据"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recommend a book in ${applicationName}"
+            "value": "向${applicationName}詢問健康資料"
           }
         }
       }
     },
-    "Get a book recommendation from ${applicationName}": {
+    "Ask about my calendar in ${applicationName}": {
+      "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get a book recommendation from ${applicationName}"
+            "value": "Frage ${applicationName} nach meinem Kalender"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get a book recommendation from ${applicationName}"
+            "value": "Ask about my calendar in ${applicationName}"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get a book recommendation from ${applicationName}"
+            "value": "Pregunta a ${applicationName} por mi calendario"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get a book recommendation from ${applicationName}"
+            "value": "Demande à ${applicationName} des informations sur mon calendrier"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get a book recommendation from ${applicationName}"
+            "value": "Chiedi a ${applicationName} del mio calendario"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get a book recommendation from ${applicationName}"
+            "value": "${applicationName}にカレンダーについて聞いて"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get a book recommendation from ${applicationName}"
+            "value": "${applicationName}에 내 캘린더에 대해 물어보기"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get a book recommendation from ${applicationName}"
+            "value": "Pergunte sobre meu calendário com ${applicationName}"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get a book recommendation from ${applicationName}"
+            "value": "向${applicationName}询问我的日历"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get a book recommendation from ${applicationName}"
-          }
-        }
-      }
-    },
-    "Get the weather in ${applicationName}": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Get the weather in ${applicationName}"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Get the weather in ${applicationName}"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Get the weather in ${applicationName}"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Get the weather in ${applicationName}"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Get the weather in ${applicationName}"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Get the weather in ${applicationName}"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Get the weather in ${applicationName}"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Get the weather in ${applicationName}"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Get the weather in ${applicationName}"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Get the weather in ${applicationName}"
-          }
-        }
-      }
-    },
-    "Check weather with ${applicationName}": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check weather with ${applicationName}"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check weather with ${applicationName}"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check weather with ${applicationName}"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check weather with ${applicationName}"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check weather with ${applicationName}"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check weather with ${applicationName}"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check weather with ${applicationName}"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check weather with ${applicationName}"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check weather with ${applicationName}"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check weather with ${applicationName}"
-          }
-        }
-      }
-    },
-    "Analyze nutrition in ${applicationName}": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Analyze nutrition in ${applicationName}"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Analyze nutrition in ${applicationName}"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Analyze nutrition in ${applicationName}"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Analyze nutrition in ${applicationName}"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Analyze nutrition in ${applicationName}"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Analyze nutrition in ${applicationName}"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Analyze nutrition in ${applicationName}"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Analyze nutrition in ${applicationName}"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Analyze nutrition in ${applicationName}"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Analyze nutrition in ${applicationName}"
-          }
-        }
-      }
-    },
-    "Check calories with ${applicationName}": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check calories with ${applicationName}"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check calories with ${applicationName}"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check calories with ${applicationName}"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check calories with ${applicationName}"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check calories with ${applicationName}"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check calories with ${applicationName}"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check calories with ${applicationName}"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check calories with ${applicationName}"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check calories with ${applicationName}"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check calories with ${applicationName}"
-          }
-        }
-      }
-    },
-    "Search the web in ${applicationName}": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search the web in ${applicationName}"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search the web in ${applicationName}"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search the web in ${applicationName}"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search the web in ${applicationName}"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search the web in ${applicationName}"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search the web in ${applicationName}"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search the web in ${applicationName}"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search the web in ${applicationName}"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search the web in ${applicationName}"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search the web in ${applicationName}"
-          }
-        }
-      }
-    },
-    "Look something up with ${applicationName}": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Look something up with ${applicationName}"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Look something up with ${applicationName}"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Look something up with ${applicationName}"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Look something up with ${applicationName}"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Look something up with ${applicationName}"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Look something up with ${applicationName}"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Look something up with ${applicationName}"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Look something up with ${applicationName}"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Look something up with ${applicationName}"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Look something up with ${applicationName}"
-          }
-        }
-      }
-    },
-    "Search contacts in ${applicationName}": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search contacts in ${applicationName}"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search contacts in ${applicationName}"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search contacts in ${applicationName}"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search contacts in ${applicationName}"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search contacts in ${applicationName}"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search contacts in ${applicationName}"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search contacts in ${applicationName}"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search contacts in ${applicationName}"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search contacts in ${applicationName}"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search contacts in ${applicationName}"
-          }
-        }
-      }
-    },
-    "Find someone with ${applicationName}": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Find someone with ${applicationName}"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Find someone with ${applicationName}"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Find someone with ${applicationName}"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Find someone with ${applicationName}"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Find someone with ${applicationName}"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Find someone with ${applicationName}"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Find someone with ${applicationName}"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Find someone with ${applicationName}"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Find someone with ${applicationName}"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Find someone with ${applicationName}"
+            "value": "向${applicationName}詢問我的行事曆"
           }
         }
       }
@@ -646,7 +136,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check my calendar in ${applicationName}"
+            "value": "Prüfe meinen Kalender mit ${applicationName}"
           }
         },
         "en": {
@@ -658,187 +148,190 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check my calendar in ${applicationName}"
+            "value": "Consulta mi calendario con ${applicationName}"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check my calendar in ${applicationName}"
+            "value": "Consulte mon calendrier avec ${applicationName}"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check my calendar in ${applicationName}"
+            "value": "Controlla il mio calendario con ${applicationName}"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check my calendar in ${applicationName}"
+            "value": "${applicationName}でカレンダーを確認"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check my calendar in ${applicationName}"
+            "value": "${applicationName}에서 내 캘린더 확인"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check my calendar in ${applicationName}"
+            "value": "Confira meu calendário com ${applicationName}"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check my calendar in ${applicationName}"
+            "value": "用${applicationName}查看我的日历"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check my calendar in ${applicationName}"
+            "value": "用${applicationName}查看我的行事曆"
           }
         }
       }
     },
-    "Ask calendar with ${applicationName}": {
+    "Check my location with ${applicationName}": {
+      "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask calendar with ${applicationName}"
+            "value": "Prüfe meinen Standort mit ${applicationName}"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask calendar with ${applicationName}"
+            "value": "Check my location with ${applicationName}"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask calendar with ${applicationName}"
+            "value": "Comprueba mi ubicación con ${applicationName}"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask calendar with ${applicationName}"
+            "value": "Vérifie ma position avec ${applicationName}"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask calendar with ${applicationName}"
+            "value": "Controlla la mia posizione con ${applicationName}"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask calendar with ${applicationName}"
+            "value": "${applicationName}で現在地を確認"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask calendar with ${applicationName}"
+            "value": "${applicationName}에서 내 위치 확인"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask calendar with ${applicationName}"
+            "value": "Confira minha localização com ${applicationName}"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask calendar with ${applicationName}"
+            "value": "用${applicationName}查看我的位置"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask calendar with ${applicationName}"
+            "value": "用${applicationName}查看我的位置"
           }
         }
       }
     },
-    "Manage reminders in ${applicationName}": {
+    "Check weather with ${applicationName}": {
+      "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Manage reminders in ${applicationName}"
+            "value": "Prüfe das Wetter mit ${applicationName}"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Manage reminders in ${applicationName}"
+            "value": "Check weather with ${applicationName}"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Manage reminders in ${applicationName}"
+            "value": "Comprueba el tiempo con ${applicationName}"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Manage reminders in ${applicationName}"
+            "value": "Vérifie la météo avec ${applicationName}"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Manage reminders in ${applicationName}"
+            "value": "Verifica il meteo con ${applicationName}"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Manage reminders in ${applicationName}"
+            "value": "${applicationName}で天気を確認"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Manage reminders in ${applicationName}"
+            "value": "${applicationName}에서 날씨 확인"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Manage reminders in ${applicationName}"
+            "value": "Confira o tempo com ${applicationName}"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Manage reminders in ${applicationName}"
+            "value": "用${applicationName}查看天气"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Manage reminders in ${applicationName}"
+            "value": "用${applicationName}查看天氣"
           }
         }
       }
     },
     "Create a reminder with ${applicationName}": {
+      "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Create a reminder with ${applicationName}"
+            "value": "Erstelle eine Erinnerung mit ${applicationName}"
           }
         },
         "en": {
@@ -850,49 +343,373 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Create a reminder with ${applicationName}"
+            "value": "Crea un recordatorio con ${applicationName}"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Create a reminder with ${applicationName}"
+            "value": "Crée un rappel avec ${applicationName}"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Create a reminder with ${applicationName}"
+            "value": "Crea un promemoria con ${applicationName}"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Create a reminder with ${applicationName}"
+            "value": "${applicationName}でリマインダーを作成"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Create a reminder with ${applicationName}"
+            "value": "${applicationName}에서 미리 알림 생성"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Create a reminder with ${applicationName}"
+            "value": "Crie um lembrete com ${applicationName}"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Create a reminder with ${applicationName}"
+            "value": "用${applicationName}创建提醒事项"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Create a reminder with ${applicationName}"
+            "value": "用${applicationName}建立提醒事項"
+          }
+        }
+      }
+    },
+    "Estimate meal nutrition in ${applicationName}": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schätze die Nährwerte einer Mahlzeit mit ${applicationName}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estimate meal nutrition in ${applicationName}"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estima la información nutricional de una comida con ${applicationName}"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estime les valeurs nutritionnelles d’un repas avec ${applicationName}"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stima i valori nutrizionali di un pasto con ${applicationName}"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}で食事の栄養を推定"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}에서 식사의 영양 정보 추정"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estime as informações nutricionais de uma refeição com ${applicationName}"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用${applicationName}估算一餐的营养信息"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用${applicationName}估算一餐的營養資訊"
+          }
+        }
+      }
+    },
+    "Find music with ${applicationName}": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finde Musik mit ${applicationName}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find music with ${applicationName}"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encuentra música con ${applicationName}"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trouve de la musique avec ${applicationName}"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trova musica con ${applicationName}"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}で音楽を探して"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}에서 음악 찾기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encontre músicas com ${applicationName}"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用${applicationName}查找音乐"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用${applicationName}尋找音樂"
+          }
+        }
+      }
+    },
+    "Find someone with ${applicationName}": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finde jemanden mit ${applicationName}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find someone with ${applicationName}"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encuentra a alguien con ${applicationName}"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trouve quelqu’un avec ${applicationName}"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trova qualcuno con ${applicationName}"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}で人を探して"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}에서 사람 찾기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encontre alguém com ${applicationName}"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用${applicationName}查找联系人"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用${applicationName}尋找聯絡人"
+          }
+        }
+      }
+    },
+    "Get a book recommendation from ${applicationName}": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gib mir mit ${applicationName} eine Buchempfehlung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a book recommendation from ${applicationName}"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obtén una recomendación de libro de ${applicationName}"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obtiens une recommandation de livre de ${applicationName}"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ottieni un consiglio di lettura da ${applicationName}"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}から本のおすすめを取得"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}에서 책 추천 받기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obtenha uma recomendação de livro com ${applicationName}"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从${applicationName}获取图书推荐"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "從${applicationName}取得書籍推薦"
+          }
+        }
+      }
+    },
+    "Get a meal estimate with ${applicationName}": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erstelle mit ${applicationName} eine Nährwertschätzung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a meal estimate with ${applicationName}"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obtén una estimación nutricional con ${applicationName}"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obtiens une estimation nutritionnelle avec ${applicationName}"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ottieni una stima nutrizionale con ${applicationName}"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}で食事の栄養を見積もって"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}에서 식사 영양 정보 추정해 줘"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obtenha uma estimativa nutricional com ${applicationName}"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用${applicationName}获取膳食营养估算"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用${applicationName}取得膳食營養估算"
           }
         }
       }
@@ -902,7 +719,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get my location in ${applicationName}"
+            "value": "Rufe meinen Standort mit ${applicationName} ab"
           }
         },
         "en": {
@@ -914,113 +731,434 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get my location in ${applicationName}"
+            "value": "Obtén mi ubicación con ${applicationName}"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get my location in ${applicationName}"
+            "value": "Obtiens ma position avec ${applicationName}"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get my location in ${applicationName}"
+            "value": "Ottieni la mia posizione con ${applicationName}"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get my location in ${applicationName}"
+            "value": "${applicationName}で現在地を取得"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get my location in ${applicationName}"
+            "value": "${applicationName}에서 내 위치 가져오기"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get my location in ${applicationName}"
+            "value": "Obtenha minha localização com ${applicationName}"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get my location in ${applicationName}"
+            "value": "用${applicationName}获取我的位置"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get my location in ${applicationName}"
+            "value": "用${applicationName}取得我的位置"
           }
         }
       }
     },
-    "Check location with ${applicationName}": {
+    "Get the weather in ${applicationName}": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check location with ${applicationName}"
+            "value": "Rufe das Wetter mit ${applicationName} ab"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check location with ${applicationName}"
+            "value": "Get the weather in ${applicationName}"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check location with ${applicationName}"
+            "value": "Consulta el tiempo con ${applicationName}"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check location with ${applicationName}"
+            "value": "Consulte la météo avec ${applicationName}"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check location with ${applicationName}"
+            "value": "Controlla il meteo con ${applicationName}"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check location with ${applicationName}"
+            "value": "${applicationName}で天気を取得"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check location with ${applicationName}"
+            "value": "${applicationName}에서 날씨 가져오기"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check location with ${applicationName}"
+            "value": "Veja a previsão do tempo com ${applicationName}"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check location with ${applicationName}"
+            "value": "用${applicationName}查询天气"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check location with ${applicationName}"
+            "value": "用${applicationName}查詢天氣"
+          }
+        }
+      }
+    },
+    "Look something up with ${applicationName}": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schlage etwas mit ${applicationName} nach"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Look something up with ${applicationName}"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Busca algo con ${applicationName}"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recherche quelque chose avec ${applicationName}"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerca qualcosa con ${applicationName}"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}で調べものをして"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}에서 정보 찾아보기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procure algo com ${applicationName}"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用${applicationName}查询内容"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用${applicationName}查詢內容"
+          }
+        }
+      }
+    },
+    "Manage reminders in ${applicationName}": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwalte Erinnerungen mit ${applicationName}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manage reminders in ${applicationName}"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gestiona recordatorios con ${applicationName}"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gère mes rappels avec ${applicationName}"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gestisci i promemoria con ${applicationName}"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}でリマインダーを管理"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}에서 미리 알림 관리"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gerencie lembretes com ${applicationName}"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用${applicationName}管理提醒事项"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用${applicationName}管理提醒事項"
+          }
+        }
+      }
+    },
+    "Read health data in ${applicationName}": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lies Gesundheitsdaten mit ${applicationName}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read health data in ${applicationName}"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lee datos de salud con ${applicationName}"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lis mes données de santé avec ${applicationName}"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leggi i dati sanitari con ${applicationName}"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}でヘルスケアデータを読み取って"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}에서 건강 데이터 읽기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leia dados de saúde com ${applicationName}"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用${applicationName}读取健康数据"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用${applicationName}讀取健康資料"
+          }
+        }
+      }
+    },
+    "Recommend a book in ${applicationName}": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empfiehl mir ein Buch mit ${applicationName}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recommend a book in ${applicationName}"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recomiéndame un libro con ${applicationName}"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recommande-moi un livre avec ${applicationName}"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consigliami un libro con ${applicationName}"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}で本をおすすめして"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}에서 책 추천해 줘"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recomende um livro com ${applicationName}"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用${applicationName}推荐一本书"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用${applicationName}推薦一本書"
+          }
+        }
+      }
+    },
+    "Search contacts in ${applicationName}": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Durchsuche meine Kontakte mit ${applicationName}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search contacts in ${applicationName}"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Busca en mis contactos con ${applicationName}"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recherche dans mes contacts avec ${applicationName}"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerca nei miei contatti con ${applicationName}"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}で連絡先を検索"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}에서 연락처 검색"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pesquise nos meus contatos com ${applicationName}"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用${applicationName}搜索联系人"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用${applicationName}搜尋聯絡人"
           }
         }
       }
@@ -1030,7 +1168,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search music in ${applicationName}"
+            "value": "Suche Musik mit ${applicationName}"
           }
         },
         "en": {
@@ -1042,241 +1180,113 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search music in ${applicationName}"
+            "value": "Busca música con ${applicationName}"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search music in ${applicationName}"
+            "value": "Recherche de la musique avec ${applicationName}"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search music in ${applicationName}"
+            "value": "Cerca musica con ${applicationName}"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search music in ${applicationName}"
+            "value": "${applicationName}で音楽を検索"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search music in ${applicationName}"
+            "value": "${applicationName}에서 음악 검색"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search music in ${applicationName}"
+            "value": "Pesquise músicas com ${applicationName}"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search music in ${applicationName}"
+            "value": "用${applicationName}搜索音乐"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search music in ${applicationName}"
+            "value": "用${applicationName}搜尋音樂"
           }
         }
       }
     },
-    "Find music with ${applicationName}": {
+    "Search the web in ${applicationName}": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Find music with ${applicationName}"
+            "value": "Durchsuche das Web mit ${applicationName}"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Find music with ${applicationName}"
+            "value": "Search the web in ${applicationName}"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Find music with ${applicationName}"
+            "value": "Busca en la web con ${applicationName}"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Find music with ${applicationName}"
+            "value": "Recherche sur le Web avec ${applicationName}"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Find music with ${applicationName}"
+            "value": "Cerca sul web con ${applicationName}"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Find music with ${applicationName}"
+            "value": "${applicationName}でウェブを検索"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Find music with ${applicationName}"
+            "value": "${applicationName}에서 웹 검색"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Find music with ${applicationName}"
+            "value": "Pesquise na web com ${applicationName}"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Find music with ${applicationName}"
+            "value": "用${applicationName}搜索网页"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Find music with ${applicationName}"
-          }
-        }
-      }
-    },
-    "Check health data in ${applicationName}": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check health data in ${applicationName}"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check health data in ${applicationName}"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check health data in ${applicationName}"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check health data in ${applicationName}"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check health data in ${applicationName}"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check health data in ${applicationName}"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check health data in ${applicationName}"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check health data in ${applicationName}"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check health data in ${applicationName}"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check health data in ${applicationName}"
-          }
-        }
-      }
-    },
-    "Ask health data with ${applicationName}": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ask health data with ${applicationName}"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ask health data with ${applicationName}"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ask health data with ${applicationName}"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ask health data with ${applicationName}"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ask health data with ${applicationName}"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ask health data with ${applicationName}"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ask health data with ${applicationName}"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ask health data with ${applicationName}"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ask health data with ${applicationName}"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ask health data with ${applicationName}"
+            "value": "用${applicationName}搜尋網頁"
           }
         }
       }

@@ -28,7 +28,7 @@ struct ToolCallingModeProfile: LanguageModelSession.DynamicProfile {
         LanguageModelSession.Profile {
             Instructions(
                 """
-                The read-only local tool is the only source for the app's fixture release record. Use it when policy permits. If \
+                The read-only local tool is the only source for the app's sample release record. Use it when policy permits. If \
                 tool calling is unavailable, say that you cannot inspect the local record instead of inventing its contents.
                 """
             )

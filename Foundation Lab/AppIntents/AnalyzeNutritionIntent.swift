@@ -3,15 +3,15 @@ import Foundation
 import FoundationLabCore
 
 struct AnalyzeNutritionIntent: AppIntent {
-    static let title: LocalizedStringResource = "Analyze Nutrition"
+    static let title: LocalizedStringResource = "Estimate Meal Nutrition"
     static let description = IntentDescription(
-        "Analyzes meal nutrition using Foundation Lab's shared nutrition capability."
+        "Generates an approximate nutrition summary from a meal description."
     )
     static let openAppWhenRun = false
 
     @Parameter(
         title: "Meal Description",
-        requestValueDialog: IntentDialog("What meal should I analyze?")
+        requestValueDialog: IntentDialog("What meal should I estimate?")
     )
     var mealDescription: String
 

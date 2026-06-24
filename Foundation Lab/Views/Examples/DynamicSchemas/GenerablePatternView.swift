@@ -5,13 +5,14 @@
 //  Created by Rudrank Riyam on 27/10/2025.
 //
 
-import SwiftUI
 import FoundationModels
+import FoundationModelsKit
+import SwiftUI
 
 // MARK: - Generable Models
 
 @Generable
-struct Recipe {
+struct Recipe: RuntimeCompatibleGenerable {
     @Guide(description: "A creative and appetizing recipe name")
     let name: String
 
@@ -34,14 +35,14 @@ struct Recipe {
     let servings: Int
 
     @Generable
-    struct Ingredient {
+    struct Ingredient: RuntimeCompatibleGenerable {
         let name: String
         let quantity: String
         let unit: MeasurementUnit
     }
 
     @Generable
-    enum MeasurementUnit {
+    enum MeasurementUnit: RuntimeCompatibleGenerable {
         case cups
         case tablespoons
         case teaspoons
@@ -53,7 +54,7 @@ struct Recipe {
     }
 
     @Generable
-    enum Difficulty {
+    enum Difficulty: RuntimeCompatibleGenerable {
         case easy
         case medium
         case hard
@@ -62,7 +63,7 @@ struct Recipe {
 }
 
 @Generable
-struct MovieReview {
+struct MovieReview: RuntimeCompatibleGenerable {
     @Guide(description: "The movie title")
     let title: String
 
@@ -82,7 +83,7 @@ struct MovieReview {
     let wouldRecommend: Bool
 
     @Generable
-    enum Genre {
+    enum Genre: RuntimeCompatibleGenerable {
         case action
         case comedy
         case drama
@@ -107,11 +108,13 @@ struct GenerablePatternView: View {
     var body: some View {
         ExampleViewBase(
             title: "@Generable Pattern",
-            description: "Use the @Generable macro with @Guide constraints for type-safe generation",
-            currentPrompt: .constant(currentPrompt),
+            description: "Compare compile-time @Generable types with runtime schemas.",
+            currentPrompt: promptBinding,
             isRunning: executor.isRunning,
             errorMessage: executor.errorMessage,
             codeExample: exampleCode,
+            promptTitle: selectedExample == 0 ? "Cuisine" : "Movie Genre",
+            promptPlaceholder: selectedExample == 0 ? "Enter a cuisine" : "Enter a movie genre",
             onRun: { await runExample() },
             onReset: {
                 executor.reset()
@@ -128,59 +131,31 @@ struct GenerablePatternView: View {
                     }
                 }
                 .pickerStyle(.segmented)
-                .padding(.bottom)
-
-                // Input based on selection
-                VStack(alignment: .leading, spacing: Spacing.small) {
-                    Text(selectedExample == 0 ? "Cuisine Type" : "Movie Genre")
-                        .font(.headline)
-
-                    TextField(
-                        selectedExample == 0 ? "Enter cuisine type" : "Enter movie genre",
-                        text: selectedExample == 0 ? $cuisineInput : $movieGenreInput
-                    )
-                    .textFieldStyle(.roundedBorder)
-                }
 
                 // Info section
-                VStack(alignment: .leading, spacing: Spacing.small) {
-                    Text("How @Generable Works")
-                        .font(.headline)
-
-                    Text(generableInfo(for: selectedExample))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.blue.opacity(0.1))
-                        .clipShape(.rect(cornerRadius: 8))
-                }
+                SchemaTextView(
+                    title: "How @Generable Works",
+                    text: generableInfo(for: selectedExample),
+                    systemImage: "info.circle",
+                    maximumHeight: 180,
+                    usesMonospacedFont: false
+                )
 
                 // Results section
                 if !executor.results.isEmpty {
-                    VStack(alignment: .leading, spacing: Spacing.small) {
-                        Text("Generated Data")
-                            .font(.headline)
-
-                        ScrollView {
-                            Text(executor.results)
-                                .font(.system(.caption, design: .monospaced))
-                                .padding()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.gray.opacity(0.1))
-                                .clipShape(.rect(cornerRadius: 8))
-                        }
-                        .frame(maxHeight: 300)
-                    }
+                    SchemaTextView(title: "Generated Data", text: executor.results)
                 }
             }
-            .padding()
         }
         )
     }
 
     private var currentPrompt: String {
         selectedExample == 0 ? cuisineInput : movieGenreInput
+    }
+
+    private var promptBinding: Binding<String> {
+        selectedExample == 0 ? $cuisineInput : $movieGenreInput
     }
 
     private func runExample() async {
@@ -195,23 +170,21 @@ struct GenerablePatternView: View {
                 type: Recipe.self
             ) { recipe in
                 """
-                🍳 Generated Recipe
+                Generated Recipe
 
                 Name: \(recipe.name)
                 Description: \(recipe.description)
 
-                ⏱️ Time:
-                • Prep: \(recipe.prepTime) minutes
-                • Cook: \(recipe.cookTime) minutes
-                • Total: \(recipe.prepTime + recipe.cookTime) minutes
+                Time
+                Prep: \(recipe.prepTime) minutes
+                Cook: \(recipe.cookTime) minutes
+                Total: \(recipe.prepTime + recipe.cookTime) minutes
 
-                🍽️ Servings: \(recipe.servings)
-                📊 Difficulty: \(String(describing: recipe.difficulty))
+                Servings: \(recipe.servings)
+                Difficulty: \(String(describing: recipe.difficulty))
 
-                📝 Ingredients:
+                Ingredients
                 \(formatIngredients(recipe.ingredients))
-
-                💡 Note: Generated using @Generable pattern with type safety and constraints
                 """
             }
         } else {
@@ -225,18 +198,16 @@ struct GenerablePatternView: View {
                 type: MovieReview.self
             ) { review in
                 """
-                🎬 Movie Review
+                Movie Review
 
                 Title: \(review.title) (\(review.year))
                 Genre: \(String(describing: review.genre))
-                Rating: \(String(repeating: "⭐", count: review.rating))/5
+                Rating: \(review.rating)/5
 
-                📝 Review:
+                Review
                 \(review.review)
 
-                👍 Would Recommend: \(review.wouldRecommend ? "Yes" : "No")
-
-                💡 Note: Generated using @Generable with automatic enum handling and range constraints
+                Would Recommend: \(review.wouldRecommend ? "Yes" : "No")
                 """
             }
         }

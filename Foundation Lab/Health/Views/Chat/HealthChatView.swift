@@ -13,6 +13,7 @@ struct HealthChatView: View {
     @State private var viewModel = HealthChatViewModel()
     @State private var scrollID: String?
     @State private var messageText = ""
+    @State private var isShowingDeleteConfirmation = false
     @FocusState private var isTextFieldFocused: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.modelContext) private var modelContext
@@ -34,8 +35,7 @@ struct HealthChatView: View {
                     isTextFieldFocused: $isTextFieldFocused
                 )
             }
-            .background(Color.adaptiveBackground)
-            .navigationTitle("Health AI")
+            .navigationTitle("Health Chat")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -47,9 +47,10 @@ struct HealthChatView: View {
                 }
 
                 ToolbarItem(placement: .primaryAction) {
-                    Button("Clear") {
-                        viewModel.clearChat()
+                    Button("Delete Conversation", systemImage: "trash") {
+                        isShowingDeleteConfirmation = true
                     }
+                    .labelStyle(.iconOnly)
                     .disabled(viewModel.session.transcript.isEmpty || viewModel.isLoading)
                 }
             }
@@ -68,8 +69,22 @@ struct HealthChatView: View {
         .onDisappear {
             viewModel.tearDown()
         }
-        .alert("Error", isPresented: $viewModel.showError) { } message: {
-            Text(viewModel.errorMessage ?? String(localized: "An unknown error occurred"))
+        .confirmationDialog(
+            "Delete this conversation?",
+            isPresented: $isShowingDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Delete Conversation", role: .destructive, action: viewModel.clearChat)
+        } message: {
+            Text("This removes the current Health chat transcript.")
+        }
+        .alert(viewModel.errorTitle, isPresented: $viewModel.showError) {
+            Button("Dismiss", role: .cancel) {}
+        } message: {
+            Text(
+                viewModel.errorMessage
+                    ?? viewModel.fallbackErrorMessage
+            )
         }
     }
 
@@ -78,8 +93,7 @@ struct HealthChatView: View {
     private var messagesView: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(spacing: 12) {
-                    // Welcome message
+                LazyVStack(spacing: Spacing.large) {
                     if viewModel.session.transcript.isEmpty {
                         WelcomeMessageView(healthMetrics: viewModel.currentHealthMetrics)
                             .id("welcome")
@@ -94,7 +108,7 @@ struct HealthChatView: View {
                         HStack {
                             ProgressView()
                                 .scaleEffect(0.8)
-                            Text("Summarizing conversation...")
+                            Text("Summarizing conversation…")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                             Spacer()
@@ -103,13 +117,14 @@ struct HealthChatView: View {
                         .id("summarizing")
                     }
 
-                    // Empty spacer for bottom padding
                     Rectangle()
                         .fill(.clear)
                         .frame(height: 1)
                         .id("bottom")
                 }
-                .padding(.vertical)
+                .frame(maxWidth: FoundationLabLayout.transcriptContentWidth)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, Spacing.large)
             }
             #if os(iOS)
             .scrollDismissesKeyboard(.interactively)
@@ -206,50 +221,45 @@ struct WelcomeMessageView: View {
     let healthMetrics: [MetricType: Double]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Image(systemName: "hand.wave.fill")
-                    .font(.title2)
-                    .foregroundStyle(Color.healthPrimary)
-
-                Text("Welcome to Health AI!")
-                    .font(.title3)
-                    .fontWeight(.semibold)
+        VStack(alignment: .leading, spacing: Spacing.large) {
+            ContentUnavailableView {
+                Label("Ask About Health Data", systemImage: "heart.text.square")
+            } description: {
+                Text(
+                    "Answers use measurements HealthKit makes available to Foundation Lab. Missing values are never estimated."
+                )
             }
 
-            Text("Ask about health data available on this device. Answers are informational and are not medical advice.")
-                .font(.body)
-                .foregroundStyle(.secondary)
-
             if !healthMetrics.isEmpty {
-                HStack(spacing: 20) {
-                    if let steps = healthMetrics[.steps], steps > 0 {
-                        Label("\(Int(steps)) steps", systemImage: "figure.walk")
-                            .font(.caption)
-                            .foregroundStyle(Color.healthPrimary)
-                    }
+                GroupBox("Available Measurements") {
+                    VStack(spacing: 0) {
+                        ForEach(Array(availableMetrics.enumerated()), id: \.element) { index, metric in
+                            HealthMetricRow(metricType: metric, value: healthMetrics[metric])
 
-                    if let energy = healthMetrics[.activeEnergy], energy > 0 {
-                        Label("\(Int(energy)) cal", systemImage: "flame.fill")
-                            .font(.caption)
-                            .foregroundStyle(Color.orange)
+                            if index < availableMetrics.count - 1 {
+                                Divider()
+                            }
+                        }
                     }
                 }
             }
 
-            Text("What would you like to understand about today's data?")
-                .font(.body)
+            Label(
+                "Health Chat provides informational summaries, not medical advice.",
+                systemImage: "info.circle"
+            )
+                .font(.callout)
                 .foregroundStyle(.secondary)
         }
-        .padding()
+        .padding(.horizontal, Spacing.large)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.tertiaryBackgroundColor, in: .rect(cornerRadius: CornerRadius.large))
-        .overlay {
-            RoundedRectangle(cornerRadius: CornerRadius.large)
-                .stroke(.quaternary, lineWidth: 1)
-        }
-        .padding(.horizontal)
         .accessibilityElement(children: .combine)
+    }
+
+    private var availableMetrics: [MetricType] {
+        [.steps, .heartRate, .sleep, .activeEnergy, .distance].filter {
+            healthMetrics[$0] != nil
+        }
     }
 }
 
@@ -257,28 +267,14 @@ struct ToolCallView: View {
     let toolName: String
 
     var body: some View {
-        HStack {
-            Image(systemName: "gearshape.fill")
-                .font(.caption)
-                .foregroundStyle(Color.healthPrimary)
-
-            Text("Reading your \(formatToolName(toolName))...")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            Spacer()
-        }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .background(Color.tertiaryBackgroundColor, in: .rect(cornerRadius: CornerRadius.large))
-        .overlay {
-            RoundedRectangle(cornerRadius: CornerRadius.large)
-                .stroke(.quaternary, lineWidth: 1)
-        }
-        .padding(.horizontal)
+        Label("Reading \(formatToolName(toolName))…", systemImage: "heart.text.square")
+            .font(.callout)
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, Spacing.large)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
-            String(localized: "Reading your \(formatToolName(toolName))")
+            String(localized: "Reading \(formatToolName(toolName))")
         )
         .accessibilityAddTraits(.updatesFrequently)
     }
@@ -286,7 +282,7 @@ struct ToolCallView: View {
     private func formatToolName(_ name: String) -> String {
         switch name {
         case "fetchHealthData":
-            return String(localized: "health data")
+            return String(localized: "HealthKit data")
         default:
             return String(localized: "data")
         }

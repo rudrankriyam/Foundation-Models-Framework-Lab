@@ -37,4 +37,44 @@ enum Workspace: String, Hashable, Identifiable {
             "gauge.with.dots.needle.67percent"
         }
     }
+
+    func title(for stage: WorkspaceStage) -> String {
+        switch (self, stage) {
+        case (.adapterComparison, .settings):
+            String(localized: "Setup")
+        case (.adapterComparison, .runs):
+            String(localized: "Compare")
+        case (.adapterComparison, .evaluation):
+            String(localized: "Metrics")
+        case (.adapterComparison, .preview):
+            String(localized: "Workflow")
+        case (.adapterComparison, .output):
+            String(localized: "Results")
+        case (.fmfBench, .settings):
+            String(localized: "Protocol")
+        case (.fmfBench, .runs):
+            String(localized: "Run")
+        case (.fmfBench, .evaluation):
+            String(localized: "Evaluate")
+        case (.fmfBench, .preview):
+            String(localized: "Suites")
+        case (.fmfBench, .output):
+            String(localized: "Artifacts")
+        }
+    }
+
+    func systemImage(for stage: WorkspaceStage) -> String {
+        switch stage {
+        case .settings:
+            "slider.horizontal.3"
+        case .runs:
+            "play.circle"
+        case .evaluation:
+            "chart.bar.doc.horizontal"
+        case .preview:
+            "list.bullet.rectangle"
+        case .output:
+            "doc.text"
+        }
+    }
 }

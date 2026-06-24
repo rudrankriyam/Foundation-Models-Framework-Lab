@@ -5,7 +5,7 @@ import FoundationLabCore
 struct GenerateLocalizedResponseIntent: AppIntent {
     static let title: LocalizedStringResource = "Generate Localized Response"
     static let description = IntentDescription(
-        "Generates a response in one of the languages supported by Foundation Lab."
+        "Generates a response in a selected language supported by Foundation Models."
     )
     static let openAppWhenRun = false
 

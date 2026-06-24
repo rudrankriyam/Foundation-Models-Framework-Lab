@@ -21,9 +21,9 @@ struct LocalReleaseRecordTool: Tool {
         let output: String
 
         if recordID == "foundation-lab" {
-            output = "Local fixture foundation-lab: macOS generic build passed; iOS generic build passed; review status is ready."
+            output = "Sample record foundation-lab: macOS generic build passed; iOS generic build passed; review status is ready."
         } else {
-            output = "Local fixture has no record with identifier \(arguments.recordID)."
+            output = "The sample data has no record with identifier \(arguments.recordID)."
         }
 
         await recorder.record(output)

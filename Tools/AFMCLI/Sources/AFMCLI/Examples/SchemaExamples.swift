@@ -1,5 +1,6 @@
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 
 struct AFMSchemaExampleDescriptor: Sendable, Codable, Hashable {
     let id: String
@@ -98,7 +99,7 @@ enum AFMSchemaCatalog {
 }
 
 @Generable
-struct AFMGeneratedPerson: Sendable, Codable, Hashable {
+struct AFMGeneratedPerson: RuntimeCompatibleGenerable, Sendable, Codable, Hashable {
     @Guide(description: "The person's full name.")
     let name: String
 

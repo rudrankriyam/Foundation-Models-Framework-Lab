@@ -62,17 +62,17 @@ struct AdaptiveNavigationView: View {
             "Couldn’t Save Changes",
             isPresented: persistenceAlertBinding
         ) {
-            Button("Retry") {
+            Button("Try Again") {
                 Task {
                     await experimentStore.retryPersistence()
                 }
             }
-            Button("Dismiss", role: .cancel, action: experimentStore.clearPersistenceError)
+            Button("Keep Working", role: .cancel, action: experimentStore.clearPersistenceError)
         } message: {
             if let message = experimentStore.persistenceErrorMessage {
                 Text(message)
             } else {
-                Text("The latest changes could not be saved.")
+                Text("Your latest changes are still available in this session. Try saving again.")
             }
         }
     }

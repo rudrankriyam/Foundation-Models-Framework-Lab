@@ -5,7 +5,7 @@ import FoundationLabCore
 struct ManageRemindersIntent: AppIntent {
     static let title: LocalizedStringResource = "Manage Reminders"
     static let description = IntentDescription(
-        "Creates or manages reminders using Foundation Lab's shared reminders capability."
+        "Creates or updates reminders after you approve the change."
     )
     static let openAppWhenRun = true
 

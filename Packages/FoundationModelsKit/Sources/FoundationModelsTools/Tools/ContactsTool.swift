@@ -8,6 +8,7 @@
 @preconcurrency import Contacts
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 
 /// A tool for managing contacts using the Contacts framework.
 ///
@@ -35,7 +36,7 @@ public struct ContactsTool: Tool {
 
     /// Arguments for contact operations.
     @Generable
-    public struct Arguments {
+    public struct Arguments: RuntimeCompatibleGenerable {
         /// The action to perform: "search", "read", "create"
         @Guide(description: "The action to perform: 'search', 'read', 'create'")
         public var action: String

@@ -15,55 +15,47 @@ struct HealthChatInputView: View {
     let chatViewModel: HealthChatViewModel
     @FocusState.Binding var isTextFieldFocused: Bool
 
-    private var backgroundColor: Color {
-        #if os(macOS)
-        Color(NSColor.windowBackgroundColor)
-        #else
-        Color(UIColor.systemBackground)
-        #endif
-    }
-
     var body: some View {
-        VStack(spacing: 12) {
-            // Quick action suggestions
+        VStack(spacing: Spacing.small) {
+            Divider()
+
             if messageText.isEmpty && !chatViewModel.isLoading {
                 ScrollView(.horizontal) {
-                    HStack(spacing: 8) {
-                        QuickActionChip(text: String(localized: "How am I doing today?")) {
-                            messageText = String(localized: "How am I doing today?")
+                    HStack(spacing: Spacing.small) {
+                        QuickActionChip(text: String(localized: "Available today")) {
+                            messageText = String(localized: "Show the Health data available for today.")
                             sendMessage()
                         }
 
-                        QuickActionChip(text: String(localized: "Set a fitness goal")) {
-                            messageText = String(localized: "Help me set a fitness goal")
+                        QuickActionChip(text: String(localized: "Steps")) {
+                            messageText = String(localized: "What step data is available for today?")
                             sendMessage()
                         }
 
-                        QuickActionChip(text: String(localized: "Sleep tips")) {
-                            messageText = String(localized: "Give me tips to improve my sleep")
+                        QuickActionChip(text: String(localized: "Sleep")) {
+                            messageText = String(localized: "What sleep data is available?")
                             sendMessage()
                         }
 
-                        QuickActionChip(text: String(localized: "Weekly summary")) {
-                            messageText = String(localized: "Show me my weekly health summary")
+                        QuickActionChip(text: String(localized: "Recorded this week")) {
+                            messageText = String(localized: "Summarize the Health data recorded this week.")
                             sendMessage()
                         }
                     }
                     .padding(.horizontal)
                 }
                 .scrollIndicators(.hidden)
-                .padding(.vertical, 8)
             }
 
-            // Input field
-            HStack(spacing: 12) {
-                TextField("Ask Health AI anything...", text: $messageText, axis: .vertical)
+            HStack(alignment: .bottom, spacing: Spacing.small) {
+                TextField("Ask about Health data", text: $messageText, axis: .vertical)
                     .textFieldStyle(.plain)
                     .lineLimit(1...5)
                     .focused($isTextFieldFocused)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(.quaternary, in: .rect(cornerRadius: 24))
+                    .padding(.horizontal, Spacing.medium)
+                    .padding(.vertical, Spacing.small)
+                    .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
+                    .background(Color.secondaryBackgroundColor, in: .rect(cornerRadius: CornerRadius.medium))
                     .onSubmit {
                         sendMessage()
                     }
@@ -71,17 +63,14 @@ struct HealthChatInputView: View {
                     .submitLabel(.send)
                     #endif
 
-                Button(action: sendMessage) {
-                    ZStack {
-                        Circle()
-                            .fill(messageText.isEmpty ? Color.primary.opacity(0.06) : Color.primary.opacity(0.1))
-                            .frame(width: 44, height: 44)
-
-                        Image(systemName: "arrow.up")
-                            .font(.callout.weight(.medium))
-                            .foregroundStyle(messageText.isEmpty ? .tertiary : .primary)
-                    }
-                }
+                Button("Send Message", systemImage: "arrow.up", action: sendMessage)
+                .labelStyle(.iconOnly)
+                .buttonStyle(.glassProminent)
+                .controlSize(.large)
+                .frame(
+                    minWidth: FoundationLabLayout.minimumTouchTarget,
+                    minHeight: FoundationLabLayout.minimumTouchTarget
+                )
                 .accessibilityLabel("Send message")
                 .disabled(
                     messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
@@ -89,13 +78,10 @@ struct HealthChatInputView: View {
                     chatViewModel.isSummarizing
                 )
             }
-            .padding(.horizontal)
-            .padding(.bottom, 8)
+            .padding(.horizontal, Spacing.large)
+            .padding(.bottom, Spacing.medium)
         }
-        .background(
-            backgroundColor
-                .ignoresSafeArea()
-        )
+        .background(.bar)
     }
 
     private func sendMessage() {
@@ -105,23 +91,23 @@ struct HealthChatInputView: View {
               !chatViewModel.isSummarizing else { return }
 
         messageText = ""
-        isTextFieldFocused = true // Keep focus for continuous conversation
+        isTextFieldFocused = true
 
         chatViewModel.sendMessage(trimmedMessage)
     }
 }
 
-struct QuickActionChip: View {
+private struct QuickActionChip: View {
     let text: String
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             Text(text)
-                .font(.caption)
+                .font(.callout)
         }
         .buttonStyle(.bordered)
-        .buttonBorderShape(.capsule)
+        .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
         .accessibilityHint("Sends this suggested message")
     }
 }

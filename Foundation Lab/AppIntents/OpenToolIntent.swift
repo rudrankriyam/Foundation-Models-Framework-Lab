@@ -9,7 +9,7 @@ import AppIntents
 
 struct OpenToolIntent: AppIntent {
     static let title: LocalizedStringResource = "Open Tool"
-    static let description = IntentDescription("Opens a specific tool in Foundation Lab")
+    static let description = IntentDescription("Loads a selected built-in tool recipe into Playground.")
     static let supportedModes: IntentModes = .foreground
 
     @Parameter(title: "Tool")

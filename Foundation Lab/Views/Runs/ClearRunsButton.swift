@@ -12,20 +12,20 @@ struct ClearRunsButton: View {
     var body: some View {
         Menu("Run History Actions", systemImage: "ellipsis.circle") {
             Button(
-                "Clear All Runs",
+                "Delete All Runs",
                 systemImage: "trash",
                 role: .destructive,
                 action: showConfirmation
             )
         }
         .confirmationDialog(
-            "Clear all run history?",
+            "Delete all run history?",
             isPresented: $isShowingConfirmation,
             titleVisibility: .visible
         ) {
-            Button("Clear All Runs", role: .destructive, action: store.clearRuns)
+            Button("Delete All Runs", role: .destructive, action: store.clearRuns)
         } message: {
-            Text("This removes every saved result. Your experiments are not affected.")
+            Text("This permanently deletes every recorded run. Saved experiments are not affected.")
         }
         .accessibilityHint("Contains actions for managing all saved runs")
     }

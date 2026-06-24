@@ -24,9 +24,15 @@ let package = Package(
             targets: ["FMFBenchCLI"]
         )
     ],
+    dependencies: [
+        .package(path: "../../../Packages/FoundationModelsKit")
+    ],
     targets: [
         .target(
-            name: "FMFBenchCore"
+            name: "FMFBenchCore",
+            dependencies: [
+                .product(name: "FoundationModelsKit", package: "FoundationModelsKit")
+            ]
         ),
         .executableTarget(
             name: "FMFBenchCLI",

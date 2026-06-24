@@ -65,18 +65,20 @@ struct SpotlightRAGLiveView: View {
                 }
 
                 if let errorMessage = model.errorMessage {
-                    Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
-                        .font(.callout)
-                        .foregroundStyle(.red)
-                        .padding(Spacing.medium)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(.red.opacity(0.08), in: .rect(cornerRadius: CornerRadius.medium))
+                    Label {
+                        Text(errorMessage)
+                            .foregroundStyle(.primary)
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.red)
+                    }
+                    .font(.callout)
                 }
 
                 SpotlightRAGResultsSection(model: model)
                 CodeDisclosure(code: codeExample)
             }
-            .frame(maxWidth: 900, alignment: .leading)
+            .frame(maxWidth: FoundationLabLayout.readableContentWidth, alignment: .leading)
             .padding(.horizontal, Spacing.medium)
             .padding(.vertical, Spacing.large)
             .frame(maxWidth: .infinity)

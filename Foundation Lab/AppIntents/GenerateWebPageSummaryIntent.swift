@@ -5,7 +5,7 @@ import FoundationLabCore
 struct GenerateWebPageSummaryIntent: AppIntent {
     static let title: LocalizedStringResource = "Generate Web Page Summary"
     static let description = IntentDescription(
-        "Summarizes a web page using Foundation Lab's shared web metadata capability."
+        "Summarizes the metadata available for a web page."
     )
     static let openAppWhenRun = false
 

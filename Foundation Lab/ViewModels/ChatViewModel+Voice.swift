@@ -246,7 +246,7 @@ extension ChatViewModel {
                 """
             )
         }
-        return String(localized: "PCC request failed. \(handledMessage)")
+        return String(localized: "The Private Cloud Compute request failed. \(handledMessage)")
     }
 
     func observeSpeechState() async {

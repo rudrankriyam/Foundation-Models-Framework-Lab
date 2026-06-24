@@ -23,10 +23,16 @@ struct AdapterStudioResponseColumn: View {
 
             ScrollView {
                 if let errorMessage = column.errorMessage {
-                    Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
+                    Label {
+                        Text(errorMessage)
+                            .foregroundStyle(.primary)
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.red)
+                    }
                         .font(.callout)
-                        .foregroundStyle(.red)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityLabel("Error: \(errorMessage)")
                 } else if column.text.isEmpty {
                     HStack(spacing: Spacing.small) {
                         if isActive {

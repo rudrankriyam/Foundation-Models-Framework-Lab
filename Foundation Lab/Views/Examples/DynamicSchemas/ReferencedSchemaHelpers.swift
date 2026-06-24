@@ -252,7 +252,7 @@ extension ReferencedSchemaView {
             📦 Comment (reusable schema)
             └── Used by: BlogPost.comments[]
 
-            🏗️ BlogPost (root schema)
+            BlogPost (root schema)
             ├── author → Person (reference)
             └── comments → [Comment] (reference)
             """
@@ -264,7 +264,7 @@ extension ReferencedSchemaView {
             📦 Task (reusable schema)
             └── Used by: Project.tasks[], Person.assignedTasks[]
 
-            🏗️ Project (root schema)
+            Project (root schema)
             ├── manager → Person (reference)
             ├── team → [Person] (reference)
             └── tasks → [Task] (reference)
