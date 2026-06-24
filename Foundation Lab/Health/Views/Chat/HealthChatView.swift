@@ -78,12 +78,12 @@ struct HealthChatView: View {
         } message: {
             Text("This removes the current Health chat transcript.")
         }
-        .alert("Couldn’t Load Health Data", isPresented: $viewModel.showError) {
+        .alert(viewModel.errorTitle, isPresented: $viewModel.showError) {
             Button("Dismiss", role: .cancel) {}
         } message: {
             Text(
                 viewModel.errorMessage
-                    ?? String(localized: "Health data is unavailable right now. Try again later.")
+                    ?? viewModel.fallbackErrorMessage
             )
         }
     }

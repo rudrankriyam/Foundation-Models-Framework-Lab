@@ -18,6 +18,11 @@ import SwiftUI
 @Observable
 final class HealthChatViewModel {
 
+    private enum ErrorContext {
+        case healthData
+        case response
+    }
+
     // MARK: - Constants
 
     private let sessionTimeout: TimeInterval = AppConfiguration.Health.sessionTimeout
@@ -31,6 +36,25 @@ final class HealthChatViewModel {
     var currentHealthMetrics: [MetricType: Double] = [:]
     var errorMessage: String?
     var showError = false
+    private var errorContext: ErrorContext = .healthData
+
+    var errorTitle: String {
+        switch errorContext {
+        case .healthData:
+            String(localized: "Couldn’t Load Health Data")
+        case .response:
+            String(localized: "Couldn’t Generate a Response")
+        }
+    }
+
+    var fallbackErrorMessage: String {
+        switch errorContext {
+        case .healthData:
+            String(localized: "Health data is unavailable right now. Try again later.")
+        case .response:
+            String(localized: "The model couldn’t generate a response. Try again.")
+        }
+    }
 
     // MARK: - Token Usage Tracking
 
@@ -137,8 +161,7 @@ final class HealthChatViewModel {
         } catch {
             logger.error("Failed to generate response: \(error.localizedDescription, privacy: .public)")
             let errorText = FoundationModelsErrorHandler.handleError(error)
-            errorMessage = errorText
-            showError = true
+            presentError(errorText, context: .response)
             await saveMessageToSession(errorText, isFromUser: false)
         }
     }
@@ -161,6 +184,7 @@ final class HealthChatViewModel {
     }
 
     func loadInitialHealthData() async {
+        errorContext = .healthData
         errorMessage = nil
         showError = false
 
@@ -176,8 +200,7 @@ final class HealthChatViewModel {
         } catch {
             logger.error("Failed to load health data: \(error.localizedDescription, privacy: .public)")
             let errorText = FoundationModelsErrorHandler.handleError(error)
-            errorMessage = errorText
-            showError = true
+            presentError(errorText, context: .healthData)
         }
 
         currentHealthMetrics = healthDataManager.currentMetrics
@@ -202,6 +225,12 @@ private extension HealthChatViewModel {
         maxContextSize = conversationEngine.maxContextSize
         isSummarizing = conversationEngine.isSummarizing
         sessionCount = conversationEngine.sessionCount
+    }
+
+    private func presentError(_ message: String, context: ErrorContext) {
+        errorContext = context
+        errorMessage = message
+        showError = true
     }
 
 }

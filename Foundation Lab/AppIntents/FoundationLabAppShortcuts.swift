@@ -58,7 +58,7 @@ nonisolated struct FoundationLabAppShortcuts: AppShortcutsProvider {
             intent: QueryCalendarIntent(),
             phrases: [
                 "Check my calendar in \(.applicationName)",
-                "Ask calendar with \(.applicationName)"
+                "Ask about my calendar in \(.applicationName)"
             ],
             shortTitle: LocalizedStringResource("Query Calendar", table: "Localizable"),
             systemImageName: "calendar"
@@ -76,7 +76,7 @@ nonisolated struct FoundationLabAppShortcuts: AppShortcutsProvider {
             intent: GetCurrentLocationIntent(),
             phrases: [
                 "Get my location in \(.applicationName)",
-                "Check location with \(.applicationName)"
+                "Check my location with \(.applicationName)"
             ],
             shortTitle: LocalizedStringResource("Get Location", table: "Localizable"),
             systemImageName: "location"
@@ -94,7 +94,7 @@ nonisolated struct FoundationLabAppShortcuts: AppShortcutsProvider {
             intent: QueryHealthDataIntent(),
             phrases: [
                 "Read health data in \(.applicationName)",
-                "Ask about health data with \(.applicationName)"
+                "Ask \(.applicationName) about health data"
             ],
             shortTitle: LocalizedStringResource("Read Health Data", table: "Localizable"),
             systemImageName: "heart.text.square"
