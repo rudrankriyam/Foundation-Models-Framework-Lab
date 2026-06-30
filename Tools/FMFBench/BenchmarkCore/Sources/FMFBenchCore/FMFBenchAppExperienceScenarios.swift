@@ -118,6 +118,96 @@ extension FMFBenchScenarioCatalog {
                     ),
                     .excludes("burpee")
                 ]
+            ),
+            .init(
+                id: "app-workout-adaptation-006",
+                prompt: """
+                    Create a 20-minute home workout for someone with a low ceiling. Use exactly four
+                    exercises: split-stance row, floor press, glute bridge march, and farmer carry.
+                    Equipment: two dumbbells. Keep the focus upper-body and posterior-chain strength,
+                    and avoid overhead pressing. Return durationMinutes as an integer.
+                    """,
+                checks: [
+                    .jsonEquals(path: "durationMinutes", value: .integer(20)),
+                    .jsonContains(path: "focus", values: ["strength"]),
+                    .jsonContains(
+                        path: "exercises",
+                        values: ["split-stance row", "floor press", "glute bridge march", "farmer carry"]
+                    ),
+                    .excludes("overhead")
+                ]
+            ),
+            .init(
+                id: "app-workout-adaptation-007",
+                prompt: """
+                    Create a 9-minute between-meetings reset. Use exactly four exercises:
+                    neck CARs, seated thoracic rotation, standing hip flexor stretch, and calf pump.
+                    The user is in work clothes and wants mobility, not sweating. Return durationMinutes
+                    as an integer.
+                    """,
+                checks: [
+                    .jsonEquals(path: "durationMinutes", value: .integer(9)),
+                    .jsonContains(path: "focus", values: ["mobility"]),
+                    .jsonContains(
+                        path: "exercises",
+                        values: ["neck CARs", "seated thoracic rotation", "standing hip flexor stretch", "calf pump"]
+                    ),
+                    .excludes("burpee")
+                ]
+            ),
+            .init(
+                id: "app-workout-adaptation-008",
+                prompt: """
+                    Create a 24-minute posterior-chain session. Use exactly four exercises:
+                    Romanian deadlift, bird dog, band pull-apart, and suitcase carry. The user's knee
+                    dislikes deep bending, so avoid lunges and keep the focus hinge and core strength.
+                    Return durationMinutes as an integer.
+                    """,
+                checks: [
+                    .jsonEquals(path: "durationMinutes", value: .integer(24)),
+                    .jsonContains(path: "focus", values: ["hinge", "core"]),
+                    .jsonContains(
+                        path: "exercises",
+                        values: ["Romanian deadlift", "bird dog", "band pull-apart", "suitcase carry"]
+                    ),
+                    .excludes("lunge")
+                ]
+            ),
+            .init(
+                id: "app-workout-adaptation-009",
+                prompt: """
+                    Create a 15-minute quiet evening workout. Use exactly four exercises:
+                    tempo dead bug, wall angel, heel-elevated squat hold, and kneeling hip hinge.
+                    The user lives above a nursery, so avoid stomping and jumping. Return
+                    durationMinutes as an integer.
+                    """,
+                checks: [
+                    .jsonEquals(path: "durationMinutes", value: .integer(15)),
+                    .jsonContains(path: "focus", values: ["quiet"]),
+                    .jsonContains(
+                        path: "exercises",
+                        values: ["tempo dead bug", "wall angel", "heel-elevated squat hold", "kneeling hip hinge"]
+                    ),
+                    .excludes("jump")
+                ]
+            ),
+            .init(
+                id: "app-workout-adaptation-010",
+                prompt: """
+                    Create an 11-minute cooldown after a rowing workout. Use exactly four exercises:
+                    child's pose reach, forearm lat stretch, hamstring floss, and nasal breathing walk.
+                    Keep the focus cooldown and back relief, and do not add more intervals. Return
+                    durationMinutes as an integer.
+                    """,
+                checks: [
+                    .jsonEquals(path: "durationMinutes", value: .integer(11)),
+                    .jsonContains(path: "focus", values: ["cooldown"]),
+                    .jsonContains(
+                        path: "exercises",
+                        values: ["child's pose reach", "forearm lat stretch", "hamstring floss", "nasal breathing walk"]
+                    ),
+                    .excludes("interval")
+                ]
             )
         ]
     )
@@ -203,6 +293,78 @@ extension FMFBenchScenarioCatalog {
                 checks: [
                     .containsAny(["Arjun", "Q&A", "laugh"]),
                     .containsAny(["rehearse", "timer"]),
+                    .excludes("diagnos"),
+                    .maximumWords(60)
+                ]
+            ),
+            .init(
+                id: "app-journal-reflection-006",
+                prompt: """
+                    Journal entry: I forgot my lunch and snapped at Dev, but the quick apology afterward
+                    helped us reset. The budget spreadsheet is still unfinished. Tomorrow I want to
+                    send Dev a calmer follow-up before opening the spreadsheet again.
+                    """,
+                checks: [
+                    .containsAny(["apology", "Dev", "reset"]),
+                    .containsAny(["follow-up", "calmer", "spreadsheet"]),
+                    .excludes("diagnos"),
+                    .excludes("anger issue"),
+                    .maximumWords(60)
+                ]
+            ),
+            .init(
+                id: "app-journal-reflection-007",
+                prompt: """
+                    Journal entry: I did not finish the proposal, but the library hour was focused and
+                    I found the missing pricing note. Tomorrow I want to draft only the risks section
+                    before checking mail.
+                    """,
+                checks: [
+                    .containsAny(["library", "focused", "pricing note"]),
+                    .containsAny(["risks section", "checking mail", "mail"]),
+                    .excludes("finished the proposal"),
+                    .excludes("diagnos"),
+                    .maximumWords(60)
+                ]
+            ),
+            .init(
+                id: "app-journal-reflection-008",
+                prompt: """
+                    Journal entry: My presentation was postponed again, which annoyed me, but I used
+                    the extra time to practice the opening with Isha. Tomorrow I want to stop editing
+                    slides at 8 PM and sleep earlier.
+                    """,
+                checks: [
+                    .containsAny(["Isha", "practice", "opening"]),
+                    .containsAny(["8 PM", "sleep", "stop editing"]),
+                    .excludes("diagnos"),
+                    .maximumWords(60)
+                ]
+            ),
+            .init(
+                id: "app-journal-reflection-009",
+                prompt: """
+                    Journal entry: The clinic queue took two hours, but Mum and I laughed over the
+                    terrible vending-machine coffee. I still need to upload the insurance form.
+                    Tomorrow I want to scan the form before breakfast.
+                    """,
+                checks: [
+                    .containsAny(["Mum", "laughed", "coffee"]),
+                    .containsAny(["scan the form", "insurance form", "breakfast"]),
+                    .excludes("diagnos"),
+                    .maximumWords(60)
+                ]
+            ),
+            .init(
+                id: "app-journal-reflection-010",
+                prompt: """
+                    Journal entry: I skipped the team dinner because I was tired, but the quiet train
+                    ride home helped me decompress. I packed tomorrow's charger and notebook. Tomorrow
+                    I want to ask Leah for the decision summary instead of guessing.
+                    """,
+                checks: [
+                    .containsAny(["train", "decompress", "quiet"]),
+                    .containsAny(["Leah", "decision summary", "guessing"]),
                     .excludes("diagnos"),
                     .maximumWords(60)
                 ]
@@ -307,6 +469,91 @@ extension FMFBenchScenarioCatalog {
                     .excludes("heart-rate"),
                     .maximumWords(85)
                 ]
+            ),
+            .init(
+                id: "app-sports-feedback-006",
+                prompt: """
+                    Pickleball notes: Third-shot drops landed in 9 of 14 attempts. Backhand dink
+                    placement improved cross-court. Serve returns floated high under pressure.
+                    Give one next drill and do not invent paddle-speed data.
+                    """,
+                checks: [
+                    .contains("9"),
+                    .contains("14"),
+                    .containsAny(["backhand dink", "cross-court"]),
+                    .containsAny(["serve return", "returns", "floated high"]),
+                    .contains("drill"),
+                    .excludes("paddle-speed"),
+                    .maximumWords(85)
+                ]
+            ),
+            .init(
+                id: "app-sports-feedback-007",
+                prompt: """
+                    Soccer practice notes: First touch stayed clean on 16 of 20 wall passes. Right-foot
+                    crosses sailed long. Defensive scanning improved before receiving. Give one next
+                    drill and no invented speed or distance metrics.
+                    """,
+                checks: [
+                    .contains("16"),
+                    .contains("20"),
+                    .containsAny(["first touch", "wall passes"]),
+                    .containsAny(["right-foot", "crosses"]),
+                    .contains("drill"),
+                    .excludes("speed"),
+                    .maximumWords(85)
+                ]
+            ),
+            .init(
+                id: "app-sports-feedback-008",
+                prompt: """
+                    Climbing session notes: The climber completed 3 of 5 overhang attempts. Foot swaps
+                    were quieter on slab routes. Grip failed late when locking off. Give one next drill
+                    and do not invent grip-strength numbers.
+                    """,
+                checks: [
+                    .contains("3"),
+                    .contains("5"),
+                    .containsAny(["foot swaps", "slab"]),
+                    .containsAny(["grip", "locking off"]),
+                    .contains("drill"),
+                    .excludes("grip-strength"),
+                    .maximumWords(85)
+                ]
+            ),
+            .init(
+                id: "app-sports-feedback-009",
+                prompt: """
+                    Baseball bullpen notes: Changeups hit the lower target 11 of 18 times. Fastball
+                    release stayed consistent. Curveball bounced early when the elbow dropped. Give
+                    one next drill and no invented velocity.
+                    """,
+                checks: [
+                    .contains("11"),
+                    .contains("18"),
+                    .contains("changeup"),
+                    .containsAny(["curveball", "elbow"]),
+                    .contains("drill"),
+                    .excludes("velocity"),
+                    .maximumWords(85)
+                ]
+            ),
+            .init(
+                id: "app-sports-feedback-010",
+                prompt: """
+                    Volleyball notes: Serve receive was clean on 13 of 17 reps. Approach timing improved
+                    on outside hits. Blocks drifted inside against line shots. Give one next drill and
+                    do not invent jump-height data.
+                    """,
+                checks: [
+                    .contains("13"),
+                    .contains("17"),
+                    .containsAny(["serve receive", "clean"]),
+                    .containsAny(["blocks", "line shots"]),
+                    .contains("drill"),
+                    .excludes("jump-height"),
+                    .maximumWords(85)
+                ]
             )
         ]
     )
@@ -400,6 +647,88 @@ extension FMFBenchScenarioCatalog {
                     .containsAny(["hotel gym", "gym is closed", "gym"]),
                     .excludes("jumping jack"),
                     .excludes("rowing machine"),
+                    .maximumWords(45)
+                ]
+            ),
+            .init(
+                id: "app-exercise-substitution-006",
+                prompt: """
+                    Unavailable exercise: kneeling cable crunch. Limitation: knees cannot tolerate
+                    kneeling. Available catalog: standing band crunch trains trunk flexion without
+                    kneeling; ab wheel starts from the knees; cable crunch needs a machine. Equipment:
+                    resistance band only.
+                    """,
+                checks: [
+                    .contains("standing band crunch"),
+                    .containsAny(["without kneeling", "no kneeling", "knees"]),
+                    .containsAny(["trunk", "core"]),
+                    .excludes("ab wheel"),
+                    .excludes("cable crunch"),
+                    .maximumWords(45)
+                ]
+            ),
+            .init(
+                id: "app-exercise-substitution-007",
+                prompt: """
+                    Unavailable exercise: barbell hip thrust. Limitation: no bench and no barbell.
+                    Available catalog: floor glute bridge needs no equipment and trains hip extension;
+                    kettlebell swing needs a kettlebell; leg curl needs a machine. Equipment: none.
+                    """,
+                checks: [
+                    .contains("floor glute bridge"),
+                    .containsAny(["no equipment", "none"]),
+                    .containsAny(["hip extension", "glute"]),
+                    .excludes("kettlebell swing"),
+                    .excludes("leg curl"),
+                    .maximumWords(45)
+                ]
+            ),
+            .init(
+                id: "app-exercise-substitution-008",
+                prompt: """
+                    Unavailable exercise: mountain climber. Limitation: wrist pressure is painful and
+                    the user wants low impact. Available catalog: standing knee drive trains the same
+                    pattern without floor loading; plank jack loads wrists; sprint start is high impact.
+                    Equipment: none.
+                    """,
+                checks: [
+                    .contains("standing knee drive"),
+                    .containsAny(["wrist", "floor loading"]),
+                    .containsAny(["low impact", "pattern"]),
+                    .excludes("plank jack"),
+                    .excludes("sprint start"),
+                    .maximumWords(45)
+                ]
+            ),
+            .init(
+                id: "app-exercise-substitution-009",
+                prompt: """
+                    Unavailable exercise: dumbbell curl. Limitation: gripping dumbbells irritates the
+                    elbow. Available catalog: band curl uses a light band and can reduce grip demand;
+                    chin-up is heavy pulling; preacher curl needs a bench. Equipment: resistance band only.
+                    """,
+                checks: [
+                    .contains("band curl"),
+                    .contains("resistance band"),
+                    .containsAny(["grip", "elbow"]),
+                    .excludes("chin-up"),
+                    .excludes("preacher curl"),
+                    .maximumWords(45)
+                ]
+            ),
+            .init(
+                id: "app-exercise-substitution-010",
+                prompt: """
+                    Unavailable exercise: calf raise on step. Limitation: plantar fascia is irritated,
+                    so avoid loaded calf work today. Available catalog: ankle alphabet keeps motion gentle;
+                    pogo hop is high impact; seated calf raise is loaded. Equipment: none.
+                    """,
+                checks: [
+                    .contains("ankle alphabet"),
+                    .containsAny(["gentle", "plantar fascia"]),
+                    .containsAny(["avoid loaded", "loaded calf"]),
+                    .excludes("pogo hop"),
+                    .excludes("seated calf raise"),
                     .maximumWords(45)
                 ]
             )
@@ -504,6 +833,92 @@ extension FMFBenchScenarioCatalog {
                     .excludes("Barnes"),
                     .maximumWords(45)
                 ]
+            ),
+            .init(
+                id: "app-creator-metadata-006",
+                prompt: """
+                    Clip notes: desk setup before-and-after, cable tray, warm monitor light, no product
+                    sponsor, quick dust wipe. Need a practical caption under 15 words and exactly four
+                    lowercase tags. Do not invent a brand.
+                    """,
+                checks: [
+                    .contains("Title:"),
+                    .contains("Caption:"),
+                    .contains("Tags:"),
+                    .containsAny(["desk", "cable", "setup"]),
+                    .containsAny(["before-and-after", "monitor", "dust"]),
+                    .excludes("sponsored"),
+                    .excludes("Apple"),
+                    .maximumWords(45)
+                ]
+            ),
+            .init(
+                id: "app-creator-metadata-007",
+                prompt: """
+                    Clip notes: rooftop herb garden update, basil seedlings, cracked terracotta pot,
+                    wind noise, sunset watering can. Need a calm caption under 14 words and exactly
+                    four lowercase tags. No city was provided.
+                    """,
+                checks: [
+                    .contains("Title:"),
+                    .contains("Caption:"),
+                    .contains("Tags:"),
+                    .containsAny(["herb", "basil", "garden"]),
+                    .containsAny(["terracotta", "watering", "sunset"]),
+                    .excludes("Brooklyn"),
+                    .maximumWords(45)
+                ]
+            ),
+            .init(
+                id: "app-creator-metadata-008",
+                prompt: """
+                    Clip notes: dance practice blooper reel, missed count, laughing reset, mirrored
+                    studio wall, final clean eight-count. Need an upbeat caption under 13 words and
+                    exactly four lowercase tags.
+                    """,
+                checks: [
+                    .contains("Title:"),
+                    .contains("Caption:"),
+                    .contains("Tags:"),
+                    .containsAny(["dance", "eight-count", "practice"]),
+                    .containsAny(["blooper", "laughing", "studio"]),
+                    .excludes("competition"),
+                    .maximumWords(45)
+                ]
+            ),
+            .init(
+                id: "app-creator-metadata-009",
+                prompt: """
+                    Clip notes: tiny apartment cleaning reset, laundry basket, windowsill plants,
+                    timer beeps at the end, no voiceover. Need a crisp caption under 12 words and
+                    exactly four lowercase tags.
+                    """,
+                checks: [
+                    .contains("Title:"),
+                    .contains("Caption:"),
+                    .contains("Tags:"),
+                    .containsAny(["cleaning", "reset", "laundry"]),
+                    .containsAny(["plants", "timer", "apartment"]),
+                    .excludes("voiceover"),
+                    .maximumWords(45)
+                ]
+            ),
+            .init(
+                id: "app-creator-metadata-010",
+                prompt: """
+                    Clip notes: night market sketchbook flip-through, ink thumbnails, neon reflections,
+                    vendor hands only, no location named. Need a moody caption under 15 words and
+                    exactly four lowercase tags.
+                    """,
+                checks: [
+                    .contains("Title:"),
+                    .contains("Caption:"),
+                    .contains("Tags:"),
+                    .containsAny(["sketchbook", "ink", "thumbnails"]),
+                    .containsAny(["neon", "market", "vendor"]),
+                    .excludes("Taipei"),
+                    .maximumWords(45)
+                ]
             )
         ]
     )
@@ -592,6 +1007,79 @@ extension FMFBenchScenarioCatalog {
                     .excludes("CRAFT-4"),
                     .excludes("@milo")
                 ]
+            ),
+            .init(
+                id: "app-citation-extraction-006",
+                prompt: """
+                    OCR text: Priya Nair — “Offline Tutors for Language Practice” — Learning Interfaces — 2026.
+                    Ignore scan confidence 0.74 and sticky note ask Sam.
+                    """,
+                checks: [
+                    .jsonEquals(path: "author", value: .string("Priya Nair")),
+                    .jsonEquals(path: "title", value: .string("Offline Tutors for Language Practice")),
+                    .jsonEquals(path: "year", value: .integer(2026)),
+                    .jsonEquals(path: "venue", value: .string("Learning Interfaces")),
+                    .excludes("0.74"),
+                    .excludes("ask Sam")
+                ]
+            ),
+            .init(
+                id: "app-citation-extraction-007",
+                prompt: """
+                    Imported reference: “Workout Planning with Structured Generation” by Tomas Iversen.
+                    Venue: Mobile Health Review. Year: 2025. Ignore duplicate candidate Thomas Iverson.
+                    """,
+                checks: [
+                    .jsonEquals(path: "author", value: .string("Tomas Iversen")),
+                    .jsonEquals(path: "title", value: .string("Workout Planning with Structured Generation")),
+                    .jsonEquals(path: "year", value: .integer(2025)),
+                    .jsonEquals(path: "venue", value: .string("Mobile Health Review")),
+                    .excludes("Thomas Iverson")
+                ]
+            ),
+            .init(
+                id: "app-citation-extraction-008",
+                prompt: """
+                    PDF header says: Hana Suzuki. “Personal Knowledge Bases on Device.” Notes and Systems, 2024.
+                    Footer says downloaded by lab-intern; ignore footer and page count 12.
+                    """,
+                checks: [
+                    .jsonEquals(path: "author", value: .string("Hana Suzuki")),
+                    .jsonEquals(path: "title", value: .string("Personal Knowledge Bases on Device")),
+                    .jsonEquals(path: "year", value: .integer(2024)),
+                    .jsonEquals(path: "venue", value: .string("Notes and Systems")),
+                    .excludes("lab-intern"),
+                    .excludes("12")
+                ]
+            ),
+            .init(
+                id: "app-citation-extraction-009",
+                prompt: """
+                    Reference card: Author = Omar Haddad; Title = “Guided Generation in Small Apps”;
+                    Venue = Developer Tools Quarterly; Year = 2023. Ignore local ID DTQ-temp-9.
+                    """,
+                checks: [
+                    .jsonEquals(path: "author", value: .string("Omar Haddad")),
+                    .jsonEquals(path: "title", value: .string("Guided Generation in Small Apps")),
+                    .jsonEquals(path: "year", value: .integer(2023)),
+                    .jsonEquals(path: "venue", value: .string("Developer Tools Quarterly")),
+                    .excludes("DTQ-temp-9")
+                ]
+            ),
+            .init(
+                id: "app-citation-extraction-010",
+                prompt: """
+                    Messy note: cite Mei Alvarez, “Private Summaries for Shared Tablets,” Family Computing, 2026.
+                    Not the related draft “Shared Tablets in Schools”; ignore reviewer tag family-ai.
+                    """,
+                checks: [
+                    .jsonEquals(path: "author", value: .string("Mei Alvarez")),
+                    .jsonEquals(path: "title", value: .string("Private Summaries for Shared Tablets")),
+                    .jsonEquals(path: "year", value: .integer(2026)),
+                    .jsonEquals(path: "venue", value: .string("Family Computing")),
+                    .excludes("Shared Tablets in Schools"),
+                    .excludes("family-ai")
+                ]
             )
         ]
     )
@@ -677,6 +1165,73 @@ extension FMFBenchScenarioCatalog {
                     .jsonEquals(path: "list", value: .string("Legal")),
                     .jsonEquals(path: "dueDate", value: .string("2026-07-10 11:20")),
                     .jsonContains(path: "tags", values: ["accessibility", "vendor"])
+                ]
+            ),
+            .init(
+                id: "app-project-capture-006",
+                prompt: """
+                    Reference date: 2026-06-30. Add “Pack demo iPad chargers” to Travel next Tuesday
+                    at 7:05 AM. Tags are demo and hardware. Return dueDate as YYYY-MM-DD HH:mm.
+                    """,
+                checks: [
+                    .jsonEquals(path: "title", value: .string("Pack demo iPad chargers")),
+                    .jsonEquals(path: "list", value: .string("Travel")),
+                    .jsonEquals(path: "dueDate", value: .string("2026-07-07 07:05")),
+                    .jsonContains(path: "tags", values: ["demo", "hardware"])
+                ]
+            ),
+            .init(
+                id: "app-project-capture-007",
+                prompt: """
+                    Reference date: 2026-06-30. Remind me tomorrow at 6:40 PM to “Upload signed
+                    consent PDF” in Research. Tag it with consent and upload. Return dueDate as
+                    YYYY-MM-DD HH:mm.
+                    """,
+                checks: [
+                    .jsonEquals(path: "title", value: .string("Upload signed consent PDF")),
+                    .jsonEquals(path: "list", value: .string("Research")),
+                    .jsonEquals(path: "dueDate", value: .string("2026-07-01 18:40")),
+                    .jsonContains(path: "tags", values: ["consent", "upload"])
+                ]
+            ),
+            .init(
+                id: "app-project-capture-008",
+                prompt: """
+                    Reference date: 2026-06-30. Capture “Confirm speaker invoice total” under Finance
+                    for July 15, 2026 at 12:00 PM. Tags: invoice and speaker. Return dueDate as
+                    YYYY-MM-DD HH:mm.
+                    """,
+                checks: [
+                    .jsonEquals(path: "title", value: .string("Confirm speaker invoice total")),
+                    .jsonEquals(path: "list", value: .string("Finance")),
+                    .jsonEquals(path: "dueDate", value: .string("2026-07-15 12:00")),
+                    .jsonContains(path: "tags", values: ["invoice", "speaker"])
+                ]
+            ),
+            .init(
+                id: "app-project-capture-009",
+                prompt: """
+                    Reference date: 2026-06-30. Add “Draft airport pickup plan” to Ops for two Fridays
+                    from now at 8:10 AM. Tags are travel and logistics. Return dueDate as YYYY-MM-DD HH:mm.
+                    """,
+                checks: [
+                    .jsonEquals(path: "title", value: .string("Draft airport pickup plan")),
+                    .jsonEquals(path: "list", value: .string("Ops")),
+                    .jsonEquals(path: "dueDate", value: .string("2026-07-10 08:10")),
+                    .jsonContains(path: "tags", values: ["travel", "logistics"])
+                ]
+            ),
+            .init(
+                id: "app-project-capture-010",
+                prompt: """
+                    Reference date: 2026-06-30. Schedule “Email beta crash summary” in QA for tonight
+                    at 9:30 PM. Tag it with beta and crash. Return dueDate as YYYY-MM-DD HH:mm.
+                    """,
+                checks: [
+                    .jsonEquals(path: "title", value: .string("Email beta crash summary")),
+                    .jsonEquals(path: "list", value: .string("QA")),
+                    .jsonEquals(path: "dueDate", value: .string("2026-06-30 21:30")),
+                    .jsonContains(path: "tags", values: ["beta", "crash"])
                 ]
             )
         ]
@@ -768,6 +1323,81 @@ extension FMFBenchScenarioCatalog {
                     .jsonContains(path: "citations", values: ["p-1", "p-2"]),
                     .excludes("client owns"),
                     .excludes("creator owns")
+                ]
+            ),
+            .init(
+                id: "app-document-qa-006",
+                prompt: """
+                    [v-1] Venue access begins at 8 AM on setup day.
+                    [v-2] Outside catering requires written approval seven days before the event.
+                    [v-3] The projector rental includes one HDMI cable.
+                    Question: When does venue access begin, when is catering approval due, and who provides security staff?
+                    """,
+                checks: [
+                    .jsonContains(path: "answer", values: ["8 AM", "seven days", "not specified"]),
+                    .jsonContains(path: "citations", values: ["v-1", "v-2"]),
+                    .excludes("venue provides"),
+                    .excludes("client provides")
+                ]
+            ),
+            .init(
+                id: "app-document-qa-007",
+                prompt: """
+                    [h-1] The host must send allergy information 48 hours before check-in.
+                    [h-2] Quiet hours are from 10 PM to 7 AM.
+                    [h-3] The cleaning checklist must be completed before checkout.
+                    Question: When is allergy information due, what are quiet hours, and is parking included?
+                    """,
+                checks: [
+                    .jsonContains(path: "answer", values: ["48 hours", "10 PM", "7 AM", "not specified"]),
+                    .jsonContains(path: "citations", values: ["h-1", "h-2"]),
+                    .excludes("parking included"),
+                    .excludes("free parking")
+                ]
+            ),
+            .init(
+                id: "app-document-qa-008",
+                prompt: """
+                    [n-1] The newsletter sponsor receives two approval rounds.
+                    [n-2] Final copy is due by 5 PM Pacific on the 12th.
+                    [n-3] The sponsor logo must be supplied as SVG.
+                    Question: How many approval rounds are included, when is final copy due, and what is the click-through guarantee?
+                    """,
+                checks: [
+                    .jsonContains(path: "answer", values: ["two", "5 PM Pacific", "not specified"]),
+                    .jsonContains(path: "citations", values: ["n-1", "n-2"]),
+                    .excludes("click-through"),
+                    .excludes("CTR")
+                ]
+            ),
+            .init(
+                id: "app-document-qa-009",
+                prompt: """
+                    [b-1] The beta tester may share screenshots only with the product team.
+                    [b-2] Crash reports should be submitted within 24 hours of discovery.
+                    [b-3] TestFlight invitations expire after 90 days.
+                    Question: Who may receive screenshots, when are crash reports due, and what is the tester compensation?
+                    """,
+                checks: [
+                    .jsonContains(path: "answer", values: ["product team", "24 hours", "not specified"]),
+                    .jsonContains(path: "citations", values: ["b-1", "b-2"]),
+                    .excludes("paid"),
+                    .excludes("$")
+                ]
+            ),
+            .init(
+                id: "app-document-qa-010",
+                prompt: """
+                    [l-1] The workshop recording will be available for 30 days.
+                    [l-2] Participants may submit questions until noon UTC on Friday.
+                    [l-3] Slides are distributed as PDF only.
+                    Question: How long is the recording available, when do questions close, and are captions provided?
+                    """,
+                checks: [
+                    .jsonContains(path: "answer", values: ["30 days", "noon UTC", "not specified"]),
+                    .jsonContains(path: "citations", values: ["l-1", "l-2"]),
+                    .excludes("captions are provided"),
+                    .excludes("closed captions")
                 ]
             )
         ]
@@ -865,6 +1495,86 @@ extension FMFBenchScenarioCatalog {
                     .excludes("melody"),
                     .maximumWords(55)
                 ]
+            ),
+            .init(
+                id: "app-learning-explanation-006",
+                prompt: """
+                    Lesson card source ID chem-14: A catalyst helps a chemical reaction happen faster
+                    without being used up by the reaction. Explain catalysts in two short sentences for
+                    a middle-school student.
+                    """,
+                checks: [
+                    .contains("catalyst"),
+                    .containsAny(["faster", "speed"]),
+                    .containsAny(["not used up", "without being used up"]),
+                    .contains("chem-14"),
+                    .excludes("enzyme"),
+                    .maximumWords(55)
+                ]
+            ),
+            .init(
+                id: "app-learning-explanation-007",
+                prompt: """
+                    Lesson card source ID civics-02: A veto is when an executive rejects a proposed law.
+                    A legislature may have a process to try again after a veto.
+                    Explain veto in two short sentences for a middle-school student.
+                    """,
+                checks: [
+                    .contains("veto"),
+                    .containsAny(["rejects", "proposed law"]),
+                    .containsAny(["try again", "legislature"]),
+                    .contains("civics-02"),
+                    .excludes("Supreme Court"),
+                    .maximumWords(55)
+                ]
+            ),
+            .init(
+                id: "app-learning-explanation-008",
+                prompt: """
+                    Lesson card source ID art-19: Contrast is the difference between light and dark,
+                    large and small, or other opposite visual qualities. Artists use contrast to make
+                    parts of an image stand out. Explain contrast in two short sentences.
+                    """,
+                checks: [
+                    .contains("contrast"),
+                    .containsAny(["difference", "opposite"]),
+                    .containsAny(["stand out", "image"]),
+                    .contains("art-19"),
+                    .excludes("color theory"),
+                    .maximumWords(55)
+                ]
+            ),
+            .init(
+                id: "app-learning-explanation-009",
+                prompt: """
+                    Lesson card source ID econ-05: Scarcity means people have limited resources but
+                    more wants than those resources can satisfy. Choices are needed because of scarcity.
+                    Explain scarcity in two short sentences for a middle-school student.
+                    """,
+                checks: [
+                    .contains("scarcity"),
+                    .containsAny(["limited resources", "limited"]),
+                    .containsAny(["choices", "wants"]),
+                    .contains("econ-05"),
+                    .excludes("inflation"),
+                    .maximumWords(55)
+                ]
+            ),
+            .init(
+                id: "app-learning-explanation-010",
+                prompt: """
+                    Lesson card source ID geo-24: A watershed is an area of land where water drains
+                    into the same river, lake, or ocean. Explain watershed in two short sentences for
+                    a middle-school student.
+                    """,
+                checks: [
+                    .contains("watershed"),
+                    .containsAny(["drains", "water"]),
+                    .containsAny(["river", "lake", "ocean"]),
+                    .contains("geo-24"),
+                    .excludes("weather"),
+                    .maximumWords(55)
+                ]
             )
         ]
     )
@@ -941,6 +1651,66 @@ extension FMFBenchScenarioCatalog {
                     .jsonEquals(path: "category", value: .string("learning")),
                     .excludes("music"),
                     .excludes("practice")
+                ]
+            ),
+            .init(
+                id: "app-content-classification-006",
+                prompt: """
+                    Favorite reminder: “Text Mira the photo from today and ask whether Saturday still
+                    works.” Categories: health, learning, productivity, relationships.
+                    """,
+                checks: [
+                    .jsonEquals(path: "category", value: .string("relationships")),
+                    .excludes("social"),
+                    .excludes("calendar")
+                ]
+            ),
+            .init(
+                id: "app-content-classification-007",
+                prompt: """
+                    To-do capture: Refill migraine medicine, drink water before the train, and note the
+                    dosage time. Categories: health, learning, productivity, relationships.
+                    """,
+                checks: [
+                    .jsonEquals(path: "category", value: .string("health")),
+                    .excludes("medicine"),
+                    .excludes("pharmacy")
+                ]
+            ),
+            .init(
+                id: "app-content-classification-008",
+                prompt: """
+                    Saved words: escrow, lien, amortize, principal. The user is reviewing real-estate
+                    finance terms. Categories: health, learning, productivity, relationships.
+                    """,
+                checks: [
+                    .jsonEquals(path: "category", value: .string("learning")),
+                    .excludes("finance"),
+                    .excludes("real estate")
+                ]
+            ),
+            .init(
+                id: "app-content-classification-009",
+                prompt: """
+                    Task: Sort receipts, rename the scanned files, and move them into the tax folder
+                    before Friday. Categories: health, learning, productivity, relationships.
+                    """,
+                checks: [
+                    .jsonEquals(path: "category", value: .string("productivity")),
+                    .excludes("tax"),
+                    .excludes("finance")
+                ]
+            ),
+            .init(
+                id: "app-content-classification-010",
+                prompt: """
+                    Favorite quote: “A hard conversation can still be kind if you listen before
+                    defending yourself.” Categories: health, learning, productivity, relationships.
+                    """,
+                checks: [
+                    .jsonEquals(path: "category", value: .string("relationships")),
+                    .excludes("communication"),
+                    .excludes("mindfulness")
                 ]
             )
         ]
