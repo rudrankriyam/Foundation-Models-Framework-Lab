@@ -86,7 +86,7 @@ learning explanations, and policy-grounded support replies.
 These prompts are intentionally harder than the quick sanity suite. They include
 missing information, noisy notes, policy boundaries, exact citations, forbidden
 inventions, and phrasing variants that should not change the expected outcome. Each
-capability has three fixed samples so a suite result reflects repeated behavior
+capability has five fixed samples so a suite result reflects repeated behavior
 rather than one lucky prompt.
 
 This suite follows the benchmark-design pattern used by practical LLM evals:

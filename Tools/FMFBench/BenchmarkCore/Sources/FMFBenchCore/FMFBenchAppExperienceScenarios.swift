@@ -82,6 +82,42 @@ extension FMFBenchScenarioCatalog {
                     ),
                     .excludes("sprint")
                 ]
+            ),
+            .init(
+                id: "app-workout-adaptation-004",
+                prompt: """
+                    Create a 12-minute desk break workout for a small office. Use exactly four exercises:
+                    sit-to-stand, wall push-up, standing calf raise, and doorway pec stretch. The user's
+                    wrist is tender, so keep the focus gentle desk mobility and avoid floor planks.
+                    Return durationMinutes as an integer.
+                    """,
+                checks: [
+                    .jsonEquals(path: "durationMinutes", value: .integer(12)),
+                    .jsonContains(path: "focus", values: ["mobility"]),
+                    .jsonContains(
+                        path: "exercises",
+                        values: ["sit-to-stand", "wall push-up", "standing calf raise", "doorway pec stretch"]
+                    ),
+                    .excludes("plank")
+                ]
+            ),
+            .init(
+                id: "app-workout-adaptation-005",
+                prompt: """
+                    Create a 16-minute no-equipment morning warmup after a long flight. Use exactly four
+                    exercises: shoulder circles, hip hinge, standing march, and heel raise. The user wants
+                    circulation and stiffness relief, and wants to avoid burpees. Return durationMinutes
+                    as an integer.
+                    """,
+                checks: [
+                    .jsonEquals(path: "durationMinutes", value: .integer(16)),
+                    .jsonContains(path: "focus", values: ["circulation"]),
+                    .jsonContains(
+                        path: "exercises",
+                        values: ["shoulder circles", "hip hinge", "standing march", "heel raise"]
+                    ),
+                    .excludes("burpee")
+                ]
             )
         ]
     )
@@ -108,7 +144,6 @@ extension FMFBenchScenarioCatalog {
                     """,
                 checks: [
                     .containsAny(["walk", "quiet walk"]),
-                    .containsAny(["onboarding draft", "onboarding", "draft"]),
                     .containsAny(["blocking messages", "first hour", "messages"]),
                     .excludes("diagnos"),
                     .maximumWords(60)
@@ -141,6 +176,34 @@ extension FMFBenchScenarioCatalog {
                     .containsAny(["release note", "before opening chat", "bug triage"]),
                     .excludes("diagnos"),
                     .excludes("anxiety disorder"),
+                    .maximumWords(60)
+                ]
+            ),
+            .init(
+                id: "app-journal-reflection-004",
+                prompt: """
+                    Journal entry: I woke up annoyed about the noisy construction, but coffee with Sam
+                    helped me reset. I paid the overdue electric bill before lunch. Tomorrow I want to
+                    lay out my clothes before bed so the morning feels less rushed.
+                    """,
+                checks: [
+                    .containsAny(["coffee with Sam", "Sam", "coffee"]),
+                    .containsAny(["lay out my clothes", "clothes", "morning"]),
+                    .excludes("diagnos"),
+                    .maximumWords(60)
+                ]
+            ),
+            .init(
+                id: "app-journal-reflection-005",
+                prompt: """
+                    Journal entry: The product demo froze twice, but Arjun handled the Q&A calmly and
+                    made me laugh afterward. I uploaded the revised slides tonight. Tomorrow I want to
+                    rehearse with a timer instead of changing the deck again.
+                    """,
+                checks: [
+                    .containsAny(["Arjun", "Q&A", "laugh"]),
+                    .containsAny(["rehearse", "timer"]),
+                    .excludes("diagnos"),
                     .maximumWords(60)
                 ]
             )
@@ -210,6 +273,40 @@ extension FMFBenchScenarioCatalog {
                     .excludes("heart rate"),
                     .maximumWords(85)
                 ]
+            ),
+            .init(
+                id: "app-sports-feedback-004",
+                prompt: """
+                    Golf range notes: Seven of 10 drives found the fairway target. Tempo stayed smooth
+                    after the pause drill. Short putts kept finishing left. Give one next drill and do
+                    not invent launch-monitor numbers.
+                    """,
+                checks: [
+                    .containsAny(["7", "seven"]),
+                    .contains("10"),
+                    .contains("fairway"),
+                    .containsAny(["putt", "left"]),
+                    .contains("drill"),
+                    .excludes("spin rate"),
+                    .maximumWords(85)
+                ]
+            ),
+            .init(
+                id: "app-sports-feedback-005",
+                prompt: """
+                    Running workout notes: The first two 400-meter repeats were 1:48, then the last
+                    two slipped to 1:55. Cadence stayed relaxed, but shoulders tightened late. Give
+                    one next drill and no invented GPS or heart-rate data.
+                    """,
+                checks: [
+                    .contains("1:48"),
+                    .contains("1:55"),
+                    .containsAny(["cadence", "relaxed"]),
+                    .contains("shoulders"),
+                    .contains("drill"),
+                    .excludes("heart-rate"),
+                    .maximumWords(85)
+                ]
             )
         ]
     )
@@ -271,6 +368,38 @@ extension FMFBenchScenarioCatalog {
                     .containsAny(["high-impact", "landings"]),
                     .excludes("jump squat"),
                     .excludes("sled push"),
+                    .maximumWords(45)
+                ]
+            ),
+            .init(
+                id: "app-exercise-substitution-004",
+                prompt: """
+                    Unavailable exercise: push-up. Limitation: wrist extension is uncomfortable.
+                    Available catalog: dumbbell floor press keeps wrists neutral and trains pressing;
+                    handstand push-up loads the wrists; cable fly needs a machine. Equipment: dumbbells only.
+                    """,
+                checks: [
+                    .contains("dumbbell floor press"),
+                    .containsAny(["neutral", "wrists"]),
+                    .contains("pressing"),
+                    .excludes("handstand push-up"),
+                    .excludes("cable fly"),
+                    .maximumWords(45)
+                ]
+            ),
+            .init(
+                id: "app-exercise-substitution-005",
+                prompt: """
+                    Unavailable exercise: treadmill run. Limitation: hotel gym is closed and the user
+                    wants low noise. Available catalog: step-up uses a sturdy bench; jumping jack is
+                    noisy; rowing machine requires gym access. Equipment: bench only.
+                    """,
+                checks: [
+                    .contains("step-up"),
+                    .containsAny(["bench", "low noise"]),
+                    .containsAny(["hotel gym", "gym is closed", "gym"]),
+                    .excludes("jumping jack"),
+                    .excludes("rowing machine"),
                     .maximumWords(45)
                 ]
             )
@@ -341,6 +470,40 @@ extension FMFBenchScenarioCatalog {
                     .excludes("sponsored"),
                     .maximumWords(45)
                 ]
+            ),
+            .init(
+                id: "app-creator-metadata-004",
+                prompt: """
+                    Clip notes: pottery studio timelapse, clay mug trimming, wheel hum, dusty apron,
+                    shelf of finished cups. Need a calm caption under 15 words and exactly four
+                    lowercase tags. Do not name a city.
+                    """,
+                checks: [
+                    .contains("Title:"),
+                    .contains("Caption:"),
+                    .contains("Tags:"),
+                    .containsAny(["pottery", "clay", "mug"]),
+                    .containsAny(["studio", "wheel", "apron"]),
+                    .excludes("Tokyo"),
+                    .maximumWords(45)
+                ]
+            ),
+            .init(
+                id: "app-creator-metadata-005",
+                prompt: """
+                    Clip notes: rainy bookstore mini vlog, stacked paperbacks, receipt used as bookmark,
+                    quiet aisle pan, tea cup at the end. Need a cozy caption under 16 words and exactly
+                    four lowercase tags. No store name was provided.
+                    """,
+                checks: [
+                    .contains("Title:"),
+                    .contains("Caption:"),
+                    .contains("Tags:"),
+                    .containsAny(["bookstore", "paperbacks", "bookmark"]),
+                    .containsAny(["rainy", "tea", "aisle"]),
+                    .excludes("Barnes"),
+                    .maximumWords(45)
+                ]
             )
         ]
     )
@@ -399,6 +562,36 @@ extension FMFBenchScenarioCatalog {
                     .excludes("/imports/pending"),
                     .excludes("KW")
                 ]
+            ),
+            .init(
+                id: "app-citation-extraction-004",
+                prompt: """
+                    Bibliography note: Leila Okafor. “Assistive Summaries for Field Notes.” Ubiquitous Learning, 2023.
+                    Ignore import batch B-19 and comment needs-abstract.
+                    """,
+                checks: [
+                    .jsonEquals(path: "author", value: .string("Leila Okafor")),
+                    .jsonEquals(path: "title", value: .string("Assistive Summaries for Field Notes")),
+                    .jsonEquals(path: "year", value: .integer(2023)),
+                    .jsonEquals(path: "venue", value: .string("Ubiquitous Learning")),
+                    .excludes("B-19"),
+                    .excludes("needs-abstract")
+                ]
+            ),
+            .init(
+                id: "app-citation-extraction-005",
+                prompt: """
+                    Bibliography note: Evan Rossi. “Small Language Models in Studio Tools.” Creative Systems, 2026.
+                    Ignore shelf location CRAFT-4 and uploader handle @milo.
+                    """,
+                checks: [
+                    .jsonEquals(path: "author", value: .string("Evan Rossi")),
+                    .jsonEquals(path: "title", value: .string("Small Language Models in Studio Tools")),
+                    .jsonEquals(path: "year", value: .integer(2026)),
+                    .jsonEquals(path: "venue", value: .string("Creative Systems")),
+                    .excludes("CRAFT-4"),
+                    .excludes("@milo")
+                ]
             )
         ]
     )
@@ -456,6 +649,34 @@ extension FMFBenchScenarioCatalog {
                     .jsonEquals(path: "list", value: .string("Marketing")),
                     .jsonEquals(path: "dueDate", value: .string("2026-07-08 09:45")),
                     .jsonContains(path: "tags", values: ["video", "launch"])
+                ]
+            ),
+            .init(
+                id: "app-project-capture-004",
+                prompt: """
+                    Reference date: 2026-06-30. Add “Renew staging certificate” to Infrastructure
+                    for July 6, 2026 at 4:30 PM. Tags are signing and blocker. Return dueDate as
+                    YYYY-MM-DD HH:mm.
+                    """,
+                checks: [
+                    .jsonEquals(path: "title", value: .string("Renew staging certificate")),
+                    .jsonEquals(path: "list", value: .string("Infrastructure")),
+                    .jsonEquals(path: "dueDate", value: .string("2026-07-06 16:30")),
+                    .jsonContains(path: "tags", values: ["signing", "blocker"])
+                ]
+            ),
+            .init(
+                id: "app-project-capture-005",
+                prompt: """
+                    Reference date: 2026-06-30. Put “Send vendor accessibility notes” in Legal
+                    for July 10, 2026 at 11:20 AM. Tag it with accessibility and vendor. Return dueDate
+                    as YYYY-MM-DD HH:mm.
+                    """,
+                checks: [
+                    .jsonEquals(path: "title", value: .string("Send vendor accessibility notes")),
+                    .jsonEquals(path: "list", value: .string("Legal")),
+                    .jsonEquals(path: "dueDate", value: .string("2026-07-10 11:20")),
+                    .jsonContains(path: "tags", values: ["accessibility", "vendor"])
                 ]
             )
         ]
@@ -517,6 +738,36 @@ extension FMFBenchScenarioCatalog {
                     .jsonContains(path: "citations", values: ["m-1", "m-2"]),
                     .excludes("99.9"),
                     .excludes("99.99")
+                ]
+            ),
+            .init(
+                id: "app-document-qa-004",
+                prompt: """
+                    [r-1] The renter may cancel the booking until 6 PM local time on the pickup date.
+                    [r-2] Mileage is limited to 200 miles per day.
+                    [r-3] Cleaning fees apply only when pet hair is found after return.
+                    Question: What is the cancellation deadline, what is the daily mileage limit, and what is the fuel policy?
+                    """,
+                checks: [
+                    .jsonContains(path: "answer", values: ["6 PM", "200 miles", "not specified"]),
+                    .jsonContains(path: "citations", values: ["r-1", "r-2"]),
+                    .excludes("full tank"),
+                    .excludes("prepaid fuel")
+                ]
+            ),
+            .init(
+                id: "app-document-qa-005",
+                prompt: """
+                    [p-1] The creator must deliver final artwork as PNG and SVG files.
+                    [p-2] The client review window is five business days after delivery.
+                    [p-3] The deposit is non-refundable after work begins.
+                    Question: Which file formats are required, how long is the review window, and who owns unused sketches?
+                    """,
+                checks: [
+                    .jsonContains(path: "answer", values: ["PNG", "SVG", "five business days", "not specified"]),
+                    .jsonContains(path: "citations", values: ["p-1", "p-2"]),
+                    .excludes("client owns"),
+                    .excludes("creator owns")
                 ]
             )
         ]
@@ -580,6 +831,38 @@ extension FMFBenchScenarioCatalog {
                     .contains("equivalent"),
                     .contains("math-07"),
                     .excludes("probability"),
+                    .maximumWords(55)
+                ]
+            ),
+            .init(
+                id: "app-learning-explanation-004",
+                prompt: """
+                    Lesson card source ID geo-11: Erosion moves bits of rock and soil from one place
+                    to another. Water, wind, and ice can all cause erosion.
+                    Explain erosion in two short sentences for a middle-school student.
+                    """,
+                checks: [
+                    .contains("erosion"),
+                    .containsAny(["rock", "soil"]),
+                    .containsAny(["water", "wind", "ice"]),
+                    .contains("geo-11"),
+                    .excludes("earthquake"),
+                    .maximumWords(55)
+                ]
+            ),
+            .init(
+                id: "app-learning-explanation-005",
+                prompt: """
+                    Lesson card source ID music-03: Rhythm is the pattern of sounds and silences in
+                    music. A steady beat helps listeners feel where the rhythm fits.
+                    Explain rhythm in two short sentences for a middle-school student.
+                    """,
+                checks: [
+                    .contains("rhythm"),
+                    .containsAny(["sounds", "silences"]),
+                    .contains("beat"),
+                    .contains("music-03"),
+                    .excludes("melody"),
                     .maximumWords(55)
                 ]
             )
@@ -657,6 +940,46 @@ extension FMFBenchScenarioCatalog {
                     .contains("20 minutes"),
                     .contains("invited email address"),
                     .excludes("billing change completed"),
+                    .minimumWords(70),
+                    .maximumWords(140)
+                ]
+            ),
+            .init(
+                id: "app-support-reply-004",
+                prompt: """
+                    Customer: My team workspace disappeared after I changed phones. I need it for a client call today.
+                    Internal facts: Case ID TW-3190. Workspace status shows archived by the admin, not deleted.
+                    Next step: ask the workspace admin to restore it from Settings > Archive. If the admin no
+                    longer has access after 30 minutes, support can verify ownership after receiving the workspace ID.
+                    Do not promise data recovery.
+                    """,
+                checks: [
+                    .contains("TW-3190"),
+                    .contains("workspace admin"),
+                    .contains("Settings"),
+                    .contains("30 minutes"),
+                    .contains("workspace ID"),
+                    .excludes("data recovery is guaranteed"),
+                    .minimumWords(70),
+                    .maximumWords(140)
+                ]
+            ),
+            .init(
+                id: "app-support-reply-005",
+                prompt: """
+                    Customer: Calendar sync stopped after I renamed my project, and my Monday reminders vanished.
+                    Internal facts: Case ID CS-5602. Sync status shows the calendar token expired during the rename.
+                    Next step: reconnect Calendar in Integrations and run Sync Now. If reminders are still missing
+                    after 10 minutes, support can rebuild them after receiving the project ID. Do not say meetings
+                    were deleted.
+                    """,
+                checks: [
+                    .contains("CS-5602"),
+                    .contains("Calendar"),
+                    .contains("Sync Now"),
+                    .contains("10 minutes"),
+                    .contains("project ID"),
+                    .excludes("meetings were deleted"),
                     .minimumWords(70),
                     .maximumWords(140)
                 ]
