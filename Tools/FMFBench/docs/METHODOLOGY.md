@@ -84,9 +84,16 @@ substitution, creator metadata, citation extraction, project capture, document Q
 learning explanations, and policy-grounded support replies.
 
 These prompts are intentionally harder than the quick sanity suite. They include
-missing information, noisy notes, policy boundaries, exact citations, and forbidden
-inventions. Deterministic graders remain the primary score; subjective PCC judging
-can be layered on replay only after hard constraints pass.
+missing information, noisy notes, policy boundaries, exact citations, forbidden
+inventions, and phrasing variants that should not change the expected outcome. Each
+capability has three fixed samples so a suite result reflects repeated behavior
+rather than one lucky prompt.
+
+This suite follows the benchmark-design pattern used by practical LLM evals:
+task-specific data, automated deterministic scoring where possible, multiple
+variants per capability, explicit failure evidence, and model-judge output only as
+a secondary replay layer. It is not a leaderboard benchmark; it is a regression and
+device-comparison benchmark for mobile app behaviors.
 
 ## Agentic Tool Scoring
 
