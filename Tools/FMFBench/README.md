@@ -131,7 +131,10 @@ swift run fmfbench --suite agentic --warmups 0 --repetitions 1 --no-randomize
 swift run fmfbench --suite apps --warmups 0 --repetitions 1 --no-randomize
 
 # Real app experience prompts through the signed Foundation Lab Agent Bridge using PCC
-swift run fmfbench-bridge-run --repetitions 3 --output /tmp/fmfbench-apps-pcc
+swift run fmfbench-bridge-run --repetitions 3 --reasoning low --output /tmp/fmfbench-apps-pcc
+
+# Run PCC Real App Experiences once at every reasoning level
+swift run fmfbench-bridge-run --repetitions 1 --reasoning all --output /tmp/fmfbench-apps-pcc-reasoning
 
 # Reproduce one exact case and preserve tool/state evidence for empty responses
 swift run fmfbench --suite agentic --sample personal-organizer-012 --warmups 0

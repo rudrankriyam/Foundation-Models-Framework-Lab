@@ -118,7 +118,7 @@ private extension AFMFoundationModelsChatGenerator {
         toolRuntime: AFMChatToolRuntime,
         emitting event: @escaping @Sendable (AFMChatGenerationEvent) async throws -> Void
     ) async throws -> AFMChatGenerationResult {
-        let responseStream = session.streamResponse(to: prepared.prompt, options: prepared.options)
+        let responseStream = textResponseStream(prepared: prepared, session: session)
         var accumulator = AFMSnapshotDeltaAccumulator()
         for try await snapshot in responseStream {
             try Task.checkCancellation()
@@ -159,11 +159,10 @@ private extension AFMFoundationModelsChatGenerator {
         session: LanguageModelSession
     ) async throws -> AFMChatGenerationResult {
         if let responseSchema = prepared.responseSchema {
-            let response = try await session.respond(
-                to: prepared.prompt,
-                schema: responseSchema.generationSchema,
-                includeSchemaInPrompt: true,
-                options: prepared.options
+            let response = try await structuredResponse(
+                prepared: prepared,
+                session: session,
+                responseSchema: responseSchema
             )
             let content = response.content.jsonString
             let usage = await responseUsage(
@@ -181,7 +180,7 @@ private extension AFMFoundationModelsChatGenerator {
             )
         }
 
-        let response = try await session.respond(to: prepared.prompt, options: prepared.options)
+        let response = try await textResponse(prepared: prepared, session: session)
         let usage = await responseUsage(
             response,
             prepared: prepared,
@@ -192,6 +191,64 @@ private extension AFMFoundationModelsChatGenerator {
             finishReason: finishReason(for: request, usage: usage),
             usage: usage
         )
+    }
+
+    private func textResponseStream(
+        prepared: AFMPreparedChatGeneration,
+        session: LanguageModelSession
+    ) -> LanguageModelSession.ResponseStream<String> {
+        #if compiler(>=6.4)
+        if #available(iOS 27.0, macOS 27.0, *) {
+            return session.streamResponse(
+                to: prepared.prompt,
+                options: prepared.options,
+                contextOptions: contextOptions(for: prepared)
+            )
+        }
+        #endif
+
+        return session.streamResponse(to: prepared.prompt, options: prepared.options)
+    }
+
+    private func structuredResponse(
+        prepared: AFMPreparedChatGeneration,
+        session: LanguageModelSession,
+        responseSchema: AFMPreparedResponseSchema
+    ) async throws -> LanguageModelSession.Response<GeneratedContent> {
+        #if compiler(>=6.4)
+        if #available(iOS 27.0, macOS 27.0, *) {
+            return try await session.respond(
+                to: prepared.prompt,
+                schema: responseSchema.generationSchema,
+                options: prepared.options,
+                contextOptions: contextOptions(for: prepared, includeSchemaInPrompt: true)
+            )
+        }
+        #endif
+
+        return try await session.respond(
+            to: prepared.prompt,
+            schema: responseSchema.generationSchema,
+            includeSchemaInPrompt: true,
+            options: prepared.options
+        )
+    }
+
+    private func textResponse(
+        prepared: AFMPreparedChatGeneration,
+        session: LanguageModelSession
+    ) async throws -> LanguageModelSession.Response<String> {
+        #if compiler(>=6.4)
+        if #available(iOS 27.0, macOS 27.0, *) {
+            return try await session.respond(
+                to: prepared.prompt,
+                options: prepared.options,
+                contextOptions: contextOptions(for: prepared)
+            )
+        }
+        #endif
+
+        return try await session.respond(to: prepared.prompt, options: prepared.options)
     }
 
     private func responseUsage<Content>(
@@ -305,6 +362,35 @@ private extension AFMFoundationModelsChatGenerator {
         )
     }
 }
+
+#if compiler(>=6.4)
+@available(iOS 27.0, macOS 27.0, *)
+private func contextOptions(
+    for prepared: AFMPreparedChatGeneration,
+    includeSchemaInPrompt: Bool? = nil
+) -> ContextOptions {
+    ContextOptions(
+        includeSchemaInPrompt: includeSchemaInPrompt,
+        reasoningLevel: prepared.reasoningLevel?.contextOptionsReasoningLevel
+    )
+}
+
+@available(iOS 27.0, macOS 27.0, *)
+private extension AFMChatReasoningLevel {
+    var contextOptionsReasoningLevel: ContextOptions.ReasoningLevel? {
+        switch self {
+        case .none:
+            nil
+        case .light:
+            .light
+        case .moderate:
+            .moderate
+        case .deep:
+            .deep
+        }
+    }
+}
+#endif
 
 extension AFMFoundationModelsChatGenerator {
     static func schemaAwareFallbackInputUsage(

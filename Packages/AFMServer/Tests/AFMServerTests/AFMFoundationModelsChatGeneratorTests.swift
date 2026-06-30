@@ -96,6 +96,17 @@ func foundationModelsGeneratorRequiresToolsOnOS27() throws {
     let prepared = try AFMChatTranscriptBuilder.prepare(request)
     #expect(prepared.options.toolCallingMode?.kind == .required)
 }
+
+@Test("Foundation Models generator preserves requested reasoning level")
+func foundationModelsGeneratorPreservesReasoningLevel() throws {
+    let request = AFMChatGenerationRequest(
+        messages: [.init(role: .user, contentSegments: ["Think carefully"])],
+        reasoningLevel: .moderate
+    )
+
+    let prepared = try AFMChatTranscriptBuilder.prepare(request)
+    #expect(prepared.reasoningLevel == .moderate)
+}
 #endif
 
 @Test("Fallback usage preserves tokenized provenance only when both sides are tokenized")

@@ -31,7 +31,8 @@ enum AFMChatTranscriptBuilder {
             prompt: prompt,
             inputTranscript: inputTranscript,
             options: options,
-            responseSchema: responseSchema
+            responseSchema: responseSchema,
+            reasoningLevel: request.reasoningLevel
         )
     }
 

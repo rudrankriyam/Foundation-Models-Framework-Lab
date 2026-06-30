@@ -9,75 +9,80 @@ struct FMFBenchBridgeRunner {
         let client = BridgeClient(descriptor: descriptor)
         let scenarios = FMFBenchScenarioCatalog.scenarios(for: .apps)
         let environment = EnvironmentSnapshot.capture()
-        let startedAt = Date()
 
-        var trials: [FMFBenchTrialResult] = []
-        var failures: [FMFBenchFailure] = []
+        for reasoningLevel in options.reasoningLevels {
+            let startedAt = Date()
+            var trials: [FMFBenchTrialResult] = []
+            var failures: [FMFBenchFailure] = []
 
-        for iteration in 1...options.repetitions {
-            for scenario in scenarios {
-                for sample in scenario.samples {
-                    do {
-                        let trial = try await client.run(
-                            scenario: scenario,
-                            sample: sample,
-                            iteration: iteration,
-                            environment: environment
-                        )
-                        trials.append(trial)
-                        print("\(scenario.id) run \(iteration): \(trial.grade.promptPassed ? "pass" : "fail")")
-                    } catch {
-                        failures.append(
-                            FMFBenchFailure(
-                                scenarioID: scenario.id,
-                                sampleID: sample.id,
+            print("FMFBench bridge PCC reasoning: \(reasoningLevel.commandLineName)")
+            for iteration in 1...options.repetitions {
+                for scenario in scenarios {
+                    for sample in scenario.samples {
+                        do {
+                            let trial = try await client.run(
+                                scenario: scenario,
+                                sample: sample,
                                 iteration: iteration,
-                                kind: "bridge-pcc",
-                                message: error.localizedDescription
+                                reasoningLevel: reasoningLevel,
+                                environment: environment
                             )
-                        )
-                        print("\(scenario.id) run \(iteration): execution failure - \(error.localizedDescription)")
+                            trials.append(trial)
+                            print("\(scenario.id) run \(iteration): \(trial.grade.promptPassed ? "pass" : "fail")")
+                        } catch {
+                            failures.append(
+                                FMFBenchFailure(
+                                    scenarioID: scenario.id,
+                                    sampleID: sample.id,
+                                    iteration: iteration,
+                                    kind: "bridge-pcc",
+                                    message: error.localizedDescription
+                                )
+                            )
+                            print("\(scenario.id) run \(iteration): execution failure - \(error.localizedDescription)")
+                        }
                     }
                 }
             }
+
+            let result = FMFBenchRunResult(
+                suite: .apps,
+                model: .privateCloudCompute,
+                warmupCount: 0,
+                repetitions: options.repetitions,
+                sampleLimit: nil,
+                sessionMode: .cold,
+                reasoningLevel: reasoningLevel,
+                fallbackMode: .disabled,
+                connectivity: .normal,
+                randomizedOrder: false,
+                randomSeed: 20_260_929,
+                modelContextSize: nil,
+                quotaBefore: nil,
+                quotaAfter: nil,
+                startedAt: startedAt,
+                endedAt: Date(),
+                environment: environment,
+                trials: trials,
+                failures: failures,
+                scenarios: scenarios
+            )
+            let report = FMFBenchReport(result: result)
+            try FileManager.default.createDirectory(
+                at: options.outputDirectory,
+                withIntermediateDirectories: true
+            )
+            let suffix = options.outputSuffix(for: reasoningLevel)
+            let jsonURL = options.outputDirectory.appending(path: "apps-pcc-bridge\(suffix).json")
+            let markdownURL = options.outputDirectory.appending(path: "apps-pcc-bridge\(suffix).md")
+            try report.json().write(to: jsonURL, atomically: true, encoding: .utf8)
+            try report.markdown().write(to: markdownURL, atomically: true, encoding: .utf8)
+
+            print("")
+            print(report.markdown())
+            print("FMFBench bridge PCC JSON: \(jsonURL.path())")
+            print("FMFBench bridge PCC Markdown: \(markdownURL.path())")
         }
-
-        let result = FMFBenchRunResult(
-            suite: .apps,
-            model: .privateCloudCompute,
-            warmupCount: 0,
-            repetitions: options.repetitions,
-            sampleLimit: nil,
-            sessionMode: .cold,
-            reasoningLevel: .none,
-            fallbackMode: .disabled,
-            connectivity: .normal,
-            randomizedOrder: false,
-            randomSeed: 20_260_929,
-            modelContextSize: nil,
-            quotaBefore: nil,
-            quotaAfter: nil,
-            startedAt: startedAt,
-            endedAt: Date(),
-            environment: environment,
-            trials: trials,
-            failures: failures,
-            scenarios: scenarios
-        )
-        let report = FMFBenchReport(result: result)
-        try FileManager.default.createDirectory(
-            at: options.outputDirectory,
-            withIntermediateDirectories: true
-        )
-        let jsonURL = options.outputDirectory.appending(path: "apps-pcc-bridge.json")
-        let markdownURL = options.outputDirectory.appending(path: "apps-pcc-bridge.md")
-        try report.json().write(to: jsonURL, atomically: true, encoding: .utf8)
-        try report.markdown().write(to: markdownURL, atomically: true, encoding: .utf8)
-
-        print("")
-        print(report.markdown())
-        print("FMFBench bridge PCC JSON: \(jsonURL.path())")
-        print("FMFBench bridge PCC Markdown: \(markdownURL.path())")
     }
 }
 
@@ -85,6 +90,7 @@ private struct BridgeRunOptions {
     var descriptorPath = "\(NSHomeDirectory())/.afm/bridge/connection.json"
     var outputDirectory = URL(fileURLWithPath: "/tmp/fmfbench-apps-pcc")
     var repetitions = 1
+    var reasoningLevels: [FMFBenchReasoningLevel] = [.none]
 
     static func parse(_ arguments: ArraySlice<String>) throws -> Self {
         var options = Self()
@@ -103,11 +109,31 @@ private struct BridgeRunOptions {
                     throw BridgeRunError.invalidValue(argument: argument, value: value)
                 }
                 options.repetitions = repetitions
+            case "--reasoning":
+                guard let value = iterator.next() else { throw BridgeRunError.missingValue(argument) }
+                options.reasoningLevels = try Self.reasoningLevels(argument: argument, value: value)
             default:
                 throw BridgeRunError.unknownArgument(argument)
             }
         }
         return options
+    }
+
+    func outputSuffix(for reasoningLevel: FMFBenchReasoningLevel) -> String {
+        reasoningLevels.count > 1 ? "-\(reasoningLevel.commandLineName)" : ""
+    }
+
+    private static func reasoningLevels(argument: String, value: String) throws -> [FMFBenchReasoningLevel] {
+        if value == "all" {
+            return [.none, .light, .moderate, .deep]
+        }
+        let levels = value.split(separator: ",").compactMap {
+            FMFBenchReasoningLevel.commandLineValue(String($0))
+        }
+        guard !levels.isEmpty, levels.count == value.split(separator: ",").count else {
+            throw BridgeRunError.invalidValue(argument: argument, value: value)
+        }
+        return levels
     }
 }
 
@@ -142,10 +168,15 @@ private struct BridgeClient {
         scenario: FMFBenchScenario,
         sample: FMFBenchSample,
         iteration: Int,
+        reasoningLevel: FMFBenchReasoningLevel,
         environment: EnvironmentSnapshot
     ) async throws -> FMFBenchTrialResult {
         let startedAt = Date()
-        let response = try await chat(scenario: scenario, sample: sample)
+        let response = try await chat(
+            scenario: scenario,
+            sample: sample,
+            reasoningLevel: reasoningLevel
+        )
         let endedAt = Date()
         let content = response.primaryContent
         let metrics = FMFBenchTrialMetrics(
@@ -173,7 +204,11 @@ private struct BridgeClient {
         )
     }
 
-    private func chat(scenario: FMFBenchScenario, sample: FMFBenchSample) async throws -> BridgeChatResponse {
+    private func chat(
+        scenario: FMFBenchScenario,
+        sample: FMFBenchSample,
+        reasoningLevel: FMFBenchReasoningLevel
+    ) async throws -> BridgeChatResponse {
         var body: [String: Any] = [
             "model": "pcc",
             "messages": [
@@ -182,6 +217,9 @@ private struct BridgeClient {
             ],
             "max_completion_tokens": scenario.maximumResponseTokens
         ]
+        if reasoningLevel != .none {
+            body["reasoning_level"] = reasoningLevel.rawValue
+        }
         if let responseFormat = responseFormat(for: scenario.outputMode) {
             body["response_format"] = responseFormat
         }

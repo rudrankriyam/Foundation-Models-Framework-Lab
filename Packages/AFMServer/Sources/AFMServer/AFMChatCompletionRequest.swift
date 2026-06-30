@@ -43,6 +43,13 @@ public struct AFMChatMessage: Sendable, Equatable {
     }
 }
 
+public enum AFMChatReasoningLevel: String, Sendable, Equatable {
+    case none
+    case light
+    case moderate
+    case deep
+}
+
 public struct AFMChatGenerationRequest: Sendable, Equatable {
     public let model: String
     public let messages: [AFMChatMessage]
@@ -55,6 +62,7 @@ public struct AFMChatGenerationRequest: Sendable, Equatable {
     public let tools: [AFMChatToolDefinition]
     public let toolChoice: AFMChatToolChoice
     public let parallelToolCalls: Bool
+    public let reasoningLevel: AFMChatReasoningLevel?
 
     public init(
         model: String = "system",
@@ -66,7 +74,8 @@ public struct AFMChatGenerationRequest: Sendable, Equatable {
         maximumCompletionTokens: Int? = nil,
         responseFormat: AFMChatResponseFormat? = nil,
         tools: [AFMChatToolDefinition] = [],
-        parallelToolCalls: Bool = true
+        parallelToolCalls: Bool = true,
+        reasoningLevel: AFMChatReasoningLevel? = nil
     ) {
         self.init(
             model: model,
@@ -79,7 +88,8 @@ public struct AFMChatGenerationRequest: Sendable, Equatable {
             responseFormat: responseFormat,
             tools: tools,
             toolChoice: tools.isEmpty ? .none : .auto,
-            parallelToolCalls: parallelToolCalls
+            parallelToolCalls: parallelToolCalls,
+            reasoningLevel: reasoningLevel
         )
     }
 
@@ -94,7 +104,8 @@ public struct AFMChatGenerationRequest: Sendable, Equatable {
         responseFormat: AFMChatResponseFormat? = nil,
         tools: [AFMChatToolDefinition] = [],
         toolChoice: AFMChatToolChoice,
-        parallelToolCalls: Bool = true
+        parallelToolCalls: Bool = true,
+        reasoningLevel: AFMChatReasoningLevel? = nil
     ) {
         self.model = model
         self.messages = messages
@@ -107,6 +118,29 @@ public struct AFMChatGenerationRequest: Sendable, Equatable {
         self.tools = tools
         self.toolChoice = toolChoice
         self.parallelToolCalls = parallelToolCalls
+        self.reasoningLevel = reasoningLevel
+    }
+}
+
+extension AFMChatReasoningLevel: Decodable {
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let value = try container.decode(String.self).lowercased()
+        switch value {
+        case "none", "default":
+            self = .none
+        case "light", "low":
+            self = .light
+        case "moderate", "medium":
+            self = .moderate
+        case "deep", "high":
+            self = .deep
+        default:
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Reasoning level must be one of none, low, medium, or high."
+            )
+        }
     }
 }
 
@@ -114,7 +148,8 @@ extension AFMChatGenerationRequest: Decodable {
     private static let allowedFields: Set<String> = [
         "model", "messages", "stream", "temperature", "top_p",
         "max_completion_tokens", "max_tokens", "tools", "tool_choice",
-        "parallel_tool_calls", "response_format", "stream_options"
+        "parallel_tool_calls", "response_format", "stream_options",
+        "reasoning_level"
     ]
 
     public init(from decoder: Decoder) throws {
@@ -149,6 +184,10 @@ extension AFMChatGenerationRequest: Decodable {
             Bool.self,
             forKey: .init("parallel_tool_calls")
         ) ?? true
+        let reasoningLevel = try container.decodeIfPresent(
+            AFMChatReasoningLevel.self,
+            forKey: .init("reasoning_level")
+        )
 
         try Self.validateModel(model)
         try Self.validateStreaming(stream: stream, streamOptions: streamOptions)
@@ -177,7 +216,8 @@ extension AFMChatGenerationRequest: Decodable {
             responseFormat: responseFormat,
             tools: tools,
             toolChoice: toolChoice,
-            parallelToolCalls: parallelToolCalls
+            parallelToolCalls: parallelToolCalls,
+            reasoningLevel: reasoningLevel
         )
     }
 

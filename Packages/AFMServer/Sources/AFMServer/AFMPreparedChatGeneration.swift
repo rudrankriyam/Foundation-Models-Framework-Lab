@@ -6,4 +6,5 @@ struct AFMPreparedChatGeneration {
     let inputTranscript: Transcript
     let options: GenerationOptions
     let responseSchema: AFMPreparedResponseSchema?
+    let reasoningLevel: AFMChatReasoningLevel?
 }
