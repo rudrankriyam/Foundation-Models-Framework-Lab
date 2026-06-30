@@ -171,6 +171,15 @@ Tools/FMFBench/fmfbench-evaluate replay \
   --judge pcc \
   --format json
 
+# Run a live PCC judge from Terminal through the signed Foundation Lab app.
+# First build and launch Foundation Lab with development signing, then enable
+# Agent Bridge in Settings with ~/.afm as the bridge folder.
+Tools/FMFBench/fmfbench-evaluate replay \
+  Tools/FMFBench/Results/run.json \
+  --output /tmp/fmfbench-evaluations \
+  --judge bridge-pcc \
+  --format json
+
 # Inspect, stream, compare, or export results without opening Xcode.
 xceval doctor --output json
 xceval inspect result.xcevalresult --output json
@@ -199,7 +208,11 @@ The PCC judge artifact only includes successful, deterministic-passing, non-safe
 responses, so quota is not spent on rows that the hard grader already rejected.
 Live PCC judging requires the running `fmfbench-evaluate` executable to be signed
 with `com.apple.developer.private-cloud-compute`; an unsigned SwiftPM CLI process
-cannot inherit that managed entitlement.
+cannot inherit that managed entitlement. For local terminal smoke tests, use
+`--judge bridge-pcc` after launching a signed Foundation Lab macOS app with Agent
+Bridge enabled. That mode writes a bridge judge JSON report instead of a native
+`.xcevalresult`, but still uses `PrivateCloudComputeLanguageModel` inside the
+entitled app process.
 
 ## Execution Surfaces
 

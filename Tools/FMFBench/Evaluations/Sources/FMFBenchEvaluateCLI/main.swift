@@ -94,10 +94,20 @@ struct FMFBenchEvaluateCLI {
     output: URL,
     includeReportMetadata: Bool
   ) async throws -> SubjectiveReplayResult? {
-    guard judge == .privateCloudCompute else { return nil }
     let eligibleRecords = FMFBenchSubjectiveQualityEvaluation.eligibleRecords(in: run)
     guard !eligibleRecords.isEmpty else { return nil }
 
+    if judge == .bridgePrivateCloudCompute {
+      let report = try await FMFBenchBridgeSubjectiveQualityJudge().run(run: run)
+      let reportURL = try report.saveJSON(to: output)
+      return SubjectiveReplayResult(
+        judge: report.judge,
+        sampleCount: report.sampleCount,
+        resultURL: reportURL
+      )
+    }
+
+    guard judge == .privateCloudCompute else { return nil }
     let evaluation = try FMFBenchSubjectiveQualityEvaluation(
       run: run,
       judge: .privateCloudCompute
@@ -144,7 +154,7 @@ struct FMFBenchEvaluateCLI {
       """
       Usage:
         fmfbench-evaluate replay <fmfbench.json> [--output <directory>]
-            [--judge none|pcc] [--no-report-metadata] [--format text|json]
+            [--judge none|pcc|bridge-pcc] [--no-report-metadata] [--format text|json]
 
       Replays recorded FMFBench responses through Apple Evaluations without
       running the model again. Use the standalone xceval CLI to inspect,
@@ -153,6 +163,9 @@ struct FMFBenchEvaluateCLI {
       --judge pcc writes an additional subjective-quality artifact. It uses
       PrivateCloudComputeLanguageModel as a model judge and only sends
       successful, deterministic-passing, non-safety responses to save quota.
+
+      --judge bridge-pcc writes a live bridge judge JSON report through the
+      signed Foundation Lab Agent Bridge at ~/.afm/bridge/connection.json.
       """
     )
   }
@@ -252,6 +265,7 @@ private enum OutputFormat: String {
 private enum SubjectiveJudgeOption: String {
   case none
   case privateCloudCompute
+  case bridgePrivateCloudCompute
 
   init(_ value: String) throws {
     switch value {
@@ -259,6 +273,8 @@ private enum SubjectiveJudgeOption: String {
       self = .none
     case "pcc":
       self = .privateCloudCompute
+    case "bridge-pcc":
+      self = .bridgePrivateCloudCompute
     default:
       throw CLIError.invalidJudge(value)
     }
@@ -287,7 +303,7 @@ private enum CLIError: LocalizedError {
     case .invalidFormat(let value):
       "Unknown output format '\(value)'."
     case .invalidJudge(let value):
-      "Unknown subjective judge '\(value)'. Use 'none' or 'pcc'."
+      "Unknown subjective judge '\(value)'. Use 'none', 'pcc', or 'bridge-pcc'."
     case .invalidUTF8:
       "The replay result could not be encoded as UTF-8."
     }

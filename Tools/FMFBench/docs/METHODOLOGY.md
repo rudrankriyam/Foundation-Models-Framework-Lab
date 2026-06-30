@@ -59,6 +59,9 @@ macOS 27 replay layer converts recorded trials into Apple Evaluations
 running the measured model again. When `fmfbench-evaluate replay --judge pcc` is
 used, a separate subjective-quality artifact uses `PrivateCloudComputeLanguageModel`
 as the judge for successful, deterministic-passing, non-safety responses only.
+For terminal smoke tests where the SwiftPM process is not entitled, `--judge
+bridge-pcc` sends the same eligible rows to a signed Foundation Lab Agent Bridge
+host and writes a separate JSON judge report.
 Rubrics for tone, fluency, usefulness, or other subjective dimensions should:
 
 - Use a frozen judge and rubric version.
