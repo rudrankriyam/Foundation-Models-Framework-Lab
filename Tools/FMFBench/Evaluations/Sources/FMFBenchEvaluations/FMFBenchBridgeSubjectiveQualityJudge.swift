@@ -65,7 +65,8 @@ public struct FMFBenchBridgeSubjectiveQualityJudge {
           tokenUsage: .init(
             inputTokens: response.usage.promptTokens,
             outputTokens: response.usage.completionTokens,
-            totalTokens: response.usage.totalTokens
+            totalTokens: response.usage.totalTokens,
+            reasoningTokens: response.usage.completionTokensDetails.reasoningTokens
           )
         )
       )
@@ -155,6 +156,7 @@ public struct FMFBenchBridgeSubjectiveQualityReport: Encodable {
     public let inputTokens: Int
     public let outputTokens: Int
     public let totalTokens: Int
+    public let reasoningTokens: Int?
   }
 
   public struct SampleResult: Encodable, Sendable {
@@ -402,14 +404,36 @@ private struct FMFBenchBridgeChatResponse: Decodable {
   }
 
   struct Usage: Decodable {
+    struct CompletionTokensDetails: Decodable {
+      let reasoningTokens: Int?
+
+      private enum CodingKeys: String, CodingKey {
+        case reasoningTokens = "reasoning_tokens"
+      }
+    }
+
     let promptTokens: Int
     let completionTokens: Int
     let totalTokens: Int
+    let completionTokensDetails: CompletionTokensDetails
 
     private enum CodingKeys: String, CodingKey {
       case promptTokens = "prompt_tokens"
       case completionTokens = "completion_tokens"
       case totalTokens = "total_tokens"
+      case completionTokensDetails = "completion_tokens_details"
+    }
+
+    init(from decoder: Decoder) throws {
+      let container = try decoder.container(keyedBy: CodingKeys.self)
+      promptTokens = try container.decode(Int.self, forKey: .promptTokens)
+      completionTokens = try container.decode(Int.self, forKey: .completionTokens)
+      totalTokens = try container.decode(Int.self, forKey: .totalTokens)
+      completionTokensDetails =
+        try container.decodeIfPresent(
+          CompletionTokensDetails.self,
+          forKey: .completionTokensDetails
+        ) ?? .init(reasoningTokens: nil)
     }
   }
 

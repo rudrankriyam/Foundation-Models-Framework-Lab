@@ -157,7 +157,8 @@ private struct BridgeClient {
             firstStreamUpdateTokenCount: 0,
             tokenCountSource: .sessionUsage,
             responseCharacterCount: content.count,
-            streamUpdateDates: []
+            streamUpdateDates: [],
+            reasoningTokenCount: response.usage.completionTokensDetails.reasoningTokens
         )
         return FMFBenchTrialResult(
             scenario: scenario,
@@ -237,12 +238,33 @@ private struct BridgeChatResponse: Decodable {
     }
 
     struct Usage: Decodable {
+        struct CompletionTokensDetails: Decodable {
+            let reasoningTokens: Int?
+
+            private enum CodingKeys: String, CodingKey {
+                case reasoningTokens = "reasoning_tokens"
+            }
+        }
+
         let promptTokens: Int
         let completionTokens: Int
+        let completionTokensDetails: CompletionTokensDetails
 
         private enum CodingKeys: String, CodingKey {
             case promptTokens = "prompt_tokens"
             case completionTokens = "completion_tokens"
+            case completionTokensDetails = "completion_tokens_details"
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            promptTokens = try container.decode(Int.self, forKey: .promptTokens)
+            completionTokens = try container.decode(Int.self, forKey: .completionTokens)
+            completionTokensDetails =
+                try container.decodeIfPresent(
+                    CompletionTokensDetails.self,
+                    forKey: .completionTokensDetails
+                ) ?? .init(reasoningTokens: nil)
         }
     }
 
