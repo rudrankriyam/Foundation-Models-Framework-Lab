@@ -2108,7 +2108,7 @@ extension FMFBenchScenarioCatalog {
                 checks: [
                     .contains("catalyst"),
                     .containsAny(["faster", "speed"]),
-                    .containsAny(["not used up", "without being used up"]),
+                    .containsAny(["not used up", "without being used up", "isn't used up", "isn’t used up"]),
                     .contains("chem-14"),
                     .excludes("enzyme"),
                     .maximumWords(55)
