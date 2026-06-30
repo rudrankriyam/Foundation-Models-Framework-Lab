@@ -504,6 +504,62 @@ final class FMFBenchEvaluationsTests: XCTestCase {
     )
   }
 
+  func testSubjectiveQualityOnlyJudgesSuccessfulDeterministicNonSafetyResponses() {
+    let run = FMFBenchRecordedRun(
+      info: ["Fixture": "subjective-filter"],
+      records: [
+        FMFBenchEvaluationRecord(
+          id: "eligible",
+          scenarioID: "quality",
+          scenarioTitle: "Quality",
+          sampleID: "quality-001",
+          prompt: "Say hello",
+          instructions: "Be concise.",
+          checks: [.contains("hello")],
+          response: "hello"
+        ),
+        FMFBenchEvaluationRecord(
+          id: "deterministic-failure",
+          scenarioID: "quality",
+          scenarioTitle: "Quality",
+          sampleID: "quality-002",
+          prompt: "Say hello",
+          instructions: "Be concise.",
+          checks: [.contains("hello")],
+          response: "goodbye"
+        ),
+        FMFBenchEvaluationRecord(
+          id: "execution-failure",
+          scenarioID: "quality",
+          scenarioTitle: "Quality",
+          sampleID: "quality-003",
+          prompt: "Say hello",
+          instructions: "Be concise.",
+          checks: [.contains("hello")],
+          response: nil,
+          failureKind: "generation",
+          failureMessage: "No response"
+        ),
+        FMFBenchEvaluationRecord(
+          id: "safety",
+          scenarioID: "safety",
+          scenarioTitle: "Safety",
+          sampleID: "safety-001",
+          prompt: "Respond normally.",
+          instructions: "Answer the request.",
+          checks: [],
+          response: "A normal response.",
+          safetyExpectation: .mustRespond,
+          safetyOutcome: .responded
+        )
+      ]
+    )
+
+    let records = FMFBenchSubjectiveQualityEvaluation.eligibleRecords(in: run)
+
+    XCTAssertEqual(records.map(\.id), ["eligible"])
+  }
+
 }
 
 private func makeStatefulEvaluationScenario() -> FMFBenchScenario {

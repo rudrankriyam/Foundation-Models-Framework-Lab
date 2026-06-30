@@ -120,7 +120,7 @@ struct FMFBenchCLI {
               ./fmfbench [run] [options]
 
             Options:
-              --suite quick|full|agentic|guardrails|performance|context
+              --suite quick|full|agentic|apps|guardrails|performance|context
               --model on-device|pcc
               --scenario <scenario-id>
               --sample <sample-id>
@@ -129,7 +129,7 @@ struct FMFBenchCLI {
               --samples <count>
               --all-samples
               --session cold|warm
-              --reasoning none|light|moderate|deep
+              --reasoning none|low|medium|high
               --fallback disabled|on-device
               --connectivity normal|offline
               --seed <unsigned-integer>
@@ -253,7 +253,7 @@ private struct CLIOptions {
                 sessionMode = mode
             case "--reasoning":
                 let value = try Self.value(after: argument, at: &index, in: arguments)
-                guard let level = FMFBenchReasoningLevel(rawValue: value) else {
+                guard let level = FMFBenchReasoningLevel.commandLineValue(value) else {
                     throw Error.invalidValue(flag: argument, value: value)
                 }
                 reasoningLevel = level

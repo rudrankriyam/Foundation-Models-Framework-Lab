@@ -54,9 +54,15 @@ The prompt pass rate is intentionally strict because a production action can fai
 only one required field is wrong.
 
 Subjective model judging is intentionally absent from the portable runner. The
-macOS 27 `FMFBenchReplayEvaluation` converts recorded trials into Apple Evaluations
+macOS 27 replay layer converts recorded trials into Apple Evaluations
 `ModelSample`, custom `Evaluator`, and native `ToolCallEvaluator` values without
-running the model again. Future rubrics for tone, fluency, or usefulness should:
+running the measured model again. When `fmfbench-evaluate replay --judge pcc` is
+used, a separate subjective-quality artifact uses `PrivateCloudComputeLanguageModel`
+as the judge for successful, deterministic-passing, non-safety responses only.
+For terminal smoke tests where the SwiftPM process is not entitled, `--judge
+bridge-pcc` sends the same eligible rows to a signed Foundation Lab Agent Bridge
+host and writes a separate JSON judge report.
+Rubrics for tone, fluency, usefulness, or other subjective dimensions should:
 
 - Use a frozen judge and rubric version.
 - Grade responses independently before pairwise comparison.
@@ -67,6 +73,27 @@ running the model again. Future rubrics for tone, fluency, or usefulness should:
 The Evaluations package is deliberately separate from `FMFBenchCore`. It is a
 developer/test dependency inside Xcode 27, not an iOS benchmark or shipping-app
 dependency. See [FMFBench and Apple Evaluations](EVALUATIONS.md).
+
+## Real App Experiences
+
+The Real App Experiences suite (`--suite apps`) converts Apple's public
+Foundation Models Framework app examples into original, repeatable benchmark
+fixtures. The suite covers the same product shapes rather than the exact app data:
+workout adaptation, journal reflection, sports coaching feedback, exercise
+substitution, creator metadata, citation extraction, project capture, document QA,
+learning explanations, and personal content categorization.
+
+These prompts are intentionally harder than the quick sanity suite. They include
+missing information, noisy notes, policy boundaries, exact citations, forbidden
+inventions, and phrasing variants that should not change the expected outcome. Each
+capability has ten fixed samples so a suite result reflects repeated behavior
+rather than one lucky prompt.
+
+This suite follows the benchmark-design pattern used by practical LLM evals:
+task-specific data, automated deterministic scoring where possible, multiple
+variants per capability, explicit failure evidence, and model-judge output only as
+a secondary replay layer. It is not a leaderboard benchmark; it is a regression and
+device-comparison benchmark for mobile app behaviors.
 
 ## Agentic Tool Scoring
 

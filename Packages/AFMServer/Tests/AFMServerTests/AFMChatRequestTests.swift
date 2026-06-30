@@ -353,6 +353,36 @@ func chatRequestOptionValidation() {
     )
 }
 
+@Test(
+    "Chat requests decode reasoning level aliases",
+    arguments: [
+        ("none", AFMChatReasoningLevel.none),
+        ("default", AFMChatReasoningLevel.none),
+        ("light", AFMChatReasoningLevel.light),
+        ("low", AFMChatReasoningLevel.light),
+        ("moderate", AFMChatReasoningLevel.moderate),
+        ("medium", AFMChatReasoningLevel.moderate),
+        ("deep", AFMChatReasoningLevel.deep),
+        ("high", AFMChatReasoningLevel.deep)
+    ]
+)
+func chatRequestReasoningLevelAliases(value: String, expected: AFMChatReasoningLevel) throws {
+    let request = try decodeChatRequest(
+        #"{"messages":[{"role":"user","content":"Hi"}],"reasoning_level":"\#(value)"}"#
+    )
+
+    #expect(request.reasoningLevel == expected)
+}
+
+@Test("Chat requests reject unknown reasoning levels")
+func chatRequestRejectsUnknownReasoningLevel() {
+    expectChatValidationError(
+        #"{"messages":[{"role":"user","content":"Hi"}],"reasoning_level":"extreme"}"#,
+        parameter: "reasoning_level",
+        code: "invalid_field"
+    )
+}
+
 private let validUserRequestJSON = #"{"messages":[{"role":"user","content":"Hi"}]}"#
 
 private func responseFormatRequestJSON(jsonSchema: String) -> String {

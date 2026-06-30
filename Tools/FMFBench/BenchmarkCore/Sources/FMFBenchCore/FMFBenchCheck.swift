@@ -15,6 +15,7 @@ public enum FMFBenchCheck: Codable, Sendable {
     case maximumWords(Int)
     case jsonEquals(path: String, value: FMFBenchJSONValue)
     case jsonContains(path: String, values: [String])
+    case jsonContainsAny(path: String, groups: [[String]])
     case toolCalled(String)
     case toolArgumentEquals(tool: String, argument: String, value: FMFBenchJSONValue)
     case toolArgumentContains(tool: String, argument: String, value: String)
@@ -39,6 +40,9 @@ public enum FMFBenchCheck: Codable, Sendable {
             return "\(path) equals \(value.description)"
         case .jsonContains(let path, let values):
             return "\(path) contains \(values.joined(separator: ", "))"
+        case .jsonContainsAny(let path, let groups):
+            let labels = groups.map { $0.joined(separator: " or ") }
+            return "\(path) contains alternatives \(labels.joined(separator: ", "))"
         case .toolCalled(let name):
             return "Calls \(name)"
         case .toolArgumentEquals(let tool, let argument, let value):
@@ -63,7 +67,7 @@ public enum FMFBenchCheck: Codable, Sendable {
             .toolNotCalled:
             true
         case .contains, .containsAny, .excludes, .minimumWords, .maximumWords, .jsonEquals,
-            .jsonContains, .stateEquals, .stateContains:
+            .jsonContains, .jsonContainsAny, .stateEquals, .stateContains:
             false
         }
     }

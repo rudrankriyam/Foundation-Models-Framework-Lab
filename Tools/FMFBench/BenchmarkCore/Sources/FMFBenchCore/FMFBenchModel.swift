@@ -20,6 +20,7 @@ public enum FMFBenchSuite: String, CaseIterable, Codable, Identifiable, Sendable
     case quick
     case full
     case agentic
+    case apps
     case guardrails
     case performance
     case context
@@ -34,6 +35,8 @@ public enum FMFBenchSuite: String, CaseIterable, Codable, Identifiable, Sendable
             "Practical Full"
         case .agentic:
             "Agentic Tools"
+        case .apps:
+            "Real App Experiences"
         case .guardrails:
             "Safety Guardrails"
         case .performance:
@@ -47,7 +50,7 @@ public enum FMFBenchSuite: String, CaseIterable, Codable, Identifiable, Sendable
         switch self {
         case .quick:
             1
-        case .full, .agentic, .guardrails, .performance, .context:
+        case .full, .agentic, .apps, .guardrails, .performance, .context:
             nil
         }
     }
@@ -143,6 +146,21 @@ public enum FMFBenchReasoningLevel: String, CaseIterable, Codable, Identifiable,
 
     public var id: String { rawValue }
 
+    public static func commandLineValue(_ value: String) -> Self? {
+        switch value.lowercased() {
+        case "none", "default":
+            FMFBenchReasoningLevel.none
+        case "light", "low":
+            .light
+        case "moderate", "medium":
+            .moderate
+        case "deep", "high":
+            .deep
+        default:
+            nil
+        }
+    }
+
     public var displayName: String {
         switch self {
         case .none:
@@ -153,6 +171,19 @@ public enum FMFBenchReasoningLevel: String, CaseIterable, Codable, Identifiable,
             "Moderate"
         case .deep:
             "Deep"
+        }
+    }
+
+    public var commandLineName: String {
+        switch self {
+        case .none:
+            "none"
+        case .light:
+            "low"
+        case .moderate:
+            "medium"
+        case .deep:
+            "high"
         }
     }
 }

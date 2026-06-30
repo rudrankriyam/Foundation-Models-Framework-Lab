@@ -5,7 +5,7 @@ import Foundation
 // swiftlint:disable closure_parameter_position file_length line_length type_body_length
 public enum FMFBenchScenarioCatalog {
     public static let all: [FMFBenchScenario] =
-        practical + agentic + safety + [syntheticThroughput, contextLimit]
+        practical + appExperiences + agentic + safety + [syntheticThroughput, contextLimit]
 
     public static let practical: [FMFBenchScenario] = [
         taskCapture,
@@ -46,6 +46,8 @@ public enum FMFBenchScenarioCatalog {
             practical
         case .agentic:
             agentic
+        case .apps:
+            appExperiences
         case .guardrails:
             safety
         case .performance:

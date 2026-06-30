@@ -239,6 +239,45 @@ struct FMFBenchGraderTests {
     }
 
     @Test
+    func gradesJSONContentWithGroupedAlternatives() {
+        let response = """
+            {
+              "answer": "The renewal reminder is sent 14 days before renewal; \
+              support response target is two business days; there is no uptime guarantee."
+            }
+            """
+        let passingGrade = FMFBenchGrader.grade(
+            response: response,
+            checks: [
+                .jsonContainsAny(
+                    path: "answer",
+                    groups: [
+                        ["14 days"],
+                        ["two business days"],
+                        ["not specified", "no uptime guarantee"]
+                    ]
+                )
+            ]
+        )
+        let failingGrade = FMFBenchGrader.grade(
+            response: response,
+            checks: [
+                .jsonContainsAny(
+                    path: "answer",
+                    groups: [
+                        ["14 days"],
+                        ["24 hours"],
+                        ["not specified", "no uptime guarantee"]
+                    ]
+                )
+            ]
+        )
+
+        #expect(passingGrade.promptPassed)
+        #expect(!failingGrade.promptPassed)
+    }
+
+    @Test
     func noCreationCasesAllowSafeReadOnlyChecks() {
         let emptyState = FMFBenchStateSnapshot(
             values: ["reminders.count": .integer(0)]
@@ -503,6 +542,27 @@ struct FMFBenchGraderTests {
         for suite in FMFBenchSuite.allCases where suite != .quick {
             #expect(FMFBenchRunConfiguration(suite: suite).sampleLimit == nil)
         }
+    }
+
+    @Test
+    func appsSuiteContainsRealAppExperiencePrompts() {
+        let scenarios = FMFBenchScenarioCatalog.scenarios(for: .apps)
+
+        #expect(scenarios.count == 10)
+        #expect(scenarios.map(\.id).contains("app-workout-adaptation"))
+        #expect(scenarios.map(\.id).contains("app-content-classification"))
+        #expect(scenarios.allSatisfy { $0.samples.count == 10 })
+        #expect(scenarios.flatMap(\.samples).count == 100)
+        #expect(Set(scenarios.flatMap(\.samples).map(\.id)).count == 100)
+        #expect(scenarios.allSatisfy { !$0.inspiredBy.isEmpty })
+        #expect(scenarios.allSatisfy { scenario in
+            scenario.samples.allSatisfy { !$0.checks.isEmpty }
+        })
+        #expect(scenarios.allSatisfy { scenario in
+            scenario.samples.allSatisfy {
+                $0.prompt.contains("Mobile fixture:") && $0.prompt.contains("Source artifact:")
+            }
+        })
     }
 
     @Test

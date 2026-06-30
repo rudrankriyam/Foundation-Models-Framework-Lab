@@ -60,6 +60,24 @@ security cms -D -i \
 Both outputs must contain `com.apple.developer.private-cloud-compute = true`.
 See Apple's [Entitlements documentation](https://developer.apple.com/documentation/bundleresources/entitlements).
 
+For local terminal PCC contestant runs, use the signed Foundation Lab Agent
+Bridge and the bridge runner:
+
+```bash
+swift run --package-path Tools/FMFBench/BenchmarkCore fmfbench-bridge-run \
+  --reasoning low \
+  --repetitions 3 \
+  --output /tmp/fmfbench-apps-pcc
+```
+
+This keeps the unsigned SwiftPM process out of `PrivateCloudComputeLanguageModel`
+construction. The signed app owns the PCC session; the bridge runner sends the
+same Real App Experiences prompts, uses matching JSON schemas for guided tasks,
+and grades the returned content with deterministic FMFBench graders.
+Pass `--reasoning none`, `--reasoning low`, `--reasoning medium`,
+`--reasoning high`, or `--reasoning all`. The `all` mode writes one JSON and
+Markdown report per reasoning level.
+
 ## June 12, 2026 Unsigned Control
 
 Environment:
@@ -105,6 +123,9 @@ measured repetition per sample, and an uncommitted development build.
 
 - Record every availability, quota, network, and generation failure.
 - Keep the reasoning level fixed.
+- Use `--reasoning none`, `--reasoning low`, `--reasoning medium`, or
+  `--reasoning high`; use `--reasoning all` only when intentionally producing
+  one report per level.
 - Record network type and approximate region manually until FMFBench captures
   them.
 - Do not compare PCC token rate directly with on-device hardware inference.

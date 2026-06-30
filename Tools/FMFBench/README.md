@@ -58,6 +58,14 @@ data, and same-title reminders at different times. FMFBench grades the ordered t
 typed arguments, user-visible outcome, and final world state. The fixture resets before
 every trial; it never reads Contacts or writes Reminders on the device.
 
+The **Real App Experiences** suite is inspired by Apple's public Foundation Models
+Framework app showcase. It turns the public app patterns into original,
+deterministically graded fixtures for workout adaptation, journal reflection, sports
+feedback, exercise substitution, creator metadata, citation extraction, project
+capture, document QA, learning explanations, and personal content categorization.
+Each capability has ten fixed samples covering ordinary, noisy, edge-case, and
+cross-domain inputs so model comparisons are not decided by one lucky prompt.
+
 ## Metrics
 
 Every measured trial records:
@@ -119,6 +127,15 @@ swift run fmfbench --suite quick --session warm --seed 20260929
 # Stateful multi-tool execution with a resettable synthetic world
 swift run fmfbench --suite agentic --warmups 0 --repetitions 1 --no-randomize
 
+# Real app experience prompts
+swift run fmfbench --suite apps --warmups 0 --repetitions 1 --no-randomize
+
+# Real app experience prompts through the signed Foundation Lab Agent Bridge using PCC
+swift run fmfbench-bridge-run --repetitions 3 --reasoning low --output /tmp/fmfbench-apps-pcc
+
+# Run PCC Real App Experiences once at every reasoning level
+swift run fmfbench-bridge-run --repetitions 1 --reasoning all --output /tmp/fmfbench-apps-pcc-reasoning
+
 # Reproduce one exact case and preserve tool/state evidence for empty responses
 swift run fmfbench --suite agentic --sample personal-organizer-012 --warmups 0
 
@@ -163,6 +180,23 @@ Tools/FMFBench/fmfbench-evaluate replay \
   --output /tmp/fmfbench-evaluations \
   --format json
 
+# Add a PCC model-judge artifact for subjective quality.
+# The deterministic replay artifact remains the primary result.
+Tools/FMFBench/fmfbench-evaluate replay \
+  Tools/FMFBench/Results/run.json \
+  --output /tmp/fmfbench-evaluations \
+  --judge pcc \
+  --format json
+
+# Run a live PCC judge from Terminal through the signed Foundation Lab app.
+# First build and launch Foundation Lab with development signing, then enable
+# Agent Bridge in Settings with ~/.afm as the bridge folder.
+Tools/FMFBench/fmfbench-evaluate replay \
+  Tools/FMFBench/Results/run.json \
+  --output /tmp/fmfbench-evaluations \
+  --judge bridge-pcc \
+  --format json
+
 # Inspect, stream, compare, or export results without opening Xcode.
 xceval doctor --output json
 xceval inspect result.xcevalresult --output json
@@ -182,6 +216,20 @@ CLI is a separate public tool and does not know about FMFBench’s JSON schema.
 See
 [FMFBench and Apple Evaluations](docs/EVALUATIONS.md) for the framework locations,
 storage format, Xcode integration, beta caveats, and complete Apple resource list.
+
+For official SystemLanguageModel versus PrivateCloudComputeLanguageModel comparison,
+run the same suite, sample selection, repetition count, seed, and session mode for
+each model. Replay both JSON reports with `--judge pcc`, then compare the resulting
+deterministic artifacts and the additional subjective-quality artifacts separately.
+The PCC judge artifact only includes successful, deterministic-passing, non-safety
+responses, so quota is not spent on rows that the hard grader already rejected.
+Live PCC judging requires the running `fmfbench-evaluate` executable to be signed
+with `com.apple.developer.private-cloud-compute`; an unsigned SwiftPM CLI process
+cannot inherit that managed entitlement. For local terminal smoke tests, use
+`--judge bridge-pcc` after launching a signed Foundation Lab macOS app with Agent
+Bridge enabled. That mode writes a bridge judge JSON report instead of a native
+`.xcevalresult`, but still uses `PrivateCloudComputeLanguageModel` inside the
+entitled app process.
 
 ## Execution Surfaces
 

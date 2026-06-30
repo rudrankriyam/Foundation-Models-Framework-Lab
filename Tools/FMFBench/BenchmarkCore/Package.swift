@@ -22,6 +22,10 @@ let package = Package(
         .executable(
             name: "FMFBenchCLI",
             targets: ["FMFBenchCLI"]
+        ),
+        .executable(
+            name: "fmfbench-bridge-run",
+            targets: ["FMFBenchBridgeRunner"]
         )
     ],
     dependencies: [
@@ -36,6 +40,10 @@ let package = Package(
         ),
         .executableTarget(
             name: "FMFBenchCLI",
+            dependencies: ["FMFBenchCore"]
+        ),
+        .executableTarget(
+            name: "FMFBenchBridgeRunner",
             dependencies: ["FMFBenchCore"]
         ),
         .testTarget(
