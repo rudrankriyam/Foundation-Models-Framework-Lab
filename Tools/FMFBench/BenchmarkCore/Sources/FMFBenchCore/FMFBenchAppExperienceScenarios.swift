@@ -1,24 +1,24 @@
 import Foundation
 
-// Real app experience prompts inspired by Apple's Foundation Models Framework
-// Newsroom examples. The prompts are repo-owned fixtures, not copied app text.
+// Real app experience prompts inspired by Apple's public Foundation Models
+// app showcase. The prompts are repo-owned fixtures, not copied app text.
 // swiftlint:disable file_length line_length
 extension FMFBenchScenarioCatalog {
-    public static let newsroom: [FMFBenchScenario] = [
-        newsroomWorkoutAdaptation,
-        newsroomJournalReflection,
-        newsroomSportsFeedback,
-        newsroomExerciseSubstitution,
-        newsroomCreatorMetadata,
-        newsroomCitationExtraction,
-        newsroomProjectCapture,
-        newsroomDocumentQuestionAnswering,
-        newsroomLearningExplanation,
-        newsroomSupportReply
+    public static let appExperiences: [FMFBenchScenario] = [
+        appWorkoutAdaptation,
+        appJournalReflection,
+        appSportsFeedback,
+        appExerciseSubstitution,
+        appCreatorMetadata,
+        appCitationExtraction,
+        appProjectCapture,
+        appDocumentQuestionAnswering,
+        appLearningExplanation,
+        appSupportReply
     ]
 
-    public static let newsroomWorkoutAdaptation = FMFBenchScenario(
-        id: "newsroom-workout-adaptation",
+    public static let appWorkoutAdaptation = FMFBenchScenario(
+        id: "app-workout-adaptation",
         title: "Workout adaptation from user constraints",
         summary: "Builds a structured workout plan from duration, equipment, and recovery constraints.",
         category: .workoutGeneration,
@@ -31,7 +31,7 @@ extension FMFBenchScenarioCatalog {
         maximumResponseTokens: 180,
         samples: [
             .init(
-                id: "newsroom-workout-adaptation-001",
+                id: "app-workout-adaptation-001",
                 prompt: """
                     Create a 14-minute travel workout for a hotel room. Use exactly four exercises:
                     wall sit, incline push-up, dead bug, and suitcase march. The user has a sore knee,
@@ -50,8 +50,8 @@ extension FMFBenchScenarioCatalog {
         ]
     )
 
-    public static let newsroomJournalReflection = FMFBenchScenario(
-        id: "newsroom-journal-reflection",
+    public static let appJournalReflection = FMFBenchScenario(
+        id: "app-journal-reflection",
         title: "Grounded journal reflection",
         summary: "Reflects on a private journal entry without diagnosis or invented events.",
         category: .summarization,
@@ -64,7 +64,7 @@ extension FMFBenchScenarioCatalog {
         maximumResponseTokens: 110,
         samples: [
             .init(
-                id: "newsroom-journal-reflection-001",
+                id: "app-journal-reflection-001",
                 prompt: """
                     Journal entry: I felt scattered after three context switches this morning, but
                     the quiet walk after lunch helped. I finished the onboarding draft and enjoyed
@@ -81,8 +81,8 @@ extension FMFBenchScenarioCatalog {
         ]
     )
 
-    public static let newsroomSportsFeedback = FMFBenchScenario(
-        id: "newsroom-sports-feedback",
+    public static let appSportsFeedback = FMFBenchScenario(
+        id: "app-sports-feedback",
         title: "Sports coaching feedback",
         summary: "Turns sports session observations into concise coaching feedback.",
         category: .summarization,
@@ -95,7 +95,7 @@ extension FMFBenchScenarioCatalog {
         maximumResponseTokens: 130,
         samples: [
             .init(
-                id: "newsroom-sports-feedback-001",
+                id: "app-sports-feedback-001",
                 prompt: """
                     Tennis session notes: First serve landed 62 percent in. Backhand return depth
                     improved in the final set. Forehand contact drifted late on wide balls. The player
@@ -114,8 +114,8 @@ extension FMFBenchScenarioCatalog {
         ]
     )
 
-    public static let newsroomExerciseSubstitution = FMFBenchScenario(
-        id: "newsroom-exercise-substitution",
+    public static let appExerciseSubstitution = FMFBenchScenario(
+        id: "app-exercise-substitution",
         title: "Exercise substitution under constraints",
         summary: "Recommends a replacement exercise that fits equipment and limitation constraints.",
         category: .exerciseSubstitution,
@@ -128,7 +128,7 @@ extension FMFBenchScenarioCatalog {
         maximumResponseTokens: 90,
         samples: [
             .init(
-                id: "newsroom-exercise-substitution-001",
+                id: "app-exercise-substitution-001",
                 prompt: """
                     Unavailable exercise: barbell back squat. Limitation: no barbell and avoid heavy spinal loading.
                     Available catalog: goblet squat uses one dumbbell and keeps the load in front; split squat needs
@@ -145,8 +145,8 @@ extension FMFBenchScenarioCatalog {
         ]
     )
 
-    public static let newsroomCreatorMetadata = FMFBenchScenario(
-        id: "newsroom-creator-metadata",
+    public static let appCreatorMetadata = FMFBenchScenario(
+        id: "app-creator-metadata",
         title: "Creator clip metadata",
         summary: "Generates constrained creator-facing title and tags from clip notes.",
         category: .creativeWriting,
@@ -159,7 +159,7 @@ extension FMFBenchScenarioCatalog {
         maximumResponseTokens: 120,
         samples: [
             .init(
-                id: "newsroom-creator-metadata-001",
+                id: "app-creator-metadata-001",
                 prompt: """
                     Clip notes: handheld cooking reel, rosemary focaccia, afternoon window light,
                     friend laughing off camera, cozy kitchen sound. Need a warm caption under 18 words
@@ -179,8 +179,8 @@ extension FMFBenchScenarioCatalog {
         ]
     )
 
-    public static let newsroomCitationExtraction = FMFBenchScenario(
-        id: "newsroom-citation-extraction",
+    public static let appCitationExtraction = FMFBenchScenario(
+        id: "app-citation-extraction",
         title: "Citation extraction from noisy note",
         summary: "Extracts bibliographic fields exactly while ignoring internal markers.",
         category: .citationExtraction,
@@ -190,7 +190,7 @@ extension FMFBenchScenarioCatalog {
         maximumResponseTokens: 100,
         samples: [
             .init(
-                id: "newsroom-citation-extraction-001",
+                id: "app-citation-extraction-001",
                 prompt: """
                     Bibliography note: Aisha Patel. “Grounded Generation for Notes.” Personal Computing, 2026.
                     Ignore draft marker [internal-review] and do not include the library shelf code PC-77.
@@ -207,8 +207,8 @@ extension FMFBenchScenarioCatalog {
         ]
     )
 
-    public static let newsroomProjectCapture = FMFBenchScenario(
-        id: "newsroom-project-capture",
+    public static let appProjectCapture = FMFBenchScenario(
+        id: "app-project-capture",
         title: "Project task capture",
         summary: "Extracts a concrete task from conversational project-planning input.",
         category: .taskParsing,
@@ -221,7 +221,7 @@ extension FMFBenchScenarioCatalog {
         maximumResponseTokens: 120,
         samples: [
             .init(
-                id: "newsroom-project-capture-001",
+                id: "app-project-capture-001",
                 prompt: """
                     Reference date: 2026-06-30. Add “Send beta invite email” to my Launch list
                     for July 3, 2026 at 10:00 AM. Tag it with beta and support. Return dueDate as
@@ -237,8 +237,8 @@ extension FMFBenchScenarioCatalog {
         ]
     )
 
-    public static let newsroomDocumentQuestionAnswering = FMFBenchScenario(
-        id: "newsroom-document-qa",
+    public static let appDocumentQuestionAnswering = FMFBenchScenario(
+        id: "app-document-qa",
         title: "Document QA with missing information",
         summary: "Answers from supplied documents and refuses to invent absent facts.",
         category: .documentQuestionAnswering,
@@ -251,7 +251,7 @@ extension FMFBenchScenarioCatalog {
         maximumResponseTokens: 150,
         samples: [
             .init(
-                id: "newsroom-document-qa-001",
+                id: "app-document-qa-001",
                 prompt: """
                     [sec-1] Subscription starts August 1, 2026 and lasts twelve months.
                     [sec-2] Customer data must be deleted within 30 days after verified written termination request.
@@ -268,8 +268,8 @@ extension FMFBenchScenarioCatalog {
         ]
     )
 
-    public static let newsroomLearningExplanation = FMFBenchScenario(
-        id: "newsroom-learning-explanation",
+    public static let appLearningExplanation = FMFBenchScenario(
+        id: "app-learning-explanation",
         title: "Grounded learning explanation",
         summary: "Explains a concept from a supplied lesson card without extra facts.",
         category: .groundedExplanation,
@@ -282,7 +282,7 @@ extension FMFBenchScenarioCatalog {
         maximumResponseTokens: 120,
         samples: [
             .init(
-                id: "newsroom-learning-explanation-001",
+                id: "app-learning-explanation-001",
                 prompt: """
                     Lesson card source ID cell-42: Mitochondria release usable energy from food.
                     Cells use that energy for work such as movement, repair, and transport.
@@ -300,8 +300,8 @@ extension FMFBenchScenarioCatalog {
         ]
     )
 
-    public static let newsroomSupportReply = FMFBenchScenario(
-        id: "newsroom-support-reply",
+    public static let appSupportReply = FMFBenchScenario(
+        id: "app-support-reply",
         title: "Policy-grounded support reply",
         summary: "Drafts a customer reply that follows support-policy boundaries.",
         category: .summarization,
@@ -314,7 +314,7 @@ extension FMFBenchScenarioCatalog {
         maximumResponseTokens: 180,
         samples: [
             .init(
-                id: "newsroom-support-reply-001",
+                id: "app-support-reply-001",
                 prompt: """
                     Customer: I paid for Pro yesterday but the app still shows Free. I already tried
                     force quitting. This is for my team demo tomorrow.

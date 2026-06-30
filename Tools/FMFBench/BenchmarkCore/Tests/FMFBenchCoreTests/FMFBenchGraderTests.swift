@@ -506,12 +506,12 @@ struct FMFBenchGraderTests {
     }
 
     @Test
-    func newsroomSuiteContainsRealAppExperiencePrompts() {
-        let scenarios = FMFBenchScenarioCatalog.scenarios(for: .newsroom)
+    func appsSuiteContainsRealAppExperiencePrompts() {
+        let scenarios = FMFBenchScenarioCatalog.scenarios(for: .apps)
 
         #expect(scenarios.count == 10)
-        #expect(scenarios.map(\.id).contains("newsroom-workout-adaptation"))
-        #expect(scenarios.map(\.id).contains("newsroom-support-reply"))
+        #expect(scenarios.map(\.id).contains("app-workout-adaptation"))
+        #expect(scenarios.map(\.id).contains("app-support-reply"))
         #expect(scenarios.allSatisfy { !$0.inspiredBy.isEmpty })
         #expect(scenarios.allSatisfy { scenario in
             scenario.samples.allSatisfy { !$0.checks.isEmpty }

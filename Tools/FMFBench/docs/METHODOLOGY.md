@@ -76,7 +76,7 @@ dependency. See [FMFBench and Apple Evaluations](EVALUATIONS.md).
 
 ## Real App Experiences
 
-The Real App Experiences suite (`--suite newsroom`) converts Apple's public
+The Real App Experiences suite (`--suite apps`) converts Apple's public
 Foundation Models Framework app examples into original, repeatable benchmark
 fixtures. The suite covers the same product shapes rather than the exact app data:
 workout adaptation, journal reflection, sports coaching feedback, exercise
