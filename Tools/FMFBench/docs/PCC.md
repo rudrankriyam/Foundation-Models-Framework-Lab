@@ -60,6 +60,19 @@ security cms -D -i \
 Both outputs must contain `com.apple.developer.private-cloud-compute = true`.
 See Apple's [Entitlements documentation](https://developer.apple.com/documentation/bundleresources/entitlements).
 
+For local terminal PCC contestant runs, use the signed Foundation Lab Agent
+Bridge and the bridge runner:
+
+```bash
+swift run --package-path Tools/FMFBench/BenchmarkCore fmfbench-bridge-run \
+  --output /tmp/fmfbench-apps-pcc
+```
+
+This keeps the unsigned SwiftPM process out of `PrivateCloudComputeLanguageModel`
+construction. The signed app owns the PCC session; the bridge runner sends the
+same Real App Experiences prompts, uses matching JSON schemas for guided tasks,
+and grades the returned content with deterministic FMFBench graders.
+
 ## June 12, 2026 Unsigned Control
 
 Environment:
