@@ -54,9 +54,12 @@ The prompt pass rate is intentionally strict because a production action can fai
 only one required field is wrong.
 
 Subjective model judging is intentionally absent from the portable runner. The
-macOS 27 `FMFBenchReplayEvaluation` converts recorded trials into Apple Evaluations
+macOS 27 replay layer converts recorded trials into Apple Evaluations
 `ModelSample`, custom `Evaluator`, and native `ToolCallEvaluator` values without
-running the model again. Future rubrics for tone, fluency, or usefulness should:
+running the measured model again. When `fmfbench-evaluate replay --judge pcc` is
+used, a separate subjective-quality artifact uses `PrivateCloudComputeLanguageModel`
+as the judge for successful, deterministic-passing, non-safety responses only.
+Rubrics for tone, fluency, usefulness, or other subjective dimensions should:
 
 - Use a frozen judge and rubric version.
 - Grade responses independently before pairwise comparison.

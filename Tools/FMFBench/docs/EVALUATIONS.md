@@ -153,9 +153,13 @@ The public Xcode 27 interface includes:
 - `SampleGenerator` with session providers, sampling strategies, validation,
   accepted samples, and rejected samples.
 
-FMFBench currently uses deterministic evaluators and native tool trajectory
-evaluation. Model judges should be added only for genuinely subjective criteria
-and only after calibration against human ratings.
+FMFBench uses deterministic evaluators and native tool trajectory evaluation as
+the primary replay artifact. When explicitly requested, `fmfbench-evaluate` also
+writes a separate subjective-quality artifact that uses
+`PrivateCloudComputeLanguageModel` as a model judge for successful,
+deterministic-passing, non-safety responses. The judge scores genuinely
+subjective criteria and should still be calibrated against human ratings before
+its aggregate scores are treated as release evidence.
 
 ## Command-Line Tools
 
@@ -167,6 +171,13 @@ result schema and deterministic graders:
 Tools/FMFBench/fmfbench-evaluate replay \
   Tools/FMFBench/Results/run.json \
   --output /tmp/fmfbench-evaluations \
+  --format json
+
+# Also write a PCC-judged subjective-quality artifact.
+Tools/FMFBench/fmfbench-evaluate replay \
+  Tools/FMFBench/Results/run.json \
+  --output /tmp/fmfbench-evaluations \
+  --judge pcc \
   --format json
 ```
 
@@ -268,6 +279,21 @@ and safety separate:
 - Original duration and TTFT.
 - Original output tokens per second.
 - Original peak resident memory when recorded.
+
+With `--judge pcc`, the additional subjective artifact reports:
+
+- PCC-judged helpfulness.
+- PCC-judged clarity.
+- PCC-judged completeness.
+
+The subjective artifact is intentionally filtered to deterministic-passing,
+non-safety responses. This saves PCC quota and keeps hard failures in the
+deterministic report where they belong.
+
+Live PCC judging requires the `fmfbench-evaluate` process to be signed with
+`com.apple.developer.private-cloud-compute`. Without that managed entitlement,
+the command fails before constructing `PrivateCloudComputeLanguageModel` so the
+Apple framework does not terminate the process.
 
 Metrics with no source values are not aggregated. This avoids meaningless `NaN`
 summary values while preserving ignored per-row metrics and their rationales.

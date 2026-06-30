@@ -163,6 +163,14 @@ Tools/FMFBench/fmfbench-evaluate replay \
   --output /tmp/fmfbench-evaluations \
   --format json
 
+# Add a PCC model-judge artifact for subjective quality.
+# The deterministic replay artifact remains the primary result.
+Tools/FMFBench/fmfbench-evaluate replay \
+  Tools/FMFBench/Results/run.json \
+  --output /tmp/fmfbench-evaluations \
+  --judge pcc \
+  --format json
+
 # Inspect, stream, compare, or export results without opening Xcode.
 xceval doctor --output json
 xceval inspect result.xcevalresult --output json
@@ -182,6 +190,16 @@ CLI is a separate public tool and does not know about FMFBench’s JSON schema.
 See
 [FMFBench and Apple Evaluations](docs/EVALUATIONS.md) for the framework locations,
 storage format, Xcode integration, beta caveats, and complete Apple resource list.
+
+For official SystemLanguageModel versus PrivateCloudComputeLanguageModel comparison,
+run the same suite, sample selection, repetition count, seed, and session mode for
+each model. Replay both JSON reports with `--judge pcc`, then compare the resulting
+deterministic artifacts and the additional subjective-quality artifacts separately.
+The PCC judge artifact only includes successful, deterministic-passing, non-safety
+responses, so quota is not spent on rows that the hard grader already rejected.
+Live PCC judging requires the running `fmfbench-evaluate` executable to be signed
+with `com.apple.developer.private-cloud-compute`; an unsigned SwiftPM CLI process
+cannot inherit that managed entitlement.
 
 ## Execution Surfaces
 

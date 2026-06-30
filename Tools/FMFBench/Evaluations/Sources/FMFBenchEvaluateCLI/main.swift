@@ -34,6 +34,7 @@ struct FMFBenchEvaluateCLI {
     )
     let outputOption = try parser.option("--output")
     let includeReportMetadata = !parser.flag("--no-report-metadata")
+    let judge = try SubjectiveJudgeOption(parser.option("--judge") ?? "none")
     let input = try parser.requiredPath(label: "FMFBench JSON result")
     try parser.finish()
 
@@ -52,11 +53,25 @@ struct FMFBenchEvaluateCLI {
       to: output,
       includeReportMetadata: includeReportMetadata
     )
+    let subjective = try await subjectiveResult(
+      for: run,
+      judge: judge,
+      output: output,
+      includeReportMetadata: includeReportMetadata
+    )
 
     switch format {
     case .text:
       print("Replayed \(run.records.count) recorded FMFBench sample(s).")
       print("Evaluation result: \(resultURL.path)")
+      if let subjective {
+        print(
+          "Subjective \(subjective.judge) judge result "
+            + "(\(subjective.sampleCount) sample(s)): \(subjective.resultURL.path)"
+        )
+      } else if judge != .none {
+        print("Subjective judge skipped: no eligible deterministic-passing samples.")
+      }
       print("Inspect with: xceval inspect \(resultURL.path)")
     case .json:
       try printJSON(
@@ -64,10 +79,44 @@ struct FMFBenchEvaluateCLI {
           source: input.path,
           sampleCount: run.records.count,
           evaluationResult: resultURL.path,
-          evaluationInfo: run.info
+          evaluationInfo: run.info,
+          subjectiveJudge: subjective?.judge,
+          subjectiveSampleCount: subjective?.sampleCount ?? 0,
+          subjectiveEvaluationResult: subjective?.resultURL.path
         )
       )
     }
+  }
+
+  private static func subjectiveResult(
+    for run: FMFBenchRecordedRun,
+    judge: SubjectiveJudgeOption,
+    output: URL,
+    includeReportMetadata: Bool
+  ) async throws -> SubjectiveReplayResult? {
+    guard judge == .privateCloudCompute else { return nil }
+    let eligibleRecords = FMFBenchSubjectiveQualityEvaluation.eligibleRecords(in: run)
+    guard !eligibleRecords.isEmpty else { return nil }
+
+    let evaluation = try FMFBenchSubjectiveQualityEvaluation(
+      run: run,
+      judge: .privateCloudCompute
+    )
+    var info = run.info
+    info["FMFBench Evaluation Mode"] =
+      "Subjective quality; deterministic-passing non-safety samples only"
+    info["FMFBench Judge Model"] = evaluation.judge.displayName
+
+    let result = try await evaluation.run(info: info)
+    let resultURL = try result.saveJSON(
+      to: output,
+      includeReportMetadata: includeReportMetadata
+    )
+    return SubjectiveReplayResult(
+      judge: evaluation.judge.displayName,
+      sampleCount: eligibleRecords.count,
+      resultURL: resultURL
+    )
   }
 
   fileprivate static func expandedURL(_ path: String) -> URL {
@@ -95,14 +144,24 @@ struct FMFBenchEvaluateCLI {
       """
       Usage:
         fmfbench-evaluate replay <fmfbench.json> [--output <directory>]
-            [--no-report-metadata] [--format text|json]
+            [--judge none|pcc] [--no-report-metadata] [--format text|json]
 
       Replays recorded FMFBench responses through Apple Evaluations without
       running the model again. Use the standalone xceval CLI to inspect,
       stream, compare, or export the resulting artifacts.
+
+      --judge pcc writes an additional subjective-quality artifact. It uses
+      PrivateCloudComputeLanguageModel as a model judge and only sends
+      successful, deterministic-passing, non-safety responses to save quota.
       """
     )
   }
+}
+
+private struct SubjectiveReplayResult {
+  let judge: String
+  let sampleCount: Int
+  let resultURL: URL
 }
 
 private struct ReplayPayload: Encodable {
@@ -112,6 +171,9 @@ private struct ReplayPayload: Encodable {
   let sampleCount: Int
   let evaluationResult: String
   let evaluationInfo: [String: String]
+  let subjectiveJudge: String?
+  let subjectiveSampleCount: Int
+  let subjectiveEvaluationResult: String?
 }
 
 private struct ArgumentParser {
@@ -187,12 +249,29 @@ private enum OutputFormat: String {
   }
 }
 
+private enum SubjectiveJudgeOption: String {
+  case none
+  case privateCloudCompute
+
+  init(_ value: String) throws {
+    switch value {
+    case "none":
+      self = .none
+    case "pcc":
+      self = .privateCloudCompute
+    default:
+      throw CLIError.invalidJudge(value)
+    }
+  }
+}
+
 private enum CLIError: LocalizedError {
   case unknownCommand(String)
   case missingArgument(String)
   case missingValue(String)
   case unknownArgument(String)
   case invalidFormat(String)
+  case invalidJudge(String)
   case invalidUTF8
 
   var errorDescription: String? {
@@ -207,6 +286,8 @@ private enum CLIError: LocalizedError {
       "Unknown argument '\(argument)'."
     case .invalidFormat(let value):
       "Unknown output format '\(value)'."
+    case .invalidJudge(let value):
+      "Unknown subjective judge '\(value)'. Use 'none' or 'pcc'."
     case .invalidUTF8:
       "The replay result could not be encoded as UTF-8."
     }
