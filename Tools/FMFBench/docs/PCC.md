@@ -65,6 +65,7 @@ Bridge and the bridge runner:
 
 ```bash
 swift run --package-path Tools/FMFBench/BenchmarkCore fmfbench-bridge-run \
+  --repetitions 3 \
   --output /tmp/fmfbench-apps-pcc
 ```
 

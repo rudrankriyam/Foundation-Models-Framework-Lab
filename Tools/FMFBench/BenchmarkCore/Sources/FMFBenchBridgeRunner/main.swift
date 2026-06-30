@@ -14,28 +14,30 @@ struct FMFBenchBridgeRunner {
         var trials: [FMFBenchTrialResult] = []
         var failures: [FMFBenchFailure] = []
 
-        for scenario in scenarios {
-            for sample in scenario.samples {
-                do {
-                    let trial = try await client.run(
-                        scenario: scenario,
-                        sample: sample,
-                        iteration: 1,
-                        environment: environment
-                    )
-                    trials.append(trial)
-                    print("\(scenario.id): \(trial.grade.promptPassed ? "pass" : "fail")")
-                } catch {
-                    failures.append(
-                        FMFBenchFailure(
-                            scenarioID: scenario.id,
-                            sampleID: sample.id,
-                            iteration: 1,
-                            kind: "bridge-pcc",
-                            message: error.localizedDescription
+        for iteration in 1...options.repetitions {
+            for scenario in scenarios {
+                for sample in scenario.samples {
+                    do {
+                        let trial = try await client.run(
+                            scenario: scenario,
+                            sample: sample,
+                            iteration: iteration,
+                            environment: environment
                         )
-                    )
-                    print("\(scenario.id): execution failure - \(error.localizedDescription)")
+                        trials.append(trial)
+                        print("\(scenario.id) run \(iteration): \(trial.grade.promptPassed ? "pass" : "fail")")
+                    } catch {
+                        failures.append(
+                            FMFBenchFailure(
+                                scenarioID: scenario.id,
+                                sampleID: sample.id,
+                                iteration: iteration,
+                                kind: "bridge-pcc",
+                                message: error.localizedDescription
+                            )
+                        )
+                        print("\(scenario.id) run \(iteration): execution failure - \(error.localizedDescription)")
+                    }
                 }
             }
         }
@@ -44,7 +46,7 @@ struct FMFBenchBridgeRunner {
             suite: .apps,
             model: .privateCloudCompute,
             warmupCount: 0,
-            repetitions: 1,
+            repetitions: options.repetitions,
             sampleLimit: nil,
             sessionMode: .cold,
             reasoningLevel: .none,
@@ -82,6 +84,7 @@ struct FMFBenchBridgeRunner {
 private struct BridgeRunOptions {
     var descriptorPath = "\(NSHomeDirectory())/.afm/bridge/connection.json"
     var outputDirectory = URL(fileURLWithPath: "/tmp/fmfbench-apps-pcc")
+    var repetitions = 1
 
     static func parse(_ arguments: ArraySlice<String>) throws -> Self {
         var options = Self()
@@ -94,6 +97,12 @@ private struct BridgeRunOptions {
             case "--output":
                 guard let value = iterator.next() else { throw BridgeRunError.missingValue(argument) }
                 options.outputDirectory = URL(fileURLWithPath: NSString(string: value).expandingTildeInPath)
+            case "--repetitions":
+                guard let value = iterator.next() else { throw BridgeRunError.missingValue(argument) }
+                guard let repetitions = Int(value), repetitions > 0 else {
+                    throw BridgeRunError.invalidValue(argument: argument, value: value)
+                }
+                options.repetitions = repetitions
             default:
                 throw BridgeRunError.unknownArgument(argument)
             }
@@ -257,6 +266,7 @@ private struct BridgeChatResponse: Decodable {
 
 private enum BridgeRunError: LocalizedError {
     case missingValue(String)
+    case invalidValue(argument: String, value: String)
     case unknownArgument(String)
     case modelUnavailable
     case invalidHTTPResponse
@@ -266,6 +276,8 @@ private enum BridgeRunError: LocalizedError {
         switch self {
         case .missingValue(let argument):
             "Missing value for \(argument)."
+        case .invalidValue(let argument, let value):
+            "Invalid value '\(value)' for \(argument)."
         case .unknownArgument(let argument):
             "Unknown argument \(argument)."
         case .modelUnavailable:

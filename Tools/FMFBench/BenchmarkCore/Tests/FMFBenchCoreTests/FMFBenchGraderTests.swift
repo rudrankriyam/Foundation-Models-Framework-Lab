@@ -519,6 +519,11 @@ struct FMFBenchGraderTests {
         #expect(scenarios.allSatisfy { scenario in
             scenario.samples.allSatisfy { !$0.checks.isEmpty }
         })
+        #expect(scenarios.allSatisfy { scenario in
+            scenario.samples.allSatisfy {
+                $0.prompt.contains("Mobile fixture:") && $0.prompt.contains("Source artifact:")
+            }
+        })
     }
 
     @Test
