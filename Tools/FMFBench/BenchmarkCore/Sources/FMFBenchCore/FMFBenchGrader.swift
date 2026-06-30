@@ -113,6 +113,15 @@ public enum FMFBenchGrader {
                 flattened.contains { $0.localizedCaseInsensitiveContains(expected) }
             }
             detail = passed ? nil : "Actual values: \(flattened.joined(separator: ", "))."
+        case .jsonContainsAny(let path, let expectedGroups):
+            let actual = value(at: path, in: json)
+            let flattened = strings(from: actual)
+            passed = expectedGroups.allSatisfy { group in
+                group.contains { expected in
+                    flattened.contains { $0.localizedCaseInsensitiveContains(expected) }
+                }
+            }
+            detail = passed ? nil : "Actual values: \(flattened.joined(separator: ", "))."
         default:
             preconditionFailure("Expected a response check.")
         }

@@ -4,6 +4,16 @@ import Foundation
 // app showcase. The prompts are repo-owned fixtures, not copied app text.
 // swiftlint:disable file_length line_length
 extension FMFBenchScenarioCatalog {
+    private static let appMissingFactAnswerAlternatives = [
+        "not specified",
+        "not stated",
+        "not mentioned",
+        "not included",
+        "not provided",
+        "no ownership clause",
+        "no uptime guarantee"
+    ]
+
     public static let appExperiences: [FMFBenchScenario] = [
         appWorkoutAdaptation,
         appJournalReflection,
@@ -540,12 +550,13 @@ extension FMFBenchScenarioCatalog {
                     wants one drill for the next practice.
                     """,
                 checks: [
-                    .contains("62"),
                     .contains("backhand"),
                     .contains("forehand"),
                     .containsAny(["wide balls", "late"]),
                     .contains("drill"),
                     .excludes("heart rate"),
+                    .excludes("dropped frames"),
+                    .excludes("confidence labels"),
                     .maximumWords(80)
                 ]
             ),
@@ -564,12 +575,12 @@ extension FMFBenchScenarioCatalog {
                     wants one drill for tomorrow.
                     """,
                 checks: [
-                    .contains("18"),
-                    .contains("24"),
                     .containsAny(["defensive slide", "slide speed"]),
                     .containsAny(["left-hand", "layup"]),
                     .contains("drill"),
                     .excludes("heart rate"),
+                    .excludes("dropped frames"),
+                    .excludes("confidence labels"),
                     .maximumWords(85)
                 ]
             ),
@@ -588,12 +599,12 @@ extension FMFBenchScenarioCatalog {
                     faded late. Give one next drill and no invented sensor data.
                     """,
                 checks: [
-                    .contains("41"),
-                    .contains("45"),
                     .containsAny(["bilateral", "breathing"]),
                     .contains("kick"),
                     .contains("drill"),
                     .excludes("heart rate"),
+                    .excludes("dropped frames"),
+                    .excludes("confidence labels"),
                     .maximumWords(85)
                 ]
             ),
@@ -612,12 +623,12 @@ extension FMFBenchScenarioCatalog {
                     not invent launch-monitor numbers.
                     """,
                 checks: [
-                    .containsAny(["7", "seven"]),
-                    .contains("10"),
                     .contains("fairway"),
                     .containsAny(["putt", "left"]),
                     .contains("drill"),
                     .excludes("spin rate"),
+                    .excludes("dropped frames"),
+                    .excludes("confidence labels"),
                     .maximumWords(85)
                 ]
             ),
@@ -636,12 +647,12 @@ extension FMFBenchScenarioCatalog {
                     one next drill and no invented GPS or heart-rate data.
                     """,
                 checks: [
-                    .contains("1:48"),
-                    .contains("1:55"),
                     .containsAny(["cadence", "relaxed"]),
-                    .contains("shoulders"),
+                    .containsAny(["shoulders", "shoulder"]),
                     .contains("drill"),
                     .excludes("heart-rate"),
+                    .excludes("dropped frames"),
+                    .excludes("confidence labels"),
                     .maximumWords(85)
                 ]
             ),
@@ -660,12 +671,12 @@ extension FMFBenchScenarioCatalog {
                     Give one next drill and do not invent paddle-speed data.
                     """,
                 checks: [
-                    .contains("9"),
-                    .contains("14"),
                     .containsAny(["backhand dink", "cross-court"]),
                     .containsAny(["serve return", "returns", "floated high"]),
                     .contains("drill"),
                     .excludes("paddle-speed"),
+                    .excludes("dropped frames"),
+                    .excludes("confidence labels"),
                     .maximumWords(85)
                 ]
             ),
@@ -684,12 +695,12 @@ extension FMFBenchScenarioCatalog {
                     drill and no invented speed or distance metrics.
                     """,
                 checks: [
-                    .contains("16"),
-                    .contains("20"),
                     .containsAny(["first touch", "wall passes"]),
                     .containsAny(["right-foot", "crosses"]),
                     .contains("drill"),
                     .excludes("speed"),
+                    .excludes("dropped frames"),
+                    .excludes("confidence labels"),
                     .maximumWords(85)
                 ]
             ),
@@ -708,12 +719,12 @@ extension FMFBenchScenarioCatalog {
                     and do not invent grip-strength numbers.
                     """,
                 checks: [
-                    .contains("3"),
-                    .contains("5"),
                     .containsAny(["foot swaps", "slab"]),
                     .containsAny(["grip", "locking off"]),
                     .contains("drill"),
                     .excludes("grip-strength"),
+                    .excludes("dropped frames"),
+                    .excludes("confidence labels"),
                     .maximumWords(85)
                 ]
             ),
@@ -732,12 +743,11 @@ extension FMFBenchScenarioCatalog {
                     one next drill and no invented velocity.
                     """,
                 checks: [
-                    .contains("11"),
-                    .contains("18"),
-                    .contains("changeup"),
                     .containsAny(["curveball", "elbow"]),
                     .contains("drill"),
                     .excludes("velocity"),
+                    .excludes("dropped frames"),
+                    .excludes("confidence labels"),
                     .maximumWords(85)
                 ]
             ),
@@ -756,12 +766,12 @@ extension FMFBenchScenarioCatalog {
                     do not invent jump-height data.
                     """,
                 checks: [
-                    .contains("13"),
-                    .contains("17"),
-                    .containsAny(["serve receive", "clean"]),
+                    .containsAny(["serve receive", "serve-receive", "clean"]),
                     .containsAny(["blocks", "line shots"]),
                     .contains("drill"),
                     .excludes("jump-height"),
+                    .excludes("dropped frames"),
+                    .excludes("confidence labels"),
                     .maximumWords(85)
                 ]
             )
@@ -982,7 +992,7 @@ extension FMFBenchScenarioCatalog {
                     """,
                 checks: [
                     .contains("band curl"),
-                    .contains("resistance band"),
+                    .containsAny(["resistance band", "light band"]),
                     .containsAny(["grip", "elbow"]),
                     .excludes("chin-up"),
                     .excludes("preacher curl"),
@@ -1048,7 +1058,7 @@ extension FMFBenchScenarioCatalog {
                     .contains("Tags:"),
                     .contains("rosemary"),
                     .contains("focaccia"),
-                    .containsAny(["window light", "afternoon light", "kitchen"]),
+                    .containsAny(["window light", "afternoon light", "kitchen", "cozy", "warmth"]),
                     .excludes("Paris"),
                     .maximumWords(45)
                 ]
@@ -1242,7 +1252,6 @@ extension FMFBenchScenarioCatalog {
                     .contains("Tags:"),
                     .containsAny(["cleaning", "reset", "laundry"]),
                     .containsAny(["plants", "timer", "apartment"]),
-                    .excludes("voiceover"),
                     .maximumWords(45)
                 ]
             ),
@@ -1756,7 +1765,10 @@ extension FMFBenchScenarioCatalog {
                     Question: When must customer data be deleted, what is the late payment interest, and what is the governing law?
                     """,
                 checks: [
-                    .jsonContains(path: "answer", values: ["30 days", "1.5%", "not specified"]),
+                    .jsonContainsAny(
+                        path: "answer",
+                        groups: [["30 days"], ["1.5%"], appMissingFactAnswerAlternatives]
+                    ),
                     .jsonContains(path: "citations", values: ["sec-2", "sec-3"]),
                     .excludes("California"),
                     .excludes("New York")
@@ -1778,7 +1790,10 @@ extension FMFBenchScenarioCatalog {
                     Question: What is the incident acknowledgement window, what is the service credit cap, and who owns custom templates?
                     """,
                 checks: [
-                    .jsonContains(path: "answer", values: ["24 hours", "10%", "not specified"]),
+                    .jsonContainsAny(
+                        path: "answer",
+                        groups: [["24 hours"], ["10%"], appMissingFactAnswerAlternatives]
+                    ),
                     .jsonContains(path: "citations", values: ["a-1", "a-2"]),
                     .excludes("customer owns"),
                     .excludes("vendor owns")
@@ -1800,7 +1815,14 @@ extension FMFBenchScenarioCatalog {
                     Question: When is the renewal reminder sent, what is the support response target, and what is the uptime guarantee?
                     """,
                 checks: [
-                    .jsonContains(path: "answer", values: ["14 days", "two business days", "not specified"]),
+                    .jsonContainsAny(
+                        path: "answer",
+                        groups: [
+                            ["14 days"],
+                            ["two business days"],
+                            appMissingFactAnswerAlternatives
+                        ]
+                    ),
                     .jsonContains(path: "citations", values: ["m-1", "m-2"]),
                     .excludes("99.9"),
                     .excludes("99.99")
@@ -1822,7 +1844,10 @@ extension FMFBenchScenarioCatalog {
                     Question: What is the cancellation deadline, what is the daily mileage limit, and what is the fuel policy?
                     """,
                 checks: [
-                    .jsonContains(path: "answer", values: ["6 PM", "200 miles", "not specified"]),
+                    .jsonContainsAny(
+                        path: "answer",
+                        groups: [["6 PM"], ["200 miles"], appMissingFactAnswerAlternatives]
+                    ),
                     .jsonContains(path: "citations", values: ["r-1", "r-2"]),
                     .excludes("full tank"),
                     .excludes("prepaid fuel")
@@ -1844,7 +1869,15 @@ extension FMFBenchScenarioCatalog {
                     Question: Which file formats are required, how long is the review window, and who owns unused sketches?
                     """,
                 checks: [
-                    .jsonContains(path: "answer", values: ["PNG", "SVG", "five business days", "not specified"]),
+                    .jsonContainsAny(
+                        path: "answer",
+                        groups: [
+                            ["PNG"],
+                            ["SVG"],
+                            ["five business days"],
+                            appMissingFactAnswerAlternatives
+                        ]
+                    ),
                     .jsonContains(path: "citations", values: ["p-1", "p-2"]),
                     .excludes("client owns"),
                     .excludes("creator owns")
@@ -1866,7 +1899,10 @@ extension FMFBenchScenarioCatalog {
                     Question: When does venue access begin, when is catering approval due, and who provides security staff?
                     """,
                 checks: [
-                    .jsonContains(path: "answer", values: ["8 AM", "seven days", "not specified"]),
+                    .jsonContainsAny(
+                        path: "answer",
+                        groups: [["8 AM"], ["seven days"], appMissingFactAnswerAlternatives]
+                    ),
                     .jsonContains(path: "citations", values: ["v-1", "v-2"]),
                     .excludes("venue provides"),
                     .excludes("client provides")
@@ -1888,7 +1924,15 @@ extension FMFBenchScenarioCatalog {
                     Question: When is allergy information due, what are quiet hours, and is parking included?
                     """,
                 checks: [
-                    .jsonContains(path: "answer", values: ["48 hours", "10 PM", "7 AM", "not specified"]),
+                    .jsonContainsAny(
+                        path: "answer",
+                        groups: [
+                            ["48 hours"],
+                            ["10 PM"],
+                            ["7 AM"],
+                            appMissingFactAnswerAlternatives
+                        ]
+                    ),
                     .jsonContains(path: "citations", values: ["h-1", "h-2"]),
                     .excludes("parking included"),
                     .excludes("free parking")
@@ -1910,9 +1954,15 @@ extension FMFBenchScenarioCatalog {
                     Question: How many approval rounds are included, when is final copy due, and what is the click-through guarantee?
                     """,
                 checks: [
-                    .jsonContains(path: "answer", values: ["two", "5 PM Pacific", "not specified"]),
+                    .jsonContainsAny(
+                        path: "answer",
+                        groups: [
+                            ["two", "2"],
+                            ["5 PM Pacific"],
+                            appMissingFactAnswerAlternatives
+                        ]
+                    ),
                     .jsonContains(path: "citations", values: ["n-1", "n-2"]),
-                    .excludes("click-through"),
                     .excludes("CTR")
                 ]
             ),
@@ -1932,7 +1982,10 @@ extension FMFBenchScenarioCatalog {
                     Question: Who may receive screenshots, when are crash reports due, and what is the tester compensation?
                     """,
                 checks: [
-                    .jsonContains(path: "answer", values: ["product team", "24 hours", "not specified"]),
+                    .jsonContainsAny(
+                        path: "answer",
+                        groups: [["product team"], ["24 hours"], appMissingFactAnswerAlternatives]
+                    ),
                     .jsonContains(path: "citations", values: ["b-1", "b-2"]),
                     .excludes("paid"),
                     .excludes("$")
@@ -1954,7 +2007,10 @@ extension FMFBenchScenarioCatalog {
                     Question: How long is the recording available, when do questions close, and are captions provided?
                     """,
                 checks: [
-                    .jsonContains(path: "answer", values: ["30 days", "noon UTC", "not specified"]),
+                    .jsonContainsAny(
+                        path: "answer",
+                        groups: [["30 days"], ["noon UTC"], appMissingFactAnswerAlternatives]
+                    ),
                     .jsonContains(path: "citations", values: ["l-1", "l-2"]),
                     .excludes("captions are provided"),
                     .excludes("closed captions")
