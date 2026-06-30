@@ -20,6 +20,7 @@ public enum FMFBenchSuite: String, CaseIterable, Codable, Identifiable, Sendable
     case quick
     case full
     case agentic
+    case newsroom
     case guardrails
     case performance
     case context
@@ -34,6 +35,8 @@ public enum FMFBenchSuite: String, CaseIterable, Codable, Identifiable, Sendable
             "Practical Full"
         case .agentic:
             "Agentic Tools"
+        case .newsroom:
+            "Real App Experiences"
         case .guardrails:
             "Safety Guardrails"
         case .performance:
@@ -47,7 +50,7 @@ public enum FMFBenchSuite: String, CaseIterable, Codable, Identifiable, Sendable
         switch self {
         case .quick:
             1
-        case .full, .agentic, .guardrails, .performance, .context:
+        case .full, .agentic, .newsroom, .guardrails, .performance, .context:
             nil
         }
     }

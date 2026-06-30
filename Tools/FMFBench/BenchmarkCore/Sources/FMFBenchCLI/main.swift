@@ -120,7 +120,7 @@ struct FMFBenchCLI {
               ./fmfbench [run] [options]
 
             Options:
-              --suite quick|full|agentic|guardrails|performance|context
+              --suite quick|full|agentic|newsroom|guardrails|performance|context
               --model on-device|pcc
               --scenario <scenario-id>
               --sample <sample-id>

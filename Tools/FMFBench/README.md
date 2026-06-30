@@ -58,6 +58,12 @@ data, and same-title reminders at different times. FMFBench grades the ordered t
 typed arguments, user-visible outcome, and final world state. The fixture resets before
 every trial; it never reads Contacts or writes Reminders on the device.
 
+The **Real App Experiences** suite is inspired by Apple's Foundation Models
+Framework Newsroom examples. It turns the public app patterns into original,
+deterministically graded fixtures for workout adaptation, journal reflection, sports
+feedback, exercise substitution, creator metadata, citation extraction, project
+capture, document QA, learning explanations, and policy-grounded support replies.
+
 ## Metrics
 
 Every measured trial records:
@@ -118,6 +124,9 @@ swift run fmfbench --suite quick --session warm --seed 20260929
 
 # Stateful multi-tool execution with a resettable synthetic world
 swift run fmfbench --suite agentic --warmups 0 --repetitions 1 --no-randomize
+
+# Apple Newsroom-inspired real app experience prompts
+swift run fmfbench --suite newsroom --warmups 0 --repetitions 1 --no-randomize
 
 # Reproduce one exact case and preserve tool/state evidence for empty responses
 swift run fmfbench --suite agentic --sample personal-organizer-012 --warmups 0

@@ -74,6 +74,20 @@ The Evaluations package is deliberately separate from `FMFBenchCore`. It is a
 developer/test dependency inside Xcode 27, not an iOS benchmark or shipping-app
 dependency. See [FMFBench and Apple Evaluations](EVALUATIONS.md).
 
+## Real App Experiences
+
+The Real App Experiences suite (`--suite newsroom`) converts Apple's public
+Foundation Models Framework app examples into original, repeatable benchmark
+fixtures. The suite covers the same product shapes rather than the exact app data:
+workout adaptation, journal reflection, sports coaching feedback, exercise
+substitution, creator metadata, citation extraction, project capture, document QA,
+learning explanations, and policy-grounded support replies.
+
+These prompts are intentionally harder than the quick sanity suite. They include
+missing information, noisy notes, policy boundaries, exact citations, and forbidden
+inventions. Deterministic graders remain the primary score; subjective PCC judging
+can be layered on replay only after hard constraints pass.
+
 ## Agentic Tool Scoring
 
 The Agentic Tools suite executes real Foundation Models `Tool` implementations over a
