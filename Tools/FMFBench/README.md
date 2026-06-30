@@ -62,7 +62,7 @@ The **Real App Experiences** suite is inspired by Apple's public Foundation Mode
 Framework app showcase. It turns the public app patterns into original,
 deterministically graded fixtures for workout adaptation, journal reflection, sports
 feedback, exercise substitution, creator metadata, citation extraction, project
-capture, document QA, learning explanations, and policy-grounded support replies.
+capture, document QA, learning explanations, and personal content categorization.
 Each capability has five fixed samples covering ordinary, noisy, edge-case, and
 cross-domain inputs so model comparisons are not decided by one lucky prompt.
 

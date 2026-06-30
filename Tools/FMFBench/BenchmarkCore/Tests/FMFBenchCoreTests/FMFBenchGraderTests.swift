@@ -511,7 +511,7 @@ struct FMFBenchGraderTests {
 
         #expect(scenarios.count == 10)
         #expect(scenarios.map(\.id).contains("app-workout-adaptation"))
-        #expect(scenarios.map(\.id).contains("app-support-reply"))
+        #expect(scenarios.map(\.id).contains("app-content-classification"))
         #expect(scenarios.allSatisfy { $0.samples.count == 5 })
         #expect(scenarios.flatMap(\.samples).count == 50)
         #expect(Set(scenarios.flatMap(\.samples).map(\.id)).count == 50)

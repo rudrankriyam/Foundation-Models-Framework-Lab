@@ -81,7 +81,7 @@ Foundation Models Framework app examples into original, repeatable benchmark
 fixtures. The suite covers the same product shapes rather than the exact app data:
 workout adaptation, journal reflection, sports coaching feedback, exercise
 substitution, creator metadata, citation extraction, project capture, document QA,
-learning explanations, and policy-grounded support replies.
+learning explanations, and personal content categorization.
 
 These prompts are intentionally harder than the quick sanity suite. They include
 missing information, noisy notes, policy boundaries, exact citations, forbidden

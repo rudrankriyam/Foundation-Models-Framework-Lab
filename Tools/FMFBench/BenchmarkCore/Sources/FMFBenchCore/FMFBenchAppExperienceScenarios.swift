@@ -14,7 +14,7 @@ extension FMFBenchScenarioCatalog {
         appProjectCapture,
         appDocumentQuestionAnswering,
         appLearningExplanation,
-        appSupportReply
+        appContentClassification
     ]
 
     public static let appWorkoutAdaptation = FMFBenchScenario(
@@ -869,119 +869,78 @@ extension FMFBenchScenarioCatalog {
         ]
     )
 
-    public static let appSupportReply = FMFBenchScenario(
-        id: "app-support-reply",
-        title: "Policy-grounded support reply",
-        summary: "Drafts a customer reply that follows support-policy boundaries.",
-        category: .summarization,
-        inspiredBy: ["App Store commerce workflows"],
+    public static let appContentClassification = FMFBenchScenario(
+        id: "app-content-classification",
+        title: "Personal content categorization",
+        summary: "Classifies short user content into an app-owned theme for review or automation.",
+        category: .classification,
+        inspiredBy: ["Motivation", "Streaks", "Vocabulary"],
         instructions: """
-            Draft a concise support reply from the internal facts. Do not promise outcomes outside
-            the policy. Include the exact next step and case ID.
+            Choose the single best category for the user's saved content or task. Use only one of
+            the supplied categories and do not invent a new label.
             """,
-        outputMode: .text,
-        maximumResponseTokens: 180,
+        outputMode: .guided(.classification),
+        maximumResponseTokens: 80,
         samples: [
             .init(
-                id: "app-support-reply-001",
+                id: "app-content-classification-001",
                 prompt: """
-                    Customer: I paid for Pro yesterday but the app still shows Free. I already tried
-                    force quitting. This is for my team demo tomorrow.
-                    Internal facts: Case ID RQ-8841. Purchase status shows pending Apple receipt
-                    validation. Next step: tap Restore Purchases while signed into the same Apple ID.
-                    If it still fails after 15 minutes, support can manually refresh entitlement after
-                    receiving the App Store receipt screenshot. Refunds are handled by Apple, not us.
+                    Favorite reminder: “A five-minute walk between meetings counts; protect your
+                    shoulders and breathe before the next call.” Categories: health, learning,
+                    productivity, relationships.
                     """,
                 checks: [
-                    .contains("RQ-8841"),
-                    .contains("Restore Purchases"),
-                    .contains("same Apple ID"),
-                    .contains("15 minutes"),
-                    .contains("receipt"),
-                    .contains("screenshot"),
-                    .excludes("refund has been issued"),
-                    .minimumWords(75),
-                    .maximumWords(140)
+                    .jsonEquals(path: "category", value: .string("health")),
+                    .excludes("fitness"),
+                    .excludes("wellness")
                 ]
             ),
             .init(
-                id: "app-support-reply-002",
+                id: "app-content-classification-002",
                 prompt: """
-                    Customer: My exported PDF is missing the signature page, and I need to send it in an hour.
-                    Internal facts: Case ID SG-2040. Export status shows the signature page is still processing.
-                    Next step: reopen the document and tap Export again after the blue processing banner disappears.
-                    If the page is still missing after 10 minutes, support can regenerate the export after receiving
-                    the document ID. Do not promise legal validity.
+                    Saved words: estuary, isotope, habitat, migration. The user wants the words
+                    grouped for review later. Categories: health, learning, productivity, relationships.
                     """,
                 checks: [
-                    .contains("SG-2040"),
-                    .contains("Export"),
-                    .containsAny(["blue processing banner", "processing banner"]),
-                    .contains("10 minutes"),
-                    .contains("document ID"),
-                    .excludes("legally valid"),
-                    .minimumWords(70),
-                    .maximumWords(140)
+                    .jsonEquals(path: "category", value: .string("learning")),
+                    .excludes("science"),
+                    .excludes("vocabulary")
                 ]
             ),
             .init(
-                id: "app-support-reply-003",
+                id: "app-content-classification-003",
                 prompt: """
-                    Customer: The shared family plan says I am not invited, but my partner added me this morning.
-                    Internal facts: Case ID FP-7782. Invite status shows pending acceptance. Next step: open the
-                    invitation link from the same email address that was invited. If it still fails after 20 minutes,
-                    support can resend the invitation after receiving the invited email address. Billing changes are
-                    handled by Apple.
+                    To-do capture: Renew passport, book hotel near the venue, and send the itinerary
+                    to the travel folder. Categories: health, learning, productivity, relationships.
                     """,
                 checks: [
-                    .contains("FP-7782"),
-                    .contains("invitation link"),
-                    .contains("same email address"),
-                    .contains("20 minutes"),
-                    .contains("invited email address"),
-                    .excludes("billing change completed"),
-                    .minimumWords(70),
-                    .maximumWords(140)
+                    .jsonEquals(path: "category", value: .string("productivity")),
+                    .excludes("travel"),
+                    .excludes("planning")
                 ]
             ),
             .init(
-                id: "app-support-reply-004",
+                id: "app-content-classification-004",
                 prompt: """
-                    Customer: My team workspace disappeared after I changed phones. I need it for a client call today.
-                    Internal facts: Case ID TW-3190. Workspace status shows archived by the admin, not deleted.
-                    Next step: ask the workspace admin to restore it from Settings > Archive. If the admin no
-                    longer has access after 30 minutes, support can verify ownership after receiving the workspace ID.
-                    Do not promise data recovery.
+                    New recurring task: Call Nani every Sunday evening and ask how her garden is doing.
+                    Categories: health, learning, productivity, relationships.
                     """,
                 checks: [
-                    .contains("TW-3190"),
-                    .contains("workspace admin"),
-                    .contains("Settings"),
-                    .contains("30 minutes"),
-                    .contains("workspace ID"),
-                    .excludes("data recovery is guaranteed"),
-                    .minimumWords(70),
-                    .maximumWords(140)
+                    .jsonEquals(path: "category", value: .string("relationships")),
+                    .excludes("family"),
+                    .excludes("social")
                 ]
             ),
             .init(
-                id: "app-support-reply-005",
+                id: "app-content-classification-005",
                 prompt: """
-                    Customer: Calendar sync stopped after I renamed my project, and my Monday reminders vanished.
-                    Internal facts: Case ID CS-5602. Sync status shows the calendar token expired during the rename.
-                    Next step: reconnect Calendar in Integrations and run Sync Now. If reminders are still missing
-                    after 10 minutes, support can rebuild them after receiving the project ID. Do not say meetings
-                    were deleted.
+                    Saved phrase: “Practice one guitar scale slowly, then write down what sounded
+                    uneven.” Categories: health, learning, productivity, relationships.
                     """,
                 checks: [
-                    .contains("CS-5602"),
-                    .contains("Calendar"),
-                    .contains("Sync Now"),
-                    .contains("10 minutes"),
-                    .contains("project ID"),
-                    .excludes("meetings were deleted"),
-                    .minimumWords(70),
-                    .maximumWords(140)
+                    .jsonEquals(path: "category", value: .string("learning")),
+                    .excludes("music"),
+                    .excludes("practice")
                 ]
             )
         ]
