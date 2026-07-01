@@ -1,5 +1,6 @@
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 
 public enum FoundationLabConversationContextBuilder {
     public static func conversationText(
@@ -10,10 +11,10 @@ public enum FoundationLabConversationContextBuilder {
         transcript.compactMap { entry in
             switch entry {
             case .prompt:
-                guard let text = entry.textContent() else { return nil }
+                guard let text = entry.textContentJoined() else { return nil }
                 return "\(userLabel) \(text)"
             case .response:
-                guard let text = entry.textContent() else { return nil }
+                guard let text = entry.textContentJoined() else { return nil }
                 return "\(assistantLabel) \(text)"
             default:
                 return nil
@@ -47,35 +48,6 @@ public enum FoundationLabConversationContextBuilder {
         }
 
         return contextInstructions
-    }
-}
-
-extension Array where Element == Transcript.Segment {
-    func foundationLabTextContentJoined() -> String? {
-        let text = compactMap { segment in
-            if case .text(let textSegment) = segment {
-                return textSegment.content
-            }
-            return nil
-        }
-        .joined(separator: " ")
-
-        return text.isEmpty ? nil : text
-    }
-}
-
-extension Transcript.Entry {
-    func textContent() -> String? {
-        switch self {
-        case .prompt(let prompt):
-            return prompt.segments.foundationLabTextContentJoined()
-        case .response(let response):
-            return response.segments.foundationLabTextContentJoined()
-        case .toolOutput(let toolOutput):
-            return toolOutput.segments.foundationLabTextContentJoined()
-        default:
-            return nil
-        }
     }
 }
 

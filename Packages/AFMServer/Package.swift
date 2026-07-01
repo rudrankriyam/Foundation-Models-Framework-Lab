@@ -15,7 +15,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(path: "../FoundationModelsKit"),
+        .package(url: "https://github.com/rryam/FoundationModelsKit.git", branch: "codex/revive-public-foundationmodelskit"),
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.101.0")
     ],
     targets: [

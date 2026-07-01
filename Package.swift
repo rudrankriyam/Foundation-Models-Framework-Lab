@@ -32,7 +32,7 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "Packages/AFMServer"),
-        .package(path: "Packages/FoundationModelsKit"),
+        .package(url: "https://github.com/rryam/FoundationModelsKit.git", branch: "codex/revive-public-foundationmodelskit"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "6.0.1")
     ],
@@ -67,20 +67,6 @@ let package = Package(
             name: "FMFBenchCLI",
             dependencies: ["FMFBenchCore"],
             path: "Tools/FMFBench/BenchmarkCore/Sources/FMFBenchCLI"
-        ),
-        .testTarget(
-            name: "FoundationModelsKitTests",
-            dependencies: [
-                .product(name: "FoundationModelsKit", package: "FoundationModelsKit")
-            ],
-            path: "Packages/FoundationModelsKit/Tests/FoundationModelsKitTests"
-        ),
-        .testTarget(
-            name: "FoundationModelsToolsTests",
-            dependencies: [
-                .product(name: "FoundationModelsTools", package: "FoundationModelsKit")
-            ],
-            path: "Packages/FoundationModelsKit/Tests/FoundationModelsToolsTests"
         ),
         .testTarget(
             name: "FoundationLabCoreTests",

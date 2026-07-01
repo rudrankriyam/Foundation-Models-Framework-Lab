@@ -1,6 +1,15 @@
 {
-  "originHash" : "370a5ea74b24f152ffe369db9569d8f9c946a44d4b50a3d359833e196eb9d154",
+  "originHash" : "f2f9d0a0bf878f89500f7de7c576500cb1be8115e2a40a929ee0116f4af9142d",
   "pins" : [
+    {
+      "identity" : "foundationmodelskit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/rryam/FoundationModelsKit.git",
+      "state" : {
+        "branch" : "codex/revive-public-foundationmodelskit",
+        "revision" : "95435efebf47c8db16b0e763136619a93b6654c4"
+      }
+    },
     {
       "identity" : "swift-argument-parser",
       "kind" : "remoteSourceControl",

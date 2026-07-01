@@ -145,6 +145,22 @@ extension AFMChatReasoningLevel: Decodable {
 }
 
 extension AFMChatGenerationRequest: Decodable {
+    private struct DecodedFields {
+        let model: String
+        let messages: [AFMChatMessage]
+        let stream: Bool
+        let streamOptions: AFMChatStreamOptions?
+        let temperature: Double?
+        let topP: Double?
+        let maximumCompletionTokens: Int?
+        let legacyMaximumTokens: Int?
+        let responseFormat: AFMChatResponseFormat?
+        let tools: [AFMChatToolDefinition]
+        let toolChoice: AFMChatToolChoice
+        let parallelToolCalls: Bool
+        let reasoningLevel: AFMChatReasoningLevel?
+    }
+
     private static let allowedFields: Set<String> = [
         "model", "messages", "stream", "temperature", "top_p",
         "max_completion_tokens", "max_tokens", "tools", "tool_choice",
@@ -155,69 +171,37 @@ extension AFMChatGenerationRequest: Decodable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: AFMJSONKey.self)
         try rejectUnknownFields(in: container, allowed: Self.allowedFields, decoder: decoder)
+        let fields = try Self.decodeFields(from: container)
 
-        let model = try container.decodeIfPresent(String.self, forKey: .init("model")) ?? "system"
-        guard container.contains(.init("messages")) else {
-            throw AFMChatRequestValidationError.missingField("messages")
-        }
-        let messages = try container.decode([AFMChatMessage].self, forKey: .init("messages"))
-        let stream = try container.decodeIfPresent(Bool.self, forKey: .init("stream")) ?? false
-        let streamOptions = try container.decodeIfPresent(
-            AFMChatStreamOptions.self,
-            forKey: .init("stream_options")
-        )
-        let temperature = try container.decodeIfPresent(Double.self, forKey: .init("temperature"))
-        let topP = try container.decodeIfPresent(Double.self, forKey: .init("top_p"))
-        let maximumCompletionTokens = try container.decodeIfPresent(
-            Int.self,
-            forKey: .init("max_completion_tokens")
-        )
-        let legacyMaximumTokens = try container.decodeIfPresent(Int.self, forKey: .init("max_tokens"))
-        let responseFormat = try container.decodeIfPresent(
-            AFMChatResponseFormat.self,
-            forKey: .init("response_format")
-        )
-        let tools = try container.decodeIfPresent([AFMChatToolDefinition].self, forKey: .init("tools")) ?? []
-        let explicitToolChoice = try container.decodeIfPresent(AFMChatToolChoice.self, forKey: .init("tool_choice"))
-        let toolChoice = explicitToolChoice ?? (tools.isEmpty ? .none : .auto)
-        let parallelToolCalls = try container.decodeIfPresent(
-            Bool.self,
-            forKey: .init("parallel_tool_calls")
-        ) ?? true
-        let reasoningLevel = try container.decodeIfPresent(
-            AFMChatReasoningLevel.self,
-            forKey: .init("reasoning_level")
-        )
-
-        try Self.validateModel(model)
-        try Self.validateStreaming(stream: stream, streamOptions: streamOptions)
+        try Self.validateModel(fields.model)
+        try Self.validateStreaming(stream: fields.stream, streamOptions: fields.streamOptions)
         try Self.validateTools(
-            tools,
-            choice: toolChoice,
-            parallelToolCalls: parallelToolCalls
+            fields.tools,
+            choice: fields.toolChoice,
+            parallelToolCalls: fields.parallelToolCalls
         )
-        try Self.validateToolChoiceAvailability(toolChoice)
+        try Self.validateToolChoiceAvailability(fields.toolChoice)
         try Self.validateOptions(
-            temperature: temperature,
-            topP: topP,
-            maximumCompletionTokens: maximumCompletionTokens,
-            legacyMaximumTokens: legacyMaximumTokens
+            temperature: fields.temperature,
+            topP: fields.topP,
+            maximumCompletionTokens: fields.maximumCompletionTokens,
+            legacyMaximumTokens: fields.legacyMaximumTokens
         )
-        try Self.validateMessages(messages)
+        try Self.validateMessages(fields.messages)
 
         self.init(
-            model: model,
-            messages: messages,
-            stream: stream,
-            streamOptions: streamOptions,
-            temperature: temperature,
-            topP: topP,
-            maximumCompletionTokens: maximumCompletionTokens ?? legacyMaximumTokens,
-            responseFormat: responseFormat,
-            tools: tools,
-            toolChoice: toolChoice,
-            parallelToolCalls: parallelToolCalls,
-            reasoningLevel: reasoningLevel
+            model: fields.model,
+            messages: fields.messages,
+            stream: fields.stream,
+            streamOptions: fields.streamOptions,
+            temperature: fields.temperature,
+            topP: fields.topP,
+            maximumCompletionTokens: fields.maximumCompletionTokens ?? fields.legacyMaximumTokens,
+            responseFormat: fields.responseFormat,
+            tools: fields.tools,
+            toolChoice: fields.toolChoice,
+            parallelToolCalls: fields.parallelToolCalls,
+            reasoningLevel: fields.reasoningLevel
         )
     }
 
@@ -237,6 +221,44 @@ extension AFMChatGenerationRequest: Decodable {
         guard !model.isEmpty, model == model.trimmingCharacters(in: .whitespacesAndNewlines) else {
             throw AFMChatRequestValidationError.invalidField("model", message: "Model must be a non-empty identifier.")
         }
+    }
+
+    private static func decodeFields(
+        from container: KeyedDecodingContainer<AFMJSONKey>
+    ) throws -> DecodedFields {
+        let model = try container.decodeIfPresent(String.self, forKey: .init("model")) ?? "system"
+        guard container.contains(.init("messages")) else {
+            throw AFMChatRequestValidationError.missingField("messages")
+        }
+        let messages = try container.decode([AFMChatMessage].self, forKey: .init("messages"))
+        let stream = try container.decodeIfPresent(Bool.self, forKey: .init("stream")) ?? false
+        let streamOptions = try container.decodeIfPresent(AFMChatStreamOptions.self, forKey: .init("stream_options"))
+        let temperature = try container.decodeIfPresent(Double.self, forKey: .init("temperature"))
+        let topP = try container.decodeIfPresent(Double.self, forKey: .init("top_p"))
+        let maximumCompletionTokens = try container.decodeIfPresent(Int.self, forKey: .init("max_completion_tokens"))
+        let legacyMaximumTokens = try container.decodeIfPresent(Int.self, forKey: .init("max_tokens"))
+        let responseFormat = try container.decodeIfPresent(AFMChatResponseFormat.self, forKey: .init("response_format"))
+        let tools = try container.decodeIfPresent([AFMChatToolDefinition].self, forKey: .init("tools")) ?? []
+        let explicitToolChoice = try container.decodeIfPresent(AFMChatToolChoice.self, forKey: .init("tool_choice"))
+        let toolChoice = explicitToolChoice ?? (tools.isEmpty ? .none : .auto)
+        let parallelToolCalls = try container.decodeIfPresent(Bool.self, forKey: .init("parallel_tool_calls")) ?? true
+        let reasoningLevel = try container.decodeIfPresent(AFMChatReasoningLevel.self, forKey: .init("reasoning_level"))
+
+        return DecodedFields(
+            model: model,
+            messages: messages,
+            stream: stream,
+            streamOptions: streamOptions,
+            temperature: temperature,
+            topP: topP,
+            maximumCompletionTokens: maximumCompletionTokens,
+            legacyMaximumTokens: legacyMaximumTokens,
+            responseFormat: responseFormat,
+            tools: tools,
+            toolChoice: toolChoice,
+            parallelToolCalls: parallelToolCalls,
+            reasoningLevel: reasoningLevel
+        )
     }
 
     private static func validateStreaming(

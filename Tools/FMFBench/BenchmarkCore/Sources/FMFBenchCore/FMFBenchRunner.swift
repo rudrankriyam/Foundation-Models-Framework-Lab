@@ -480,8 +480,7 @@ public actor FMFBenchRunner {
         }
 
         if response.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-            let transcriptResponse = FMFBenchTranscriptRecovery.latestResponse(
-                from: bundle.session.transcript,
+            let transcriptResponse = bundle.session.transcript.latestNonEmptyResponseText(
                 startingAt: transcriptStartIndex
             ) {
             let recoveredAt = Date.now
