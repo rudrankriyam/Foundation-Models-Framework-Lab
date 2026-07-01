@@ -186,23 +186,18 @@ the device runner.
 
 ## Command-Line Interface
 
-The `afm` CLI uses the same `FoundationLabCore` and `FoundationModelsKit`
-runtime as the app. `FoundationModelsKit` is consumed from the canonical
-[rryam/FoundationModelsKit](https://github.com/rryam/FoundationModelsKit)
-Swift package.
+The `afm` CLI now ships from the standalone
+[`rudrankriyam/Foundation-Models-Framework-CLI`](https://github.com/rudrankriyam/Foundation-Models-Framework-CLI)
+repository. It uses the public `FoundationModelsKit` package and keeps CLI
+releases independent from Foundation Lab app releases.
 
 ```bash
 brew tap rudrankriyam/tap
 brew install afm
-
-swift run afm --help
-swift run afm model status
-swift run afm token-count -i @instructions.md --prompt @prompt.md --breakdown
-swift run afm session respond --prompt "Summarize Foundation Models."
 ```
 
-See [`Tools/AFMCLI/README.md`](Tools/AFMCLI/README.md) for the command reference.
-AFM releases use `afm-vx.y.z` tags so CLI releases remain independent from app releases.
+See the CLI repository for source, documentation, release automation, and
+server-mode implementation.
 
 ## Repository Map
 
@@ -211,13 +206,13 @@ AFM releases use `afm-vx.y.z` tags so CLI releases remain independent from app r
 | Foundation Lab | [`Foundation Lab`](Foundation%20Lab) | Native Library, Playground, Runs, guided labs, and workspaces |
 | FoundationLabCore | [`FoundationLabCore`](FoundationLabCore) | UI-independent requests, results, use cases, providers, and experiment models |
 | FoundationModelsKit | [`rryam/FoundationModelsKit`](https://github.com/rryam/FoundationModelsKit) | External transcript, context, history, and system-tool package |
-| AFM CLI | [`Tools/AFMCLI`](Tools/AFMCLI) | Scriptable Foundation Models workflows |
+| AFM CLI | [`rudrankriyam/Foundation-Models-Framework-CLI`](https://github.com/rudrankriyam/Foundation-Models-Framework-CLI) | Scriptable Foundation Models workflows |
 | FMFBench | [`Tools/FMFBench`](Tools/FMFBench) | Quality, agentic-tool, safety, and performance evaluation |
 | Adapter tooling | [`Tools/AdapterStudio`](Tools/AdapterStudio) | Adapter training and export with `fmas` |
 | Book playgrounds | [`BookPlaygrounds`](BookPlaygrounds) | Chapter-oriented `#Playground` examples |
 
-The former standalone CLI, FMFBench, and Adapter Studio repositories are
-archived in favor of this shared implementation.
+FMFBench and Adapter Studio are still developed in this repository. The AFM CLI
+is developed and released from its standalone repository.
 
 ## Swift Package Products
 
@@ -253,7 +248,7 @@ swift test
 ```
 
 CI additionally builds Foundation Lab for macOS and iOS Simulator and validates
-the AFM, FMFBench, Adapter Studio, and TestFlight workflows.
+the FMFBench, Adapter Studio, and TestFlight workflows.
 
 ## TestFlight
 
