@@ -113,7 +113,6 @@
 				FA43F9402E13A16E00F24BCC /* HighlightSwift */,
 				0A979E832E1E5921008CFA37 /* FoundationModelsKit */,
 				0B0A11122ECB100100000001 /* FoundationLabCore */,
-				0B0A11322ECB200100000001 /* AFMServer */,
 				F1B8C56D2E5B5A1C00XYZ123 /* LumoKit */,
 			);
 			productName = FoundationLab;
@@ -148,7 +147,7 @@
 				0AC6037E2E1D5288002106F9 /* XCRemoteSwiftPackageReference "HighlightSwift" */,
 				0A979E822E1E5921008CFA37 /* XCLocalSwiftPackageReference "FoundationModelsKit" */,
 				0B0A11112ECB100100000001 /* XCLocalSwiftPackageReference "FoundationLabCore" */,
-				0B0A11312ECB200100000001 /* XCLocalSwiftPackageReference "AFMServer" */,
+				0B0A11312ECB200100000001 /* XCRemoteSwiftPackageReference "Foundation-Models-Framework-CLI" */,
 				F1B8C56C2E5B5A1C00XYZ123 /* XCRemoteSwiftPackageReference "LumoKit" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -507,10 +506,6 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = FoundationLabCore;
 		};
-		0B0A11312ECB200100000001 /* XCLocalSwiftPackageReference "AFMServer" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = Packages/AFMServer;
-		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
@@ -520,6 +515,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.0.9;
+			};
+		};
+		0B0A11312ECB200100000001 /* XCRemoteSwiftPackageReference "Foundation-Models-Framework-CLI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/rudrankriyam/Foundation-Models-Framework-CLI.git";
+			requirement = {
+				branch = main;
+				kind = branch;
 			};
 		};
 		F1B8C56C2E5B5A1C00XYZ123 /* XCRemoteSwiftPackageReference "LumoKit" */ = {
@@ -545,7 +548,7 @@
 		};
 		0B0A11322ECB200100000001 /* AFMServer */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 0B0A11312ECB200100000001 /* XCLocalSwiftPackageReference "AFMServer" */;
+			package = 0B0A11312ECB200100000001 /* XCRemoteSwiftPackageReference "Foundation-Models-Framework-CLI" */;
 			productName = AFMServer;
 		};
 		F1B8C56D2E5B5A1C00XYZ123 /* LumoKit */ = {

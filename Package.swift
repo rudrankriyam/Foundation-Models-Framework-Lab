@@ -10,10 +10,6 @@ let package = Package(
     ],
     products: [
         .executable(
-            name: "afm",
-            targets: ["AFMCLI"]
-        ),
-        .executable(
             name: "fmfbench",
             targets: ["FMFBenchCLI"]
         ),
@@ -31,10 +27,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(path: "Packages/AFMServer"),
-        .package(path: "Packages/FoundationModelsKit"),
-        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
-        .package(url: "https://github.com/jpsim/Yams.git", from: "6.0.1")
+        .package(path: "Packages/FoundationModelsKit")
     ],
     targets: [
         .target(
@@ -44,17 +37,6 @@ let package = Package(
                 .product(name: "FoundationModelsTools", package: "FoundationModelsKit")
             ],
             path: "FoundationLabCore/Sources/FoundationLabCore"
-        ),
-        .executableTarget(
-            name: "AFMCLI",
-            dependencies: [
-                .product(name: "AFMServer", package: "AFMServer"),
-                "FoundationLabCore",
-                .product(name: "FoundationModelsKit", package: "FoundationModelsKit"),
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                .product(name: "Yams", package: "Yams")
-            ],
-            path: "Tools/AFMCLI/Sources/AFMCLI"
         ),
         .target(
             name: "FMFBenchCore",
@@ -89,14 +71,6 @@ let package = Package(
                 .product(name: "FoundationModelsKit", package: "FoundationModelsKit")
             ],
             path: "FoundationLabCore/Tests/FoundationLabCoreTests"
-        ),
-        .testTarget(
-            name: "AFMCLITests",
-            dependencies: ["AFMCLI"],
-            path: "Tools/AFMCLI/Tests/AFMCLITests",
-            resources: [
-                .copy("Fixtures")
-            ]
         ),
         .testTarget(
             name: "FMFBenchCoreTests",

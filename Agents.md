@@ -232,12 +232,14 @@ Do not leave references to retired providers, screens, or navigation labels.
 Foundation Lab/                 Native app
 FoundationLabCore/              Shared capability and experiment runtime
 Packages/FoundationModelsKit/   Reusable model and tool packages
-Tools/AFMCLI/                   afm command-line interface
+External CLI repo               afm command-line interface
 Tools/FMFBench/                 Evaluation suite and device runner
 Tools/AdapterStudio/            fmas adapter tooling
 BookPlaygrounds/                Chapter-oriented Xcode playgrounds
 skills/                         Reusable agent skills
 ```
 
-Keep app, CLI, package, and documentation claims aligned with the same source of
-truth. A passing build does not make an unreachable feature real.
+The `afm` command now lives in
+https://github.com/rudrankriyam/Foundation-Models-Framework-CLI. Keep app,
+CLI, package, and documentation claims aligned with the same source of truth.
+A passing build does not make an unreachable feature real.

@@ -1,6 +1,15 @@
 {
-  "originHash" : "1d1c222bafbebe0f2b0dc380fa15127ff88c4e799284f03ca604d2ce37d4e07c",
+  "originHash" : "8fbcfca65d672de70982583017541d8def024ef2609aa1812b4e7368aed0976b",
   "pins" : [
+    {
+      "identity" : "foundation-models-framework-cli",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/rudrankriyam/Foundation-Models-Framework-CLI.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "a115e268b4456e05ba6c40b23c974dd8dbf81a04"
+      }
+    },
     {
       "identity" : "highlightswift",
       "kind" : "remoteSourceControl",
@@ -87,8 +96,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio.git",
       "state" : {
-        "revision" : "77b84ac2cd2ac9e4ac67d19f045fd5b434f56967",
-        "version" : "2.101.0"
+        "revision" : "cd3e1152083706d77b223fb29110e590efcc70c0",
+        "version" : "2.101.2"
       }
     },
     {
@@ -143,6 +152,15 @@
       "state" : {
         "branch" : "main",
         "revision" : "0b2beed33961a98eac2238ac2cecc2b5aa4b7418"
+      }
+    },
+    {
+      "identity" : "yams",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jpsim/Yams.git",
+      "state" : {
+        "revision" : "a27b21e0c81c5bf42049b897a62aaf387e80f279",
+        "version" : "6.2.2"
       }
     }
   ],
