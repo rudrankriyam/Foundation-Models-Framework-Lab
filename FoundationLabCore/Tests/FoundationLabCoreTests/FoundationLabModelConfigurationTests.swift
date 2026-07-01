@@ -11,26 +11,26 @@ struct ModelConfigurationTestOutput: RuntimeCompatibleGenerable {
 
 final class FoundationLabModelConfigurationTests: XCTestCase {
     func testModelOptionsUseStableCommandLineIdentifiers() {
-        XCTAssertEqual(FoundationLabModelUseCase.contentTagging.rawValue, "content-tagging")
+        XCTAssertEqual(FoundationModelUseCase.contentTagging.rawValue, "content-tagging")
         XCTAssertEqual(
-            FoundationLabGuardrails.permissiveContentTransformations.rawValue,
+            FoundationModelGuardrails.permissiveContentTransformations.rawValue,
             "permissiveContentTransformations"
         )
     }
 
     func testStructuredRequestPreservesAdapterAndGenerationControls() {
         let adapterURL = URL(fileURLWithPath: "/tmp/Test.fmadapter")
-        let options = FoundationLabGenerationOptions(
+        let options = FoundationModelGenerationOptions(
             sampling: .greedy,
             temperature: 0.2,
             maximumResponseTokens: 128
         )
-        let request = StructuredGenerationRequest<ModelConfigurationTestOutput>(
+        let request = FoundationModelStructuredGenerationRequest<ModelConfigurationTestOutput>(
             prompt: "Extract a value",
             adapterURL: adapterURL,
             generationOptions: options,
             includeSchemaInPrompt: false,
-            context: CapabilityInvocationContext(source: .cli)
+            context: FoundationModelInvocationContext(source: .cli)
         )
 
         XCTAssertEqual(request.adapterURL, adapterURL)
@@ -46,10 +46,8 @@ final class FoundationLabModelConfigurationTests: XCTestCase {
             )
         ) { error in
             XCTAssertEqual(
-                error as? FoundationLabCoreError,
-                .invalidRequest(
-                    "Foundation Models adapters only support the framework's default guardrails."
-                )
+                error as? FoundationModelsKitError,
+                .invalidRequest("Foundation Models adapters only support the framework's default guardrails.")
             )
         }
     }
@@ -63,28 +61,9 @@ final class FoundationLabModelConfigurationTests: XCTestCase {
     }
 
     @MainActor
-    func testAdapterConversationEngineKeepsDefaultGuardrailsWhenRebuilding() {
-        let engine = FoundationLabConversationEngine(
-            configuration: makeConversationConfiguration(),
-            model: .default,
-            adapterURL: URL(fileURLWithPath: "/tmp/Test.fmadapter")
-        )
-
-        engine.rebuild(
-            modelRuntime: .privateCloudCompute,
-            reasoningLevel: .deep,
-            guardrails: .permissiveContentTransformations
-        )
-
-        XCTAssertEqual(engine.modelRuntime, .onDevice)
-        XCTAssertEqual(engine.reasoningLevel, .none)
-        XCTAssertEqual(engine.guardrails, .default)
-    }
-
-    @MainActor
     func testAdapterConversationEngineRejectsPrivateCloudRuntime() {
         XCTAssertThrowsError(
-            try FoundationLabConversationEngine(
+            try FoundationModelConversationEngine(
                 configuration: makeConversationConfiguration(
                     modelRuntime: .privateCloudCompute
                 ),
@@ -92,10 +71,8 @@ final class FoundationLabModelConfigurationTests: XCTestCase {
             )
         ) { error in
             XCTAssertEqual(
-                error as? FoundationLabCoreError,
-                .invalidRequest(
-                    "Foundation Models adapters only support the on-device runtime."
-                )
+                error as? FoundationModelsKitError,
+                .invalidRequest("Foundation Models adapters only support the on-device runtime.")
             )
         }
     }
@@ -103,25 +80,23 @@ final class FoundationLabModelConfigurationTests: XCTestCase {
     @MainActor
     func testAdapterConversationEngineRejectsReasoningLevel() {
         XCTAssertThrowsError(
-            try FoundationLabConversationEngine(
+            try FoundationModelConversationEngine(
                 configuration: makeConversationConfiguration(reasoningLevel: .deep),
                 adapterURL: URL(fileURLWithPath: "/tmp/Test.fmadapter")
             )
         ) { error in
             XCTAssertEqual(
-                error as? FoundationLabCoreError,
-                .invalidRequest(
-                    "Foundation Models adapters do not support Private Cloud Compute reasoning levels."
-                )
+                error as? FoundationModelsKitError,
+                .invalidRequest("Foundation Models adapters do not support Private Cloud Compute reasoning levels.")
             )
         }
     }
 
     private func makeConversationConfiguration(
-        modelRuntime: FoundationLabModelRuntime = .onDevice,
-        reasoningLevel: FoundationLabReasoningLevel = .none
-    ) -> FoundationLabConversationConfiguration {
-        FoundationLabConversationConfiguration(
+        modelRuntime: FoundationModelRuntime = .onDevice,
+        reasoningLevel: FoundationModelReasoningLevel = .none
+    ) -> FoundationModelConversationConfiguration {
+        FoundationModelConversationConfiguration(
             baseInstructions: "Answer briefly.",
             summaryInstructions: "Summarize.",
             summaryPromptPreamble: "Summary:",

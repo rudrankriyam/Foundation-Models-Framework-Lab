@@ -8,6 +8,7 @@
 import Foundation
 import FoundationLabCore
 import FoundationModels
+import FoundationModelsKit
 
 extension ExampleExecutor {
     /// Convenience property to match the naming used in dynamic schema examples
@@ -66,7 +67,7 @@ extension ExampleExecutor {
     func executeDynamicSchema(
         prompt: String,
         schema: GenerationSchema,
-        generationOptions: FoundationLabGenerationOptions? = nil,
+        generationOptions: FoundationModelGenerationOptions? = nil,
         formatter: @escaping (GeneratedContent) -> String
     ) async {
         isRunning = true
@@ -75,12 +76,12 @@ extension ExampleExecutor {
         result = ""
 
         do {
-            let response = try await GenerateDynamicSchemaContentUseCase().execute(
-                DynamicSchemaGenerationRequest(
+            let response = try await FoundationModelDynamicSchemaGenerationUseCase().execute(
+                FoundationModelDynamicSchemaGenerationRequest(
                     prompt: prompt,
                     schema: schema,
                     generationOptions: generationOptions,
-                    context: CapabilityInvocationContext(
+                    context: FoundationModelInvocationContext(
                         source: .app,
                         localeIdentifier: Locale.current.identifier
                     )

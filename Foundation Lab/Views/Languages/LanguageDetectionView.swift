@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FoundationLabCore
+import FoundationModelsKit
 
 struct LanguageDetectionView: View {
     @Environment(LanguageService.self) private var languageService
@@ -57,7 +58,7 @@ struct LanguageDetectionView: View {
         """
 import FoundationLabCore
 
-let result = ListSupportedLanguagesUseCase().execute(locale: .current)
+let result = FoundationModelSupportedLanguagesUseCase().execute(locale: .current)
 
 for language in result.languages {
     let code = language.languageCode
@@ -101,7 +102,7 @@ for language in result.languages {
 }
 
 private struct LanguageRow: View {
-    let language: SupportedLanguageDescriptor
+    let language: FoundationModelSupportedLanguage
     let languageService: LanguageService
 
     var body: some View {

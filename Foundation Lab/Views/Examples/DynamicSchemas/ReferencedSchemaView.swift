@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FoundationLabCore
+import FoundationModelsKit
 import FoundationModels
 
 struct ReferencedSchemaView: View {

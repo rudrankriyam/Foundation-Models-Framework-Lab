@@ -1,7 +1,8 @@
 import Foundation
+import FoundationModelsKit
 
-public struct GetWeatherUseCase: CapabilityUseCase {
-    public static let descriptor = CapabilityDescriptor(
+public struct GetWeatherUseCase: FoundationModelCapabilityUseCase {
+    public static let descriptor = FoundationModelCapabilityDescriptor(
         id: "foundation-models.get-weather",
         displayName: "Get Weather",
         summary: "Gets weather information using Foundation Models tool orchestration."
@@ -13,7 +14,7 @@ public struct GetWeatherUseCase: CapabilityUseCase {
         self.responder = responder
     }
 
-    public func execute(_ request: GetWeatherRequest) async throws -> TextGenerationResult {
+    public func execute(_ request: GetWeatherRequest) async throws -> FoundationModelTextGenerationResult {
         let location = request.location.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !location.isEmpty else {
             throw FoundationLabCoreError.invalidRequest("Missing location")

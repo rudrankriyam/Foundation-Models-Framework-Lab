@@ -1,6 +1,6 @@
 import ArgumentParser
 import Foundation
-import FoundationLabCore
+import FoundationModelsKit
 import FoundationModels
 
 struct SchemaCommand: AsyncParsableCommand {
@@ -140,8 +140,8 @@ struct SchemaCustomCommand: AsyncParsableCommand {
             useCase: useCaseFlags.useCase,
             adapterPath: adapterPath
         )
-        let result = try await GenerateDynamicSchemaContentUseCase().execute(
-            DynamicSchemaGenerationRequest(
+        let result = try await FoundationModelDynamicSchemaGenerationUseCase().execute(
+            FoundationModelDynamicSchemaGenerationRequest(
                 prompt: resolvedInput.value,
                 schema: generationSchema,
                 systemPrompt: generation.systemPrompt,
@@ -207,8 +207,8 @@ struct TypedPersonSchemaCommand: AsyncParsableCommand {
             useCase: useCaseFlags.useCase,
             adapterPath: adapterPath
         )
-        let result = try await GenerateStructuredDataUseCase<AFMGeneratedPerson>().execute(
-            StructuredGenerationRequest(
+        let result = try await FoundationModelStructuredGenerationUseCase<AFMGeneratedPerson>().execute(
+            FoundationModelStructuredGenerationRequest(
                 prompt: resolvedInput.value,
                 systemPrompt: generation.systemPrompt,
                 modelUseCase: useCaseFlags.useCase,
@@ -231,7 +231,7 @@ struct TypedPersonSchemaCommand: AsyncParsableCommand {
 
 private extension SchemaCustomCommand {
     func emitResult(
-        _ result: DynamicSchemaGenerationResult,
+        _ result: FoundationModelDynamicSchemaGenerationResult,
         schemaReference: ResolvedArtifactReference,
         resolvedInput: ResolvedTextInput,
         adapterPath: String?,
@@ -267,7 +267,7 @@ private extension SchemaCustomCommand {
 
 private extension TypedPersonSchemaCommand {
     func emitResult(
-        _ result: StructuredGenerationResult<AFMGeneratedPerson>,
+        _ result: FoundationModelStructuredGenerationResult<AFMGeneratedPerson>,
         preset: AFMSchemaPreset,
         resolvedInput: ResolvedTextInput,
         adapterPath: String?,
@@ -447,7 +447,7 @@ private struct DynamicSchemaCommandRequest {
     let options: GlobalCommandOptions
     let generation: GenerationFlags
     let adapterPath: String?
-    let useCase: FoundationLabModelUseCase
+    let useCase: FoundationModelUseCase
     let includeSchemaInPrompt: Bool
 }
 
@@ -486,8 +486,8 @@ private func runDynamicSchemaCommand(
         useCase: request.useCase,
         adapterPath: request.adapterPath
     )
-    let result = try await GenerateDynamicSchemaContentUseCase().execute(
-        DynamicSchemaGenerationRequest(
+    let result = try await FoundationModelDynamicSchemaGenerationUseCase().execute(
+        FoundationModelDynamicSchemaGenerationRequest(
             prompt: resolvedInput.value,
             schema: try request.schemaBuilder(request.presetID),
             systemPrompt: request.generation.systemPrompt,
@@ -509,7 +509,7 @@ private func runDynamicSchemaCommand(
 }
 
 private func emitDynamicSchemaResult(
-    _ result: DynamicSchemaGenerationResult,
+    _ result: FoundationModelDynamicSchemaGenerationResult,
     request: DynamicSchemaCommandRequest,
     example: AFMSchemaExampleDescriptor,
     resolvedInput: ResolvedTextInput,

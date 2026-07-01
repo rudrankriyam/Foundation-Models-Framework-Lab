@@ -1,6 +1,5 @@
 import ArgumentParser
 import Foundation
-import FoundationLabCore
 import FoundationModels
 import FoundationModelsKit
 
@@ -138,9 +137,9 @@ struct GenerationFlags: ParsableArguments {
     var maxTokens: Int?
 
     @Option(name: .long, help: "Guardrails mode.")
-    var guardrails: FoundationLabGuardrails = .default
+    var guardrails: FoundationModelGuardrails = .default
 
-    func validatedOptions() throws -> FoundationLabGenerationOptions? {
+    func validatedOptions() throws -> FoundationModelGenerationOptions? {
         try validateOptionCombinations()
         let resolvedSampling = resolvedSamplingMode()
 
@@ -148,7 +147,7 @@ struct GenerationFlags: ParsableArguments {
             return nil
         }
 
-        return FoundationLabGenerationOptions(
+        return FoundationModelGenerationOptions(
             sampling: resolvedSampling,
             temperature: temperature,
             maximumResponseTokens: maxTokens
@@ -179,7 +178,7 @@ struct GenerationFlags: ParsableArguments {
         }
     }
 
-    private func resolvedSamplingMode() -> FoundationLabGenerationOptions.SamplingMode? {
+    private func resolvedSamplingMode() -> FoundationModelGenerationOptions.SamplingMode? {
         switch sampling {
         case .greedy:
             return .greedy
@@ -195,7 +194,7 @@ struct GenerationFlags: ParsableArguments {
 
 struct ModelUseCaseFlags: ParsableArguments {
     @Option(name: .customLong("use-case"), help: "Specialized system model use case.")
-    var useCase: FoundationLabModelUseCase = .general
+    var useCase: FoundationModelUseCase = .general
 }
 
 struct SchemaPromptFlags: ParsableArguments {
@@ -272,16 +271,16 @@ func validatedExportPath(_ path: String, optionName: String = "--file") throws -
     return trimmedPath
 }
 
-func afmContext() -> CapabilityInvocationContext {
-    CapabilityInvocationContext(source: .cli, localeIdentifier: Locale.current.identifier)
+func afmContext() -> FoundationModelInvocationContext {
+    FoundationModelInvocationContext(source: .cli, localeIdentifier: Locale.current.identifier)
 }
 
 func defaultConversationConfiguration(
     systemPrompt: String?,
-    useCase: FoundationLabModelUseCase = .general,
-    guardrails: FoundationLabGuardrails = .default,
+    useCase: FoundationModelUseCase = .general,
+    guardrails: FoundationModelGuardrails = .default,
     tools: [any Tool] = []
-) -> FoundationLabConversationConfiguration {
+) -> FoundationModelConversationConfiguration {
     let trimmedSystemPrompt = systemPrompt?.trimmingCharacters(in: .whitespacesAndNewlines)
     let baseInstructions: String
 
@@ -291,7 +290,7 @@ func defaultConversationConfiguration(
         baseInstructions = "You are a helpful, concise AI assistant."
     }
 
-    return FoundationLabConversationConfiguration(
+    return FoundationModelConversationConfiguration(
         baseInstructions: baseInstructions,
         summaryInstructions: "You summarize conversations so the assistant can continue naturally.",
         summaryPromptPreamble: "Summarize this conversation so it can continue naturally:",
@@ -308,17 +307,17 @@ func defaultConversationConfiguration(
 
 @MainActor
 func makeConversationEngine(
-    configuration: FoundationLabConversationConfiguration,
+    configuration: FoundationModelConversationConfiguration,
     adapterPath: String?
-) throws -> FoundationLabConversationEngine {
+) throws -> FoundationModelConversationEngine {
     if let adapterURL = adapterURL(from: adapterPath) {
-        return try FoundationLabConversationEngine(
+        return try FoundationModelConversationEngine(
             configuration: configuration,
             adapterURL: adapterURL
         )
     }
 
-    return FoundationLabConversationEngine(configuration: configuration)
+    return FoundationModelConversationEngine(configuration: configuration)
 }
 
 func adapterURL(from path: String?) -> URL? {
@@ -326,9 +325,9 @@ func adapterURL(from path: String?) -> URL? {
 }
 
 func requireFoundationModelsAvailability(
-    useCase: FoundationLabModelUseCase = .general,
+    useCase: FoundationModelUseCase = .general,
     adapterPath: String? = nil
-) throws -> ModelAvailabilityResult {
+) throws -> FoundationModelAvailability {
     let availability = try FoundationModelsModelFactory.currentAvailability(
         useCase: useCase,
         adapterURL: adapterURL(from: adapterPath)
@@ -339,7 +338,7 @@ func requireFoundationModelsAvailability(
     return availability
 }
 
-func availabilityReasonDescription(_ availability: ModelAvailabilityResult) -> String {
+func availabilityReasonDescription(_ availability: FoundationModelAvailability) -> String {
     if availability.isAvailable {
         return "Apple Intelligence is available and ready to use."
     }
@@ -356,7 +355,7 @@ func availabilityReasonDescription(_ availability: ModelAvailabilityResult) -> S
     }
 }
 
-func currentSupportedLanguageDisplayName(from languages: [SupportedLanguageDescriptor]) -> String {
+func currentSupportedLanguageDisplayName(from languages: [FoundationModelSupportedLanguage]) -> String {
     let currentLocale = Locale.autoupdatingCurrent
     let currentLanguageCode = currentLocale.language.languageCode?.identifier
     let currentRegionCode = currentLocale.region?.identifier

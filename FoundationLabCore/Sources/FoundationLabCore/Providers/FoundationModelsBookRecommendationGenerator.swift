@@ -25,7 +25,7 @@ public struct FoundationModelsBookRecommendationGenerator: BookRecommendationGen
 
         return GenerateBookRecommendationResult(
             recommendation: response.content,
-            metadata: CapabilityExecutionMetadata(
+            metadata: FoundationModelExecutionMetadata(
                 provider: "Foundation Models",
                 tokenCount: tokenCount
             )

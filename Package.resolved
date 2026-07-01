@@ -1,5 +1,5 @@
 {
-  "originHash" : "4fd7ade2c27f1446b73af0eb5096100230f942192bea2ad0debf5bc4c6f3f520",
+  "originHash" : "30f1133392ba3cadd627186cb2fa80bd961808fa597adfaecac4412057acb6bf",
   "pins" : [
     {
       "identity" : "foundationmodelskit",
@@ -7,7 +7,7 @@
       "location" : "https://github.com/rryam/FoundationModelsKit.git",
       "state" : {
         "branch" : "main",
-        "revision" : "79a6f26f3a0aa5e5a2bea567ac249da474ddded6"
+        "revision" : "672f8231dff61364393bae04c84b1c921695eadc"
       }
     },
     {

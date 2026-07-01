@@ -1,14 +1,15 @@
 import Foundation
+import FoundationModelsKit
 
-public struct GenerateMultilingualResponsesRequest: CapabilityRequest {
-    public let supportedLanguages: [SupportedLanguageDescriptor]?
+public struct GenerateMultilingualResponsesRequest: FoundationModelCapabilityRequest {
+    public let supportedLanguages: [FoundationModelSupportedLanguage]?
     public let maximumResults: Int?
-    public let context: CapabilityInvocationContext
+    public let context: FoundationModelInvocationContext
 
     public init(
-        supportedLanguages: [SupportedLanguageDescriptor]? = nil,
+        supportedLanguages: [FoundationModelSupportedLanguage]? = nil,
         maximumResults: Int? = nil,
-        context: CapabilityInvocationContext
+        context: FoundationModelInvocationContext
     ) {
         self.supportedLanguages = supportedLanguages
         self.maximumResults = maximumResults

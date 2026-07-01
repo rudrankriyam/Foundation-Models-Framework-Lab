@@ -1,5 +1,6 @@
 import Foundation
 import FoundationModelsTools
+import FoundationModelsKit
 
 public struct FoundationModelsReminderManager: ReminderManaging {
     private let toolInvoker: FoundationModelsToolInvoker
@@ -8,7 +9,7 @@ public struct FoundationModelsReminderManager: ReminderManaging {
         self.toolInvoker = toolInvoker
     }
 
-    public func manageReminders(for request: ManageRemindersRequest) async throws -> TextGenerationResult {
+    public func manageReminders(for request: ManageRemindersRequest) async throws -> FoundationModelTextGenerationResult {
         let prompt = try prompt(for: request)
         let localeIdentifier = request.context.localeIdentifier ?? Locale.current.identifier
         let formattedDate = FoundationModelsPromptSupport.displayDate(

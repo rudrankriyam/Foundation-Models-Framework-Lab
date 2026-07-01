@@ -1,5 +1,6 @@
 import Foundation
 import FoundationModelsTools
+import FoundationModelsKit
 
 public struct FoundationModelsHealthDataQuerier: HealthDataQuerying {
     private let toolInvoker: FoundationModelsToolInvoker
@@ -8,7 +9,7 @@ public struct FoundationModelsHealthDataQuerier: HealthDataQuerying {
         self.toolInvoker = toolInvoker
     }
 
-    public func queryHealthData(for request: QueryHealthDataRequest) async throws -> TextGenerationResult {
+    public func queryHealthData(for request: QueryHealthDataRequest) async throws -> FoundationModelTextGenerationResult {
         let query = request.query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else {
             throw FoundationLabCoreError.invalidRequest("Missing query")

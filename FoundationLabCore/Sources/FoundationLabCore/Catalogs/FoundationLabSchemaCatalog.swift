@@ -1,4 +1,5 @@
 import Foundation
+import FoundationModelsKit
 
 public struct FoundationLabSchemaPreset: Sendable, Hashable, Codable, Identifiable {
     public let id: Int

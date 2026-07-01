@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FoundationLabCore
+import FoundationModelsKit
 
 struct SessionManagementView: View {
     @State private var conversationResults: [LanguageSessionExchange] = []
@@ -68,7 +69,7 @@ let result = try await RunConversationUseCase().execute(
             "What language did I first speak to you in?"
         ],
         systemPrompt: "You are a multilingual assistant who can naturally switch between languages and maintain conversational context.",
-        context: CapabilityInvocationContext(source: .app)
+        context: FoundationModelInvocationContext(source: .app)
     )
 )
 """
@@ -104,7 +105,7 @@ let result = try await RunConversationUseCase().execute(
                 RunLanguageSessionDemoRequest(
                     steps: steps,
                     systemPrompt: FoundationLabLanguageCatalog.multilingualSystemPrompt,
-                    context: CapabilityInvocationContext(
+                    context: FoundationModelInvocationContext(
                         source: .app,
                         localeIdentifier: Locale.current.identifier
                     )

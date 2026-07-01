@@ -1,6 +1,7 @@
 import Foundation
 import FoundationModels
 import FoundationModelsTools
+import FoundationModelsKit
 
 public enum FoundationLabBuiltInTool: String, CaseIterable, Codable, Hashable, Sendable, Identifiable {
     case weather

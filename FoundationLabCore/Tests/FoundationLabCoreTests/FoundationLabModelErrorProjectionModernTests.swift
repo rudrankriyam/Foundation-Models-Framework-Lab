@@ -3,6 +3,7 @@ import Darwin
 import Foundation
 import FoundationModels
 import XCTest
+import FoundationModelsKit
 @testable import FoundationLabCore
 
 private enum FoundationModelsModernRuntimeSupport {
@@ -16,7 +17,7 @@ private enum FoundationModelsModernRuntimeSupport {
 }
 
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
-final class FoundationLabModelErrorProjectionModernTests: XCTestCase {
+final class FoundationModelErrorProjectionModernTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         guard FoundationModelsModernRuntimeSupport.isAvailable else {
@@ -42,23 +43,23 @@ final class FoundationLabModelErrorProjectionModernTests: XCTestCase {
         )
 
         let overflowProjection = try XCTUnwrap(
-            FoundationLabModelErrorProjection.project(overflow)
+            FoundationModelErrorProjection.project(overflow)
         )
         let rateLimitProjection = try XCTUnwrap(
-            FoundationLabModelErrorProjection.project(rateLimit)
+            FoundationModelErrorProjection.project(rateLimit)
         )
 
         XCTAssertEqual(overflowProjection.category, .contextSizeExceeded)
         XCTAssertEqual(overflowProjection.contextSize, 8_192)
         XCTAssertEqual(overflowProjection.attemptedTokenCount, 8_321)
-        XCTAssertTrue(FoundationLabModelErrorProjection.isContextOverflow(overflow))
+        XCTAssertTrue(FoundationModelErrorProjection.isContextOverflow(overflow))
         XCTAssertEqual(rateLimitProjection.category, .rateLimited)
         XCTAssertEqual(rateLimitProjection.resetDate, resetDate)
-        XCTAssertFalse(FoundationLabModelErrorProjection.isContextOverflow(rateLimit))
+        XCTAssertFalse(FoundationModelErrorProjection.isContextOverflow(rateLimit))
 
         let encoded = try JSONEncoder().encode(overflowProjection)
         let decoded = try JSONDecoder().decode(
-            FoundationLabModelErrorProjection.self,
+            FoundationModelErrorProjection.self,
             from: encoded
         )
         XCTAssertEqual(decoded, overflowProjection)
@@ -87,13 +88,13 @@ final class FoundationLabModelErrorProjectionModernTests: XCTestCase {
         )
 
         let guardrailProjection = try XCTUnwrap(
-            FoundationLabModelErrorProjection.project(guardrail)
+            FoundationModelErrorProjection.project(guardrail)
         )
         let refusalProjection = try XCTUnwrap(
-            FoundationLabModelErrorProjection.project(refusal)
+            FoundationModelErrorProjection.project(refusal)
         )
         let capabilityProjection = try XCTUnwrap(
-            FoundationLabModelErrorProjection.project(unsupportedCapability)
+            FoundationModelErrorProjection.project(unsupportedCapability)
         )
 
         XCTAssertEqual(guardrailProjection.category, .guardrailViolation)
@@ -122,19 +123,19 @@ final class FoundationLabModelErrorProjectionModernTests: XCTestCase {
         )
 
         let contentProjection = try XCTUnwrap(
-            FoundationLabModelErrorProjection.project(unsupportedContent)
+            FoundationModelErrorProjection.project(unsupportedContent)
         )
         let guideProjection = try XCTUnwrap(
-            FoundationLabModelErrorProjection.project(unsupportedGuide)
+            FoundationModelErrorProjection.project(unsupportedGuide)
         )
         let languageProjection = try XCTUnwrap(
-            FoundationLabModelErrorProjection.project(unsupportedLanguage)
+            FoundationModelErrorProjection.project(unsupportedLanguage)
         )
         let timeoutProjection = try XCTUnwrap(
-            FoundationLabModelErrorProjection.project(timeout)
+            FoundationModelErrorProjection.project(timeout)
         )
         let parsingProjection = try XCTUnwrap(
-            FoundationLabModelErrorProjection.project(parsingError)
+            FoundationModelErrorProjection.project(parsingError)
         )
 
         XCTAssertEqual(contentProjection.category, .unsupportedTranscriptContent)
@@ -155,7 +156,7 @@ final class FoundationLabModelErrorProjectionModernTests: XCTestCase {
 
     func testRelatedModelErrorsUseStableCategories() throws {
         let resetDate = Date(timeIntervalSince1970: 1_800_000_000)
-        let fixtures: [(any Error, FoundationLabModelErrorProjection.Category)] = [
+        let fixtures: [(any Error, FoundationModelErrorProjection.Category)] = [
             (
                 SystemLanguageModel.Error.assetsUnavailable(
                     .init(debugDescription: "Assets unavailable")
@@ -188,13 +189,13 @@ final class FoundationLabModelErrorProjectionModernTests: XCTestCase {
         ]
 
         for (error, expectedCategory) in fixtures {
-            let projection = try XCTUnwrap(FoundationLabModelErrorProjection.project(error))
+            let projection = try XCTUnwrap(FoundationModelErrorProjection.project(error))
             XCTAssertEqual(projection.category, expectedCategory)
             XCTAssertFalse(projection.isContextOverflow)
         }
 
         let quotaProjection = try XCTUnwrap(
-            FoundationLabModelErrorProjection.project(fixtures[4].0)
+            FoundationModelErrorProjection.project(fixtures[4].0)
         )
         XCTAssertEqual(quotaProjection.resetDate, resetDate)
         XCTAssertEqual(quotaProjection.hasQuotaLimitIncreaseSuggestion, false)

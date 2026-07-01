@@ -1,6 +1,7 @@
 import AppIntents
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 
 struct QueryHealthDataIntent: AppIntent {
     static let title: LocalizedStringResource = "Read Health Data"
@@ -25,7 +26,7 @@ struct QueryHealthDataIntent: AppIntent {
                 """,
                 referenceDate: .now,
                 timeZoneIdentifier: TimeZone.current.identifier,
-                context: CapabilityInvocationContext(
+                context: FoundationModelInvocationContext(
                     source: .appIntent,
                     localeIdentifier: Locale.current.identifier
                 )

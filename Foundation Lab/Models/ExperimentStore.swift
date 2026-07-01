@@ -5,6 +5,7 @@
 
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 import Observation
 
 @MainActor

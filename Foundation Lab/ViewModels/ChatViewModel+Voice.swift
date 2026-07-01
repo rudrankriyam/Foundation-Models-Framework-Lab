@@ -1,5 +1,6 @@
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 import FoundationModels
 
 extension ChatViewModel {

@@ -1,6 +1,7 @@
 import AppIntents
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 
 struct SearchWebIntent: AppIntent {
     static let title: LocalizedStringResource = "Search Web"
@@ -19,7 +20,7 @@ struct SearchWebIntent: AppIntent {
         let response = try await SearchWebUseCase().execute(
             SearchWebRequest(
                 query: query,
-                context: CapabilityInvocationContext(
+                context: FoundationModelInvocationContext(
                     source: .appIntent,
                     localeIdentifier: Locale.current.identifier
                 )

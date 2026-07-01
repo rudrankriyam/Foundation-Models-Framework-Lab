@@ -1,4 +1,5 @@
 import Foundation
+import FoundationModelsKit
 
 public struct FoundationLabExperimentConfiguration: Codable, Hashable, Sendable, Identifiable {
     private enum CodingKeys: String, CodingKey {
@@ -22,9 +23,9 @@ public struct FoundationLabExperimentConfiguration: Codable, Hashable, Sendable,
     public var prompt: String
     public var instructions: String
     public var kind: FoundationLabExperimentKind
-    public var modelRuntime: FoundationLabModelRuntime
-    public var reasoningLevel: FoundationLabReasoningLevel
-    public var generationOptions: FoundationLabGenerationOptions
+    public var modelRuntime: FoundationModelRuntime
+    public var reasoningLevel: FoundationModelReasoningLevel
+    public var generationOptions: FoundationModelGenerationOptions
     public var selectedTools: [FoundationLabBuiltInTool]
     public var createdAt: Date
     public var modifiedAt: Date
@@ -36,9 +37,9 @@ public struct FoundationLabExperimentConfiguration: Codable, Hashable, Sendable,
         prompt: String = "",
         instructions: String = "",
         kind: FoundationLabExperimentKind = .conversation,
-        modelRuntime: FoundationLabModelRuntime = .onDevice,
-        reasoningLevel: FoundationLabReasoningLevel = .none,
-        generationOptions: FoundationLabGenerationOptions = FoundationLabGenerationOptions(),
+        modelRuntime: FoundationModelRuntime = .onDevice,
+        reasoningLevel: FoundationModelReasoningLevel = .none,
+        generationOptions: FoundationModelGenerationOptions = FoundationModelGenerationOptions(),
         selectedTools: [FoundationLabBuiltInTool] = [],
         createdAt: Date = .now,
         modifiedAt: Date? = nil
@@ -105,10 +106,10 @@ public struct FoundationLabExperimentConfiguration: Codable, Hashable, Sendable,
             prompt: (try? container.decode(String.self, forKey: .prompt)) ?? "",
             instructions: (try? container.decode(String.self, forKey: .instructions)) ?? "",
             kind: (try? container.decode(FoundationLabExperimentKind.self, forKey: .kind)) ?? .conversation,
-            modelRuntime: (try? container.decode(FoundationLabModelRuntime.self, forKey: .modelRuntime)) ?? .onDevice,
-            reasoningLevel: (try? container.decode(FoundationLabReasoningLevel.self, forKey: .reasoningLevel)) ?? .none,
-            generationOptions: (try? container.decode(FoundationLabGenerationOptions.self, forKey: .generationOptions))
-                ?? FoundationLabGenerationOptions(),
+            modelRuntime: (try? container.decode(FoundationModelRuntime.self, forKey: .modelRuntime)) ?? .onDevice,
+            reasoningLevel: (try? container.decode(FoundationModelReasoningLevel.self, forKey: .reasoningLevel)) ?? .none,
+            generationOptions: (try? container.decode(FoundationModelGenerationOptions.self, forKey: .generationOptions))
+                ?? FoundationModelGenerationOptions(),
             selectedTools: (try? container.decode([FoundationLabBuiltInTool].self, forKey: .selectedTools)) ?? [],
             createdAt: createdAt,
             modifiedAt: try? container.decode(Date.self, forKey: .modifiedAt)
@@ -121,9 +122,9 @@ public struct FoundationLabExperimentConfiguration: Codable, Hashable, Sendable,
     }
 
     private static func normalized(
-        _ options: FoundationLabGenerationOptions
-    ) -> FoundationLabGenerationOptions {
-        let sampling: FoundationLabGenerationOptions.SamplingMode?
+        _ options: FoundationModelGenerationOptions
+    ) -> FoundationModelGenerationOptions {
+        let sampling: FoundationModelGenerationOptions.SamplingMode?
         switch options.sampling {
         case .greedy:
             sampling = .greedy
@@ -143,7 +144,7 @@ public struct FoundationLabExperimentConfiguration: Codable, Hashable, Sendable,
             value > 0 ? value : nil
         }
 
-        return FoundationLabGenerationOptions(
+        return FoundationModelGenerationOptions(
             sampling: sampling,
             temperature: temperature,
             maximumResponseTokens: maximumResponseTokens

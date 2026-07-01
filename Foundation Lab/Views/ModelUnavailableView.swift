@@ -7,9 +7,10 @@
 
 import SwiftUI
 import FoundationLabCore
+import FoundationModelsKit
 
 struct ModelUnavailableView: View {
-    let reason: ModelAvailabilityUnavailableReason?
+    let reason: FoundationModelAvailabilityUnavailableReason?
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {

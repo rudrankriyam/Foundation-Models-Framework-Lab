@@ -1,6 +1,6 @@
 import ArgumentParser
 import Foundation
-import FoundationLabCore
+import FoundationModelsKit
 
 struct TagCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -47,7 +47,7 @@ struct TagRunCommand: AsyncParsableCommand {
                     adapter: adapterPath,
                     prompt: resolvedPrompt.value,
                     promptFile: resolvedPrompt.file,
-                    useCase: FoundationLabModelUseCase.contentTagging.rawValue,
+                    useCase: FoundationModelUseCase.contentTagging.rawValue,
                     guardrails: generation.guardrails.afmArgumentValue
                 ),
                 human: "[dry-run] afm tag run\nPrompt: \(resolvedPrompt.value)",
@@ -60,8 +60,8 @@ struct TagRunCommand: AsyncParsableCommand {
             useCase: .contentTagging,
             adapterPath: adapterPath
         )
-        let result = try await GenerateTextUseCase().execute(
-            TextGenerationRequest(
+        let result = try await FoundationModelTextGenerationUseCase().execute(
+            FoundationModelTextGenerationRequest(
                 prompt: resolvedPrompt.value,
                 systemPrompt: generation.systemPrompt,
                 modelUseCase: .contentTagging,
@@ -77,7 +77,7 @@ struct TagRunCommand: AsyncParsableCommand {
             command: "tag run",
             adapter: adapterPath,
             prompt: resolvedPrompt.value,
-            useCase: FoundationLabModelUseCase.contentTagging.rawValue,
+            useCase: FoundationModelUseCase.contentTagging.rawValue,
             guardrails: generation.guardrails.afmArgumentValue,
             response: result.content,
             tags: tags,

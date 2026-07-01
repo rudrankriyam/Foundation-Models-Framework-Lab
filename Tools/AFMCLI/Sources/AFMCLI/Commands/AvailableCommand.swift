@@ -1,6 +1,6 @@
 import ArgumentParser
 import Foundation
-import FoundationLabCore
+import FoundationModelsKit
 
 struct AvailableCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -25,7 +25,7 @@ struct AvailableCommand: AsyncParsableCommand {
             return
         }
 
-        let results = InspectModelRuntimeUseCase().execute(runtimes: selection.runtimes)
+        let results = FoundationModelRuntimeInspectionUseCase().execute(runtimes: selection.runtimes)
         let payload = AvailablePayload(models: results.map(AvailablePayload.Model.init))
         let human = results.map(availableDescription).joined(separator: "\n")
         try CLIOutput.emit(payload: payload, human: human, options: resolvedOutput)
@@ -39,14 +39,14 @@ struct AvailableCommand: AsyncParsableCommand {
 private struct AvailablePayload: Encodable {
     struct Model: Encodable {
         let id: String
-        let runtime: FoundationLabModelRuntime
+        let runtime: FoundationModelRuntime
         let isSupported: Bool
         let isAvailable: Bool
         let isRunnableInCurrentProcess: Bool
-        let authorization: ModelRuntimeAuthorization
-        let reason: ModelRuntimeUnavailableReason?
+        let authorization: FoundationModelRuntimeAuthorization
+        let reason: FoundationModelRuntimeUnavailableReason?
 
-        init(_ result: ModelRuntimeStatusResult) {
+        init(_ result: FoundationModelRuntimeStatus) {
             id = modelIdentifier(for: result.runtime)
             runtime = result.runtime
             isSupported = result.isSupported
@@ -61,7 +61,7 @@ private struct AvailablePayload: Encodable {
     let models: [Model]
 }
 
-func availableDescription(_ result: ModelRuntimeStatusResult) -> String {
+func availableDescription(_ result: FoundationModelRuntimeStatus) -> String {
     let name = modelDisplayName(for: result.runtime)
     if result.isRunnableInCurrentProcess {
         return "\(name): available"

@@ -132,7 +132,7 @@ public struct FoundationLabExperimentRun: Codable, Hashable, Sendable, Identifia
         return events
     }
 
-    private static func defaultModelIdentifier(for runtime: FoundationLabModelRuntime) -> String {
+    private static func defaultModelIdentifier(for runtime: FoundationModelRuntime) -> String {
         switch runtime {
         case .onDevice:
             "SystemLanguageModel"

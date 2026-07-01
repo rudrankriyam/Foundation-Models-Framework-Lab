@@ -7,6 +7,7 @@
 
 import AppIntents
 import FoundationLabCore
+import FoundationModelsKit
 
 enum ExampleDestination: String, AppEnum, CaseIterable {
     case basicChat

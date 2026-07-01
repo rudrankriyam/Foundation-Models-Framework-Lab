@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FoundationLabCore
+import FoundationModelsKit
 
 struct EnumDynamicSchemaView: View {
     @State private var executor = ExampleExecutor()
@@ -108,7 +109,7 @@ struct EnumDynamicSchemaView: View {
                     presetIndex: selectedExample,
                     input: currentInput,
                     customChoices: useCustomChoices ? parsedCustomChoices : nil,
-                    context: CapabilityInvocationContext(
+                    context: FoundationModelInvocationContext(
                         source: .app,
                         localeIdentifier: Locale.current.identifier
                     )

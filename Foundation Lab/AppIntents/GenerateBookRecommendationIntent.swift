@@ -8,6 +8,7 @@
 import AppIntents
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 
 struct GenerateBookRecommendationIntent: AppIntent {
     static let title: LocalizedStringResource = "Generate Book Recommendation"
@@ -34,7 +35,7 @@ struct GenerateBookRecommendationIntent: AppIntent {
             GenerateBookRecommendationRequest(
                 prompt: prompt,
                 systemPrompt: systemPrompt,
-                context: CapabilityInvocationContext(
+                context: FoundationModelInvocationContext(
                     source: .appIntent,
                     localeIdentifier: Locale.current.identifier
                 )

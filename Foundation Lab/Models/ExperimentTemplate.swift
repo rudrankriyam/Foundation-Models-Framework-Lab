@@ -5,6 +5,7 @@
 
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 
 enum ExperimentTrack: String, CaseIterable, Hashable, Identifiable {
     case startHere
@@ -205,7 +206,7 @@ extension ExperimentTemplate {
                     prompt: "Write a short field guide for observing the night sky from a city balcony.",
                     instructions: "Use a brief introduction followed by five practical tips.",
                     kind: .generation,
-                    generationOptions: FoundationLabGenerationOptions(maximumResponseTokens: 320)
+                    generationOptions: FoundationModelGenerationOptions(maximumResponseTokens: 320)
                 ))
             ),
             keywords: ["stream", "incremental", "live response"]
@@ -304,7 +305,7 @@ extension ExperimentTemplate {
                     prompt: "Propose three names for a privacy-first journaling app and explain the strongest choice.",
                     instructions: "Keep each name distinctive and make the comparison concrete.",
                     kind: .generation,
-                    generationOptions: FoundationLabGenerationOptions(
+                    generationOptions: FoundationModelGenerationOptions(
                         sampling: .randomTop(40, seed: 42),
                         temperature: 0.7,
                         maximumResponseTokens: 320
@@ -329,7 +330,7 @@ extension ExperimentTemplate {
                     prompt: "I felt scattered this morning, but a quiet walk helped me focus on the work that matters.",
                     instructions: "Summarize the reflection without diagnosing. Then offer one gentle follow-up question.",
                     kind: .applied,
-                    generationOptions: FoundationLabGenerationOptions(maximumResponseTokens: 220)
+                    generationOptions: FoundationModelGenerationOptions(maximumResponseTokens: 220)
                 ))
             ),
             keywords: ["reflection", "summary", "writing"]
@@ -347,7 +348,7 @@ extension ExperimentTemplate {
                     prompt: "Write a scene about a lighthouse keeper receiving an impossible weather report.",
                     instructions: "Use vivid but economical prose, no more than 350 words, and end on an unresolved image.",
                     kind: .generation,
-                    generationOptions: FoundationLabGenerationOptions(
+                    generationOptions: FoundationModelGenerationOptions(
                         temperature: 0.9,
                         maximumResponseTokens: 520
                     )

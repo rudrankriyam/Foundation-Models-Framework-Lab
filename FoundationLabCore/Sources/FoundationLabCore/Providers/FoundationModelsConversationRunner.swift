@@ -67,7 +67,7 @@ public struct FoundationModelsConversationRunner: ConversationRunning {
 
         return RunConversationResult(
             exchanges: exchanges,
-            metadata: CapabilityExecutionMetadata(
+            metadata: FoundationModelExecutionMetadata(
                 provider: "Foundation Models",
                 modelIdentifier: request.adapterURL?.lastPathComponent ?? request.modelUseCase.rawValue,
                 tokenCount: tokenCount

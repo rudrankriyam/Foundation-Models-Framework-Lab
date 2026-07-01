@@ -1,12 +1,13 @@
 import Foundation
+import FoundationModelsKit
 
-public struct RunSchemaExampleResult: CapabilityResult, Sendable, Hashable, Codable {
+public struct RunSchemaExampleResult: FoundationModelCapabilityResult, Sendable, Hashable, Codable {
     public let content: String
-    public let metadata: CapabilityExecutionMetadata
+    public let metadata: FoundationModelExecutionMetadata
 
     public init(
         content: String,
-        metadata: CapabilityExecutionMetadata = CapabilityExecutionMetadata()
+        metadata: FoundationModelExecutionMetadata = FoundationModelExecutionMetadata()
     ) {
         self.content = content
         self.metadata = metadata

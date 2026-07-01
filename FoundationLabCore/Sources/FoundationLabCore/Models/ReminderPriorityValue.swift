@@ -1,4 +1,5 @@
 import Foundation
+import FoundationModelsKit
 
 public enum ReminderPriorityValue: String, CaseIterable, Sendable, Hashable, Codable {
     case none

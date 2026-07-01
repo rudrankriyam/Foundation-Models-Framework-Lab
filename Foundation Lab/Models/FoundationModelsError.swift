@@ -7,6 +7,7 @@
 
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 import FoundationModels
 
 /// Custom error types for Foundation Models operations

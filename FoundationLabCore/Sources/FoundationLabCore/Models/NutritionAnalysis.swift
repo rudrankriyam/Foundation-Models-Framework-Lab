@@ -1,4 +1,5 @@
 import Foundation
+import FoundationModelsKit
 
 public struct NutritionAnalysis: Sendable, Hashable, Codable {
     public let foodName: String

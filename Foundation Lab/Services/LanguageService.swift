@@ -7,13 +7,14 @@
 
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 
 @MainActor
 @Observable
 final class LanguageService {
-    private let listSupportedLanguagesUseCase = ListSupportedLanguagesUseCase()
+    private let listSupportedLanguagesUseCase = FoundationModelSupportedLanguagesUseCase()
 
-    private(set) var supportedLanguages: [SupportedLanguageDescriptor] = []
+    private(set) var supportedLanguages: [FoundationModelSupportedLanguage] = []
     private(set) var isLoading = false
 
     init(autoLoad: Bool = true) {
@@ -32,7 +33,7 @@ final class LanguageService {
         isLoading = false
     }
 
-    func getDisplayName(for language: SupportedLanguageDescriptor) -> String {
+    func getDisplayName(for language: FoundationModelSupportedLanguage) -> String {
         language.displayName(in: .current)
     }
 

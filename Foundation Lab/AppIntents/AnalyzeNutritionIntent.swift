@@ -1,6 +1,7 @@
 import AppIntents
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 
 struct AnalyzeNutritionIntent: AppIntent {
     static let title: LocalizedStringResource = "Estimate Meal Nutrition"
@@ -24,7 +25,7 @@ struct AnalyzeNutritionIntent: AppIntent {
             AnalyzeNutritionRequest(
                 foodDescription: mealDescription,
                 responseLanguage: trimmedResponseLanguage?.isEmpty == false ? trimmedResponseLanguage! : "English",
-                context: CapabilityInvocationContext(
+                context: FoundationModelInvocationContext(
                     source: .appIntent,
                     localeIdentifier: Locale.current.identifier
                 )

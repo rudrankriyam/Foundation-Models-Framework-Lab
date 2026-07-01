@@ -1,7 +1,8 @@
 import Foundation
+import FoundationModelsKit
 
-public struct RunLanguageSessionDemoUseCase: CapabilityUseCase {
-    public static let descriptor = CapabilityDescriptor(
+public struct RunLanguageSessionDemoUseCase: FoundationModelCapabilityUseCase {
+    public static let descriptor = FoundationModelCapabilityDescriptor(
         id: "foundation-models.run-language-session-demo",
         displayName: "Run Language Session Demo",
         summary: "Runs the shared multilingual conversation demo through the FoundationLabCore conversation engine."

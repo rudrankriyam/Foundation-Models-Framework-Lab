@@ -1,7 +1,8 @@
 import Foundation
+import FoundationModelsKit
 
-public struct ManageRemindersUseCase: CapabilityUseCase {
-    public static let descriptor = CapabilityDescriptor(
+public struct ManageRemindersUseCase: FoundationModelCapabilityUseCase {
+    public static let descriptor = FoundationModelCapabilityDescriptor(
         id: "foundation-models.manage-reminders",
         displayName: "Manage Reminders",
         summary: "Creates and manages reminders using shared Foundation Models orchestration."
@@ -13,7 +14,7 @@ public struct ManageRemindersUseCase: CapabilityUseCase {
         self.manager = manager
     }
 
-    public func execute(_ request: ManageRemindersRequest) async throws -> TextGenerationResult {
+    public func execute(_ request: ManageRemindersRequest) async throws -> FoundationModelTextGenerationResult {
         switch request.mode {
         case .customPrompt:
             let prompt = request.customPrompt?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""

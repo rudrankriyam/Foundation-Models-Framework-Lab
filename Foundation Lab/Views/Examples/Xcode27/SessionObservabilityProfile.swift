@@ -5,6 +5,7 @@
 
 #if compiler(>=6.4)
 import FoundationLabCore
+import FoundationModelsKit
 import FoundationModels
 
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)

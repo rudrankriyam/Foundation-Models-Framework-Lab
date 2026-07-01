@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FoundationLabCore
+import FoundationModelsKit
 
 struct ProductionLanguageExampleView: View {
     @State private var detectedLanguage = ""
@@ -177,7 +178,7 @@ struct ProductionLanguageExampleView: View {
                 AnalyzeNutritionRequest(
                     foodDescription: foodDescription,
                     responseLanguage: selectedLanguage,
-                    context: CapabilityInvocationContext(
+                    context: FoundationModelInvocationContext(
                         source: .app,
                         localeIdentifier: Locale.current.identifier
                     )

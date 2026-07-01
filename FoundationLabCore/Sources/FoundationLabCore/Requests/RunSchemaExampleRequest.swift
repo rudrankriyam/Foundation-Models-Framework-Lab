@@ -1,14 +1,15 @@
 import Foundation
+import FoundationModelsKit
 
-public struct RunSchemaExampleRequest: CapabilityRequest {
+public struct RunSchemaExampleRequest: FoundationModelCapabilityRequest {
     public let example: FoundationLabSchemaExample
     public let presetIndex: Int
     public let input: String
     public let minimumElements: Int?
     public let maximumElements: Int?
     public let customChoices: [String]?
-    public let generationOptions: FoundationLabGenerationOptions?
-    public let context: CapabilityInvocationContext
+    public let generationOptions: FoundationModelGenerationOptions?
+    public let context: FoundationModelInvocationContext
 
     public init(
         example: FoundationLabSchemaExample,
@@ -17,8 +18,8 @@ public struct RunSchemaExampleRequest: CapabilityRequest {
         minimumElements: Int? = nil,
         maximumElements: Int? = nil,
         customChoices: [String]? = nil,
-        generationOptions: FoundationLabGenerationOptions? = FoundationLabGenerationOptions(temperature: 0.1),
-        context: CapabilityInvocationContext
+        generationOptions: FoundationModelGenerationOptions? = FoundationModelGenerationOptions(temperature: 0.1),
+        context: FoundationModelInvocationContext
     ) {
         self.example = example
         self.presetIndex = presetIndex

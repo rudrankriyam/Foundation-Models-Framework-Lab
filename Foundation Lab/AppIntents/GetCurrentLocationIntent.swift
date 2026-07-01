@@ -1,6 +1,7 @@
 import AppIntents
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 
 struct GetCurrentLocationIntent: AppIntent {
     static let title: LocalizedStringResource = "Get Current Location"
@@ -12,7 +13,7 @@ struct GetCurrentLocationIntent: AppIntent {
     func perform() async throws -> some IntentResult & ReturnsValue<String> {
         let response = try await GetCurrentLocationUseCase().execute(
             GetCurrentLocationRequest(
-                context: CapabilityInvocationContext(
+                context: FoundationModelInvocationContext(
                     source: .appIntent,
                     localeIdentifier: Locale.current.identifier
                 )

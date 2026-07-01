@@ -1,14 +1,15 @@
 import Foundation
+import FoundationModelsKit
 
-public struct GenerateBookRecommendationRequest: CapabilityRequest, Sendable, Hashable, Codable {
+public struct GenerateBookRecommendationRequest: FoundationModelCapabilityRequest, Sendable, Hashable, Codable {
     public let prompt: String
     public let systemPrompt: String?
-    public let context: CapabilityInvocationContext
+    public let context: FoundationModelInvocationContext
 
     public init(
         prompt: String,
         systemPrompt: String? = nil,
-        context: CapabilityInvocationContext
+        context: FoundationModelInvocationContext
     ) {
         self.prompt = prompt
         self.systemPrompt = systemPrompt

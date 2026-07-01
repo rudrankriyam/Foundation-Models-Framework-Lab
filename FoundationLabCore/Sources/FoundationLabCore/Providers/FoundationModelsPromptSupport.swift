@@ -1,4 +1,5 @@
 import Foundation
+import FoundationModelsKit
 
 enum FoundationModelsPromptSupport {
     static func combinedSystemPrompt(_ parts: [String?]) -> String? {

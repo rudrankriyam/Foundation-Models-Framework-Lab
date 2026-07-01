@@ -8,6 +8,7 @@
 import Foundation
 import FoundationLabCore
 import FoundationModels
+import FoundationModelsKit
 @preconcurrency import LumoKit
 @preconcurrency import VecturaKit
 
@@ -61,7 +62,7 @@ final class RAGChatViewModel {
     private var service: RAGService?
     private var isInitialized = false
     private var config: RAGConfig?
-    private let streamingTextUseCase = StreamTextGenerationUseCase()
+    private let streamingTextUseCase = FoundationModelStreamingTextGenerationUseCase()
 
     // Store titles per source key (for text/samples) and per chunk UUID (for files)
     private var sourceTitles: [String: String] = [:]
@@ -402,11 +403,11 @@ private extension RAGChatViewModel {
 
         do {
             streamingTask?.cancel()
-            let request = StreamingTextGenerationRequest(
+            let request = FoundationModelStreamingTextGenerationRequest(
                 prompt: prompt,
                 systemPrompt: systemPrompt,
                 modelUseCase: .general,
-                context: CapabilityInvocationContext(source: .app)
+                context: FoundationModelInvocationContext(source: .app)
             )
             let task = Task { @MainActor [streamingTextUseCase] in
                 let result = try await streamingTextUseCase.execute(request) { partialResponse in

@@ -1,5 +1,6 @@
 import Foundation
 import XCTest
+import FoundationModelsKit
 @testable import FoundationLabCore
 
 final class FoundationLabExperimentTests: XCTestCase {
@@ -15,7 +16,7 @@ final class FoundationLabExperimentTests: XCTestCase {
             kind: .toolUse,
             modelRuntime: .privateCloudCompute,
             reasoningLevel: .moderate,
-            generationOptions: FoundationLabGenerationOptions(
+            generationOptions: FoundationModelGenerationOptions(
                 sampling: .randomTop(40, seed: 42),
                 temperature: 0.4,
                 maximumResponseTokens: 256

@@ -1,6 +1,6 @@
 import ArgumentParser
 import Foundation
-import FoundationLabCore
+import FoundationModelsKit
 
 struct QuotaUsageCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -25,7 +25,7 @@ struct QuotaUsageCommand: AsyncParsableCommand {
             return
         }
 
-        let results = InspectModelQuotaUsageUseCase().execute(runtimes: selection.runtimes)
+        let results = FoundationModelQuotaUsageInspectionUseCase().execute(runtimes: selection.runtimes)
         let payload = QuotaUsagePayload(models: results.map(QuotaUsagePayload.Model.init))
         let human = results.map(quotaDescription).joined(separator: "\n")
         try CLIOutput.emit(payload: payload, human: human, options: resolvedOutput)
@@ -39,13 +39,13 @@ struct QuotaUsageCommand: AsyncParsableCommand {
 private struct QuotaUsagePayload: Encodable {
     struct Model: Encodable {
         let id: String
-        let runtime: FoundationLabModelRuntime
-        let status: ModelQuotaStatus
+        let runtime: FoundationModelRuntime
+        let status: FoundationModelQuotaStatus
         let resetDate: Date?
         let canRequestLimitIncrease: Bool
-        let unavailableReason: ModelRuntimeUnavailableReason?
+        let unavailableReason: FoundationModelRuntimeUnavailableReason?
 
-        init(_ result: ModelQuotaUsageResult) {
+        init(_ result: FoundationModelQuotaUsage) {
             id = modelIdentifier(for: result.runtime)
             runtime = result.runtime
             status = result.status
@@ -59,7 +59,7 @@ private struct QuotaUsagePayload: Encodable {
     let models: [Model]
 }
 
-private func quotaDescription(_ result: ModelQuotaUsageResult) -> String {
+private func quotaDescription(_ result: FoundationModelQuotaUsage) -> String {
     let name = modelDisplayName(for: result.runtime)
     switch result.status {
     case .notApplicable:

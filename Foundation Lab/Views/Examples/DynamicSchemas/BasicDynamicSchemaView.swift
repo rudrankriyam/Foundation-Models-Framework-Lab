@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FoundationLabCore
+import FoundationModelsKit
 
 struct BasicDynamicSchemaView: View {
     @State private var executor = ExampleExecutor()
@@ -124,7 +125,7 @@ struct BasicDynamicSchemaView: View {
                     example: .basicObject,
                     presetIndex: selectedExample,
                     input: currentInput,
-                    context: CapabilityInvocationContext(
+                    context: FoundationModelInvocationContext(
                         source: .app,
                         localeIdentifier: Locale.current.identifier
                     )

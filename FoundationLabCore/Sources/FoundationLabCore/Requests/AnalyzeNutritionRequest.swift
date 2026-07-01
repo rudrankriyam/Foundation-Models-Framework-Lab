@@ -1,16 +1,17 @@
 import Foundation
+import FoundationModelsKit
 
-public struct AnalyzeNutritionRequest: CapabilityRequest, Sendable, Hashable, Codable {
+public struct AnalyzeNutritionRequest: FoundationModelCapabilityRequest, Sendable, Hashable, Codable {
     public let foodDescription: String
     public let responseLanguage: String
-    public let guardrails: FoundationLabGuardrails?
-    public let context: CapabilityInvocationContext
+    public let guardrails: FoundationModelGuardrails?
+    public let context: FoundationModelInvocationContext
 
     public init(
         foodDescription: String,
         responseLanguage: String,
-        guardrails: FoundationLabGuardrails? = nil,
-        context: CapabilityInvocationContext
+        guardrails: FoundationModelGuardrails? = nil,
+        context: FoundationModelInvocationContext
     ) {
         self.foodDescription = foodDescription
         self.responseLanguage = responseLanguage

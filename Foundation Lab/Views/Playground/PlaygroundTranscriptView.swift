@@ -1,4 +1,5 @@
 import FoundationLabCore
+import FoundationModelsKit
 import FoundationModels
 import SwiftUI
 

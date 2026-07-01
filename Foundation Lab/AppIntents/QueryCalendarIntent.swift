@@ -1,6 +1,7 @@
 import AppIntents
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 
 struct QueryCalendarIntent: AppIntent {
     static let title: LocalizedStringResource = "Ask Calendar"
@@ -21,7 +22,7 @@ struct QueryCalendarIntent: AppIntent {
                 query: query,
                 referenceDate: .now,
                 timeZoneIdentifier: TimeZone.current.identifier,
-                context: CapabilityInvocationContext(
+                context: FoundationModelInvocationContext(
                     source: .appIntent,
                     localeIdentifier: Locale.current.identifier
                 )

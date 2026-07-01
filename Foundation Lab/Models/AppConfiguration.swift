@@ -8,6 +8,7 @@
 import Foundation
 import FoundationLabCore
 import FoundationModels
+import FoundationModelsKit
 
 /// Centralized configuration constants for the app
 enum AppConfiguration {
@@ -35,8 +36,8 @@ enum AppConfiguration {
         }
 
         static func contextSize(
-            modelUseCase: FoundationLabModelUseCase = .general,
-            guardrails: FoundationLabGuardrails = .default
+            modelUseCase: FoundationModelUseCase = .general,
+            guardrails: FoundationModelGuardrails = .default
         ) async -> Int {
             let model = SystemLanguageModel(
                 useCase: modelUseCase.foundationModelsValue,

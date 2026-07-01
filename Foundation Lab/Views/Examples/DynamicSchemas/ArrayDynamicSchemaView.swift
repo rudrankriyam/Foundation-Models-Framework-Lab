@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FoundationLabCore
+import FoundationModelsKit
 
 struct ArrayDynamicSchemaView: View {
     @State private var executor = ExampleExecutor()
@@ -102,7 +103,7 @@ struct ArrayDynamicSchemaView: View {
                     input: currentInput,
                     minimumElements: minItems,
                     maximumElements: maxItems,
-                    context: CapabilityInvocationContext(
+                    context: FoundationModelInvocationContext(
                         source: .app,
                         localeIdentifier: Locale.current.identifier
                     )

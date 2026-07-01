@@ -1,6 +1,5 @@
 import ArgumentParser
 import Foundation
-import FoundationLabCore
 import FoundationModels
 import FoundationModelsKit
 
@@ -81,8 +80,8 @@ struct SessionCommandContext {
 
 struct SessionEngineRequest {
     let systemPrompt: String?
-    let useCase: FoundationLabModelUseCase
-    let guardrails: FoundationLabGuardrails
+    let useCase: FoundationModelUseCase
+    let guardrails: FoundationModelGuardrails
     let tools: [any Tool]
     let adapterPath: String?
 }
@@ -90,7 +89,7 @@ struct SessionEngineRequest {
 struct SessionMessageRequest {
     let prompt: String
     let messageIndex: Int?
-    let generationOptions: FoundationLabGenerationOptions?
+    let generationOptions: FoundationModelGenerationOptions?
     let startedEvent: String?
     let deltaEvent: String?
     let completedEvent: String?
@@ -98,7 +97,7 @@ struct SessionMessageRequest {
 
 struct SessionChatRequest {
     let messages: [String]
-    let generationOptions: FoundationLabGenerationOptions?
+    let generationOptions: FoundationModelGenerationOptions?
 }
 
 struct SessionSnapshot {
@@ -119,7 +118,7 @@ struct ConversationRenderContext {
 }
 
 @MainActor
-func makeSessionEngine(_ request: SessionEngineRequest) throws -> FoundationLabConversationEngine {
+func makeSessionEngine(_ request: SessionEngineRequest) throws -> FoundationModelConversationEngine {
     try makeConversationEngine(
         configuration: defaultConversationConfiguration(
             systemPrompt: request.systemPrompt,
@@ -133,7 +132,7 @@ func makeSessionEngine(_ request: SessionEngineRequest) throws -> FoundationLabC
 
 @MainActor
 func executeSessionMessage(
-    engine: FoundationLabConversationEngine,
+    engine: FoundationModelConversationEngine,
     request: SessionMessageRequest,
     context: SessionCommandContext
 ) async throws -> String {
@@ -166,7 +165,7 @@ func executeSessionMessage(
 
 @MainActor
 func executeSessionChat(
-    engine: FoundationLabConversationEngine,
+    engine: FoundationModelConversationEngine,
     request: SessionChatRequest,
     context: SessionCommandContext
 ) async throws -> [AFMConversationExchange] {
@@ -191,7 +190,7 @@ func executeSessionChat(
 
 @MainActor
 func captureSessionSnapshot(
-    engine: FoundationLabConversationEngine,
+    engine: FoundationModelConversationEngine,
     includeTranscript: Bool
 ) -> SessionSnapshot {
     SessionSnapshot(

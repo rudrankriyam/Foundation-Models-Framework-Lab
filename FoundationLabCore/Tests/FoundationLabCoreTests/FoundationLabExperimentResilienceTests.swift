@@ -1,17 +1,18 @@
 import Foundation
 import XCTest
+import FoundationModelsKit
 @testable import FoundationLabCore
 
 final class FoundationLabExperimentResilienceTests: XCTestCase {
     func testConfigurationNormalizesExecutionInvariants() {
-        let options = FoundationLabGenerationOptions(
+        let options = FoundationModelGenerationOptions(
             sampling: .randomProbabilityThreshold(2, seed: 7),
             temperature: -.infinity,
             maximumResponseTokens: 0
         )
         let highTemperatureConfiguration = FoundationLabExperimentConfiguration(
             name: "Hot configuration",
-            generationOptions: FoundationLabGenerationOptions(temperature: 20)
+            generationOptions: FoundationModelGenerationOptions(temperature: 20)
         )
         let configuration = FoundationLabExperimentConfiguration(
             name: "Invalid configuration",
@@ -54,7 +55,7 @@ final class FoundationLabExperimentResilienceTests: XCTestCase {
         XCTAssertEqual(configuration.name, "Legacy experiment")
         XCTAssertEqual(configuration.reasoningLevel, .none)
         XCTAssertEqual(configuration.selectedTools, [.weather])
-        XCTAssertEqual(configuration.generationOptions, FoundationLabGenerationOptions())
+        XCTAssertEqual(configuration.generationOptions, FoundationModelGenerationOptions())
         XCTAssertEqual(configuration.modifiedAt, configuration.createdAt)
 
         let reencodedObject = try XCTUnwrap(

@@ -1,4 +1,5 @@
 import XCTest
+import FoundationModelsKit
 @testable import FoundationLabCore
 
 final class SearchWebUseCaseTests: XCTestCase {
@@ -9,7 +10,7 @@ final class SearchWebUseCaseTests: XCTestCase {
             try await useCase.execute(
                 SearchWebRequest(
                     query: "   ",
-                    context: CapabilityInvocationContext(source: .app)
+                    context: FoundationModelInvocationContext(source: .app)
                 )
             )
         ) { error in
@@ -21,9 +22,9 @@ final class SearchWebUseCaseTests: XCTestCase {
     }
 
     func testUseCaseDelegatesToSearcher() async throws {
-        let expected = TextGenerationResult(
+        let expected = FoundationModelTextGenerationResult(
             content: "Top result summary.",
-            metadata: CapabilityExecutionMetadata(
+            metadata: FoundationModelExecutionMetadata(
                 provider: "Stub",
                 modelIdentifier: "web-stub",
                 tokenCount: 31
@@ -35,7 +36,7 @@ final class SearchWebUseCaseTests: XCTestCase {
         let result = try await useCase.execute(
             SearchWebRequest(
                 query: " Foundation Models Framework ",
-                context: CapabilityInvocationContext(
+                context: FoundationModelInvocationContext(
                     source: .cli,
                     localeIdentifier: "en_US"
                 )
@@ -50,17 +51,17 @@ final class SearchWebUseCaseTests: XCTestCase {
 
 private final class WebSearcherStub: WebSearching, @unchecked Sendable {
     private(set) var lastRequest: SearchWebRequest?
-    private let result: TextGenerationResult
+    private let result: FoundationModelTextGenerationResult
 
     init(
-        result: TextGenerationResult = TextGenerationResult(
+        result: FoundationModelTextGenerationResult = FoundationModelTextGenerationResult(
             content: "Default search result"
         )
     ) {
         self.result = result
     }
 
-    func searchWeb(for request: SearchWebRequest) async throws -> TextGenerationResult {
+    func searchWeb(for request: SearchWebRequest) async throws -> FoundationModelTextGenerationResult {
         lastRequest = request
         return result
     }

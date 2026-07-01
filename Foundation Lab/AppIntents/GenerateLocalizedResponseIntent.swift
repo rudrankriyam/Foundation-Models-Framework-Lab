@@ -1,6 +1,7 @@
 import AppIntents
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 
 struct GenerateLocalizedResponseIntent: AppIntent {
     static let title: LocalizedStringResource = "Generate Localized Response"
@@ -38,11 +39,11 @@ struct GenerateLocalizedResponseIntent: AppIntent {
             }
             .joined(separator: "\n\n")
 
-        let result = try await GenerateTextUseCase().execute(
-            TextGenerationRequest(
+        let result = try await FoundationModelTextGenerationUseCase().execute(
+            FoundationModelTextGenerationRequest(
                 prompt: prompt,
                 systemPrompt: mergedSystemPrompt.isEmpty ? nil : mergedSystemPrompt,
-                context: CapabilityInvocationContext(
+                context: FoundationModelInvocationContext(
                     source: .appIntent,
                     localeIdentifier: Locale.current.identifier
                 )

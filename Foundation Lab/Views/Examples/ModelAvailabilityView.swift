@@ -6,6 +6,7 @@
 //
 
 import FoundationLabCore
+import FoundationModelsKit
 import SwiftUI
 
 struct ModelAvailabilityView: View {
@@ -69,7 +70,7 @@ struct ModelAvailabilityView: View {
     defer { isChecking = false }
     isAvailable = nil
 
-    let availability = CheckModelAvailabilityUseCase().execute()
+    let availability = FoundationModelAvailabilityUseCase().execute()
     isAvailable = availability.isAvailable
     availabilityStatus = availabilityMessage(for: availability)
   }
@@ -80,7 +81,7 @@ struct ModelAvailabilityView: View {
     isChecking = false // Also reset the checking state
   }
 
-  private func availabilityMessage(for result: ModelAvailabilityResult) -> String {
+  private func availabilityMessage(for result: FoundationModelAvailability) -> String {
     guard !result.isAvailable else {
       return "Apple Intelligence is available and the on-device model is ready."
     }

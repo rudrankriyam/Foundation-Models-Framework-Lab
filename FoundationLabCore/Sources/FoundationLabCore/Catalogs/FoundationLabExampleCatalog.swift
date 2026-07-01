@@ -1,4 +1,5 @@
 import Foundation
+import FoundationModelsKit
 
 public enum FoundationLabExampleDemo: String, CaseIterable, Sendable, Codable, Identifiable {
     case basicChat = "basic-chat"

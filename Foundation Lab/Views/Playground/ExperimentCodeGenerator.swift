@@ -1,4 +1,5 @@
 import FoundationLabCore
+import FoundationModelsKit
 
 enum ExperimentCodeGenerator {
     static func code(for configuration: FoundationLabExperimentConfiguration) -> String {

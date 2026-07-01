@@ -1,7 +1,8 @@
 import Foundation
+import FoundationModelsKit
 
-public struct AnalyzeNutritionUseCase: CapabilityUseCase {
-    public static let descriptor = CapabilityDescriptor(
+public struct AnalyzeNutritionUseCase: FoundationModelCapabilityUseCase {
+    public static let descriptor = FoundationModelCapabilityDescriptor(
         id: "languages.analyze-nutrition",
         displayName: "Analyze Nutrition",
         summary: "Parses a meal description and generates brief nutrition insights."

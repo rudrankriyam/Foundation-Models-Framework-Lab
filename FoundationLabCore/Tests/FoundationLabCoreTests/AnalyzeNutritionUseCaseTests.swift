@@ -1,4 +1,5 @@
 import XCTest
+import FoundationModelsKit
 @testable import FoundationLabCore
 
 final class AnalyzeNutritionUseCaseTests: XCTestCase {
@@ -12,7 +13,7 @@ final class AnalyzeNutritionUseCaseTests: XCTestCase {
                 AnalyzeNutritionRequest(
                     foodDescription: "   ",
                     responseLanguage: "English (en-US)",
-                    context: CapabilityInvocationContext(source: .app)
+                    context: FoundationModelInvocationContext(source: .app)
                 )
             )
         ) { error in
@@ -33,7 +34,7 @@ final class AnalyzeNutritionUseCaseTests: XCTestCase {
                 AnalyzeNutritionRequest(
                     foodDescription: "2 eggs and toast",
                     responseLanguage: "   ",
-                    context: CapabilityInvocationContext(source: .app)
+                    context: FoundationModelInvocationContext(source: .app)
                 )
             )
         ) { error in
@@ -54,7 +55,7 @@ final class AnalyzeNutritionUseCaseTests: XCTestCase {
                 fatGrams: 21,
                 insights: "A protein-rich meal with balanced fats."
             ),
-            metadata: CapabilityExecutionMetadata(
+            metadata: FoundationModelExecutionMetadata(
                 provider: "Stub",
                 modelIdentifier: "nutrition-stub",
                 tokenCount: 84
@@ -67,7 +68,7 @@ final class AnalyzeNutritionUseCaseTests: XCTestCase {
             AnalyzeNutritionRequest(
                 foodDescription: " Chicken salad with avocado ",
                 responseLanguage: "English (en-US)",
-                context: CapabilityInvocationContext(
+                context: FoundationModelInvocationContext(
                     source: .app,
                     localeIdentifier: "en_US"
                 )

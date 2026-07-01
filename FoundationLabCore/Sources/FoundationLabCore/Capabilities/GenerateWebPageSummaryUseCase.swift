@@ -1,7 +1,8 @@
 import Foundation
+import FoundationModelsKit
 
-public struct GenerateWebPageSummaryUseCase: CapabilityUseCase {
-    public static let descriptor = CapabilityDescriptor(
+public struct GenerateWebPageSummaryUseCase: FoundationModelCapabilityUseCase {
+    public static let descriptor = FoundationModelCapabilityDescriptor(
         id: "foundation-models.generate-web-page-summary",
         displayName: "Generate Web Page Summary",
         summary: "Summarizes a web page using shared Foundation Models orchestration."
@@ -13,7 +14,7 @@ public struct GenerateWebPageSummaryUseCase: CapabilityUseCase {
         self.summarizer = summarizer
     }
 
-    public func execute(_ request: GenerateWebPageSummaryRequest) async throws -> TextGenerationResult {
+    public func execute(_ request: GenerateWebPageSummaryRequest) async throws -> FoundationModelTextGenerationResult {
         let trimmedURL = request.url.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedURL.isEmpty else {
             throw FoundationLabCoreError.invalidRequest("Missing URL")

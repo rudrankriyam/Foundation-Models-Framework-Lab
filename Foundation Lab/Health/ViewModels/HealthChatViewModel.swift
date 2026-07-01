@@ -75,7 +75,7 @@ final class HealthChatViewModel {
     private var responseTask: Task<Void, Never>?
     private let healthDataManager: HealthDataManager
     private let languageModel = SystemLanguageModel.default
-    private let conversationEngine: FoundationLabConversationEngine
+    private let conversationEngine: FoundationModelConversationEngine
 
     // MARK: - Tools
 
@@ -86,7 +86,7 @@ final class HealthChatViewModel {
     init(healthDataManager: HealthDataManager? = nil) {
         self.healthDataManager = healthDataManager ?? .shared
 
-        let configuration = FoundationLabConversationConfiguration(
+        let configuration = FoundationModelConversationConfiguration(
             baseInstructions: Self.baseInstructions,
             summaryInstructions: """
             Preserve the HealthKit measurements, date ranges, unavailable fields, and user questions already discussed.
@@ -108,7 +108,7 @@ final class HealthChatViewModel {
             enableSlidingWindow: false,
             defaultMaxContextSize: AppConfiguration.TokenManagement.defaultMaxTokens
         )
-        let engine = FoundationLabConversationEngine(configuration: configuration)
+        let engine = FoundationModelConversationEngine(configuration: configuration)
         self.conversationEngine = engine
         self.session = engine.session
 

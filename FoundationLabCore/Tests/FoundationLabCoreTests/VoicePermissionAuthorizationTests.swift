@@ -1,4 +1,5 @@
 import Testing
+import FoundationModelsKit
 @testable import FoundationLabCore
 
 @Suite("Voice permission authorization")

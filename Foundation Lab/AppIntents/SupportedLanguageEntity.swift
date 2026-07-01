@@ -2,6 +2,7 @@ import AppIntents
 import CoreSpotlight
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 import UniformTypeIdentifiers
 
 struct SupportedLanguageEntityQuery: EntityStringQuery, EnumerableEntityQuery {
@@ -26,7 +27,7 @@ struct SupportedLanguageEntityQuery: EntityStringQuery, EnumerableEntityQuery {
     }
 
     func allEntities() async throws -> [SupportedLanguageEntity] {
-        ListSupportedLanguagesUseCase()
+        FoundationModelSupportedLanguagesUseCase()
             .execute(locale: .current)
             .languages
             .map { SupportedLanguageEntity(descriptor: $0) }
@@ -42,7 +43,7 @@ struct SupportedLanguageEntity: IndexedEntity {
     let regionCode: String?
     let displayName: String
 
-    init(descriptor: SupportedLanguageDescriptor) {
+    init(descriptor: FoundationModelSupportedLanguage) {
         let locale = Locale.current
         self.id = descriptor.identifier
         self.languageCode = descriptor.languageCode
@@ -76,7 +77,7 @@ struct SupportedLanguageEntity: IndexedEntity {
 
 private extension SupportedLanguageEntity {
     static func localizedDisplayName(
-        for descriptor: SupportedLanguageDescriptor,
+        for descriptor: FoundationModelSupportedLanguage,
         locale: Locale
     ) -> String {
         let languageName = locale.localizedString(forLanguageCode: descriptor.languageCode) ?? descriptor.languageCode

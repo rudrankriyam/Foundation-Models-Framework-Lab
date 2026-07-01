@@ -1,17 +1,18 @@
 import Foundation
-public struct SearchMusicCatalogRequest: CapabilityRequest, Sendable {
+import FoundationModelsKit
+public struct SearchMusicCatalogRequest: FoundationModelCapabilityRequest, Sendable {
     public let query: String
     public let systemPrompt: String?
-    public let modelUseCase: FoundationLabModelUseCase
-    public let guardrails: FoundationLabGuardrails?
-    public let context: CapabilityInvocationContext
+    public let modelUseCase: FoundationModelUseCase
+    public let guardrails: FoundationModelGuardrails?
+    public let context: FoundationModelInvocationContext
 
     public init(
         query: String,
         systemPrompt: String? = nil,
-        modelUseCase: FoundationLabModelUseCase = .general,
-        guardrails: FoundationLabGuardrails? = nil,
-        context: CapabilityInvocationContext
+        modelUseCase: FoundationModelUseCase = .general,
+        guardrails: FoundationModelGuardrails? = nil,
+        context: FoundationModelInvocationContext
     ) {
         self.query = query
         self.systemPrompt = systemPrompt

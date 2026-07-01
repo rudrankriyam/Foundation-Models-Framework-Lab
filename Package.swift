@@ -49,7 +49,6 @@ let package = Package(
             name: "AFMCLI",
             dependencies: [
                 .product(name: "AFMServer", package: "AFMServer"),
-                "FoundationLabCore",
                 .product(name: "FoundationModelsKit", package: "FoundationModelsKit"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Yams", package: "Yams")

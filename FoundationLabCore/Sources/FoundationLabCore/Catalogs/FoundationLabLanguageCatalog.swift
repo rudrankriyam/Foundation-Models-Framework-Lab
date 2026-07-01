@@ -1,4 +1,5 @@
 import Foundation
+import FoundationModelsKit
 
 public struct LanguagePrompt: Sendable, Hashable, Codable, Identifiable {
     public let id: UUID
@@ -63,7 +64,7 @@ public enum FoundationLabLanguageCatalog {
     ]
 
     public static func multilingualPrompts(
-        using supportedLanguages: [SupportedLanguageDescriptor],
+        using supportedLanguages: [FoundationModelSupportedLanguage],
         locale: Locale = .current,
         limit: Int? = nil
     ) -> [LanguagePrompt] {

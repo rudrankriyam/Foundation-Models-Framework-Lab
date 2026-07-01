@@ -1,12 +1,13 @@
 import Foundation
+import FoundationModelsKit
 
-public struct GenerateHealthEncouragementRequest: CapabilityRequest, Sendable, Hashable, Codable {
+public struct GenerateHealthEncouragementRequest: FoundationModelCapabilityRequest, Sendable, Hashable, Codable {
     public let healthScore: Int
     public let stepsProgressPercentage: Int
     public let sleepHours: Double
     public let activeEnergy: Int
     public let timeOfDay: String
-    public let context: CapabilityInvocationContext
+    public let context: FoundationModelInvocationContext
 
     public init(
         healthScore: Int,
@@ -14,7 +15,7 @@ public struct GenerateHealthEncouragementRequest: CapabilityRequest, Sendable, H
         sleepHours: Double,
         activeEnergy: Int,
         timeOfDay: String,
-        context: CapabilityInvocationContext
+        context: FoundationModelInvocationContext
     ) {
         self.healthScore = healthScore
         self.stepsProgressPercentage = stepsProgressPercentage

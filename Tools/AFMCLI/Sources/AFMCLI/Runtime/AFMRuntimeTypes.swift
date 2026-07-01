@@ -1,6 +1,6 @@
 import ArgumentParser
 import Foundation
-import FoundationLabCore
+import FoundationModelsKit
 import FoundationModels
 
 enum AFMRuntimeError: LocalizedError, Sendable, Equatable {
@@ -81,7 +81,7 @@ extension AFMFeedbackIssueCategory: ExpressibleByArgument {
     }
 }
 
-extension FoundationLabModelUseCase: ExpressibleByArgument {
+extension FoundationModelUseCase: @retroactive ExpressibleByArgument {
     public init?(argument: String) {
         let normalized = argument.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         switch normalized {
@@ -95,7 +95,7 @@ extension FoundationLabModelUseCase: ExpressibleByArgument {
     }
 }
 
-extension FoundationLabGuardrails: ExpressibleByArgument {
+extension FoundationModelGuardrails: @retroactive ExpressibleByArgument {
     public init?(argument: String) {
         let normalized = argument.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         switch normalized {

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FoundationLabCore
+import FoundationModelsKit
 
 struct MultilingualResponsesView: View {
     @State private var isRunning = false
@@ -70,10 +71,10 @@ let prompts: [LanguagePrompt] = [
 ]
 
 for prompt in prompts {
-    let result = try await GenerateTextUseCase().execute(
-        TextGenerationRequest(
+    let result = try await FoundationModelTextGenerationUseCase().execute(
+        FoundationModelTextGenerationRequest(
             prompt: prompt.text,
-            context: CapabilityInvocationContext(source: .app)
+            context: FoundationModelInvocationContext(source: .app)
         )
     )
     print("\\(prompt.name): \\(result.content)")
@@ -103,7 +104,7 @@ for prompt in prompts {
             let result = try await generateMultilingualResponsesUseCase.execute(
                 GenerateMultilingualResponsesRequest(
                     supportedLanguages: languageService.supportedLanguages,
-                    context: CapabilityInvocationContext(
+                    context: FoundationModelInvocationContext(
                         source: .app,
                         localeIdentifier: Locale.current.identifier
                     )

@@ -5,6 +5,7 @@
 
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 
 actor ExperimentPersistenceRepository {
     static let currentSchemaVersion = 1

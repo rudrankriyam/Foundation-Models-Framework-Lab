@@ -1,7 +1,8 @@
 import XCTest
+import FoundationModelsKit
 @testable import FoundationLabCore
 
-final class SharedToolCapabilityUseCaseTests: XCTestCase {
+final class SharedToolFoundationModelCapabilityUseCaseTests: XCTestCase {
     func testSearchContactsUseCaseRejectsBlankQuery() async {
         let useCase = SearchContactsUseCase(searcher: ContactsSearcherStub())
 
@@ -9,7 +10,7 @@ final class SharedToolCapabilityUseCaseTests: XCTestCase {
             try await useCase.execute(
                 SearchContactsRequest(
                     query: "   ",
-                    context: CapabilityInvocationContext(source: .app)
+                    context: FoundationModelInvocationContext(source: .app)
                 )
             )
         ) { error in
@@ -18,14 +19,14 @@ final class SharedToolCapabilityUseCaseTests: XCTestCase {
     }
 
     func testSearchContactsUseCaseDelegatesToSearcher() async throws {
-        let expected = TextGenerationResult(content: "Found Alex Example")
+        let expected = FoundationModelTextGenerationResult(content: "Found Alex Example")
         let stub = ContactsSearcherStub(result: expected)
         let useCase = SearchContactsUseCase(searcher: stub)
 
         let result = try await useCase.execute(
             SearchContactsRequest(
                 query: "Alex",
-                context: CapabilityInvocationContext(source: .appIntent)
+                context: FoundationModelInvocationContext(source: .appIntent)
             )
         )
 
@@ -40,7 +41,7 @@ final class SharedToolCapabilityUseCaseTests: XCTestCase {
             try await useCase.execute(
                 QueryCalendarRequest(
                     query: " ",
-                    context: CapabilityInvocationContext(source: .app)
+                    context: FoundationModelInvocationContext(source: .app)
                 )
             )
         ) { error in
@@ -49,14 +50,14 @@ final class SharedToolCapabilityUseCaseTests: XCTestCase {
     }
 
     func testQueryCalendarUseCaseDelegatesToQuerier() async throws {
-        let expected = TextGenerationResult(content: "You have a meeting at 2 PM.")
+        let expected = FoundationModelTextGenerationResult(content: "You have a meeting at 2 PM.")
         let stub = CalendarQuerierStub(result: expected)
         let useCase = QueryCalendarUseCase(querier: stub)
 
         let result = try await useCase.execute(
             QueryCalendarRequest(
                 query: "What do I have today?",
-                context: CapabilityInvocationContext(source: .app)
+                context: FoundationModelInvocationContext(source: .app)
             )
         )
 
@@ -72,7 +73,7 @@ final class SharedToolCapabilityUseCaseTests: XCTestCase {
                 ManageRemindersRequest(
                     mode: .customPrompt,
                     customPrompt: " ",
-                    context: CapabilityInvocationContext(source: .app)
+                    context: FoundationModelInvocationContext(source: .app)
                 )
             )
         ) { error in
@@ -88,7 +89,7 @@ final class SharedToolCapabilityUseCaseTests: XCTestCase {
                 ManageRemindersRequest(
                     mode: .quickCreate,
                     title: " ",
-                    context: CapabilityInvocationContext(source: .app)
+                    context: FoundationModelInvocationContext(source: .app)
                 )
             )
         ) { error in
@@ -97,7 +98,7 @@ final class SharedToolCapabilityUseCaseTests: XCTestCase {
     }
 
     func testManageRemindersUseCaseDelegatesToManager() async throws {
-        let expected = TextGenerationResult(content: "Reminder created successfully.")
+        let expected = FoundationModelTextGenerationResult(content: "Reminder created successfully.")
         let stub = ReminderManagerStub(result: expected)
         let useCase = ManageRemindersUseCase(manager: stub)
 
@@ -107,7 +108,7 @@ final class SharedToolCapabilityUseCaseTests: XCTestCase {
                 title: "Call Mom",
                 dueDate: .now,
                 priority: .high,
-                context: CapabilityInvocationContext(source: .app)
+                context: FoundationModelInvocationContext(source: .app)
             )
         )
 
@@ -117,13 +118,13 @@ final class SharedToolCapabilityUseCaseTests: XCTestCase {
     }
 
     func testGetCurrentLocationUseCaseDelegatesToResponder() async throws {
-        let expected = TextGenerationResult(content: "You are in Cupertino, CA.")
+        let expected = FoundationModelTextGenerationResult(content: "You are in Cupertino, CA.")
         let stub = LocationResponderStub(result: expected)
         let useCase = GetCurrentLocationUseCase(responder: stub)
 
         let result = try await useCase.execute(
             GetCurrentLocationRequest(
-                context: CapabilityInvocationContext(source: .app)
+                context: FoundationModelInvocationContext(source: .app)
             )
         )
 
@@ -138,7 +139,7 @@ final class SharedToolCapabilityUseCaseTests: XCTestCase {
             try await useCase.execute(
                 SearchMusicCatalogRequest(
                     query: "   ",
-                    context: CapabilityInvocationContext(source: .app)
+                    context: FoundationModelInvocationContext(source: .app)
                 )
             )
         ) { error in
@@ -147,14 +148,14 @@ final class SharedToolCapabilityUseCaseTests: XCTestCase {
     }
 
     func testSearchMusicCatalogUseCaseDelegatesToSearcher() async throws {
-        let expected = TextGenerationResult(content: "Found songs by Taylor Swift.")
+        let expected = FoundationModelTextGenerationResult(content: "Found songs by Taylor Swift.")
         let stub = MusicCatalogSearcherStub(result: expected)
         let useCase = SearchMusicCatalogUseCase(searcher: stub)
 
         let result = try await useCase.execute(
             SearchMusicCatalogRequest(
                 query: "Taylor Swift",
-                context: CapabilityInvocationContext(source: .app)
+                context: FoundationModelInvocationContext(source: .app)
             )
         )
 
@@ -169,7 +170,7 @@ final class SharedToolCapabilityUseCaseTests: XCTestCase {
             try await useCase.execute(
                 GenerateWebPageSummaryRequest(
                     url: " ",
-                    context: CapabilityInvocationContext(source: .cli)
+                    context: FoundationModelInvocationContext(source: .cli)
                 )
             )
         ) { error in
@@ -184,7 +185,7 @@ final class SharedToolCapabilityUseCaseTests: XCTestCase {
             try await useCase.execute(
                 GenerateWebPageSummaryRequest(
                     url: "ftp://example.com",
-                    context: CapabilityInvocationContext(source: .cli)
+                    context: FoundationModelInvocationContext(source: .cli)
                 )
             )
         ) { error in
@@ -193,14 +194,14 @@ final class SharedToolCapabilityUseCaseTests: XCTestCase {
     }
 
     func testGenerateWebPageSummaryUseCaseDelegatesToSummarizer() async throws {
-        let expected = TextGenerationResult(content: "This page describes Foundation Models.")
+        let expected = FoundationModelTextGenerationResult(content: "This page describes Foundation Models.")
         let stub = WebPageSummarizerStub(result: expected)
         let useCase = GenerateWebPageSummaryUseCase(summarizer: stub)
 
         let result = try await useCase.execute(
             GenerateWebPageSummaryRequest(
                 url: "https://developer.apple.com",
-                context: CapabilityInvocationContext(source: .app)
+                context: FoundationModelInvocationContext(source: .app)
             )
         )
 
@@ -215,7 +216,7 @@ final class SharedToolCapabilityUseCaseTests: XCTestCase {
             try await useCase.execute(
                 QueryHealthDataRequest(
                     query: " ",
-                    context: CapabilityInvocationContext(source: .app)
+                    context: FoundationModelInvocationContext(source: .app)
                 )
             )
         ) { error in
@@ -224,14 +225,14 @@ final class SharedToolCapabilityUseCaseTests: XCTestCase {
     }
 
     func testQueryHealthDataUseCaseDelegatesToQuerier() async throws {
-        let expected = TextGenerationResult(content: "You walked 8,000 steps today.")
+        let expected = FoundationModelTextGenerationResult(content: "You walked 8,000 steps today.")
         let stub = HealthDataQuerierStub(result: expected)
         let useCase = QueryHealthDataUseCase(querier: stub)
 
         let result = try await useCase.execute(
             QueryHealthDataRequest(
                 query: "How many steps did I take today?",
-                context: CapabilityInvocationContext(source: .app)
+                context: FoundationModelInvocationContext(source: .app)
             )
         )
 
@@ -242,13 +243,13 @@ final class SharedToolCapabilityUseCaseTests: XCTestCase {
 
 private final class ContactsSearcherStub: ContactsSearching, @unchecked Sendable {
     private(set) var lastRequest: SearchContactsRequest?
-    private let result: TextGenerationResult
+    private let result: FoundationModelTextGenerationResult
 
-    init(result: TextGenerationResult = TextGenerationResult(content: "Default contact result")) {
+    init(result: FoundationModelTextGenerationResult = FoundationModelTextGenerationResult(content: "Default contact result")) {
         self.result = result
     }
 
-    func searchContacts(for request: SearchContactsRequest) async throws -> TextGenerationResult {
+    func searchContacts(for request: SearchContactsRequest) async throws -> FoundationModelTextGenerationResult {
         lastRequest = request
         return result
     }
@@ -256,13 +257,13 @@ private final class ContactsSearcherStub: ContactsSearching, @unchecked Sendable
 
 private final class CalendarQuerierStub: CalendarQuerying, @unchecked Sendable {
     private(set) var lastRequest: QueryCalendarRequest?
-    private let result: TextGenerationResult
+    private let result: FoundationModelTextGenerationResult
 
-    init(result: TextGenerationResult = TextGenerationResult(content: "Default calendar result")) {
+    init(result: FoundationModelTextGenerationResult = FoundationModelTextGenerationResult(content: "Default calendar result")) {
         self.result = result
     }
 
-    func queryCalendar(for request: QueryCalendarRequest) async throws -> TextGenerationResult {
+    func queryCalendar(for request: QueryCalendarRequest) async throws -> FoundationModelTextGenerationResult {
         lastRequest = request
         return result
     }
@@ -270,13 +271,13 @@ private final class CalendarQuerierStub: CalendarQuerying, @unchecked Sendable {
 
 private final class ReminderManagerStub: ReminderManaging, @unchecked Sendable {
     private(set) var lastRequest: ManageRemindersRequest?
-    private let result: TextGenerationResult
+    private let result: FoundationModelTextGenerationResult
 
-    init(result: TextGenerationResult = TextGenerationResult(content: "Default reminder result")) {
+    init(result: FoundationModelTextGenerationResult = FoundationModelTextGenerationResult(content: "Default reminder result")) {
         self.result = result
     }
 
-    func manageReminders(for request: ManageRemindersRequest) async throws -> TextGenerationResult {
+    func manageReminders(for request: ManageRemindersRequest) async throws -> FoundationModelTextGenerationResult {
         lastRequest = request
         return result
     }
@@ -284,13 +285,13 @@ private final class ReminderManagerStub: ReminderManaging, @unchecked Sendable {
 
 private final class LocationResponderStub: LocationResponding, @unchecked Sendable {
     private(set) var lastRequest: GetCurrentLocationRequest?
-    private let result: TextGenerationResult
+    private let result: FoundationModelTextGenerationResult
 
-    init(result: TextGenerationResult = TextGenerationResult(content: "Default location result")) {
+    init(result: FoundationModelTextGenerationResult = FoundationModelTextGenerationResult(content: "Default location result")) {
         self.result = result
     }
 
-    func getCurrentLocation(for request: GetCurrentLocationRequest) async throws -> TextGenerationResult {
+    func getCurrentLocation(for request: GetCurrentLocationRequest) async throws -> FoundationModelTextGenerationResult {
         lastRequest = request
         return result
     }
@@ -298,13 +299,13 @@ private final class LocationResponderStub: LocationResponding, @unchecked Sendab
 
 private final class MusicCatalogSearcherStub: MusicCatalogSearching, @unchecked Sendable {
     private(set) var lastRequest: SearchMusicCatalogRequest?
-    private let result: TextGenerationResult
+    private let result: FoundationModelTextGenerationResult
 
-    init(result: TextGenerationResult = TextGenerationResult(content: "Default music result")) {
+    init(result: FoundationModelTextGenerationResult = FoundationModelTextGenerationResult(content: "Default music result")) {
         self.result = result
     }
 
-    func searchMusic(for request: SearchMusicCatalogRequest) async throws -> TextGenerationResult {
+    func searchMusic(for request: SearchMusicCatalogRequest) async throws -> FoundationModelTextGenerationResult {
         lastRequest = request
         return result
     }
@@ -312,13 +313,13 @@ private final class MusicCatalogSearcherStub: MusicCatalogSearching, @unchecked 
 
 private final class WebPageSummarizerStub: WebPageSummarizing, @unchecked Sendable {
     private(set) var lastRequest: GenerateWebPageSummaryRequest?
-    private let result: TextGenerationResult
+    private let result: FoundationModelTextGenerationResult
 
-    init(result: TextGenerationResult = TextGenerationResult(content: "Default web summary")) {
+    init(result: FoundationModelTextGenerationResult = FoundationModelTextGenerationResult(content: "Default web summary")) {
         self.result = result
     }
 
-    func summarizePage(for request: GenerateWebPageSummaryRequest) async throws -> TextGenerationResult {
+    func summarizePage(for request: GenerateWebPageSummaryRequest) async throws -> FoundationModelTextGenerationResult {
         lastRequest = request
         return result
     }
@@ -326,13 +327,13 @@ private final class WebPageSummarizerStub: WebPageSummarizing, @unchecked Sendab
 
 private final class HealthDataQuerierStub: HealthDataQuerying, @unchecked Sendable {
     private(set) var lastRequest: QueryHealthDataRequest?
-    private let result: TextGenerationResult
+    private let result: FoundationModelTextGenerationResult
 
-    init(result: TextGenerationResult = TextGenerationResult(content: "Default health result")) {
+    init(result: FoundationModelTextGenerationResult = FoundationModelTextGenerationResult(content: "Default health result")) {
         self.result = result
     }
 
-    func queryHealthData(for request: QueryHealthDataRequest) async throws -> TextGenerationResult {
+    func queryHealthData(for request: QueryHealthDataRequest) async throws -> FoundationModelTextGenerationResult {
         lastRequest = request
         return result
     }
