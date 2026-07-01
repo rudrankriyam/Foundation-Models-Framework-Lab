@@ -181,7 +181,7 @@ let useCase = GenerateBookRecommendationUseCase()
 let response = try await useCase.execute(
     GenerateBookRecommendationRequest(
         prompt: "\(escapedPrompt)",
-        context: CapabilityInvocationContext(source: .app)
+        context: FoundationModelInvocationContext(source: .app)
     )
 )
 let book = response.recommendation
@@ -193,6 +193,7 @@ let book = response.recommendation
     let escapedPrompt = codeEscaped(prompt)
     return """
 import FoundationModels
+import FoundationModelsKit
 
 // Uses ProductReview struct from DataModels.swift
 let session = LanguageModelSession()
@@ -267,7 +268,7 @@ let summary = response.content
   static let modelAvailabilityCode = """
 import FoundationLabCore
 
-let result = CheckModelAvailabilityUseCase().execute()
+let result = FoundationModelAvailabilityUseCase().execute()
 
 if result.isAvailable {
     print("Apple Intelligence is ready")

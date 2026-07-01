@@ -1,7 +1,8 @@
 import Foundation
+import FoundationModelsKit
 
-public struct GenerateHealthEncouragementUseCase: CapabilityUseCase {
-    public static let descriptor = CapabilityDescriptor(
+public struct GenerateHealthEncouragementUseCase: FoundationModelCapabilityUseCase {
+    public static let descriptor = FoundationModelCapabilityDescriptor(
         id: "health.generate-encouragement",
         displayName: "Generate Health Encouragement",
         summary: "Generates a short health encouragement message from health dashboard metrics."

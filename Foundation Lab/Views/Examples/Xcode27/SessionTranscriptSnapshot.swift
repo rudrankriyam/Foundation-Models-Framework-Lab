@@ -5,6 +5,7 @@
 
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 import CoreGraphics
 
 #if compiler(>=6.4)

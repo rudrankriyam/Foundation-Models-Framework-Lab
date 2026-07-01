@@ -1,6 +1,7 @@
 import AppIntents
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 
 struct GetWeatherIntent: AppIntent {
     static let title: LocalizedStringResource = "Get Weather"
@@ -19,7 +20,7 @@ struct GetWeatherIntent: AppIntent {
         let response = try await GetWeatherUseCase().execute(
             GetWeatherRequest(
                 location: location,
-                context: CapabilityInvocationContext(
+                context: FoundationModelInvocationContext(
                     source: .appIntent,
                     localeIdentifier: Locale.current.identifier
                 )

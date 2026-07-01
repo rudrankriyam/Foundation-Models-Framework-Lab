@@ -6,6 +6,7 @@
 //
 
 import FoundationLabCore
+import FoundationModelsKit
 import SwiftUI
 
 struct GenerationGuidesView: View {

@@ -1,5 +1,6 @@
 import FoundationLabCore
 import FoundationModels
+import FoundationModelsKit
 import SwiftUI
 
 struct PlaygroundView: View {
@@ -367,7 +368,7 @@ private extension PlaygroundView {
             || configuration.selectedTools != appliedConfiguration.selectedTools
     }
 
-    private func modelIdentifier(for runtime: FoundationLabModelRuntime) -> String {
+    private func modelIdentifier(for runtime: FoundationModelRuntime) -> String {
         switch runtime {
         case .onDevice:
             return "SystemLanguageModel"

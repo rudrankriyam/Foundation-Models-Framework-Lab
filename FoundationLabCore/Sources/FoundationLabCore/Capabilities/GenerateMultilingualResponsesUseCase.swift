@@ -1,18 +1,19 @@
 import Foundation
+import FoundationModelsKit
 
-public struct GenerateMultilingualResponsesUseCase: CapabilityUseCase {
-    public static let descriptor = CapabilityDescriptor(
+public struct GenerateMultilingualResponsesUseCase: FoundationModelCapabilityUseCase {
+    public static let descriptor = FoundationModelCapabilityDescriptor(
         id: "foundation-models.generate-multilingual-responses",
         displayName: "Generate Multilingual Responses",
         summary: "Generates a set of short multilingual responses using Foundation Models."
     )
 
-    private let textGenerator: GenerateTextUseCase
-    private let supportedLanguages: ListSupportedLanguagesUseCase
+    private let textGenerator: FoundationModelTextGenerationUseCase
+    private let supportedLanguages: FoundationModelSupportedLanguagesUseCase
 
     public init(
-        textGenerator: GenerateTextUseCase = GenerateTextUseCase(),
-        supportedLanguages: ListSupportedLanguagesUseCase = ListSupportedLanguagesUseCase()
+        textGenerator: FoundationModelTextGenerationUseCase = FoundationModelTextGenerationUseCase(),
+        supportedLanguages: FoundationModelSupportedLanguagesUseCase = FoundationModelSupportedLanguagesUseCase()
     ) {
         self.textGenerator = textGenerator
         self.supportedLanguages = supportedLanguages
@@ -36,7 +37,7 @@ public struct GenerateMultilingualResponsesUseCase: CapabilityUseCase {
         for prompt in prompts {
             do {
                 let response = try await textGenerator.execute(
-                    TextGenerationRequest(
+                    FoundationModelTextGenerationRequest(
                         prompt: prompt.text,
                         context: request.context
                     )
@@ -69,7 +70,7 @@ public struct GenerateMultilingualResponsesUseCase: CapabilityUseCase {
             }
         }
 
-        let aggregatedMetadata = CapabilityExecutionMetadata(
+        let aggregatedMetadata = FoundationModelExecutionMetadata(
             provider: successfulResponses > 0 ? "Foundation Models" : nil,
             modelIdentifier: nil,
             tokenCount: successfulResponses > 0 ? totalTokenCount : nil

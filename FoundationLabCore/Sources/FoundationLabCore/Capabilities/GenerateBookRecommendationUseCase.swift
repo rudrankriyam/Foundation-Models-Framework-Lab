@@ -1,7 +1,8 @@
 import Foundation
+import FoundationModelsKit
 
-public struct GenerateBookRecommendationUseCase: CapabilityUseCase {
-    public static let descriptor = CapabilityDescriptor(
+public struct GenerateBookRecommendationUseCase: FoundationModelCapabilityUseCase {
+    public static let descriptor = FoundationModelCapabilityDescriptor(
         id: "examples.generate-book-recommendation",
         displayName: "Generate Book Recommendation",
         summary: "Generates a structured book recommendation."

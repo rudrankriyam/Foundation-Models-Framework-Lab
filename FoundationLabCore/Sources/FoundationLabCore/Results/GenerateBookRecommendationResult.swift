@@ -1,12 +1,13 @@
 import Foundation
+import FoundationModelsKit
 
-public struct GenerateBookRecommendationResult: CapabilityResult, Sendable, Hashable, Codable {
+public struct GenerateBookRecommendationResult: FoundationModelCapabilityResult, Sendable, Hashable, Codable {
     public let recommendation: BookRecommendation
-    public let metadata: CapabilityExecutionMetadata
+    public let metadata: FoundationModelExecutionMetadata
 
     public init(
         recommendation: BookRecommendation,
-        metadata: CapabilityExecutionMetadata = CapabilityExecutionMetadata()
+        metadata: FoundationModelExecutionMetadata = FoundationModelExecutionMetadata()
     ) {
         self.recommendation = recommendation
         self.metadata = metadata

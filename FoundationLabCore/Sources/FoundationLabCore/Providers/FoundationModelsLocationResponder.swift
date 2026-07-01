@@ -1,5 +1,6 @@
 import Foundation
 import FoundationModelsTools
+import FoundationModelsKit
 
 public struct FoundationModelsLocationResponder: LocationResponding {
     private let toolInvoker: FoundationModelsToolInvoker
@@ -8,7 +9,7 @@ public struct FoundationModelsLocationResponder: LocationResponding {
         self.toolInvoker = toolInvoker
     }
 
-    public func getCurrentLocation(for request: GetCurrentLocationRequest) async throws -> TextGenerationResult {
+    public func getCurrentLocation(for request: GetCurrentLocationRequest) async throws -> FoundationModelTextGenerationResult {
         try await toolInvoker.respond(
             to: "What's my current location?",
             using: LocationTool(),

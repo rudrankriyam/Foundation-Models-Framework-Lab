@@ -1,21 +1,22 @@
 import Foundation
-public struct RunConversationRequest: CapabilityRequest, Sendable {
+import FoundationModelsKit
+public struct RunConversationRequest: FoundationModelCapabilityRequest, Sendable {
     public let prompts: [String]
     public let systemPrompt: String?
-    public let modelUseCase: FoundationLabModelUseCase
-    public let guardrails: FoundationLabGuardrails?
+    public let modelUseCase: FoundationModelUseCase
+    public let guardrails: FoundationModelGuardrails?
     public let adapterURL: URL?
-    public let generationOptions: FoundationLabGenerationOptions?
-    public let context: CapabilityInvocationContext
+    public let generationOptions: FoundationModelGenerationOptions?
+    public let context: FoundationModelInvocationContext
 
     public init(
         prompts: [String],
         systemPrompt: String? = nil,
-        modelUseCase: FoundationLabModelUseCase = .general,
-        guardrails: FoundationLabGuardrails? = nil,
+        modelUseCase: FoundationModelUseCase = .general,
+        guardrails: FoundationModelGuardrails? = nil,
         adapterURL: URL? = nil,
-        generationOptions: FoundationLabGenerationOptions? = nil,
-        context: CapabilityInvocationContext
+        generationOptions: FoundationModelGenerationOptions? = nil,
+        context: FoundationModelInvocationContext
     ) {
         self.prompts = prompts
         self.systemPrompt = systemPrompt

@@ -1,7 +1,8 @@
 import Foundation
+import FoundationModelsKit
 
-public struct SearchContactsUseCase: CapabilityUseCase {
-    public static let descriptor = CapabilityDescriptor(
+public struct SearchContactsUseCase: FoundationModelCapabilityUseCase {
+    public static let descriptor = FoundationModelCapabilityDescriptor(
         id: "foundation-models.search-contacts",
         displayName: "Search Contacts",
         summary: "Searches the user's contacts using a shared Foundation Models capability."
@@ -13,7 +14,7 @@ public struct SearchContactsUseCase: CapabilityUseCase {
         self.searcher = searcher
     }
 
-    public func execute(_ request: SearchContactsRequest) async throws -> TextGenerationResult {
+    public func execute(_ request: SearchContactsRequest) async throws -> FoundationModelTextGenerationResult {
         let query = request.query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else {
             throw FoundationLabCoreError.invalidRequest("Missing query")

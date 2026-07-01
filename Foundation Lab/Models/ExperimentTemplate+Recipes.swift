@@ -5,6 +5,7 @@
 
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 
 extension ExperimentTemplate {
     static func recipeConfiguration(

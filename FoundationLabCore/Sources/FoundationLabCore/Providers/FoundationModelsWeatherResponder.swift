@@ -1,5 +1,6 @@
 import Foundation
 import FoundationModelsTools
+import FoundationModelsKit
 
 public struct FoundationModelsWeatherResponder: WeatherResponding {
     private let toolInvoker: FoundationModelsToolInvoker
@@ -8,7 +9,7 @@ public struct FoundationModelsWeatherResponder: WeatherResponding {
         self.toolInvoker = toolInvoker
     }
 
-    public func weather(for request: GetWeatherRequest) async throws -> TextGenerationResult {
+    public func weather(for request: GetWeatherRequest) async throws -> FoundationModelTextGenerationResult {
         let location = request.location.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !location.isEmpty else {
             throw FoundationLabCoreError.invalidRequest("Missing location")

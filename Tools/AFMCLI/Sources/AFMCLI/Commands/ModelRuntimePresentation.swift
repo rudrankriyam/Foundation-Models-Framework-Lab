@@ -1,5 +1,5 @@
 import Foundation
-import FoundationLabCore
+import FoundationModelsKit
 
 struct RuntimeDryRunPayload: Encodable {
     let status = "dry_run"
@@ -7,15 +7,15 @@ struct RuntimeDryRunPayload: Encodable {
     let model: String?
 }
 
-func modelIdentifier(for runtime: FoundationLabModelRuntime) -> String {
+func modelIdentifier(for runtime: FoundationModelRuntime) -> String {
     runtime == .onDevice ? "system" : "pcc"
 }
 
-func modelDisplayName(for runtime: FoundationLabModelRuntime) -> String {
+func modelDisplayName(for runtime: FoundationModelRuntime) -> String {
     runtime == .onDevice ? "System" : "PCC"
 }
 
-func runtimeReasonDescription(_ reason: ModelRuntimeUnavailableReason?) -> String {
+func runtimeReasonDescription(_ reason: FoundationModelRuntimeUnavailableReason?) -> String {
     switch reason {
     case .deviceNotEligible:
         return "device is not eligible"
@@ -36,7 +36,7 @@ func runtimeReasonDescription(_ reason: ModelRuntimeUnavailableReason?) -> Strin
     }
 }
 
-func runtimeAuthorizationDescription(_ authorization: ModelRuntimeAuthorization) -> String {
+func runtimeAuthorizationDescription(_ authorization: FoundationModelRuntimeAuthorization) -> String {
     switch authorization {
     case .notRequired:
         return "current-process authorization is not required"

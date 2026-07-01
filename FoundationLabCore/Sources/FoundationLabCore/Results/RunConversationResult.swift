@@ -1,4 +1,5 @@
 import Foundation
+import FoundationModelsKit
 
 public struct ConversationExchange: Sendable, Hashable, Codable, Identifiable {
     public let id: UUID
@@ -19,13 +20,13 @@ public struct ConversationExchange: Sendable, Hashable, Codable, Identifiable {
     }
 }
 
-public struct RunConversationResult: CapabilityResult, Sendable, Hashable, Codable {
+public struct RunConversationResult: FoundationModelCapabilityResult, Sendable, Hashable, Codable {
     public let exchanges: [ConversationExchange]
-    public let metadata: CapabilityExecutionMetadata
+    public let metadata: FoundationModelExecutionMetadata
 
     public init(
         exchanges: [ConversationExchange],
-        metadata: CapabilityExecutionMetadata = CapabilityExecutionMetadata()
+        metadata: FoundationModelExecutionMetadata = FoundationModelExecutionMetadata()
     ) {
         self.exchanges = exchanges
         self.metadata = metadata

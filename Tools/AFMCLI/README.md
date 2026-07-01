@@ -6,7 +6,7 @@ It is built for day-to-day work with Foundation Models: checking model readiness
 
 The CLI is maintained inside
 [`Foundation-Models-Framework-Lab`](https://github.com/rudrankriyam/Foundation-Models-Framework-Lab)
-and consumes the same `FoundationLabCore` and `FoundationModelsKit` modules as the app.
+and consumes the reusable runtime APIs from `FoundationModelsKit`.
 
 ## Install
 

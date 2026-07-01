@@ -1,22 +1,22 @@
-import FoundationLabCore
+import FoundationModelsKit
 import Testing
 @testable import AFMCLI
 
 @Test("Available text distinguishes framework availability from process authorization")
 func availableTextDistinguishesAvailabilityFromAuthorization() {
-    let unavailable = ModelRuntimeStatusResult(
+    let unavailable = FoundationModelRuntimeStatus(
         runtime: .privateCloudCompute,
         isAvailable: false,
         authorization: .granted,
         reason: .systemNotReady
     )
-    let missingAuthorization = ModelRuntimeStatusResult(
+    let missingAuthorization = FoundationModelRuntimeStatus(
         runtime: .privateCloudCompute,
         isAvailable: true,
         authorization: .missing,
         reason: .missingEntitlement
     )
-    let unknownAuthorization = ModelRuntimeStatusResult(
+    let unknownAuthorization = FoundationModelRuntimeStatus(
         runtime: .privateCloudCompute,
         isAvailable: true,
         authorization: .unknown

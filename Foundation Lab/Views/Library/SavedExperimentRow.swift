@@ -4,6 +4,7 @@
 //
 
 import FoundationLabCore
+import FoundationModelsKit
 import SwiftUI
 
 struct SavedExperimentRow: View {

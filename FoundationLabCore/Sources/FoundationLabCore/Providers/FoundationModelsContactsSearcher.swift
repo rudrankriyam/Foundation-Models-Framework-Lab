@@ -1,5 +1,6 @@
 import Foundation
 import FoundationModelsTools
+import FoundationModelsKit
 
 public struct FoundationModelsContactsSearcher: ContactsSearching {
     private let toolInvoker: FoundationModelsToolInvoker
@@ -8,7 +9,7 @@ public struct FoundationModelsContactsSearcher: ContactsSearching {
         self.toolInvoker = toolInvoker
     }
 
-    public func searchContacts(for request: SearchContactsRequest) async throws -> TextGenerationResult {
+    public func searchContacts(for request: SearchContactsRequest) async throws -> FoundationModelTextGenerationResult {
         let query = request.query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else {
             throw FoundationLabCoreError.invalidRequest("Missing query")

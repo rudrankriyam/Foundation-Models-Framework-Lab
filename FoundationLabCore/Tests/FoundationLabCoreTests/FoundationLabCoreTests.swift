@@ -1,9 +1,10 @@
 import XCTest
+import FoundationModelsKit
 @testable import FoundationLabCore
 
 final class FoundationLabCoreTests: XCTestCase {
-    func testCapabilityDescriptorStoresStableMetadata() {
-        let descriptor = CapabilityDescriptor(
+    func testFoundationModelCapabilityDescriptorStoresStableMetadata() {
+        let descriptor = FoundationModelCapabilityDescriptor(
             id: "examples.book-recommendation",
             displayName: "Book Recommendation",
             summary: "Generates a structured book recommendation."

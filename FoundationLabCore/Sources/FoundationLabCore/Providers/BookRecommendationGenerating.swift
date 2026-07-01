@@ -1,4 +1,5 @@
 import Foundation
+import FoundationModelsKit
 
 public protocol BookRecommendationGenerating: Sendable {
     func generateBookRecommendation(

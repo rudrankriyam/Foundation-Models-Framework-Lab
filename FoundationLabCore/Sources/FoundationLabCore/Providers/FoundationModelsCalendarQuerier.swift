@@ -1,5 +1,6 @@
 import Foundation
 import FoundationModelsTools
+import FoundationModelsKit
 
 public struct FoundationModelsCalendarQuerier: CalendarQuerying {
     private let toolInvoker: FoundationModelsToolInvoker
@@ -8,7 +9,7 @@ public struct FoundationModelsCalendarQuerier: CalendarQuerying {
         self.toolInvoker = toolInvoker
     }
 
-    public func queryCalendar(for request: QueryCalendarRequest) async throws -> TextGenerationResult {
+    public func queryCalendar(for request: QueryCalendarRequest) async throws -> FoundationModelTextGenerationResult {
         let query = request.query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else {
             throw FoundationLabCoreError.invalidRequest("Missing query")

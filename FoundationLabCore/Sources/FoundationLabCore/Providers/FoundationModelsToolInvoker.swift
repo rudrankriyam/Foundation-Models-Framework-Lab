@@ -9,10 +9,10 @@ public struct FoundationModelsToolInvoker: Sendable {
         to prompt: String,
         using tool: ToolType,
         systemPrompt: String? = nil,
-        modelUseCase: FoundationLabModelUseCase = .general,
-        guardrails: FoundationLabGuardrails? = nil,
-        generationOptions: FoundationLabGenerationOptions? = nil
-    ) async throws -> TextGenerationResult {
+        modelUseCase: FoundationModelUseCase = .general,
+        guardrails: FoundationModelGuardrails? = nil,
+        generationOptions: FoundationModelGenerationOptions? = nil
+    ) async throws -> FoundationModelTextGenerationResult {
         let trimmedPrompt = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedPrompt.isEmpty else {
             throw FoundationLabCoreError.invalidRequest("Missing prompt")
@@ -20,7 +20,7 @@ public struct FoundationModelsToolInvoker: Sendable {
 
         let model = SystemLanguageModel(
             useCase: modelUseCase.foundationModelsValue,
-            guardrails: (guardrails ?? FoundationLabGuardrails.default).foundationModelsValue
+            guardrails: (guardrails ?? FoundationModelGuardrails.default).foundationModelsValue
         )
         let session: LanguageModelSession
 
@@ -47,9 +47,9 @@ public struct FoundationModelsToolInvoker: Sendable {
 
         let tokenCount = await session.transcript.tokenCount(using: model)
 
-        return TextGenerationResult(
+        return FoundationModelTextGenerationResult(
             content: responseContent,
-            metadata: CapabilityExecutionMetadata(
+            metadata: FoundationModelExecutionMetadata(
                 provider: "Foundation Models",
                 tokenCount: tokenCount
             )

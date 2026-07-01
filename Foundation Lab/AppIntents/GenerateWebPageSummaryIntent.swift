@@ -1,6 +1,7 @@
 import AppIntents
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 
 struct GenerateWebPageSummaryIntent: AppIntent {
     static let title: LocalizedStringResource = "Generate Web Page Summary"
@@ -19,7 +20,7 @@ struct GenerateWebPageSummaryIntent: AppIntent {
         let response = try await GenerateWebPageSummaryUseCase().execute(
             GenerateWebPageSummaryRequest(
                 url: url,
-                context: CapabilityInvocationContext(
+                context: FoundationModelInvocationContext(
                     source: .appIntent,
                     localeIdentifier: Locale.current.identifier
                 )

@@ -7,6 +7,7 @@
 
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 import SwiftUI
 
 extension ProductionLanguageExampleView {
@@ -18,7 +19,7 @@ let result = try await AnalyzeNutritionUseCase().execute(
     AnalyzeNutritionRequest(
         foodDescription: description,
         responseLanguage: language,
-        context: CapabilityInvocationContext(
+        context: FoundationModelInvocationContext(
             source: .app,
             localeIdentifier: Locale.current.identifier
         )

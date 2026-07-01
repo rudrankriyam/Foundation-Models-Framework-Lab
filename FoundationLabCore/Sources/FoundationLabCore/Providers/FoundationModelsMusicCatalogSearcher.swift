@@ -1,5 +1,6 @@
 import Foundation
 import FoundationModelsTools
+import FoundationModelsKit
 #if canImport(MusicKit)
 import MusicKit
 #endif
@@ -11,7 +12,7 @@ public struct FoundationModelsMusicCatalogSearcher: MusicCatalogSearching {
         self.toolInvoker = toolInvoker
     }
 
-    public func searchMusic(for request: SearchMusicCatalogRequest) async throws -> TextGenerationResult {
+    public func searchMusic(for request: SearchMusicCatalogRequest) async throws -> FoundationModelTextGenerationResult {
         let query = request.query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else {
             throw FoundationLabCoreError.invalidRequest("Missing query")

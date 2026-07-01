@@ -39,7 +39,7 @@ public struct FoundationModelsHealthEncouragementGenerator: HealthEncouragementG
 
         return GenerateHealthEncouragementResult(
             message: response.content,
-            metadata: CapabilityExecutionMetadata(
+            metadata: FoundationModelExecutionMetadata(
                 provider: "Foundation Models",
                 tokenCount: tokenCount
             )

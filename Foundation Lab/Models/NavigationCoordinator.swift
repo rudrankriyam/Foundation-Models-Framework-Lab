@@ -6,6 +6,7 @@
 //
 
 import FoundationLabCore
+import FoundationModelsKit
 import Observation
 import SwiftUI
 

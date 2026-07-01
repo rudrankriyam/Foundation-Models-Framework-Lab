@@ -8,11 +8,12 @@
 import SwiftUI
 import AppIntents
 import FoundationLabCore
+import FoundationModelsKit
 import SwiftData
 
 @main
 struct FoundationLabApp: App {
-    @State private var unavailabilityReason: ModelAvailabilityUnavailableReason?
+    @State private var unavailabilityReason: FoundationModelAvailabilityUnavailableReason?
     @State private var showModelUnavailableWarning = false
 #if os(macOS)
     @State private var agentBridgeController = AgentBridgeController()
@@ -63,7 +64,7 @@ struct FoundationLabApp: App {
     }
 
     private func checkModelAvailability() {
-        let availability = CheckModelAvailabilityUseCase().execute()
+        let availability = FoundationModelAvailabilityUseCase().execute()
         if availability.isAvailable {
             showModelUnavailableWarning = false
         } else {

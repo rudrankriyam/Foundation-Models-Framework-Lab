@@ -1,7 +1,8 @@
 import Foundation
+import FoundationModelsKit
 
-public struct GetCurrentLocationUseCase: CapabilityUseCase {
-    public static let descriptor = CapabilityDescriptor(
+public struct GetCurrentLocationUseCase: FoundationModelCapabilityUseCase {
+    public static let descriptor = FoundationModelCapabilityDescriptor(
         id: "foundation-models.get-current-location",
         displayName: "Get Current Location",
         summary: "Gets the user's current location using a shared Foundation Models capability."
@@ -13,7 +14,7 @@ public struct GetCurrentLocationUseCase: CapabilityUseCase {
         self.responder = responder
     }
 
-    public func execute(_ request: GetCurrentLocationRequest) async throws -> TextGenerationResult {
+    public func execute(_ request: GetCurrentLocationRequest) async throws -> FoundationModelTextGenerationResult {
         try await responder.getCurrentLocation(for: request)
     }
 }

@@ -1,6 +1,7 @@
 import AppIntents
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 
 struct ManageRemindersIntent: AppIntent {
     static let title: LocalizedStringResource = "Manage Reminders"
@@ -22,7 +23,7 @@ struct ManageRemindersIntent: AppIntent {
                 customPrompt: prompt,
                 referenceDate: .now,
                 timeZoneIdentifier: TimeZone.current.identifier,
-                context: CapabilityInvocationContext(
+                context: FoundationModelInvocationContext(
                     source: .appIntent,
                     localeIdentifier: Locale.current.identifier
                 )

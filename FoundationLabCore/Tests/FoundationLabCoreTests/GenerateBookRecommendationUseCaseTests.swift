@@ -1,4 +1,5 @@
 import XCTest
+import FoundationModelsKit
 @testable import FoundationLabCore
 
 final class GenerateBookRecommendationUseCaseTests: XCTestCase {
@@ -11,7 +12,7 @@ final class GenerateBookRecommendationUseCaseTests: XCTestCase {
             try await useCase.execute(
                 GenerateBookRecommendationRequest(
                     prompt: "   ",
-                    context: CapabilityInvocationContext(source: .app)
+                    context: FoundationModelInvocationContext(source: .app)
                 )
             )
         ) { error in
@@ -30,7 +31,7 @@ final class GenerateBookRecommendationUseCaseTests: XCTestCase {
                 description: "A diplomat navigates an icy world while confronting politics and identity.",
                 genre: .sciFi
             ),
-            metadata: CapabilityExecutionMetadata(
+            metadata: FoundationModelExecutionMetadata(
                 provider: "Stub",
                 modelIdentifier: "stub-model",
                 tokenCount: 42
@@ -43,7 +44,7 @@ final class GenerateBookRecommendationUseCaseTests: XCTestCase {
             GenerateBookRecommendationRequest(
                 prompt: "Suggest a thoughtful science fiction novel",
                 systemPrompt: "Be concise",
-                context: CapabilityInvocationContext(
+                context: FoundationModelInvocationContext(
                     source: .app,
                     localeIdentifier: "en_US"
                 )

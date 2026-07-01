@@ -1,4 +1,5 @@
 import Foundation
+import FoundationModelsKit
 
 public enum FoundationLabCoreError: LocalizedError, Sendable, Equatable {
     case invalidRequest(String)

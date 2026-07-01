@@ -50,7 +50,7 @@ public struct FoundationModelsNutritionAnalyzer: NutritionAnalyzing {
                     fatGrams: parseResponse.content.fatGrams,
                     insights: insightsResponse.content
                 ),
-                metadata: CapabilityExecutionMetadata(
+                metadata: FoundationModelExecutionMetadata(
                     provider: "Foundation Models",
                     tokenCount: tokenCount
                 )
@@ -67,7 +67,7 @@ public struct FoundationModelsNutritionAnalyzer: NutritionAnalyzing {
 
             return AnalyzeNutritionResult(
                 analysis: fallback,
-                metadata: CapabilityExecutionMetadata(
+                metadata: FoundationModelExecutionMetadata(
                     provider: "Foundation Models (heuristic fallback)",
                     tokenCount: nil
                 )

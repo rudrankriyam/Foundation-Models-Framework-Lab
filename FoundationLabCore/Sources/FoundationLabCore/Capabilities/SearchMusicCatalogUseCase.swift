@@ -1,7 +1,8 @@
 import Foundation
+import FoundationModelsKit
 
-public struct SearchMusicCatalogUseCase: CapabilityUseCase {
-    public static let descriptor = CapabilityDescriptor(
+public struct SearchMusicCatalogUseCase: FoundationModelCapabilityUseCase {
+    public static let descriptor = FoundationModelCapabilityDescriptor(
         id: "foundation-models.search-music-catalog",
         displayName: "Search Music Catalog",
         summary: "Searches the Apple Music catalog using shared Foundation Models orchestration."
@@ -13,7 +14,7 @@ public struct SearchMusicCatalogUseCase: CapabilityUseCase {
         self.searcher = searcher
     }
 
-    public func execute(_ request: SearchMusicCatalogRequest) async throws -> TextGenerationResult {
+    public func execute(_ request: SearchMusicCatalogRequest) async throws -> FoundationModelTextGenerationResult {
         let query = request.query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else {
             throw FoundationLabCoreError.invalidRequest("Missing query")

@@ -1,6 +1,7 @@
 import AppIntents
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 
 struct SearchMusicCatalogIntent: AppIntent {
     static let title: LocalizedStringResource = "Search Music Catalog"
@@ -19,7 +20,7 @@ struct SearchMusicCatalogIntent: AppIntent {
         let response = try await SearchMusicCatalogUseCase().execute(
             SearchMusicCatalogRequest(
                 query: query,
-                context: CapabilityInvocationContext(
+                context: FoundationModelInvocationContext(
                     source: .appIntent,
                     localeIdentifier: Locale.current.identifier
                 )

@@ -1,4 +1,5 @@
 import Foundation
+import FoundationModelsKit
 
 /// A captured piece of the model context used for an experiment run.
 public struct FoundationLabExperimentEvent: Codable, Hashable, Identifiable, Sendable {

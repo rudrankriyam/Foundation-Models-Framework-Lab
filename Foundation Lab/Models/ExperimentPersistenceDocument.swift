@@ -5,6 +5,7 @@
 
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 
 nonisolated struct ExperimentPersistenceDocument: Codable, Sendable {
     private enum CodingKeys: String, CodingKey {

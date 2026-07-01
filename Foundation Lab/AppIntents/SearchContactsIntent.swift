@@ -1,6 +1,7 @@
 import AppIntents
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 
 struct SearchContactsIntent: AppIntent {
     static let title: LocalizedStringResource = "Search Contacts"
@@ -19,7 +20,7 @@ struct SearchContactsIntent: AppIntent {
         let response = try await SearchContactsUseCase().execute(
             SearchContactsRequest(
                 query: query,
-                context: CapabilityInvocationContext(
+                context: FoundationModelInvocationContext(
                     source: .appIntent,
                     localeIdentifier: Locale.current.identifier
                 )

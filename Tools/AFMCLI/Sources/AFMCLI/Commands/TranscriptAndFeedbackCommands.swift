@@ -1,6 +1,6 @@
 import ArgumentParser
 import Foundation
-import FoundationLabCore
+import FoundationModelsKit
 import FoundationModels
 
 struct TranscriptCommand: AsyncParsableCommand {
@@ -103,7 +103,7 @@ struct TranscriptExportCommand: AsyncParsableCommand {
 
 private extension TranscriptExportCommand {
     func exportTranscript(
-        from engine: FoundationLabConversationEngine,
+        from engine: FoundationModelConversationEngine,
         messages: [String],
         adapterPath: String?,
         exportPath: String,

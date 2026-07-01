@@ -1,4 +1,5 @@
 import FoundationLabCore
+import FoundationModelsKit
 import SwiftUI
 
 struct PlaygroundInspectorView: View {
@@ -16,7 +17,7 @@ struct PlaygroundInspectorView: View {
 
             Section("Model") {
                 Picker("Runtime", selection: runtimeBinding) {
-                    ForEach(FoundationLabModelRuntime.allCases, id: \.self) { runtime in
+                    ForEach(FoundationModelRuntime.allCases, id: \.self) { runtime in
                         Label(runtime.displayName, systemImage: runtime.systemImage)
                             .tag(runtime)
                             .disabled(runtime == .privateCloudCompute && !viewModel.canSelectPrivateCloudCompute)
@@ -24,7 +25,7 @@ struct PlaygroundInspectorView: View {
                 }
 
                 Picker("Reasoning", selection: reasoningBinding) {
-                    ForEach(FoundationLabReasoningLevel.allCases, id: \.self) { level in
+                    ForEach(FoundationModelReasoningLevel.allCases, id: \.self) { level in
                         Label(level.displayName, systemImage: level.systemImage)
                             .tag(level)
                     }
@@ -128,7 +129,7 @@ struct PlaygroundInspectorView: View {
 }
 
 private extension PlaygroundInspectorView {
-    private var runtimeBinding: Binding<FoundationLabModelRuntime> {
+    private var runtimeBinding: Binding<FoundationModelRuntime> {
         Binding(
             get: { experimentStore.activeExperiment.modelRuntime },
             set: { runtime in
@@ -143,7 +144,7 @@ private extension PlaygroundInspectorView {
         )
     }
 
-    private var reasoningBinding: Binding<FoundationLabReasoningLevel> {
+    private var reasoningBinding: Binding<FoundationModelReasoningLevel> {
         Binding(
             get: { experimentStore.activeExperiment.reasoningLevel },
             set: { level in
@@ -251,7 +252,7 @@ private extension PlaygroundInspectorView {
         )
     }
 
-    private var generationOptions: FoundationLabGenerationOptions {
+    private var generationOptions: FoundationModelGenerationOptions {
         experimentStore.activeExperiment.generationOptions
     }
 
@@ -273,10 +274,10 @@ private extension PlaygroundInspectorView {
     }
 
     private func updateSampling(
-        _ sampling: FoundationLabGenerationOptions.SamplingMode?
+        _ sampling: FoundationModelGenerationOptions.SamplingMode?
     ) {
         let current = generationOptions
-        setGenerationOptions(FoundationLabGenerationOptions(
+        setGenerationOptions(FoundationModelGenerationOptions(
             sampling: sampling,
             temperature: current.temperature,
             maximumResponseTokens: current.maximumResponseTokens
@@ -285,7 +286,7 @@ private extension PlaygroundInspectorView {
 
     private func updateTemperature(_ temperature: Double?) {
         let current = generationOptions
-        setGenerationOptions(FoundationLabGenerationOptions(
+        setGenerationOptions(FoundationModelGenerationOptions(
             sampling: current.sampling,
             temperature: temperature,
             maximumResponseTokens: current.maximumResponseTokens
@@ -294,21 +295,21 @@ private extension PlaygroundInspectorView {
 
     private func updateMaximumResponseTokens(_ maximumResponseTokens: Int?) {
         let current = generationOptions
-        setGenerationOptions(FoundationLabGenerationOptions(
+        setGenerationOptions(FoundationModelGenerationOptions(
             sampling: current.sampling,
             temperature: current.temperature,
             maximumResponseTokens: maximumResponseTokens
         ))
     }
 
-    private func setGenerationOptions(_ options: FoundationLabGenerationOptions) {
+    private func setGenerationOptions(_ options: FoundationModelGenerationOptions) {
         experimentStore.updateActiveExperiment { configuration in
             configuration.generationOptions = options
         }
     }
 
     private func samplingStrategy(
-        for sampling: FoundationLabGenerationOptions.SamplingMode?
+        for sampling: FoundationModelGenerationOptions.SamplingMode?
     ) -> SamplingStrategy {
         switch sampling {
         case nil:
@@ -323,7 +324,7 @@ private extension PlaygroundInspectorView {
     }
 
     private func fixedSeed(
-        from sampling: FoundationLabGenerationOptions.SamplingMode?
+        from sampling: FoundationModelGenerationOptions.SamplingMode?
     ) -> UInt64? {
         switch sampling {
         case .randomTop(_, let seed), .randomProbabilityThreshold(_, let seed):

@@ -1,4 +1,5 @@
 import XCTest
+import FoundationModelsKit
 @testable import FoundationLabCore
 
 final class GetWeatherUseCaseTests: XCTestCase {
@@ -9,7 +10,7 @@ final class GetWeatherUseCaseTests: XCTestCase {
             try await useCase.execute(
                 GetWeatherRequest(
                     location: "   ",
-                    context: CapabilityInvocationContext(source: .app)
+                    context: FoundationModelInvocationContext(source: .app)
                 )
             )
         ) { error in
@@ -21,9 +22,9 @@ final class GetWeatherUseCaseTests: XCTestCase {
     }
 
     func testUseCaseDelegatesToResponder() async throws {
-        let expected = TextGenerationResult(
+        let expected = FoundationModelTextGenerationResult(
             content: "Sunny and 72F in San Francisco.",
-            metadata: CapabilityExecutionMetadata(
+            metadata: FoundationModelExecutionMetadata(
                 provider: "Stub",
                 modelIdentifier: "weather-stub",
                 tokenCount: 24
@@ -35,7 +36,7 @@ final class GetWeatherUseCaseTests: XCTestCase {
         let result = try await useCase.execute(
             GetWeatherRequest(
                 location: " San Francisco ",
-                context: CapabilityInvocationContext(
+                context: FoundationModelInvocationContext(
                     source: .app,
                     localeIdentifier: "en_US"
                 )
@@ -50,17 +51,17 @@ final class GetWeatherUseCaseTests: XCTestCase {
 
 private final class WeatherResponderStub: WeatherResponding, @unchecked Sendable {
     private(set) var lastRequest: GetWeatherRequest?
-    private let result: TextGenerationResult
+    private let result: FoundationModelTextGenerationResult
 
     init(
-        result: TextGenerationResult = TextGenerationResult(
+        result: FoundationModelTextGenerationResult = FoundationModelTextGenerationResult(
             content: "Default weather result"
         )
     ) {
         self.result = result
     }
 
-    func weather(for request: GetWeatherRequest) async throws -> TextGenerationResult {
+    func weather(for request: GetWeatherRequest) async throws -> FoundationModelTextGenerationResult {
         lastRequest = request
         return result
     }

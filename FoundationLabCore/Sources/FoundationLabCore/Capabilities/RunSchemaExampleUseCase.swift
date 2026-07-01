@@ -1,16 +1,17 @@
 import Foundation
 import FoundationModels
+import FoundationModelsKit
 
-public struct RunSchemaExampleUseCase: CapabilityUseCase {
-    public static let descriptor = CapabilityDescriptor(
+public struct RunSchemaExampleUseCase: FoundationModelCapabilityUseCase {
+    public static let descriptor = FoundationModelCapabilityDescriptor(
         id: "foundation-models.run-schema-example",
         displayName: "Run Schema Example",
         summary: "Runs a shared dynamic schema example using FoundationLabCore."
     )
 
-    private let generator: GenerateDynamicSchemaContentUseCase
+    private let generator: FoundationModelDynamicSchemaGenerationUseCase
 
-    public init(generator: GenerateDynamicSchemaContentUseCase = GenerateDynamicSchemaContentUseCase()) {
+    public init(generator: FoundationModelDynamicSchemaGenerationUseCase = FoundationModelDynamicSchemaGenerationUseCase()) {
         self.generator = generator
     }
 
@@ -22,7 +23,7 @@ public struct RunSchemaExampleUseCase: CapabilityUseCase {
 
         let plan = try makeExecutionPlan(for: request, input: trimmedInput)
         let response = try await generator.execute(
-            DynamicSchemaGenerationRequest(
+            FoundationModelDynamicSchemaGenerationRequest(
                 prompt: plan.prompt,
                 schema: plan.schema,
                 generationOptions: request.generationOptions,

@@ -1,4 +1,5 @@
 import FoundationLabCore
+import FoundationModelsKit
 import SwiftUI
 
 struct PlaygroundHeaderView: View {

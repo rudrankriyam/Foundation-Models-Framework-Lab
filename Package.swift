@@ -32,7 +32,7 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "Packages/AFMServer"),
-        .package(url: "https://github.com/rryam/FoundationModelsKit.git", branch: "main"),
+        .package(url: "https://github.com/rryam/FoundationModelsKit.git", branch: "codex/afm-runtime-kit"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "6.0.1")
     ],
@@ -49,7 +49,6 @@ let package = Package(
             name: "AFMCLI",
             dependencies: [
                 .product(name: "AFMServer", package: "AFMServer"),
-                "FoundationLabCore",
                 .product(name: "FoundationModelsKit", package: "FoundationModelsKit"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Yams", package: "Yams")

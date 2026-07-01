@@ -1,4 +1,5 @@
 import Foundation
+import FoundationModelsKit
 
 /// Compares tool calls captured from a session transcript with an explicitly declared path.
 public struct FoundationLabToolTrajectoryEvaluation: Equatable, Sendable {

@@ -7,6 +7,7 @@
 
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 import Speech
 
 #if os(iOS)

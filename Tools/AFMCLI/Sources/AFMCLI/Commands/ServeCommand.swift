@@ -1,7 +1,7 @@
 import AFMServer
 import ArgumentParser
 import Foundation
-import FoundationLabCore
+import FoundationModelsKit
 
 struct ServeCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -62,7 +62,7 @@ struct ServeCommand: AsyncParsableCommand {
             return
         }
 
-        let availability = CheckModelAvailabilityUseCase().execute()
+        let availability = FoundationModelAvailabilityUseCase().execute()
         let catalog = AFMStaticModelCatalog(
             models: [.init(id: "system", isAvailable: availability.isAvailable)]
         )

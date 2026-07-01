@@ -1,4 +1,5 @@
 import Foundation
+import FoundationModelsKit
 @testable import FoundationLabCore
 import Testing
 
@@ -11,7 +12,7 @@ struct GenerateHealthEncouragementUseCaseTests {
             sleepHours: 7.5,
             activeEnergy: 540,
             timeOfDay: "morning",
-            context: CapabilityInvocationContext(source: .app)
+            context: FoundationModelInvocationContext(source: .app)
         )
         let expected = GenerateHealthEncouragementResult(message: "You are building great momentum today.")
         let generator = StubHealthEncouragementGenerator(result: expected)
@@ -30,7 +31,7 @@ struct GenerateHealthEncouragementUseCaseTests {
             sleepHours: 7.5,
             activeEnergy: 540,
             timeOfDay: "   ",
-            context: CapabilityInvocationContext(source: .app)
+            context: FoundationModelInvocationContext(source: .app)
         )
 
         await #expect(throws: FoundationLabCoreError.self) {

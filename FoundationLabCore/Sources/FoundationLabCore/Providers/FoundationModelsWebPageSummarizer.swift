@@ -1,5 +1,6 @@
 import Foundation
 import FoundationModelsTools
+import FoundationModelsKit
 
 public struct FoundationModelsWebPageSummarizer: WebPageSummarizing {
     private let toolInvoker: FoundationModelsToolInvoker
@@ -8,7 +9,7 @@ public struct FoundationModelsWebPageSummarizer: WebPageSummarizing {
         self.toolInvoker = toolInvoker
     }
 
-    public func summarizePage(for request: GenerateWebPageSummaryRequest) async throws -> TextGenerationResult {
+    public func summarizePage(for request: GenerateWebPageSummaryRequest) async throws -> FoundationModelTextGenerationResult {
         let url = request.url.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !url.isEmpty else {
             throw FoundationLabCoreError.invalidRequest("Missing URL")

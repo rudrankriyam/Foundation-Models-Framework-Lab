@@ -1,13 +1,13 @@
 import ArgumentParser
 import Foundation
-import FoundationLabCore
+import FoundationModelsKit
 
 struct ModelSelectionOptions: ParsableArguments {
     enum Model: String, CaseIterable, ExpressibleByArgument, Encodable {
         case system
         case pcc
 
-        var runtime: FoundationLabModelRuntime {
+        var runtime: FoundationModelRuntime {
             switch self {
             case .system:
                 return .onDevice
@@ -23,7 +23,7 @@ struct ModelSelectionOptions: ParsableArguments {
     )
     var model: Model?
 
-    var runtimes: [FoundationLabModelRuntime] {
-        model.map { [$0.runtime] } ?? FoundationLabModelRuntime.allCases
+    var runtimes: [FoundationModelRuntime] {
+        model.map { [$0.runtime] } ?? FoundationModelRuntime.allCases
     }
 }

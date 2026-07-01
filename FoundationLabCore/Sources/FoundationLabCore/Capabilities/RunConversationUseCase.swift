@@ -1,7 +1,8 @@
 import Foundation
+import FoundationModelsKit
 
-public struct RunConversationUseCase: CapabilityUseCase {
-    public static let descriptor = CapabilityDescriptor(
+public struct RunConversationUseCase: FoundationModelCapabilityUseCase {
+    public static let descriptor = FoundationModelCapabilityDescriptor(
         id: "foundation-models.run-conversation",
         displayName: "Run Conversation",
         summary: "Runs a sequence of prompts through one shared Foundation Models session."

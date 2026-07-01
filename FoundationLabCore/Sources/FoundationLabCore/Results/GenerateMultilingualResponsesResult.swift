@@ -1,4 +1,5 @@
 import Foundation
+import FoundationModelsKit
 
 public struct MultilingualResponseEntry: Sendable, Hashable, Codable, Identifiable {
     public let id: UUID
@@ -7,7 +8,7 @@ public struct MultilingualResponseEntry: Sendable, Hashable, Codable, Identifiab
     public let prompt: String
     public let response: String
     public let isError: Bool
-    public let metadata: CapabilityExecutionMetadata?
+    public let metadata: FoundationModelExecutionMetadata?
 
     public init(
         id: UUID = UUID(),
@@ -16,7 +17,7 @@ public struct MultilingualResponseEntry: Sendable, Hashable, Codable, Identifiab
         prompt: String,
         response: String,
         isError: Bool,
-        metadata: CapabilityExecutionMetadata? = nil
+        metadata: FoundationModelExecutionMetadata? = nil
     ) {
         self.id = id
         self.language = language
@@ -28,15 +29,15 @@ public struct MultilingualResponseEntry: Sendable, Hashable, Codable, Identifiab
     }
 }
 
-public struct GenerateMultilingualResponsesResult: CapabilityResult, Sendable, Hashable, Codable {
+public struct GenerateMultilingualResponsesResult: FoundationModelCapabilityResult, Sendable, Hashable, Codable {
     public let prompts: [LanguagePrompt]
     public let responses: [MultilingualResponseEntry]
-    public let metadata: CapabilityExecutionMetadata
+    public let metadata: FoundationModelExecutionMetadata
 
     public init(
         prompts: [LanguagePrompt],
         responses: [MultilingualResponseEntry],
-        metadata: CapabilityExecutionMetadata = CapabilityExecutionMetadata()
+        metadata: FoundationModelExecutionMetadata = FoundationModelExecutionMetadata()
     ) {
         self.prompts = prompts
         self.responses = responses

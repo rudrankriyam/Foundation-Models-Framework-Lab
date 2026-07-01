@@ -1,14 +1,15 @@
 import Foundation
 import FoundationModels
 import XCTest
+import FoundationModelsKit
 @testable import FoundationLabCore
 
-final class FoundationLabModelErrorProjectionTests: XCTestCase {
+final class FoundationModelErrorProjectionTests: XCTestCase {
     func testGenerationErrorContextOverflowDoesNotInventUnavailableDetails() throws {
         let error = LanguageModelSession.GenerationError.exceededContextWindowSize(
             .init(debugDescription: "Legacy context overflow")
         )
-        let projection = try XCTUnwrap(FoundationLabModelErrorProjection.project(error))
+        let projection = try XCTUnwrap(FoundationModelErrorProjection.project(error))
 
         XCTAssertEqual(projection.category, .contextSizeExceeded)
         XCTAssertNil(projection.contextSize)
@@ -16,11 +17,11 @@ final class FoundationLabModelErrorProjectionTests: XCTestCase {
         XCTAssertNil(projection.resetDate)
         XCTAssertNil(projection.capability)
         XCTAssertTrue(projection.isContextOverflow)
-        XCTAssertTrue(FoundationLabModelErrorProjection.isContextOverflow(error))
+        XCTAssertTrue(FoundationModelErrorProjection.isContextOverflow(error))
 
         let encoded = try JSONEncoder().encode(projection)
         let decoded = try JSONDecoder().decode(
-            FoundationLabModelErrorProjection.self,
+            FoundationModelErrorProjection.self,
             from: encoded
         )
         XCTAssertEqual(decoded, projection)
@@ -31,7 +32,7 @@ final class FoundationLabModelErrorProjectionTests: XCTestCase {
     func testGenerationErrorCategoriesRemainDistinctFromOverflow() throws {
         let fixtures: [(
             LanguageModelSession.GenerationError,
-            FoundationLabModelErrorProjection.Category
+            FoundationModelErrorProjection.Category
         )] = [
             (.assetsUnavailable(.init(debugDescription: "Assets")), .assetsUnavailable),
             (.guardrailViolation(.init(debugDescription: "Guardrail")), .guardrailViolation),
@@ -53,9 +54,9 @@ final class FoundationLabModelErrorProjectionTests: XCTestCase {
         ]
 
         for (error, expectedCategory) in fixtures {
-            let projection = try XCTUnwrap(FoundationLabModelErrorProjection.project(error))
+            let projection = try XCTUnwrap(FoundationModelErrorProjection.project(error))
             XCTAssertEqual(projection.category, expectedCategory)
-            XCTAssertFalse(FoundationLabModelErrorProjection.isContextOverflow(error))
+            XCTAssertFalse(FoundationModelErrorProjection.isContextOverflow(error))
         }
     }
 
@@ -63,7 +64,7 @@ final class FoundationLabModelErrorProjectionTests: XCTestCase {
         struct UnrelatedError: Error {}
         let error = UnrelatedError()
 
-        XCTAssertNil(FoundationLabModelErrorProjection.project(error))
-        XCTAssertFalse(FoundationLabModelErrorProjection.isContextOverflow(error))
+        XCTAssertNil(FoundationModelErrorProjection.project(error))
+        XCTAssertFalse(FoundationModelErrorProjection.isContextOverflow(error))
     }
 }

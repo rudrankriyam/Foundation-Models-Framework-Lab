@@ -30,12 +30,12 @@ final class ChatViewModel {
     @ObservationIgnored private var activeGenerationID: UUID?
     @ObservationIgnored let permissionManager: PermissionManager
     @ObservationIgnored let speechSynthesizer: SpeechSynthesisService
-    @ObservationIgnored let conversationEngine: FoundationLabConversationEngine
+    @ObservationIgnored let conversationEngine: FoundationModelConversationEngine
     var isSummarizing: Bool = false
     var isApplyingWindow: Bool = false
     var sessionCount: Int = 1
-    var selectedModelRuntime: FoundationLabModelRuntime = .onDevice
-    var selectedReasoningLevel: FoundationLabReasoningLevel = .none
+    var selectedModelRuntime: FoundationModelRuntime = .onDevice
+    var selectedReasoningLevel: FoundationModelReasoningLevel = .none
     var samplingStrategy: SamplingStrategy = .default
     var topKSamplingValue: Int = 50
     var probabilityThresholdSamplingValue: Double = 0.9
@@ -98,8 +98,8 @@ final class ChatViewModel {
 
     // MARK: - Generation Options
 
-    var generationOptions: FoundationLabGenerationOptions {
-        let sampling: FoundationLabGenerationOptions.SamplingMode?
+    var generationOptions: FoundationModelGenerationOptions {
+        let sampling: FoundationModelGenerationOptions.SamplingMode?
 
         switch samplingStrategy {
         case .default:
@@ -114,7 +114,7 @@ final class ChatViewModel {
             sampling = .randomProbabilityThreshold(probabilityThresholdSamplingValue, seed: seed)
         }
 
-        return FoundationLabGenerationOptions(
+        return FoundationModelGenerationOptions(
             sampling: sampling,
             temperature: temperature,
             maximumResponseTokens: maximumResponseTokens
@@ -129,7 +129,7 @@ final class ChatViewModel {
     ) {
         self.permissionManager = permissionManager ?? PermissionManager()
         self.speechSynthesizer = speechSynthesizer ?? SpeechSynthesizer.shared
-        let configuration = FoundationLabConversationConfiguration(
+        let configuration = FoundationModelConversationConfiguration(
             baseInstructions: Self.defaultInstructions,
             summaryInstructions: """
             Create comprehensive conversation summaries that \
@@ -153,7 +153,7 @@ final class ChatViewModel {
             targetWindowSize: AppConfiguration.TokenManagement.targetWindowSize,
             defaultMaxContextSize: AppConfiguration.TokenManagement.defaultMaxTokens
         )
-        let engine = FoundationLabConversationEngine(configuration: configuration)
+        let engine = FoundationModelConversationEngine(configuration: configuration)
         self.conversationEngine = engine
         self.session = engine.session
 
@@ -262,7 +262,7 @@ extension ChatViewModel {
         return effectiveConfiguration
     }
 
-    func applyGenerationOptions(_ options: FoundationLabGenerationOptions) {
+    func applyGenerationOptions(_ options: FoundationModelGenerationOptions) {
         temperature = options.temperature
         maximumResponseTokens = options.maximumResponseTokens
         applySamplingMode(options.sampling)
@@ -333,7 +333,7 @@ extension ChatViewModel {
         sessionCount = conversationEngine.sessionCount
     }
 
-    func fetchContextSize(for runtime: FoundationLabModelRuntime? = nil) async {
+    func fetchContextSize(for runtime: FoundationModelRuntime? = nil) async {
         let requestedRuntime = runtime ?? selectedModelRuntime
         if requestedRuntime == .privateCloudCompute {
             let contextSize = await privateCloudComputeContextSize()
@@ -352,7 +352,7 @@ extension ChatViewModel {
         syncConversationState()
     }
 
-    func provisionalContextSize(for runtime: FoundationLabModelRuntime) -> Int {
+    func provisionalContextSize(for runtime: FoundationModelRuntime) -> Int {
         switch runtime {
         case .onDevice:
             AppConfiguration.TokenManagement.defaultMaxTokens
@@ -367,7 +367,7 @@ extension ChatViewModel {
         return seed
     }
 
-    func applySamplingMode(_ mode: FoundationLabGenerationOptions.SamplingMode?) {
+    func applySamplingMode(_ mode: FoundationModelGenerationOptions.SamplingMode?) {
         switch mode {
         case .none:
             samplingStrategy = .default

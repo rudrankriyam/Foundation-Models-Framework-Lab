@@ -8,6 +8,7 @@
 import Foundation
 import FoundationLabCore
 import FoundationModels
+import FoundationModelsKit
 import SwiftUI
 
 /// A reusable helper class for executing example operations
@@ -22,16 +23,16 @@ final class ExampleExecutor {
 
     /// Token count from the last operation. Updated after each execution.
     private(set) var lastTokenCount: Int?
-    private let generateTextUseCase = GenerateTextUseCase()
+    private let generateTextUseCase = FoundationModelTextGenerationUseCase()
     private let generateBookRecommendationUseCase = GenerateBookRecommendationUseCase()
-    private let streamTextGenerationUseCase = StreamTextGenerationUseCase()
+    private let streamTextGenerationUseCase = FoundationModelStreamingTextGenerationUseCase()
 
     /// Executes a basic language model operation
     func executeBasic(
         prompt: String,
         instructions: String? = nil,
         successMessage: String? = nil,
-        guardrails: FoundationLabGuardrails = .default
+        guardrails: FoundationModelGuardrails = .default
     ) async {
         guard !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             errorMessage = String(localized: "Enter a prompt to run this example.")
@@ -49,11 +50,11 @@ final class ExampleExecutor {
 
         do {
             let response = try await generateTextUseCase.execute(
-                TextGenerationRequest(
+                FoundationModelTextGenerationRequest(
                     prompt: prompt,
                     systemPrompt: instructions,
                     guardrails: guardrails,
-                    context: CapabilityInvocationContext(
+                    context: FoundationModelInvocationContext(
                         source: .app,
                         localeIdentifier: Locale.current.identifier
                     )
@@ -96,11 +97,11 @@ final class ExampleExecutor {
         addToHistory(prompt)
 
         do {
-            let response = try await GenerateStructuredDataUseCase<T>().execute(
-                StructuredGenerationRequest<T>(
+            let response = try await FoundationModelStructuredGenerationUseCase<T>().execute(
+                FoundationModelStructuredGenerationRequest<T>(
                     prompt: prompt,
                     systemPrompt: instructions,
-                    context: CapabilityInvocationContext(
+                    context: FoundationModelInvocationContext(
                         source: .app,
                         localeIdentifier: Locale.current.identifier
                     )
@@ -141,7 +142,7 @@ final class ExampleExecutor {
                 GenerateBookRecommendationRequest(
                     prompt: prompt,
                     systemPrompt: systemPrompt,
-                    context: CapabilityInvocationContext(
+                    context: FoundationModelInvocationContext(
                         source: .app,
                         localeIdentifier: Locale.current.identifier
                     )
@@ -188,10 +189,10 @@ final class ExampleExecutor {
 
         do {
             let response = try await streamTextGenerationUseCase.execute(
-                StreamingTextGenerationRequest(
+                FoundationModelStreamingTextGenerationRequest(
                     prompt: prompt,
                     systemPrompt: instructions,
-                    context: CapabilityInvocationContext(
+                    context: FoundationModelInvocationContext(
                         source: .app,
                         localeIdentifier: Locale.current.identifier
                     )

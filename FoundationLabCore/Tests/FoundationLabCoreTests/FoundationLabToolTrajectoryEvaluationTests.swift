@@ -1,5 +1,6 @@
 import FoundationLabCore
 import XCTest
+import FoundationModelsKit
 
 final class FoundationLabToolTrajectoryEvaluationTests: XCTestCase {
     private let expected = [

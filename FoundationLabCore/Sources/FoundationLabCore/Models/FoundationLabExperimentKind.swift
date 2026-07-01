@@ -1,4 +1,5 @@
 import Foundation
+import FoundationModelsKit
 
 public enum FoundationLabExperimentKind: String, CaseIterable, Codable, Hashable, Sendable {
     case conversation

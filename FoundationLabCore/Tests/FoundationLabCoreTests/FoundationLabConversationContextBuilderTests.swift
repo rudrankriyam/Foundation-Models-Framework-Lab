@@ -1,16 +1,17 @@
 import FoundationLabCore
 import Testing
+import FoundationModelsKit
 
 struct FoundationLabConversationContextBuilderTests {
     @Test
     func contextInstructionsIncludeSummaryDetails() {
-        let summary = FoundationLabConversationSummary(
+        let summary = FoundationModelConversationSummary(
             summary: "We talked about weekend travel plans.",
             keyTopics: ["Travel", "Budget"],
             userPreferences: ["Prefers trains", "Wants scenic routes"]
         )
 
-        let instructions = FoundationLabConversationContextBuilder.contextInstructions(
+        let instructions = FoundationModelConversationContextBuilder.contextInstructions(
             baseInstructions: "You are a helpful planner.",
             summary: summary,
             continuationNote: "Keep recommendations concise."
@@ -26,8 +27,8 @@ struct FoundationLabConversationContextBuilderTests {
     @Test
     @MainActor
     func conversationEngineTracksConfiguredContextWindow() {
-        let engine = FoundationLabConversationEngine(
-            configuration: FoundationLabConversationConfiguration(
+        let engine = FoundationModelConversationEngine(
+            configuration: FoundationModelConversationConfiguration(
                 baseInstructions: "You are a helpful assistant.",
                 summaryInstructions: "Summarize clearly.",
                 summaryPromptPreamble: "Summarize this conversation:",

@@ -7,6 +7,7 @@
 
 import Foundation
 import FoundationLabCore
+import FoundationModelsKit
 
 extension ArrayDynamicSchemaView {
     func schemaInfo(for index: Int, minItems: Int, maxItems: Int) -> String {

@@ -1,7 +1,8 @@
 import Foundation
+import FoundationModelsKit
 
-public struct QueryCalendarUseCase: CapabilityUseCase {
-    public static let descriptor = CapabilityDescriptor(
+public struct QueryCalendarUseCase: FoundationModelCapabilityUseCase {
+    public static let descriptor = FoundationModelCapabilityDescriptor(
         id: "foundation-models.query-calendar",
         displayName: "Query Calendar",
         summary: "Queries calendar events using shared Foundation Models orchestration."
@@ -13,7 +14,7 @@ public struct QueryCalendarUseCase: CapabilityUseCase {
         self.querier = querier
     }
 
-    public func execute(_ request: QueryCalendarRequest) async throws -> TextGenerationResult {
+    public func execute(_ request: QueryCalendarRequest) async throws -> FoundationModelTextGenerationResult {
         let query = request.query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else {
             throw FoundationLabCoreError.invalidRequest("Missing query")
