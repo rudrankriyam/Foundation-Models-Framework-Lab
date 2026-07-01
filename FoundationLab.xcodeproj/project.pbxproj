@@ -514,7 +514,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/rryam/FoundationModelsKit.git";
 			requirement = {
-				branch = "codex/revive-public-foundationmodelskit";
+				branch = main;
 				kind = branch;
 			};
 		};
