@@ -1,4 +1,0 @@
-interface:
-  display_name: "Foundation Models App Builder"
-  short_description: "Build Foundation Models features with packaged Swift recipes."
-  default_prompt: "Use the packaged Foundation Models recipes to add or improve a Swift app feature."

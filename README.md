@@ -266,16 +266,17 @@ in [`.asc/workflow.json`](.asc/workflow.json) through
 
 ## Agent Skills
 
-The repository includes two reusable skills:
+Reusable Foundation Models skills now live in
+[`rryam/FoundationModelsKit`](https://github.com/rryam/FoundationModelsKit):
 
 - `foundation-models-app-builder` for production Foundation Models patterns
 - `foundation-models-os27-updater` for Xcode 27 and OS 27 migrations
 
 ```bash
-npx skills add rudrankriyam/Foundation-Models-Framework-Lab \
+npx skills add rryam/FoundationModelsKit \
   --skill foundation-models-app-builder
 
-npx skills add rudrankriyam/Foundation-Models-Framework-Lab \
+npx skills add rryam/FoundationModelsKit \
   --skill foundation-models-os27-updater
 ```
 

@@ -236,8 +236,10 @@ Tools/AFMCLI/                   afm command-line interface
 Tools/FMFBench/                 Evaluation suite and device runner
 Tools/AdapterStudio/            fmas adapter tooling
 BookPlaygrounds/                Chapter-oriented Xcode playgrounds
-skills/                         Reusable agent skills
 ```
+
+Reusable Foundation Models agent skills live in the external
+`https://github.com/rryam/FoundationModelsKit` package repository.
 
 Keep app, CLI, package, and documentation claims aligned with the same source of
 truth. A passing build does not make an unreachable feature real.

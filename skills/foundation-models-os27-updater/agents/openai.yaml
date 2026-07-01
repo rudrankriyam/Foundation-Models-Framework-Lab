@@ -1,4 +1,0 @@
-interface:
-  display_name: "Foundation Models OS 27 Updater"
-  short_description: "Upgrade any Foundation Models project from OS 26 APIs to OS 27."
-  default_prompt: "Upgrade this Foundation Models project from OS 26-era APIs to OS 27, using the Xcode 27 SDK and verifying the build."
