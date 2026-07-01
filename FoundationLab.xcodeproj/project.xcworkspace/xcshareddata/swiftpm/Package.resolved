@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/rryam/FoundationModelsKit.git",
       "state" : {
-        "branch" : "codex/afm-runtime-kit",
-        "revision" : "8cf2ca0c78121a4d24b1dbf966bae257a9b1d76e"
+        "branch" : "main",
+        "revision" : "672f8231dff61364393bae04c84b1c921695eadc"
       }
     },
     {
