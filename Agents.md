@@ -102,8 +102,9 @@ Keep run data backward-compatible through the resilience behavior in
 
 ## Foundation Models Runtime
 
-The reusable runtime lives in `FoundationLabCore` and
-`Packages/FoundationModelsKit`.
+The reusable app runtime lives in `FoundationLabCore`. Reusable Foundation
+Models utilities and tools live in the external
+`https://github.com/rryam/FoundationModelsKit` package.
 
 ```swift
 let session = LanguageModelSession()
@@ -120,9 +121,9 @@ Foundation Models execution directly in a view.
 
 ## Built-in Tools
 
-The canonical tool implementations live in
-`Packages/FoundationModelsKit/Sources/FoundationModelsTools` and are exposed
-through `FoundationLabBuiltInTool`:
+The canonical tool implementations live in the external
+`FoundationModelsKit/Sources/FoundationModelsTools` package target and are
+exposed through `FoundationLabBuiltInTool`:
 
 - Weather
 - Web Search
@@ -197,7 +198,7 @@ The Health dashboard and chat live under `Foundation Lab/Health`.
 ## Dependencies
 
 - `HighlightSwift`: syntax highlighting
-- `FoundationModelsKit` and `FoundationModelsTools`: local runtime and tools
+- `FoundationModelsKit` and `FoundationModelsTools`: external reusable runtime utilities and tools
 - `FoundationLabCore`: local shared capability layer
 - `LumoKit`: RAG indexing and retrieval
 - `VecturaKit`: vector search, transitively used by LumoKit
@@ -231,7 +232,6 @@ Do not leave references to retired providers, screens, or navigation labels.
 ```text
 Foundation Lab/                 Native app
 FoundationLabCore/              Shared capability and experiment runtime
-Packages/FoundationModelsKit/   Reusable model and tool packages
 Tools/AFMCLI/                   afm command-line interface
 Tools/FMFBench/                 Evaluation suite and device runner
 Tools/AdapterStudio/            fmas adapter tooling

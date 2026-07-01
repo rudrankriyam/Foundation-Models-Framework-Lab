@@ -29,7 +29,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(path: "../../../Packages/FoundationModelsKit")
+        .package(url: "https://github.com/rryam/FoundationModelsKit.git", branch: "main")
     ],
     targets: [
         .target(

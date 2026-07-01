@@ -187,7 +187,9 @@ the device runner.
 ## Command-Line Interface
 
 The `afm` CLI uses the same `FoundationLabCore` and `FoundationModelsKit`
-runtime as the app.
+runtime as the app. `FoundationModelsKit` is consumed from the canonical
+[rryam/FoundationModelsKit](https://github.com/rryam/FoundationModelsKit)
+Swift package.
 
 ```bash
 brew tap rudrankriyam/tap
@@ -208,7 +210,7 @@ AFM releases use `afm-vx.y.z` tags so CLI releases remain independent from app r
 | --- | --- | --- |
 | Foundation Lab | [`Foundation Lab`](Foundation%20Lab) | Native Library, Playground, Runs, guided labs, and workspaces |
 | FoundationLabCore | [`FoundationLabCore`](FoundationLabCore) | UI-independent requests, results, use cases, providers, and experiment models |
-| FoundationModelsKit | [`Packages/FoundationModelsKit`](Packages/FoundationModelsKit) | Transcript, context, history, and system-tool packages |
+| FoundationModelsKit | [`rryam/FoundationModelsKit`](https://github.com/rryam/FoundationModelsKit) | External transcript, context, history, and system-tool package |
 | AFM CLI | [`Tools/AFMCLI`](Tools/AFMCLI) | Scriptable Foundation Models workflows |
 | FMFBench | [`Tools/FMFBench`](Tools/FMFBench) | Quality, agentic-tool, safety, and performance evaluation |
 | Adapter tooling | [`Tools/AdapterStudio`](Tools/AdapterStudio) | Adapter training and export with `fmas` |
@@ -219,10 +221,10 @@ archived in favor of this shared implementation.
 
 ## Swift Package Products
 
-`FoundationModelsKit` and `FoundationModelsTools` are defined by
-[`Packages/FoundationModelsKit/Package.swift`](Packages/FoundationModelsKit/Package.swift).
-Local package consumers should depend on that package path directly rather than
-requesting those products from the repository's root manifest.
+`FoundationModelsKit` and `FoundationModelsTools` are defined in the external
+[`rryam/FoundationModelsKit`](https://github.com/rryam/FoundationModelsKit)
+package. Local package consumers should depend on that package URL directly
+rather than requesting those products from this repository's root manifest.
 
 - `FoundationModelsKit` provides transcript history transforms, provenance-aware
   token accounting shared by the app and CLI, calibrated estimation, and

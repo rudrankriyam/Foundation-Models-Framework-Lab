@@ -5,6 +5,9 @@ included:
 
 excluded:
   - .build
+  - FoundationLabCore/.build
+  - Packages/AFMServer/.build
+  - Tools/AFMCLI/.build
   - build
   - DerivedData
 

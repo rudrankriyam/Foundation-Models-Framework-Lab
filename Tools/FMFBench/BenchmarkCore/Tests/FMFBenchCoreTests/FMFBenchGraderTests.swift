@@ -1,5 +1,6 @@
 @testable import FMFBenchCore
 import FoundationModels
+import FoundationModelsKit
 import Testing
 
 struct FMFBenchGraderTests {
@@ -505,14 +506,11 @@ struct FMFBenchGraderTests {
         let transcript = Transcript(entries: [staleResponse, currentResponse])
 
         #expect(
-            FMFBenchTranscriptRecovery.latestResponse(from: transcript, startingAt: 1)
+            transcript.latestNonEmptyResponseText(startingAt: 1)
                 == "Response from the current turn."
         )
         #expect(
-            FMFBenchTranscriptRecovery.latestResponse(
-                from: Transcript(entries: [staleResponse]),
-                startingAt: 1
-            ) == nil
+            Transcript(entries: [staleResponse]).latestNonEmptyResponseText(startingAt: 1) == nil
         )
     }
 

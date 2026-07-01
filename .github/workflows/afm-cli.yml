@@ -7,7 +7,6 @@ on:
       - 'Tools/AFMCLI/**'
       - 'FoundationLabCore/**'
       - 'Packages/AFMServer/**'
-      - 'Packages/FoundationModelsKit/**'
       - 'Package.swift'
       - 'Package.resolved'
       - '.swiftlint-core-cli.yml'
@@ -20,7 +19,6 @@ on:
       - 'Tools/AFMCLI/**'
       - 'FoundationLabCore/**'
       - 'Packages/AFMServer/**'
-      - 'Packages/FoundationModelsKit/**'
       - 'Package.swift'
       - 'Package.resolved'
       - '.swiftlint-core-cli.yml'
@@ -54,10 +52,6 @@ jobs:
       - name: Lint Core, CLI, and AFMServer
         run: swiftlint lint --strict --config .swiftlint-core-cli.yml
 
-      - name: Lint FoundationModelsKit
-        working-directory: Packages/FoundationModelsKit
-        run: swiftlint lint --strict
-
       - name: Resolve package dependencies
         run: swift package resolve
 
@@ -71,9 +65,6 @@ jobs:
 
       - name: Test standalone AFMServer package
         run: swift test --package-path Packages/AFMServer
-
-      - name: Test standalone FoundationModelsKit package
-        run: swift test --package-path Packages/FoundationModelsKit
 
   universal-artifact:
     needs: build-and-test

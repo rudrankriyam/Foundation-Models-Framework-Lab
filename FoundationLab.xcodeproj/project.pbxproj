@@ -146,7 +146,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				0AC6037E2E1D5288002106F9 /* XCRemoteSwiftPackageReference "HighlightSwift" */,
-				0A979E822E1E5921008CFA37 /* XCLocalSwiftPackageReference "FoundationModelsKit" */,
+				0A979E822E1E5921008CFA37 /* XCRemoteSwiftPackageReference "FoundationModelsKit" */,
 				0B0A11112ECB100100000001 /* XCLocalSwiftPackageReference "FoundationLabCore" */,
 				0B0A11312ECB200100000001 /* XCLocalSwiftPackageReference "AFMServer" */,
 				F1B8C56C2E5B5A1C00XYZ123 /* XCRemoteSwiftPackageReference "LumoKit" */,
@@ -499,10 +499,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		0A979E822E1E5921008CFA37 /* XCLocalSwiftPackageReference "FoundationModelsKit" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = Packages/FoundationModelsKit;
-		};
 		0B0A11112ECB100100000001 /* XCLocalSwiftPackageReference "FoundationLabCore" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = FoundationLabCore;
@@ -514,6 +510,14 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		0A979E822E1E5921008CFA37 /* XCRemoteSwiftPackageReference "FoundationModelsKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/rryam/FoundationModelsKit.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		0AC6037E2E1D5288002106F9 /* XCRemoteSwiftPackageReference "HighlightSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/appstefan/HighlightSwift.git";
@@ -535,7 +539,7 @@
 /* Begin XCSwiftPackageProductDependency section */
 		0A979E832E1E5921008CFA37 /* FoundationModelsKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 0A979E822E1E5921008CFA37 /* XCLocalSwiftPackageReference "FoundationModelsKit" */;
+			package = 0A979E822E1E5921008CFA37 /* XCRemoteSwiftPackageReference "FoundationModelsKit" */;
 			productName = FoundationModelsKit;
 		};
 		0B0A11122ECB100100000001 /* FoundationLabCore */ = {
