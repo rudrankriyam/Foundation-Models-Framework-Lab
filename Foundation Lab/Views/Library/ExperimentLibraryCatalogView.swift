@@ -105,10 +105,6 @@ struct ExperimentLibraryCatalogView: View {
                 .providerBridgeWalkthrough
             ]
         )
-        exampleSection(
-            ExperimentLaunch.workspace(Workspace.fmfBench).displayName,
-            examples: [.evaluationsLab, .fmCLIPythonPlayground]
-        )
     }
 
     private func exampleSection(

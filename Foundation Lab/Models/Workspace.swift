@@ -7,7 +7,6 @@ import Foundation
 
 enum Workspace: String, Hashable, Identifiable {
     case adapterComparison
-    case fmfBench
 
     var id: Self { self }
 
@@ -15,8 +14,6 @@ enum Workspace: String, Hashable, Identifiable {
         switch self {
         case .adapterComparison:
             String(localized: "Adapter Comparison")
-        case .fmfBench:
-            String(localized: "FMFBench")
         }
     }
 
@@ -24,8 +21,6 @@ enum Workspace: String, Hashable, Identifiable {
         switch self {
         case .adapterComparison:
             String(localized: "Compare a custom .fmadapter package with the base system model.")
-        case .fmfBench:
-            String(localized: "Run repeatable app-shaped quality and performance evaluations.")
         }
     }
 
@@ -33,8 +28,6 @@ enum Workspace: String, Hashable, Identifiable {
         switch self {
         case .adapterComparison:
             "square.split.2x1"
-        case .fmfBench:
-            "gauge.with.dots.needle.67percent"
         }
     }
 
@@ -50,16 +43,6 @@ enum Workspace: String, Hashable, Identifiable {
             String(localized: "Workflow")
         case (.adapterComparison, .output):
             String(localized: "Results")
-        case (.fmfBench, .settings):
-            String(localized: "Protocol")
-        case (.fmfBench, .runs):
-            String(localized: "Run")
-        case (.fmfBench, .evaluation):
-            String(localized: "Evaluate")
-        case (.fmfBench, .preview):
-            String(localized: "Suites")
-        case (.fmfBench, .output):
-            String(localized: "Artifacts")
         }
     }
 

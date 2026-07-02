@@ -108,8 +108,6 @@ struct WorkspaceView: View {
 #else
             AdapterStudioContent(stage: selectedStage)
 #endif
-        case .fmfBench:
-            FMFBenchStudioContent(stage: selectedStage)
         }
     }
 
@@ -121,8 +119,6 @@ struct WorkspaceView: View {
 #else
             String(localized: "Adapter Comparison Requires macOS")
 #endif
-        case .fmfBench:
-            String(localized: "Reference workspace")
         }
     }
 
@@ -143,8 +139,6 @@ struct WorkspaceView: View {
 #else
             "macbook"
 #endif
-        case .fmfBench:
-            "terminal"
         }
     }
 
@@ -159,6 +153,6 @@ struct WorkspaceView: View {
 
 #Preview {
     NavigationStack {
-        WorkspaceView(workspace: .fmfBench)
+        WorkspaceView(workspace: .adapterComparison)
     }
 }

@@ -10,9 +10,12 @@ struct AdapterStudioOutputView: View {
                 Text("Latest Output")
                     .font(.headline)
 
-                Text("Responses remain selectable for manual review. Use FMFBench when you need stored datasets and deterministic graders.")
-                .font(.callout)
-                .foregroundStyle(.secondary)
+                Text(
+                    "Responses remain selectable for manual review. Use FoundationModelsBench "
+                        + "when you need stored datasets and deterministic graders."
+                )
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
             }
 
             if viewModel.lastResult == nil {
