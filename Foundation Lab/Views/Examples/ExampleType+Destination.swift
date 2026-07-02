@@ -74,7 +74,7 @@ extension ExampleType {
                 "Evaluations are available on Mac",
                 systemImage: "macbook",
                 description: Text(
-                    "Run FMFBench on the device, then use the macOS evaluation tools."
+                    "Record model responses on device, then inspect them with the macOS evaluation tools."
                 )
             )
 #endif

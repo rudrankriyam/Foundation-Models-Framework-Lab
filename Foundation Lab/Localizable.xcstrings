@@ -19531,9 +19531,6 @@
         }
       }
     },
-    "FMFBench" : {
-      "shouldTranslate" : false
-    },
     "Apple Intelligence not enabled" : {
       "localizations" : {
         "de" : {
@@ -36244,70 +36241,6 @@
         }
       }
     },
-    "Open the FMFBenchDeviceRunner project, select a physical Apple Intelligence device, and run its scheme." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Offen FMFBenchDeviceRunner Projekt, wählen Sie eine physische Apple Intelligence Gerät, und führen Sie sein Schema."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open the FMFBenchDeviceRunner project, select a physical Apple Intelligence device, and run its scheme."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abrir el FMFBenchDeviceRunner proyecto, seleccionar un físico Apple Intelligence dispositivo, y ejecutar su esquema."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ouvrir la FMFBenchDeviceRunner projet, sélectionner un physique Apple Intelligence et exécuter son schéma."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aprire FMFBenchDeviceRunner progetto, selezionare un fisico Apple Intelligence dispositivo, ed eseguire il suo schema."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "開く FMFBenchDeviceRunner プロジェクトを選択し、物理的 Apple Intelligence デバイス、およびそのスキームを実行します。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "자주 묻는 질문 FMFBenchDeviceRunner 프로젝트, 물리적 선택 Apple Intelligence 장치, 그리고 그것의 계획을 실행."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abra o FMFBenchDeviceRunner projeto, selecione um físico Apple Intelligence dispositivo, e executar seu esquema."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "打开 FMFBenchDeviceRunner ,选择物理 Apple Intelligence 设备,并运行其方案。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "開啟 FMFBenchDeviceRunner 專案,選擇物理 Apple Intelligence 裝置,並執行它的設計。"
-          }
-        }
-      }
-    },
     "Opening Recipe" : {
       "localizations" : {
         "de" : {
@@ -40599,70 +40532,6 @@
         }
       }
     },
-    "Responses remain selectable for manual review. Use FMFBench when you need stored datasets and deterministic graders." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Antworten bleiben für die manuelle Überprüfung wählbar. Verwendung FMFBench wenn Sie gespeicherte Datensätze und deterministische Grader benötigen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Responses remain selectable for manual review. Use FMFBench when you need stored datasets and deterministic graders."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Las respuestas siguen siendo seleccionables para la revisión manual. Uso FMFBench cuando necesita conjuntos de datos almacenados y graduadores deterministas."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les réponses restent sélectionnables pour examen manuel. Utilisation FMFBench lorsque vous avez besoin de données stockées et de niveleuses déterministes."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le risposte rimangono selezionabili per la revisione manuale. Uso FMFBench quando hai bisogno di set di dati memorizzati e gradi deterministici."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "マニュアルレビューでは、応答は選択可能です。 使用条件 FMFBench 保存したデータセットと決定的なグレーダーが必要な場合。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "응답은 수동 검토를 위해 선택할 수 있습니다. 제품 정보 FMFBench 저장된 datasets 및 deterministic 그레이더가 필요할 때."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "As respostas permanecem selecionáveis para revisão manual. Use FMFBench Quando você precisa de conjuntos de dados armazenados e graduadores determinísticos."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "答复仍可选作人工审查。 使用 FMFBench 当您需要存储的数据集和确定分级器时。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "答复仍可作人工审查。 使用 FMFBench 當您需要儲存的數據集和決定分類。"
-          }
-        }
-      }
-    },
     "Restore this example's defaults" : {
       "localizations" : {
         "de" : {
@@ -41171,70 +41040,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "依法治制"
-          }
-        }
-      }
-    },
-    "Run FMFBench on the device, then use the macOS evaluation tools." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lauf FMFBench auf dem Gerät, dann verwenden Sie die macOS Bewertungsinstrumente."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Run FMFBench on the device, then use the macOS evaluation tools."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Corre FMFBench en el dispositivo, luego utilizar el macOS herramientas de evaluación."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cours FMFBench sur l'appareil, puis utiliser macOS outils d'évaluation."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Corri! FMFBench sul dispositivo, quindi utilizzare il macOS strumenti di valutazione."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ログイン FMFBench 装置で、それから使用して下さい macOS 評価ツール。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "지원하다 FMFBench 기기에서 다음을 사용합니다. macOS 평가 도구."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Corra. FMFBench no dispositivo, então use o macOS Ferramentas de avaliação."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "运行 FMFBench 在设备上,然后使用 macOS 评价工具。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "快跑 FMFBench 在裝置上,然后使用 macOS 评估工具。"
           }
         }
       }
@@ -43923,70 +43728,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已簽署"
-          }
-        }
-      }
-    },
-    "Signed FMFBenchDeviceRunner" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unterzeichnet FMFBenchDeviceRunner"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Signed FMFBenchDeviceRunner"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "FMFBenchDeviceRunner firmado"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Signé FMFBenchDeviceRunner"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Firmato FMFBenchDeviceRunner"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "サインイン FMFBenchDeviceRunner"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "서명된 FMFBenchDeviceRunner"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Assinado. FMFBenchDeviceRunner"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已签署 FMFBenchDeviceRunner"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已簽署 FMFBenchDeviceRunner"
           }
         }
       }
@@ -47706,70 +47447,6 @@
         }
       }
     },
-    "The two models stream concurrently for fast visual comparison. Treat these timings as diagnostics; use FMFBench for controlled, publishable measurements." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die beiden Modelle streamen gleichzeitig für einen schnellen visuellen Vergleich. Behandeln Sie diese Timings als Diagnose; Verwendung FMFBench für kontrollierte, veröffentlichbare Messungen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The two models stream concurrently for fast visual comparison. Treat these timings as diagnostics; use FMFBench for controlled, publishable measurements."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los dos modelos fluyen simultáneamente para una comparación visual rápida. Tratar estos tiempos como diagnósticos; utilizar FMFBench para mediciones controladas y publicables."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les deux modèles circulent simultanément pour une comparaison visuelle rapide. Traiter ces timings comme des diagnostics; utiliser FMFBench pour les mesures contrôlées et publiables."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "I due modelli stream contemporaneamente per un rapido confronto visivo. Trattare questi tempi come diagnostica; utilizzare FMFBench per le misurazioni controllate e pubblicabili."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "2つのモデルは、迅速な視覚比較のために同時ストリーミングします。 これらのタイミングを診断として扱います;使用して下さい FMFBench 制御、出版可能な測定のため。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "빠른 시각 비교를 위해 concurrently 2개의 모형 시내. 진단으로 이러한 타이밍을 치료; 사용 FMFBench 제어, 게시 가능한 측정을 위해."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Os dois modelos fluem simultaneamente para comparação visual rápida. Trate esses timings como diagnósticos; use FMFBench para medições controladas e publicáveis."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "两个模型同时流,用于快速的视觉比较. 将这些时间作为诊断; FMFBench 用于可控制的、可公布的测量。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "兩個型號同时流 以快速視覺比對 將這些時間當作诊断; 使用 FMFBench 用于可控制的、可公布的量度。"
-          }
-        }
-      }
-    },
     "These values describe SystemLanguageModel.default on this device. Private Cloud Compute is a separate language model with its own availability, quota, supported languages, and asynchronous context size." : {
       "localizations" : {
         "de" : {
@@ -49241,9 +48918,6 @@
           }
         }
       }
-    },
-    "Tools/FMFBench/Results" : {
-      "shouldTranslate" : false
     },
     "Top-K %lld" : {
       "localizations" : {
@@ -53980,70 +53654,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld 個權杖"
-          }
-        }
-      }
-    },
-    "fmfbench CLI" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "FMFBench CLI"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "fmfbench CLI"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "FMFBench CLI"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "FMFBench CLI"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "FMFBench CLI"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "FMFBench CLI"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "fmfbench CLI"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "FMFBench CLI"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "FMFBench CLI"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "FMFBench CLI"
           }
         }
       }

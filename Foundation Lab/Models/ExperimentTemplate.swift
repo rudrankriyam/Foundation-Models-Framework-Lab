@@ -415,15 +415,6 @@ extension ExperimentTemplate {
             track: .workflows,
             launch: .workspace(.adapterComparison),
             keywords: ["adapter", "fmadapter", "fine tuning", "comparison", "fmas"]
-        ),
-        ExperimentTemplate(
-            id: "fmfbench",
-            title: "FMFBench",
-            summary: "Run repeatable quality and performance evaluations based on real app tasks.",
-            systemImage: "gauge.with.dots.needle.67percent",
-            track: .workflows,
-            launch: .workspace(.fmfBench),
-            keywords: ["benchmark", "evaluation", "latency", "quality", "device runner"]
         )
     ]
 

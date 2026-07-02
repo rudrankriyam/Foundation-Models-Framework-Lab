@@ -12,7 +12,7 @@ The product serves two audiences without splitting into two apps:
 
 - Developers can start from complete, editable recipes.
 - They can also compose custom prompts and tools, inspect runs, compare
-  adapters, and use the repository's CLI and evaluation surfaces.
+  adapters, and export reproducible app evidence.
 
 ## Toolchain
 
@@ -73,7 +73,7 @@ FoundationLabApp
 - `recipe`: loads a `FoundationLabExperimentConfiguration` into Playground.
 - `guidedLab`: opens a focused API demonstration.
 - `workshop`: opens a schema or language progression.
-- `workspace`: opens Adapter Comparison or FMFBench.
+- `workspace`: opens Adapter Comparison.
 
 Do not add a second top-level destination for a feature that belongs in Library.
 Runnable prompt/tool examples should be recipes unless they genuinely need a
@@ -146,12 +146,6 @@ confirmation before side effects.
 `Foundation Lab/AdapterStudio` contains the macOS adapter comparison engine and
 views. It is routed through `WorkspaceView` from Library. Adapter training
 and export live in `Tools/AdapterStudio` through the `fmas` CLI.
-
-### FMFBench
-
-`FMFBenchStudioContent` explains FMFBench stages inside the app. The canonical
-runner, datasets, graders, reports, and device harness live in `Tools/FMFBench`.
-Never present Simulator benchmark output as publishable device evidence.
 
 ## Voice
 
@@ -232,7 +226,6 @@ Do not leave references to retired providers, screens, or navigation labels.
 ```text
 Foundation Lab/                 Native app
 FoundationLabCore/              Shared capability and experiment runtime
-Tools/FMFBench/                 Evaluation suite and device runner
 Tools/AdapterStudio/            fmas adapter tooling
 BookPlaygrounds/                Chapter-oriented Xcode playgrounds
 ```
@@ -241,6 +234,8 @@ Reusable Foundation Models agent skills live in the external
 `https://github.com/rryam/FoundationModelsKit` package repository.
 The AFM command-line interface lives in the external
 `https://github.com/rudrankriyam/Foundation-Models-Framework-CLI` repository.
+FoundationModelsBench lives in the external
+`https://github.com/rudrankriyam/FoundationModelsBench` repository.
 
-Keep app, CLI, package, and documentation claims aligned with the same source of
-truth. A passing build does not make an unreachable feature real.
+Keep app, CLI, package, benchmark, and documentation claims aligned with their
+canonical repositories. A passing build does not make an unreachable feature real.
