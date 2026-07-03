@@ -8,7 +8,7 @@ import Playgrounds
     // Greedy sampling - always chooses most likely token
     debugPrint("Greedy Sampling (Deterministic)")
     let greedyOptions = GenerationOptions(
-        samplingMode: .greedy,
+        sampling: .greedy,
         temperature: nil // Temperature is ignored with greedy sampling
     )
     let greedyResponse = try await session.respond(to: prompt, options: greedyOptions)
@@ -17,7 +17,7 @@ import Playgrounds
     // Top-K sampling with smaller K (more deterministic)
     debugPrint("Top-K Sampling (K=30, More Focused)")
     let topKSmallOptions = GenerationOptions(
-        samplingMode: .random(top: 30, seed: nil),
+        sampling: .random(top: 30, seed: nil),
         temperature: 0.7
     )
     let topKSmallResponse = try await session.respond(to: prompt, options: topKSmallOptions)
@@ -26,7 +26,7 @@ import Playgrounds
     // Top-K sampling with larger K (more creative)
     debugPrint("Top-K Sampling (K=50, More Creative)")
     let topKLargeOptions = GenerationOptions(
-        samplingMode: .random(top: 50, seed: nil),
+        sampling: .random(top: 50, seed: nil),
         temperature: 0.7
     )
     let topKLargeResponse = try await session.respond(to: prompt, options: topKLargeOptions)
@@ -35,7 +35,7 @@ import Playgrounds
     // Top-P sampling with conservative threshold
     debugPrint("Top-P Sampling (P=0.8, Conservative)")
     let topPConservativeOptions = GenerationOptions(
-        samplingMode: .random(probabilityThreshold: 0.8, seed: nil),
+        sampling: .random(probabilityThreshold: 0.8, seed: nil),
         temperature: 0.6
     )
     let topPConservativeResponse = try await session.respond(to: prompt, options: topPConservativeOptions)
@@ -44,7 +44,7 @@ import Playgrounds
     // Top-P sampling with higher threshold
     debugPrint("Top-P Sampling (P=0.9, More Creative)")
     let topPCreativeOptions = GenerationOptions(
-        samplingMode: .random(probabilityThreshold: 0.9, seed: nil),
+        sampling: .random(probabilityThreshold: 0.9, seed: nil),
         temperature: 0.7
     )
     let topPCreativeResponse = try await session.respond(to: prompt, options: topPCreativeOptions)
@@ -53,7 +53,7 @@ import Playgrounds
     // Reproducible results with seed
     debugPrint("Reproducible Results (With Seed)")
     let seededOptions = GenerationOptions(
-        samplingMode: .random(top: 30, seed: 12345),
+        sampling: .random(top: 30, seed: 12345),
         temperature: 0.8
     )
     let seededResponse1 = try await session.respond(to: prompt, options: seededOptions)
@@ -65,7 +65,7 @@ import Playgrounds
     // System default (recommended)
     debugPrint("System Default (Recommended)")
     let systemDefaultOptions = GenerationOptions(
-        samplingMode: nil,
+        sampling: nil,
         temperature: nil
     )
     let systemDefaultResponse = try await session.respond(to: prompt, options: systemDefaultOptions)
