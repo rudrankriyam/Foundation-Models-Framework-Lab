@@ -17,7 +17,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/rryam/FoundationModelsKit.git",
-            revision: "672f8231dff61364393bae04c84b1c921695eadc"
+            revision: "1cad71a114cd8b321804b4f73a550ac500aafe1b"
         )
     ],
     targets: [

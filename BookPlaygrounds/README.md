@@ -8,7 +8,7 @@ It is part of the [Exploring Foundation Models](https://academy.rudrank.com/prod
 
 The playgrounds are organized into different learning paths, each building upon the previous concepts:
 
-- ** GettingStartedWithSessions** - Core session management and basic interactions
+- **GettingStartedWithSessions** - Core session management and basic interactions
 - **GenerationOptionsAndSamplingControl** - Fine-tuning model behavior and output
 - **BasicToolUse** - Extending model capabilities with custom tools
 - **SupportedLanguagesAndInternationalization** - Working with multiple languages
@@ -20,7 +20,7 @@ Each playground consists of Swift files that demonstrate progressive concepts. A
 ### Prerequisites
 
 - Xcode 26.0 or later
-- iOS 26.0+ or macOS 15.6+
+- iOS 26.0+ or macOS 26.0+
 
 ## Getting Started with Sessions
 
