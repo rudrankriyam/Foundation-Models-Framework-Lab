@@ -15,12 +15,20 @@ struct CalculatorTool: Tool {
                       "division"
 
     @Generable
+    enum Operation: String {
+        case add
+        case subtract
+        case multiply
+        case divide
+    }
+
+    @Generable
     struct Arguments {
         @Guide(description: "The first number in the calculation")
         var firstNumber: Double
 
-        @Guide(description: "The mathematical operation: 'add', 'subtract', 'multiply', or 'divide'")
-        var operation: String
+        @Guide(description: "The mathematical operation to perform")
+        var operation: Operation
 
         @Guide(description: "The second number in the calculation")
         var secondNumber: Double
@@ -36,19 +44,17 @@ struct CalculatorTool: Tool {
     }
 
     func call(arguments: Arguments) async throws -> CalculationResult {
-        let operation = arguments.operation.lowercased()
+        let operation = arguments.operation
 
-        guard let result = performCalculation(
+        if operation == .divide && arguments.secondNumber == 0 {
+            throw CalculationError.divisionByZero
+        }
+
+        let result = performCalculation(
             first: arguments.firstNumber,
             operation: operation,
             second: arguments.secondNumber
-        ) else {
-            if operation == "divide" && arguments.secondNumber == 0 {
-                throw CalculationError.divisionByZero
-            } else {
-                throw CalculationError.unsupportedOperation(operation)
-            }
-        }
+        )
 
         let expression = formatExpression(
             first: arguments.firstNumber,
@@ -58,7 +64,7 @@ struct CalculatorTool: Tool {
         )
 
         return CalculationResult(
-            operation: operation,
+            operation: operation.rawValue,
             firstNumber: arguments.firstNumber,
             secondNumber: arguments.secondNumber,
             result: result,
@@ -66,33 +72,30 @@ struct CalculatorTool: Tool {
         )
     }
 
-    private func performCalculation(first: Double, operation: String, second: Double) -> Double? {
+    private func performCalculation(first: Double, operation: Operation, second: Double) -> Double {
         switch operation {
-        case "add", "addition", "+":
+        case .add:
             return first + second
-        case "subtract", "subtraction", "-":
+        case .subtract:
             return first - second
-        case "multiply", "multiplication", "*":
+        case .multiply:
             return first * second
-        case "divide", "division", "/":
-            return second != 0 ? first / second : nil
-        default:
-            return nil
+        case .divide:
+            return first / second
         }
     }
 
-    private func formatExpression(first: Double, operation: String, second: Double, result: Double) -> String {
+    private func formatExpression(first: Double, operation: Operation, second: Double, result: Double) -> String {
         let operatorSymbol = getOperatorSymbol(for: operation)
         return "\(formatNumber(first)) \(operatorSymbol) \(formatNumber(second)) = \(formatNumber(result))"
     }
 
-    private func getOperatorSymbol(for operation: String) -> String {
+    private func getOperatorSymbol(for operation: Operation) -> String {
         switch operation {
-        case "add", "addition": return "+"
-        case "subtract", "subtraction": return "-"
-        case "multiply", "multiplication": return "×"
-        case "divide", "division": return "÷"
-        default: return operation
+        case .add: return "+"
+        case .subtract: return "-"
+        case .multiply: return "×"
+        case .divide: return "÷"
         }
     }
 
@@ -106,14 +109,11 @@ struct CalculatorTool: Tool {
 
     enum CalculationError: Error, LocalizedError {
         case divisionByZero
-        case unsupportedOperation(String)
 
         var errorDescription: String? {
             switch self {
             case .divisionByZero:
                 return "Cannot divide by zero"
-            case .unsupportedOperation(let operation):
-                return "Unsupported operation: '\(operation)'. Use 'add', 'subtract', 'multiply', or 'divide'."
             }
         }
     }
@@ -124,7 +124,7 @@ struct CalculatorTool: Tool {
 
     let arguments = CalculatorTool.Arguments(
         firstNumber: 15.5,
-        operation: "multiply",
+        operation: .multiply,
         secondNumber: 3.2
     )
 

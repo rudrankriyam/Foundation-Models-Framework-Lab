@@ -224,8 +224,12 @@ swiftlint lint --strict --config .swiftlint.yml
 swift test
 ```
 
-CI additionally builds Foundation Lab for macOS and iOS Simulator and validates
-the Adapter Studio and TestFlight workflows.
+On pull requests, CI runs the FoundationLabCore test suite (`swift test`) and
+typechecks the book playgrounds via `Tools/BookPlaygrounds/typecheck.sh`
+([`foundation-lab-pr.yml`](.github/workflows/foundation-lab-pr.yml)). A
+separate [`adapter-studio.yml`](.github/workflows/adapter-studio.yml) workflow
+lints and builds Foundation Lab for macOS and iOS Simulator when Adapter
+Studio files change.
 
 ## TestFlight
 
