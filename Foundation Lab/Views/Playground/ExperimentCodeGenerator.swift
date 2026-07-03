@@ -76,7 +76,7 @@ enum ExperimentCodeGenerator {
 
         return """
         let options = GenerationOptions(
-            samplingMode: \(sampling),
+            sampling: \(sampling),
             temperature: \(temperature),
             maximumResponseTokens: \(maximumResponseTokens)
         )

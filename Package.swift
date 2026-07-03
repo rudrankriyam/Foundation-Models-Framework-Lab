@@ -15,7 +15,10 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/rryam/FoundationModelsKit.git", branch: "main")
+        .package(
+            url: "https://github.com/rryam/FoundationModelsKit.git",
+            revision: "672f8231dff61364393bae04c84b1c921695eadc"
+        )
     ],
     targets: [
         .target(
