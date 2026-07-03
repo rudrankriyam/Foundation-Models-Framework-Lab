@@ -18,5 +18,6 @@ for dir in BookPlaygrounds/*; do
         -suppress-warnings \
         -typecheck \
         -I "$module_path" \
+        -I "$module_path/Modules" \
         "${files[@]}"
 done
