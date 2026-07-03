@@ -2,6 +2,7 @@
 set -euo pipefail
 
 swift build
+module_path="$(swift build --show-bin-path)"
 
 for dir in BookPlaygrounds/*; do
     [ -d "$dir" ] || continue
@@ -16,6 +17,6 @@ for dir in BookPlaygrounds/*; do
     xcrun swiftc \
         -suppress-warnings \
         -typecheck \
-        -I .build/out/Products/Debug \
+        -I "$module_path" \
         "${files[@]}"
 done
