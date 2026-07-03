@@ -1,12 +1,11 @@
 {
-  "originHash" : "4aa1eaab8716884035d5b71dec3005a6dadabe058acd9f3d1b79a0b51e1c51fb",
+  "originHash" : "13b6af4b29c5575663bf97598fc5d5a239e5890ac8ae20bf713632b3aa0d41f4",
   "pins" : [
     {
       "identity" : "foundationmodelskit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/rryam/FoundationModelsKit.git",
       "state" : {
-        "branch" : "main",
         "revision" : "672f8231dff61364393bae04c84b1c921695eadc"
       }
     },
@@ -33,7 +32,6 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/rryam/LumoKit.git",
       "state" : {
-        "branch" : "main",
         "revision" : "e18baa1e5c7677216350380f298338f1abb45f7c"
       }
     },

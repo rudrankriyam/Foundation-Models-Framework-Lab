@@ -506,8 +506,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/rryam/FoundationModelsKit.git";
 			requirement = {
-				branch = main;
-				kind = branch;
+				kind = revision;
+				revision = 672f8231dff61364393bae04c84b1c921695eadc;
 			};
 		};
 		0AC6037E2E1D5288002106F9 /* XCRemoteSwiftPackageReference "HighlightSwift" */ = {
@@ -522,8 +522,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/rryam/LumoKit.git";
 			requirement = {
-				branch = main;
-				kind = branch;
+				kind = revision;
+				revision = e18baa1e5c7677216350380f298338f1abb45f7c;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

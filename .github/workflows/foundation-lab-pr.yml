@@ -1,0 +1,36 @@
+name: Foundation Lab PR
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'BookPlaygrounds/**'
+      - 'Foundation Lab/**'
+      - 'FoundationLabCore/**'
+      - 'FoundationLab.xcodeproj/**'
+      - 'Package.swift'
+      - 'Package.resolved'
+      - 'SampleCode.xcconfig'
+      - 'Tools/BookPlaygrounds/**'
+      - '.github/workflows/foundation-lab-pr.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: foundation-lab-pr-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: macos-26
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Build and test FoundationLabCore
+        run: swift test
+
+      - name: Typecheck book playgrounds
+        run: bash Tools/BookPlaygrounds/typecheck.sh
