@@ -1,11 +1,23 @@
 ## Xcode 27 Foundation Models API Delta
 
-Source: Xcode 27.0 beta 2 (build `27A5209h`) FoundationModels Swift
-interface (`9379` lines), generated from the iOS SDK public module surface
-with an iOS 26.0 deployment target.
+Source: Xcode 27.0 beta 3 (build `27A5218g`) FoundationModels Swift
+interface, checked against the iOS SDK public module surface with an iOS 26.0
+deployment target.
 
 This section records the new public API shape found in Xcode 27. The raw Swift
-interface reference below is refreshed from the beta 2 interface.
+interface reference below is refreshed for beta 3 deltas.
+
+### Beta 3 changes
+
+Compared with the Xcode 27 beta 2 interface:
+
+- `GenerationOptions.SamplingMode.Kind` renames the stored random cases from
+  `top(k:seed:)` and `nucleus(threshold:seed:)` to `randomTopK(_:seed:)` and
+  `randomProbabilityThreshold(_:seed:)`. The public factory methods remain
+  `random(top:seed:)` and `random(probabilityThreshold:seed:)`.
+- `LanguageModelSession.DynamicProfile` adds `onReasoning` lifecycle hooks for
+  observing model reasoning as it works toward a response. Reasoning is only
+  produced by models that declare the `.reasoning` capability.
 
 ### Beta 2 changes
 
@@ -2081,9 +2093,9 @@ extension GenerationOptions.SamplingMode {
 
         case greedy
 
-        case top(k: Int, seed: UInt64?)
+        case randomTopK(_: Int, seed: UInt64?)
 
-        case nucleus(threshold: Double, seed: UInt64?)
+        case randomProbabilityThreshold(_: Double, seed: UInt64?)
 
         /// Returns a Boolean value indicating whether two values are equal.
         ///
@@ -5530,6 +5542,57 @@ extension LanguageModelSession.DynamicProfile {
     /// }
     /// ```
     public func onResponse(perform action: nonisolated(nonsending) sending @escaping (Transcript.Response) async throws -> Void) -> some LanguageModelSession.DynamicProfile
+
+
+    /// Runs an action whenever this dynamic profile produces reasoning.
+    ///
+    /// Reasoning is only produced by models that declare the `.reasoning`
+    /// capability.
+    ///
+    /// When the `onReasoning` closure throws an error, the caller's `respond` or
+    /// `response` will propagate that error.
+    ///
+    /// Use this to observe or log the model's reasoning as it works toward a response:
+    ///
+    /// ```swift
+    /// struct MyDynamicProfile: LanguageModelSession.DynamicProfile {
+    ///   var body: some LanguageModelSession.DynamicProfile {
+    ///     Profile {
+    ///       Instructions("You are a helpful assistant.")
+    ///     }
+    ///     .onReasoning {
+    ///       reasoningEvents += 1
+    ///     }
+    ///   }
+    /// }
+    /// ```
+    @export(implementation) public func onReasoning(perform action: nonisolated(nonsending) sending @escaping () async throws -> Void) -> some LanguageModelSession.DynamicProfile
+
+
+    /// Runs an action whenever this dynamic profile produces reasoning.
+    ///
+    /// Reasoning is only produced by models that declare the `.reasoning`
+    /// capability.
+    ///
+    /// When the `onReasoning` closure throws an error, the caller's `respond` or
+    /// `response` will propagate that error.
+    ///
+    /// Use this to observe or log the model's reasoning as it works toward a response:
+    ///
+    /// ```swift
+    /// struct MyDynamicProfile: LanguageModelSession.DynamicProfile {
+    ///   var body: some LanguageModelSession.DynamicProfile {
+    ///     Profile {
+    ///       Instructions("You are a helpful assistant.")
+    ///     }
+    ///     .onReasoning { reasoning in
+    ///       print("reasoning: \(reasoning)")
+    ///       reasoningEvents += 1
+    ///     }
+    ///   }
+    /// }
+    /// ```
+    public func onReasoning(perform action: nonisolated(nonsending) sending @escaping (Transcript.Reasoning) async throws -> Void) -> some LanguageModelSession.DynamicProfile
 
 
     /// Runs an action whenever a tool is called within this dynamic profile.
