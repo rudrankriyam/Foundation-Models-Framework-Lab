@@ -17,7 +17,7 @@ struct TranscriptEntryView: View {
     @Environment(ChatViewModel.self) private var chatViewModel
 
     var body: some View {
-        VStack(spacing: 2) {
+        VStack(alignment: entry.isFromUser ? .trailing : .leading, spacing: 2) {
             entryContent
 
             if let tokenCount {
@@ -31,6 +31,7 @@ struct TranscriptEntryView: View {
                     .padding(.horizontal, Spacing.large)
             }
         }
+        .frame(maxWidth: .infinity)
         .task(id: "\(transcriptIndex)-\(entry.id)") {
             tokenCount = nil
             tokenCount = await resolveTokenCount()

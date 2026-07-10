@@ -12,8 +12,10 @@ struct MessageBubbleView: View {
     @State private var animatesTyping = false
 
     var body: some View {
-        VStack(alignment: message.isFromUser ? .trailing : .leading, spacing: Spacing.small) {
-            senderLabel
+        VStack(alignment: message.isFromUser ? .trailing : .leading, spacing: Spacing.xSmall) {
+            if !message.isFromUser {
+                senderLabel
+            }
 
             if !message.isFromUser && plainText.isEmpty {
                 typingIndicator
@@ -25,7 +27,10 @@ struct MessageBubbleView: View {
                 contextSummaryLabel
             }
         }
-        .frame(maxWidth: message.isFromUser ? 620 : FoundationLabLayout.transcriptContentWidth)
+        .frame(
+            maxWidth: message.isFromUser ? 620 : FoundationLabLayout.transcriptContentWidth,
+            alignment: message.isFromUser ? .trailing : .leading
+        )
         .frame(maxWidth: .infinity, alignment: message.isFromUser ? .trailing : .leading)
         .padding(.horizontal, Spacing.large)
         .contextMenu {
@@ -45,25 +50,31 @@ struct MessageBubbleView: View {
 
 private extension MessageBubbleView {
     var senderLabel: some View {
-        Label(
-            message.isFromUser ? "You" : "Foundation Models",
-            systemImage: message.isFromUser ? "person.crop.circle" : "apple.intelligence"
-        )
+        Label("Foundation Models", systemImage: "apple.intelligence")
         .font(.subheadline)
         .foregroundStyle(.secondary)
     }
 
     var messageText: some View {
         Text(message.content)
-            .padding(.horizontal, message.isFromUser ? Spacing.large : 0)
-            .padding(.vertical, message.isFromUser ? Spacing.medium : 0)
+            .padding(.horizontal, Spacing.large)
+            .padding(.vertical, Spacing.medium)
             .textSelection(.enabled)
-            .foregroundStyle(.primary)
+            .foregroundStyle(message.isFromUser ? Color.white : Color.primary)
             .background(
-                message.isFromUser ? Color.secondaryBackgroundColor : .clear,
-                in: .rect(cornerRadius: CornerRadius.large)
+                message.isFromUser ? Color.accentColor : Color.secondaryBackgroundColor,
+                in: bubbleShape
             )
             .fixedSize(horizontal: false, vertical: true)
+    }
+
+    var bubbleShape: UnevenRoundedRectangle {
+        UnevenRoundedRectangle(
+            topLeadingRadius: CornerRadius.large,
+            bottomLeadingRadius: message.isFromUser ? CornerRadius.large : CornerRadius.small,
+            bottomTrailingRadius: message.isFromUser ? CornerRadius.small : CornerRadius.large,
+            topTrailingRadius: CornerRadius.large
+        )
     }
 
     var typingIndicator: some View {
