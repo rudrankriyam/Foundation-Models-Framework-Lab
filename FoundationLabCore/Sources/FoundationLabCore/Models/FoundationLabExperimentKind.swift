@@ -31,7 +31,7 @@ public enum FoundationLabExperimentKind: String, CaseIterable, Codable, Hashable
         case .conversation:
             "bubble.left.and.bubble.right"
         case .generation:
-            "text.sparkle"
+            "sparkles"
         case .structuredOutput:
             "curlybraces"
         case .toolUse:
