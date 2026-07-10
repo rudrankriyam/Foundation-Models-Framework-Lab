@@ -72,7 +72,11 @@ private extension ChatInputView {
         .padding(.horizontal, Spacing.medium)
         .padding(.vertical, Spacing.small)
         .frame(minHeight: FoundationLabLayout.minimumTouchTarget)
-        .background(Color.secondaryBackgroundColor, in: .rect(cornerRadius: CornerRadius.medium))
+        .background(.background, in: .capsule)
+        .overlay {
+            Capsule()
+                .strokeBorder(.quaternary, lineWidth: 1)
+        }
     }
 
     @ViewBuilder
