@@ -8,11 +8,24 @@ struct PlaygroundInspectorView: View {
     let applyConfiguration: () -> Void
 
     var body: some View {
-        Form {
+        List {
             Section("Experiment") {
-                TextField("Name", text: $experimentStore.activeExperiment.name)
-                TextField("Description", text: $experimentStore.activeExperiment.summary, axis: .vertical)
-                    .lineLimit(2...4)
+                VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                    Text("Name")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    TextField("Name", text: $experimentStore.activeExperiment.name)
+                        .textFieldStyle(.roundedBorder)
+                }
+
+                VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                    Text("Description")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    TextField("Description", text: $experimentStore.activeExperiment.summary, axis: .vertical)
+                        .textFieldStyle(.roundedBorder)
+                        .lineLimit(2...4)
+                }
             }
 
             Section("Model") {
@@ -71,24 +84,43 @@ struct PlaygroundInspectorView: View {
                     Toggle("Use Fixed Seed", isOn: fixedSeedBinding)
                 }
 
-                TextField("Temperature", value: temperatureBinding, format: .number)
+                VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                    Text("Temperature")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    TextField("Temperature", value: temperatureBinding, format: .number)
+                        .textFieldStyle(.roundedBorder)
 #if os(iOS)
-                    .keyboardType(.decimalPad)
+                        .keyboardType(.decimalPad)
 #endif
-                TextField("Maximum response tokens", value: maximumTokensBinding, format: .number)
+                }
+
+                VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                    Text("Maximum response tokens")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    TextField("Maximum response tokens", value: maximumTokensBinding, format: .number)
+                        .textFieldStyle(.roundedBorder)
 #if os(iOS)
-                    .keyboardType(.numberPad)
+                        .keyboardType(.numberPad)
 #endif
+                }
             }
             .disabled(viewModel.isLoading)
 
             Section("Instructions") {
-                TextField(
-                    "Describe how the model should behave",
-                    text: $experimentStore.activeExperiment.instructions,
-                    axis: .vertical
-                )
+                VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                    Text("Describe how the model should behave")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    TextField(
+                        "Describe how the model should behave",
+                        text: $experimentStore.activeExperiment.instructions,
+                        axis: .vertical
+                    )
+                    .textFieldStyle(.roundedBorder)
                     .lineLimit(4...10)
+                }
             }
             .disabled(viewModel.isLoading)
 
@@ -97,6 +129,7 @@ struct PlaygroundInspectorView: View {
                     Toggle(isOn: toolSelectionBinding(for: tool)) {
                         ToolSelectionLabel(tool: tool)
                     }
+                    .toggleStyle(.switch)
                     .disabled(viewModel.isLoading)
                 }
             }
@@ -124,7 +157,13 @@ struct PlaygroundInspectorView: View {
                 }
             }
         }
-        .formStyle(.grouped)
+#if os(macOS)
+        .listStyle(.inset)
+        .contentMargins(.horizontal, Spacing.large, for: .scrollContent)
+        .contentMargins(.vertical, Spacing.large, for: .scrollContent)
+#else
+        .listStyle(.insetGrouped)
+#endif
     }
 }
 
