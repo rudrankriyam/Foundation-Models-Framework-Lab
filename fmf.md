@@ -1,11 +1,29 @@
 ## Xcode 27 Foundation Models API Delta
 
-Source: Xcode 27.0 beta 3 (build `27A5218g`) FoundationModels Swift
-interface, checked against the iOS SDK public module surface with an iOS 26.0
-deployment target.
+Source: Xcode 27.0 beta 4 (build `27A5228h`) FoundationModels Swift
+interface (`9441` lines), synthesized from the iOS SDK public module surface
+with an iOS 26.0 deployment target.
 
 This section records the new public API shape found in Xcode 27. The raw Swift
-interface reference below is refreshed for beta 3 deltas.
+interface reference below is refreshed from the beta 4 SDK.
+
+### Beta 4 changes
+
+Compared with the Xcode 27 beta 3 SDK interface:
+
+- `LanguageModelExecutorGenerationChannel.Usage` adds metadata, and the
+  response, reasoning, and tool-call `updateUsage` factories accept it.
+- Executor retraction actions now remove attachments and tool calls by ID
+  instead of requiring a complete transcript value.
+- `LanguageModelSession.Response` is `Sendable` when its generated content is
+  `Sendable`. Session usage metadata is now exposed as `[String: any Sendable]`.
+- `ImageReference.resolved(in:)` accepts any sequence of transcript entries and
+  returns the latest matching attachment. `resolve(in:)` is deprecated.
+
+Refreshing the raw reference also reconciles beta 3 SDK shapes that the stored
+snapshot missed, including the concrete generation-channel event and action
+types, unconstrained attachment wrappers, `Transcript.ResponseFormat.Kind`,
+and the removal of deprecated dynamic-profile aliases.
 
 ### Beta 3 changes
 
@@ -341,7 +359,7 @@ extension AnyDynamicInstructions {
 /// ```
 @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
 @available(tvOS, unavailable)
-public struct Attachment<Content> where Content : AttachmentContent {
+public struct Attachment<Content> {
 }
 
 @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
@@ -363,7 +381,7 @@ extension Attachment {
 
 @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
 @available(tvOS, unavailable)
-extension Attachment : PromptRepresentable, InstructionsRepresentable where Content == ImageAttachmentContent {
+extension Attachment : PromptRepresentable, InstructionsRepresentable {
 
     /// An instance that represents a prompt.
     public var promptRepresentation: Prompt { get }
@@ -407,12 +425,6 @@ extension Attachment where Content == ImageAttachmentContent {
     ///   - orientation: The orientation to apply to the image. Pass `nil` to use
     ///     the image's natural orientation.
     public init(imageURL: URL, orientation: CGImagePropertyOrientation? = nil)
-}
-
-/// A type that you use as the content of an attachment.
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
-public protocol AttachmentContent {
 }
 
 /// A dynamic instructions type that conditionally selects between two conditions.
@@ -933,9 +945,13 @@ extension Generable {
     public typealias PartiallyGenerated = Self
 
     /// An instance that represents a prompt.
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
+    @available(tvOS, unavailable)
     public var promptRepresentation: Prompt { get }
 
     /// An instance that represents the instructions.
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
+    @available(tvOS, unavailable)
     public var instructionsRepresentation: Instructions { get }
 }
 
@@ -2093,9 +2109,9 @@ extension GenerationOptions.SamplingMode {
 
         case greedy
 
-        case randomTopK(_: Int, seed: UInt64?)
+        case randomTopK(Int, seed: UInt64?)
 
-        case randomProbabilityThreshold(_: Double, seed: UInt64?)
+        case randomProbabilityThreshold(Double, seed: UInt64?)
 
         /// Returns a Boolean value indicating whether two values are equal.
         ///
@@ -2437,7 +2453,7 @@ extension GenerationSchema.SchemaError.Context {
 /// ``CVPixelBuffer``, or image file URL.
 @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
 @available(tvOS, unavailable)
-public struct ImageAttachmentContent : AttachmentContent, Sendable, Equatable {
+public struct ImageAttachmentContent : Sendable, Equatable {
 
     /// Returns a Boolean value indicating whether two values are equal.
     ///
@@ -2466,7 +2482,7 @@ public struct ImageAttachmentContent : AttachmentContent, Sendable, Equatable {
 ///   }
 ///
 ///   public func call(arguments: Arguments) async throws -> Output {
-///     guard let imageAttachment = arguments.image.resolve(in: history) else {
+///     guard let imageAttachment = arguments.image.resolved(in: history) else {
 ///       throw ImageToolError.imageNotFound(arguments.image.attachmentLabel)
 ///     }
 ///     let image = imageAttachment.cgImage
@@ -2498,10 +2514,15 @@ extension ImageReference {
 
     /// Returns the referenced image from the transcript.
     ///
+    /// If more than one attachment shares an ``attachmentLabel``, the attachment from the latest entry is returned.
+    ///
     /// - Parameters:
     ///   - transcript: The transcript to resolve the reference against.
     /// - Returns: The ``ImageAttachment`` for this reference, or `nil` if no attachment
     ///   with label ``attachmentLabel`` is found in the transcript.
+    public func resolved(in transcript: some Sequence<Transcript.Entry>) -> Transcript.ImageAttachment?
+
+    @available(*, deprecated, renamed: "resolved(in:)")
     public func resolve(in transcript: Transcript) -> Transcript.ImageAttachment?
 }
 
@@ -3317,11 +3338,13 @@ extension LanguageModelExecutor {
 @available(tvOS, unavailable)
 public struct LanguageModelExecutorGenerationChannel : AsyncSequence, Sendable {
 
-    /// The type of element produced by this asynchronous sequence.
-    public typealias Element = any LanguageModelExecutorGenerationChannel.Event
-
     /// Creates a new generation channel instance.
     public init()
+
+    /// The type of element produced by this asynchronous sequence.
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
+    @available(tvOS, unavailable)
+    public typealias Element = LanguageModelExecutorGenerationChannel.Event
 }
 
 @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
@@ -3334,7 +3357,7 @@ extension LanguageModelExecutorGenerationChannel {
 
         @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
         @available(tvOS, unavailable)
-        public typealias Element = any LanguageModelExecutorGenerationChannel.Event
+        public typealias Element = LanguageModelExecutorGenerationChannel.Event
     }
 }
 
@@ -3349,25 +3372,23 @@ extension LanguageModelExecutorGenerationChannel {
     /// elements of the asynchronous sequence.
     public func makeAsyncIterator() -> LanguageModelExecutorGenerationChannel.AsyncIterator
 
-    /// Performs a send on the channel.
+    /// Sends a generation event on the channel.
     ///
     /// - Parameters:
     ///   - event: The event to send.
-    nonisolated(nonsending) public func send(_ event: some LanguageModelExecutorGenerationChannel.Event) async
+    nonisolated(nonsending) public func send(_ event: LanguageModelExecutorGenerationChannel.Event) async
 }
 
 @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
 @available(tvOS, unavailable)
 extension LanguageModelExecutorGenerationChannel {
 
-    /// A typed event that can be sent on a generation channel.
-    public protocol Event : Sendable {
-
-        var kind: LanguageModelExecutorGenerationChannel.EventKind { get }
-    }
-
-    /// A kind of event that can be sent on a generation channel.
-    public struct EventKind : Sendable {
+    /// A generation event sent on a ``LanguageModelExecutorGenerationChannel``.
+    ///
+    /// Construct one with a leading-dot factory — ``response(entryID:action:)``,
+    /// ``reasoning(entryID:action:)``, or ``toolCalls(entryID:action:)`` — and pass
+    /// it to ``send(_:)``.
+    public struct Event : Sendable {
     }
 }
 
@@ -3396,12 +3417,15 @@ extension LanguageModelExecutorGenerationChannel {
         /// The output token counts from the response.
         public var output: LanguageModelExecutorGenerationChannel.Usage.Output
 
+        /// The additional metadata with a token count.
+        public var metadata: [String : any Sendable & Codable & Equatable]
+
         /// Creates a usage update.
         ///
         /// - Parameters:
         ///   - input: Token counts for the transcript.
         ///   - output: Token counts for the response.
-        public init(input: LanguageModelExecutorGenerationChannel.Usage.Input, output: LanguageModelExecutorGenerationChannel.Usage.Output)
+        public init(input: LanguageModelExecutorGenerationChannel.Usage.Input, output: LanguageModelExecutorGenerationChannel.Usage.Output, metadata: [String : any Sendable & Codable & Equatable] = [:])
     }
 
     /// Append text to a streaming entry's current text segment. Used by both
@@ -3430,7 +3454,7 @@ extension LanguageModelExecutorGenerationChannel {
 
     /// A model-generated response event: text, segment replacements, citations,
     /// advisories, custom segments, metadata, or usage.
-    public struct Response : LanguageModelExecutorGenerationChannel.Event {
+    public struct Response : Sendable {
 
         /// The identifier for the entry.
         public var entryID: String?
@@ -3443,7 +3467,7 @@ extension LanguageModelExecutorGenerationChannel {
     ///
     /// A per-entry reasoning text, segment replacements, signature updates, metadata, or usage.
     /// Reasoning events are peers of ``Response`` and ``ToolCalls``.
-    public struct Reasoning : LanguageModelExecutorGenerationChannel.Event {
+    public struct Reasoning : Sendable {
 
         /// The identifier for the entry.
         public var entryID: String?
@@ -3469,7 +3493,7 @@ extension LanguageModelExecutorGenerationChannel {
     ///
     /// Events for a specific tool call route through ``Action/toolCall(_:)``. Use
     /// ``Action/removeToolCall(id:)`` to drop a tool call the model retracted.
-    public struct ToolCalls : LanguageModelExecutorGenerationChannel.Event {
+    public struct ToolCalls : Sendable {
 
         /// The identifier for the entry.
         public var entryID: String?
@@ -3488,34 +3512,39 @@ extension LanguageModelExecutorGenerationChannel.AsyncIterator {
     ///
     /// - Returns: The next element, if it exists, or `nil` to signal the end of
     ///   the sequence.
-    public mutating func next(isolation actor: isolated (any Actor)?) async throws -> (any LanguageModelExecutorGenerationChannel.Event)?
+    public mutating func next(isolation actor: isolated (any Actor)?) async throws -> LanguageModelExecutorGenerationChannel.Event?
 }
 
 @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
 @available(tvOS, unavailable)
-extension LanguageModelExecutorGenerationChannel.Event where Self == LanguageModelExecutorGenerationChannel.Response {
+extension LanguageModelExecutorGenerationChannel.Event {
 
-    /// Constructs a ``LanguageModelExecutorGenerationChannel/Response`` event for
-    /// use at `channel.send(.response(entryID:action:))` call sites.
-    public static func response(entryID: String? = nil, action: LanguageModelExecutorGenerationChannel.Response.Action) -> Self
-}
+    /// A response event addressed to a transcript entry.
+    ///
+    /// - Parameters:
+    ///   - entryID: The response entry this event targets. Pass `nil` to let the
+    ///     framework coalesce consecutive response events into a single entry;
+    ///     pass an explicit id to anchor the event to a specific entry.
+    ///   - action: The operation to perform on the response entry.
+    public static func response(entryID: String? = nil, action: LanguageModelExecutorGenerationChannel.Response.Action) -> LanguageModelExecutorGenerationChannel.Event
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
-extension LanguageModelExecutorGenerationChannel.Event where Self == LanguageModelExecutorGenerationChannel.ToolCalls {
+    /// A reasoning event addressed to a transcript entry.
+    ///
+    /// - Parameters:
+    ///   - entryID: The reasoning entry this event targets. Pass `nil` to coalesce
+    ///     consecutive reasoning deltas into the trailing reasoning entry; pass an
+    ///     explicit id when you need a stable anchor.
+    ///   - action: The operation to perform on the reasoning entry.
+    public static func reasoning(entryID: String? = nil, action: LanguageModelExecutorGenerationChannel.Reasoning.Action) -> LanguageModelExecutorGenerationChannel.Event
 
-    /// Constructs a ``LanguageModelExecutorGenerationChannel/ToolCalls`` event for
-    /// use at `channel.send(.toolCalls(entryID:action:))` call sites.
-    public static func toolCalls(entryID: String? = nil, action: LanguageModelExecutorGenerationChannel.ToolCalls.Action) -> Self
-}
-
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
-extension LanguageModelExecutorGenerationChannel.Event where Self == LanguageModelExecutorGenerationChannel.Reasoning {
-
-    /// Constructs a ``LanguageModelExecutorGenerationChannel/Reasoning`` event for
-    /// use at `channel.send(.reasoning(entryID:action:))` call sites.
-    public static func reasoning(entryID: String? = nil, action: LanguageModelExecutorGenerationChannel.Reasoning.Action) -> Self
+    /// A tool-calls event addressed to a transcript entry.
+    ///
+    /// - Parameters:
+    ///   - entryID: The tool-calls entry this event targets. Pass `nil` to let the
+    ///     framework coalesce consecutive tool-calls events into a single entry;
+    ///     pass an explicit id to anchor the event to a specific entry.
+    ///   - action: The operation to perform on the tool-calls entry.
+    public static func toolCalls(entryID: String? = nil, action: LanguageModelExecutorGenerationChannel.ToolCalls.Action) -> LanguageModelExecutorGenerationChannel.Event
 }
 
 @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
@@ -3552,23 +3581,11 @@ extension LanguageModelExecutorGenerationChannel.Usage {
 @available(tvOS, unavailable)
 extension LanguageModelExecutorGenerationChannel.Response {
 
-    public var kind: LanguageModelExecutorGenerationChannel.EventKind { get }
-
-    public enum Action : Sendable {
-
-        case appendText(LanguageModelExecutorGenerationChannel.TextFragment)
-
-        case replaceTextSegment(LanguageModelExecutorGenerationChannel.TextSegmentReplacement)
-
-        case updateCustomSegment(any Transcript.CustomSegment)
-
-        case addAttachmentSegment(Transcript.AttachmentSegment)
-
-        case removeAttachmentSegment(id: String)
-
-        case updateMetadata(LanguageModelExecutorGenerationChannel.Metadata)
-
-        case updateUsage(LanguageModelExecutorGenerationChannel.Usage)
+    /// An operation that can be performed on a response entry.
+    ///
+    /// `Action` is an enum-like struct; construct one with a leading-dot factory
+    /// such as ``appendText(_:segmentID:tokenCount:)``.
+    public struct Action : Sendable {
     }
 }
 
@@ -3576,19 +3593,11 @@ extension LanguageModelExecutorGenerationChannel.Response {
 @available(tvOS, unavailable)
 extension LanguageModelExecutorGenerationChannel.Reasoning {
 
-    public var kind: LanguageModelExecutorGenerationChannel.EventKind { get }
-
-    public enum Action : Sendable {
-
-        case appendText(LanguageModelExecutorGenerationChannel.TextFragment)
-
-        case replaceTextSegment(LanguageModelExecutorGenerationChannel.TextSegmentReplacement)
-
-        case updateSignature(LanguageModelExecutorGenerationChannel.ReasoningSignature)
-
-        case updateMetadata(LanguageModelExecutorGenerationChannel.Metadata)
-
-        case updateUsage(LanguageModelExecutorGenerationChannel.Usage)
+    /// An operation that can be performed on a reasoning entry.
+    ///
+    /// `Action` is an enum-like struct; construct one with a leading-dot factory
+    /// such as ``appendText(_:segmentID:tokenCount:)``.
+    public struct Action : Sendable {
     }
 }
 
@@ -3596,17 +3605,11 @@ extension LanguageModelExecutorGenerationChannel.Reasoning {
 @available(tvOS, unavailable)
 extension LanguageModelExecutorGenerationChannel.ToolCalls {
 
-    public var kind: LanguageModelExecutorGenerationChannel.EventKind { get }
-
-    public enum Action : Sendable {
-
-        case toolCall(LanguageModelExecutorGenerationChannel.ToolCalls.ToolCall)
-
-        case removeToolCall(id: String)
-
-        case updateMetadata(LanguageModelExecutorGenerationChannel.Metadata)
-
-        case updateUsage(LanguageModelExecutorGenerationChannel.Usage)
+    /// An operation that can be performed on a tool-calls entry.
+    ///
+    /// `Action` is an enum-like struct; construct one with a leading-dot factory
+    /// such as ``toolCall(id:name:action:)``.
+    public struct Action : Sendable {
     }
 
     /// A per-tool-call event payload.
@@ -3634,9 +3637,15 @@ extension LanguageModelExecutorGenerationChannel.Response.Action {
 
     public static func replaceTextSegment(_ text: String, segmentID: String? = nil, tokenCount: Int) -> LanguageModelExecutorGenerationChannel.Response.Action
 
+    public static func updateCustomSegment(_ segment: any Transcript.CustomSegment) -> LanguageModelExecutorGenerationChannel.Response.Action
+
+    public static func addAttachmentSegment(_ segment: Transcript.AttachmentSegment) -> LanguageModelExecutorGenerationChannel.Response.Action
+
+    public static func removeAttachmentSegment(id: String) -> LanguageModelExecutorGenerationChannel.Response.Action
+
     public static func updateMetadata(_ values: [String : any Sendable & Codable & Equatable]) -> LanguageModelExecutorGenerationChannel.Response.Action
 
-    public static func updateUsage(input: LanguageModelExecutorGenerationChannel.Usage.Input, output: LanguageModelExecutorGenerationChannel.Usage.Output) -> LanguageModelExecutorGenerationChannel.Response.Action
+    public static func updateUsage(input: LanguageModelExecutorGenerationChannel.Usage.Input, output: LanguageModelExecutorGenerationChannel.Usage.Output, metadata: [String : any Sendable & Codable & Equatable] = [:]) -> LanguageModelExecutorGenerationChannel.Response.Action
 }
 
 @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
@@ -3651,7 +3660,7 @@ extension LanguageModelExecutorGenerationChannel.Reasoning.Action {
 
     public static func updateMetadata(_ values: [String : any Sendable & Codable & Equatable]) -> LanguageModelExecutorGenerationChannel.Reasoning.Action
 
-    public static func updateUsage(input: LanguageModelExecutorGenerationChannel.Usage.Input, output: LanguageModelExecutorGenerationChannel.Usage.Output) -> LanguageModelExecutorGenerationChannel.Reasoning.Action
+    public static func updateUsage(input: LanguageModelExecutorGenerationChannel.Usage.Input, output: LanguageModelExecutorGenerationChannel.Usage.Output, metadata: [String : any Sendable & Codable & Equatable] = [:]) -> LanguageModelExecutorGenerationChannel.Reasoning.Action
 }
 
 @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
@@ -3660,20 +3669,22 @@ extension LanguageModelExecutorGenerationChannel.ToolCalls.Action {
 
     public static func toolCall(id: String, name: String, action: LanguageModelExecutorGenerationChannel.ToolCalls.ToolCall.Action) -> LanguageModelExecutorGenerationChannel.ToolCalls.Action
 
+    public static func removeToolCall(id: String) -> LanguageModelExecutorGenerationChannel.ToolCalls.Action
+
     public static func updateMetadata(_ values: [String : any Sendable & Codable & Equatable]) -> LanguageModelExecutorGenerationChannel.ToolCalls.Action
 
-    public static func updateUsage(input: LanguageModelExecutorGenerationChannel.Usage.Input, output: LanguageModelExecutorGenerationChannel.Usage.Output) -> LanguageModelExecutorGenerationChannel.ToolCalls.Action
+    public static func updateUsage(input: LanguageModelExecutorGenerationChannel.Usage.Input, output: LanguageModelExecutorGenerationChannel.Usage.Output, metadata: [String : any Sendable & Codable & Equatable] = [:]) -> LanguageModelExecutorGenerationChannel.ToolCalls.Action
 }
 
 @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
 @available(tvOS, unavailable)
 extension LanguageModelExecutorGenerationChannel.ToolCalls.ToolCall {
 
-    public enum Action : Sendable {
-
-        case appendArguments(LanguageModelExecutorGenerationChannel.ToolCalls.ToolCall.ArgumentsFragment)
-
-        case updateMetadata(LanguageModelExecutorGenerationChannel.Metadata)
+    /// An operation that can be performed on a tool call.
+    ///
+    /// `Action` is an enum-like struct; construct one with a leading-dot factory
+    /// such as ``appendArguments(_:tokenCount:)``.
+    public struct Action : Sendable {
     }
 
     /// Append argument text to this tool call.
@@ -4562,7 +4573,7 @@ extension LanguageModelSession {
 
         /// Language models that provide other kinds of usage statistics
         /// may encode them in metadata.
-        public var metadata: [String : any Sendable & Codable & Equatable]
+        public var metadata: [String : any Sendable]
 
         /// Creates a usage value with the given token counts.
         ///
@@ -5546,8 +5557,7 @@ extension LanguageModelSession.DynamicProfile {
 
     /// Runs an action whenever this dynamic profile produces reasoning.
     ///
-    /// Reasoning is only produced by models that declare the `.reasoning`
-    /// capability.
+    /// Reasoning is only produced by models that declare the `.reasoning` capability.
     ///
     /// When the `onReasoning` closure throws an error, the caller's `respond` or
     /// `response` will propagate that error.
@@ -5561,7 +5571,7 @@ extension LanguageModelSession.DynamicProfile {
     ///       Instructions("You are a helpful assistant.")
     ///     }
     ///     .onReasoning {
-    ///       reasoningEvents += 1
+    ///       reasoningCount += 1
     ///     }
     ///   }
     /// }
@@ -5571,8 +5581,7 @@ extension LanguageModelSession.DynamicProfile {
 
     /// Runs an action whenever this dynamic profile produces reasoning.
     ///
-    /// Reasoning is only produced by models that declare the `.reasoning`
-    /// capability.
+    /// Reasoning is only produced by models that declare the `.reasoning` capability.
     ///
     /// When the `onReasoning` closure throws an error, the caller's `respond` or
     /// `response` will propagate that error.
@@ -5587,7 +5596,7 @@ extension LanguageModelSession.DynamicProfile {
     ///     }
     ///     .onReasoning { reasoning in
     ///       print("reasoning: \(reasoning)")
-    ///       reasoningEvents += 1
+    ///       reasoningCount += 1
     ///     }
     ///   }
     /// }
@@ -5740,20 +5749,6 @@ extension LanguageModelSession.DynamicProfile {
 
 @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
 @available(tvOS, unavailable)
-extension LanguageModelSession.DynamicProfile {
-
-    @available(*, deprecated, renamed: "toolCallingMode(_:)")
-    public func toolCalling(_ toolCallingMode: GenerationOptions.ToolCallingMode?) -> some LanguageModelSession.DynamicProfile
-
-
-    /// Apply a transformation to the transcript prior to invoking the model.
-    @available(*, deprecated, renamed: "historyTransform(_:)")
-    public func inputFilter(_ filter: @escaping ([Transcript.Entry]) -> [Transcript.Entry]) -> some LanguageModelSession.DynamicProfile
-
-}
-
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
 extension LanguageModelSession.Profile {
 
     /// Creates a profile that contains dynamic instructions.
@@ -5832,6 +5827,10 @@ extension LanguageModelSession.ToolCallError {
 
     /// A string representation of the error description.
     public var errorDescription: String? { get }
+}
+
+@available(tvOS, unavailable)
+extension LanguageModelSession.Response : Sendable where Content : Sendable {
 }
 
 @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
@@ -8059,6 +8058,10 @@ extension Transcript {
     /// Specifies a response format that the model must conform its output to.
     public struct ResponseFormat : Sendable, Equatable {
 
+        @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
+        @available(tvOS, unavailable)
+        public let kind: Transcript.ResponseFormat.Kind
+
         /// Returns a Boolean value indicating whether two values are equal.
         ///
         /// Equality is the inverse of inequality. For any values `a` and `b`,
@@ -8555,7 +8558,6 @@ extension Transcript.ImageAttachment {
     /// The image as a ``CGImage``.
     public var cgImage: CGImage { get }
 
-    /// The image as a ``CIImage``.
     public var ciImage: CIImage { get }
 
     /// Returns the image as a ``CVPixelBuffer``, optionally resampled to a given resolution and pixel format.
@@ -8571,7 +8573,6 @@ extension Transcript.ImageAttachment {
     /// Creates an image attachment from a ``CGImage``.
     public init(_ cgImage: CGImage, orientation: CGImagePropertyOrientation? = nil)
 
-    /// Creates an image attachment from a ``CIImage``.
     public init(_ ciImage: CIImage, orientation: CGImagePropertyOrientation? = nil)
 
     /// Creates an image attachment from a ``CVPixelBuffer``.
@@ -8700,6 +8701,18 @@ extension Transcript.ResponseFormat {
     /// - Parameters:
     ///   - schema: A schema to use as the response format.
     public init(schema: GenerationSchema)
+}
+
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
+@available(tvOS, unavailable)
+extension Transcript.ResponseFormat {
+
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
+    @available(tvOS, unavailable)
+    public enum Kind : Sendable {
+
+        case schema(GenerationSchema)
+    }
 }
 
 @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
@@ -9055,6 +9068,21 @@ extension Transcript.Reasoning {
 extension Transcript.Reasoning {
 
     public var description: String { get }
+}
+
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
+@available(tvOS, unavailable)
+extension Transcript.ResponseFormat.Kind : Equatable {
+
+    /// Returns a Boolean value indicating whether two values are equal.
+    ///
+    /// Equality is the inverse of inequality. For any values `a` and `b`,
+    /// `a == b` implies that `a != b` is `false`.
+    ///
+    /// - Parameters:
+    ///   - lhs: A value to compare.
+    ///   - rhs: Another value to compare.
+    public static func == (lhs: Transcript.ResponseFormat.Kind, rhs: Transcript.ResponseFormat.Kind) -> Bool
 }
 
 /// Options for controlling how a language model session manages the transcript when errors occur.
