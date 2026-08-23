@@ -66,45 +66,9 @@ struct ExperimentLibraryCatalogView: View {
 
     @ViewBuilder
     private var xcode27Sections: some View {
-        exampleSection(
-            ExperimentTrack.contextAndRuntime.title,
-            examples: [
-                .modelRuntime,
-                .contextWindowInspector,
-                .privateCloudCompute,
-                .imageInputPlayground,
-                .usagePerformanceTrace
-            ]
-        )
-        exampleSection(
-            ExperimentTrack.buildWithTools.title,
-            examples: [
-                .toolCallingModeLab,
-                .riskyToolConfirmation,
-                .foundationModelsSecurityPlayground,
-                .toolCallTrajectoryViewer
-            ]
-        )
-        exampleSection(
-            ExperimentTrack.workflows.title,
-            examples: [
-                .dynamicProfileBuilder,
-                .reasoningLevelComparison,
-                .transcriptExplorer,
-                .agentFlowInspector,
-                .historyTransformLab,
-                .modelRouterDashboard,
-                .contextBudgetVisualizer
-            ]
-        )
-        exampleSection(
-            ExperimentTrack.appliedProjects.title,
-            examples: [
-                .geminiVideoInput,
-                .spotlightRAGExplorer,
-                .providerBridgeWalkthrough
-            ]
-        )
+        ForEach(ExampleType.xcode27Sections) { section in
+            exampleSection(section.track.title, examples: section.examples)
+        }
     }
 
     private func exampleSection(
