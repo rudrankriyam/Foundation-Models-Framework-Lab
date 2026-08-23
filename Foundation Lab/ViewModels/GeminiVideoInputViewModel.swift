@@ -79,16 +79,14 @@ final class GeminiVideoInputViewModel {
 extension GeminiVideoInputViewModel {
     var codeExample: String {
         """
-        let video = VideoSegment(data: data, mimeType: "video/mp4")
         let model = GeminiDeveloperVideoLanguageModel(
             apiKey: apiKey,
-            modelName: "\(Self.modelName)"
+            modelName: "\(Self.modelName)",
+            videoData: data,
+            videoMimeType: "video/mp4"
         )
         let session = LanguageModelSession(model: model)
-        let response = try await session.respond {
-            video
-            prompt
-        }
+        let response = try await session.respond(to: prompt)
         """
     }
 
@@ -171,12 +169,9 @@ private extension GeminiVideoInputViewModel {
             let loadedVideo = try await Self.loadVideo(from: request.videoURL)
             try Task.checkCancellation()
 
-            let video = VideoSegment(
-                data: loadedVideo.data,
-                mimeType: loadedVideo.mimeType
-            )
             let content = try await runCustomWrapper(
-                video: video,
+                videoData: loadedVideo.data,
+                videoMimeType: loadedVideo.mimeType,
                 prompt: request.prompt,
                 apiKey: request.apiKey
             )
@@ -193,18 +188,22 @@ private extension GeminiVideoInputViewModel {
         }
     }
 
-    func runCustomWrapper(video: VideoSegment, prompt: String, apiKey: String) async throws -> String {
+    func runCustomWrapper(
+        videoData: Data,
+        videoMimeType: String,
+        prompt: String,
+        apiKey: String
+    ) async throws -> String {
         try Task.checkCancellation()
         let model = GeminiDeveloperVideoLanguageModel(
             apiKey: apiKey,
-            modelName: Self.modelName
+            modelName: Self.modelName,
+            videoData: videoData,
+            videoMimeType: videoMimeType
         )
         let session = LanguageModelSession(model: model)
         try Task.checkCancellation()
-        let response = try await session.respond {
-            video
-            prompt
-        }
+        let response = try await session.respond(to: prompt)
         try Task.checkCancellation()
 
         return response.content

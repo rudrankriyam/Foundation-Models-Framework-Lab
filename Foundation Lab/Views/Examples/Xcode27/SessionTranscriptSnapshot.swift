@@ -83,7 +83,6 @@ struct SessionTranscriptSnapshot: Equatable, Sendable {
             case text
             case structure
             case attachment
-            case custom
             case toolCall
             case unknown
 
@@ -95,8 +94,6 @@ struct SessionTranscriptSnapshot: Equatable, Sendable {
                     String(localized: "Structured Content")
                 case .attachment:
                     String(localized: "Attachment")
-                case .custom:
-                    String(localized: "Custom Content")
                 case .toolCall:
                     String(localized: "Tool Call")
                 case .unknown:
@@ -352,13 +349,6 @@ extension SessionTranscriptSnapshot {
                     label: attachment.label ?? String(localized: "Image attachment"),
                     content: attachmentDescription(attachment.content)
                 )
-            case .custom(let custom):
-                return Segment(
-                    id: id,
-                    kind: .custom,
-                    label: String(describing: type(of: custom)),
-                    content: custom.description
-                )
             @unknown default:
                 return Segment(
                     id: id,
@@ -382,9 +372,7 @@ extension SessionTranscriptSnapshot {
         }
     }
 
-    private static func metadataFields(
-        _ metadata: [String: any Codable & Sendable & Equatable]
-    ) -> [Entry.Field] {
+    private static func metadataFields<Value>(_ metadata: [String: Value]) -> [Entry.Field] {
         metadata.keys.sorted().compactMap { key in
             guard let value = metadata[key] else { return nil }
             return Entry.Field(name: key, value: String(describing: value))

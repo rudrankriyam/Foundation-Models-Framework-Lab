@@ -333,7 +333,7 @@ private extension SpotlightRAGViewModel {
     }
 
     func groupedEvent(
-        _ groups: [SearchableItemAttribute: [CSSearchableItem]],
+        _ groups: [SearchableItemAttribute: [SearchableItem]],
         _ queryNumber: Int,
         _ label: String,
         _ isComplete: Bool
@@ -365,14 +365,15 @@ private extension SpotlightRAGViewModel {
         )
     }
 
-    func capture(_ items: [CSSearchableItem]) {
+    func capture(_ items: [SearchableItem]) {
         let existingIDs = Set(matchedDocuments.map(\.id))
-        let additions = items.compactMap(Self.document).filter { !existingIDs.contains($0.id) }
+        let additions = items.compactMap { Self.document(from: $0.item) }
+            .filter { !existingIDs.contains($0.id) }
         matchedDocuments.append(contentsOf: additions)
     }
 
-    func itemSummary(_ items: [CSSearchableItem]) -> String {
-        let titles = items.compactMap(\.attributeSet.title)
+    func itemSummary(_ items: [SearchableItem]) -> String {
+        let titles = items.compactMap { $0.item.attributeSet.title }
         guard !titles.isEmpty else { return String(localized: "\(items.count) items") }
         return titles.joined(separator: ", ")
     }

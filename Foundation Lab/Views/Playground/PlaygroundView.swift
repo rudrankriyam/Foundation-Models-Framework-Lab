@@ -459,7 +459,7 @@ private extension PlaygroundView {
     }
 
     private func transcriptText(from segments: [Transcript.Segment]) -> String {
-        segments.compactMap { segment in
+        segments.compactMap { segment -> String? in
             switch segment {
             case .text(let text):
                 return text.content
@@ -471,8 +471,6 @@ private extension PlaygroundView {
                     return attachment.label.map { "[Attachment: \($0)]" } ?? "[Image attachment]"
                 }
                 return nil
-            case .custom:
-                return "[Custom model content]"
             #endif
             @unknown default:
                 return nil

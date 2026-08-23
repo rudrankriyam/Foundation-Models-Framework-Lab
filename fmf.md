@@ -97,9 +97,9 @@ final public class PrivateCloudComputeLanguageModel: Sendable, Observable, Langu
     public var isAvailable: Bool { get }
     public var capabilities: LanguageModelCapabilities { get }
     public var contextSize: Int { get async throws }
-    public var supportedLanguages: Set<Locale.Language> { get }
+    public var supportedLanguages: Set<Locale.Language> { get async throws }
 
-    public func supportsLocale(_ locale: Locale = .current) -> Bool
+    public func supportsLocale(_ locale: Locale = .current) async throws -> Bool
 }
 ```
 
@@ -118,7 +118,10 @@ extension SystemLanguageModel: LanguageModel {
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
 @available(tvOS, unavailable)
 public protocol LanguageModel: Sendable {
+    associatedtype Executor: LanguageModelExecutor where Self == Self.Executor.Model
+
     var capabilities: LanguageModelCapabilities { get }
+    var executorConfiguration: Executor.Configuration { get }
 }
 ```
 
@@ -242,7 +245,6 @@ extension Transcript.Entry {
 
 extension Transcript.Segment {
     case attachment(Transcript.AttachmentSegment)
-    case custom(any Transcript.CustomSegment)
 }
 
 extension LanguageModelSession.Response {
@@ -260,7 +262,10 @@ The pasted interface exposes the custom provider path through `LanguageModel`, `
 
 ```swift
 public protocol LanguageModel: Sendable {
+    associatedtype Executor: LanguageModelExecutor where Self == Self.Executor.Model
+
     var capabilities: LanguageModelCapabilities { get }
+    var executorConfiguration: Executor.Configuration { get }
 }
 
 public protocol LanguageModelExecutor: Sendable {
@@ -281,6 +286,11 @@ public struct LanguageModelExecutorGenerationChannel: AsyncSequence, Sendable
 ```
 
 `LanguageModelExecutorGenerationChannel` can emit response deltas, reasoning deltas, and tool-call events. This is the lower-level replacement direction for Xcode 26 adapter-style examples.
+
+The public transcript supports image attachments but no longer provides a
+general custom-segment transport. Custom providers should carry provider-only
+inputs, such as video bytes, in their executor configuration and translate
+them into the provider request at the execution boundary.
 
 ### Session properties
 

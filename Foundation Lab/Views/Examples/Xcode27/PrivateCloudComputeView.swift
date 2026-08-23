@@ -158,36 +158,23 @@ private extension PrivateCloudComputeView {
 
         let quotaUsage = model.quotaUsage
         let quotaText = quotaDescription(quotaUsage)
-        let languages = model.supportedLanguages
-            .map { $0.minimalIdentifier }
-            .sorted()
-            .joined(separator: ", ")
 
         do {
-            let contextSize = try await model.contextSize
-            try Task.checkCancellation()
+            let runtimeDetails = try await runtimeDetails(for: model)
             guard inspectionID == id else { return }
             report = PrivateCloudComputeReport(
                 availability: availabilityText,
                 isAvailable: model.isAvailable,
-                contextSize: contextSize,
+                contextSize: runtimeDetails.contextSize,
                 quota: quotaText,
                 quotaLimitReached: quotaUsage.isLimitReached,
-                supportedLanguages: languages.isEmpty ? String(localized: "No languages reported yet.") : languages
+                supportedLanguages: runtimeDetails.supportedLanguages
             )
-        } catch is CancellationError {
-            return
+            errorMessage = runtimeDetails.errors.isEmpty
+                ? nil
+                : runtimeDetails.errors.joined(separator: "\n")
         } catch {
-            guard inspectionID == id else { return }
-            report = PrivateCloudComputeReport(
-                availability: availabilityText,
-                isAvailable: model.isAvailable,
-                contextSize: nil,
-                quota: quotaText,
-                quotaLimitReached: quotaUsage.isLimitReached,
-                supportedLanguages: languages.isEmpty ? String(localized: "No languages reported yet.") : languages
-            )
-            errorMessage = error.localizedDescription
+            return
         }
         #else
         guard inspectionID == id else { return }
@@ -215,6 +202,45 @@ private extension PrivateCloudComputeView {
         @unknown default:
             return String(localized: "Unavailable")
         }
+    }
+
+    @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+    func runtimeDetails(
+        for model: PrivateCloudComputeLanguageModel
+    ) async throws(CancellationError) -> PrivateCloudComputeRuntimeDetails {
+        var contextSize: Int?
+        var supportedLanguages = String(localized: "Unavailable")
+        var errors = [String]()
+
+        do {
+            contextSize = try await model.contextSize
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            errors.append(error.localizedDescription)
+        }
+
+        do {
+            let languages = try await model.supportedLanguages
+                .map { $0.minimalIdentifier }
+                .sorted()
+            supportedLanguages = languages.isEmpty
+                ? String(localized: "No languages reported yet.")
+                : languages.joined(separator: ", ")
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            errors.append(error.localizedDescription)
+        }
+
+        guard !Task.isCancelled else {
+            throw CancellationError()
+        }
+        return PrivateCloudComputeRuntimeDetails(
+            contextSize: contextSize,
+            supportedLanguages: supportedLanguages,
+            errors: errors
+        )
     }
 
     @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
@@ -246,9 +272,16 @@ private extension PrivateCloudComputeView {
             model.quotaUsage
             model.isAvailable
             let contextSize = try await model.contextSize
+            let supportedLanguages = try await model.supportedLanguages
         }
         """
     }
+}
+
+private struct PrivateCloudComputeRuntimeDetails {
+    let contextSize: Int?
+    let supportedLanguages: String
+    let errors: [String]
 }
 
 private struct PrivateCloudComputeReport {
