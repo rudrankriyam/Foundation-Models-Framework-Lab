@@ -14,6 +14,5 @@ import Observation
 final class DynamicProfileWorkflowState {
     var stage = DynamicProfileWorkflowStage.inspect
     var reviewRuntime = DynamicProfileReviewRuntime.privateCloudCompute
-    var requiresInspectionToolCall = false
 }
 #endif

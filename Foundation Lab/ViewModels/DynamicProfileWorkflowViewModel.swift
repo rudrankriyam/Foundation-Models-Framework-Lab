@@ -101,7 +101,6 @@ final class DynamicProfileWorkflowViewModel {
         guard !isExecuting else { return }
         state.stage = .inspect
         state.reviewRuntime = .privateCloudCompute
-        state.requiresInspectionToolCall = false
         prompt = DynamicProfileWorkflowStage.inspect.defaultPrompt
         turns = []
         transcriptEntryCount = 0
@@ -115,6 +114,11 @@ final class DynamicProfileWorkflowViewModel {
         import FoundationModels
         import Observation
 
+        extension SessionPropertyValues {
+            @SessionPropertyEntry
+            var workflowRequiresToolCall = false
+        }
+
         @Observable
         final class WorkflowState {
             enum Stage { case inspect, review }
@@ -127,6 +131,9 @@ final class DynamicProfileWorkflowViewModel {
             let tool: LocalReleaseRecordTool
             let pccModel = PrivateCloudComputeLanguageModel()
 
+            @SessionProperty(\\.workflowRequiresToolCall)
+            private var requiresToolCall
+
             var body: some LanguageModelSession.DynamicProfile {
                 switch state.stage {
                 case .inspect:
@@ -135,7 +142,8 @@ final class DynamicProfileWorkflowViewModel {
                         tool
                     }
                     .model(SystemLanguageModel.default)
-                    .toolCallingMode(.required)
+                    .toolCallingMode(requiresToolCall ? .required : .allowed)
+                    .onToolCall { requiresToolCall = false }
 
                 case .review:
                     if state.usePrivateCloudCompute {
@@ -163,6 +171,7 @@ final class DynamicProfileWorkflowViewModel {
             )
         )
 
+        session.properties.workflowRequiresToolCall = true
         try await session.respond(to: "Inspect the sample release record.")
         state.stage = .review
         try await session.respond(to: "Which checks are still unknown?")
@@ -235,12 +244,12 @@ private extension DynamicProfileWorkflowViewModel {
         let currentRecorder = recorder
         let modelSession = currentSession(recorder: currentRecorder)
         let previousOutputs = await currentRecorder.snapshot().count
-        state.requiresInspectionToolCall = selectedStage == .inspect
+        modelSession.properties.dynamicWorkflowRequiresToolCall = selectedStage == .inspect
         let clock = ContinuousClock()
         let startedAt = clock.now
 
         defer {
-            state.requiresInspectionToolCall = false
+            modelSession.properties.dynamicWorkflowRequiresToolCall = false
             if activeRunID == id {
                 transcriptEntryCount = modelSession.transcript.count
                 activeRunID = nil

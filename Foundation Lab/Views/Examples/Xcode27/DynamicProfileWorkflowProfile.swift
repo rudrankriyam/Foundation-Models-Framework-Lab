@@ -9,10 +9,21 @@ import FoundationModels
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
+extension SessionPropertyValues {
+    @SessionPropertyEntry
+    var dynamicWorkflowRequiresToolCall = false
+}
+
+@available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
 struct DynamicProfileWorkflowProfile: LanguageModelSession.DynamicProfile {
     let state: DynamicProfileWorkflowState
     let tool: LocalReleaseRecordTool
     let privateCloudComputeModel: PrivateCloudComputeLanguageModel
+
+    @SessionProperty(\.dynamicWorkflowRequiresToolCall)
+    private var requiresInspectionToolCall
 
     var body: some LanguageModelSession.DynamicProfile {
         switch state.stage {
@@ -29,9 +40,9 @@ struct DynamicProfileWorkflowProfile: LanguageModelSession.DynamicProfile {
             .model(SystemLanguageModel.default)
             .temperature(0.1)
             .maximumResponseTokens(320)
-            .toolCallingMode(state.requiresInspectionToolCall ? .required : .allowed)
+            .toolCallingMode(requiresInspectionToolCall ? .required : .allowed)
             .onToolCall {
-                state.requiresInspectionToolCall = false
+                requiresInspectionToolCall = false
             }
 
         case .review:
