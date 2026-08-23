@@ -45,29 +45,51 @@ enum ExampleType: String, CaseIterable, Identifiable {
 extension ExampleType {
     var id: String { rawValue }
 
-    static let xcode27Examples: [ExampleType] = [
-        .modelRuntime,
-        .contextWindowInspector,
-        .privateCloudCompute,
-        .imageInputPlayground,
-        .usagePerformanceTrace,
-        .toolCallingModeLab,
-        .riskyToolConfirmation,
-        .foundationModelsSecurityPlayground,
-        .toolCallTrajectoryViewer,
-        .dynamicProfileBuilder,
-        .reasoningLevelComparison,
-        .transcriptExplorer,
-        .agentFlowInspector,
-        .historyTransformLab,
-        .modelRouterDashboard,
-        .contextBudgetVisualizer,
-        .geminiVideoInput,
-        .spotlightRAGExplorer,
-        .providerBridgeWalkthrough,
-        .evaluationsLab,
-        .fmCLIPythonPlayground
+    static let xcode27Sections: [Xcode27ExampleSection] = [
+        Xcode27ExampleSection(
+            track: .contextAndRuntime,
+            examples: [
+                .modelRuntime,
+                .contextWindowInspector,
+                .privateCloudCompute,
+                .imageInputPlayground,
+                .usagePerformanceTrace
+            ]
+        ),
+        Xcode27ExampleSection(
+            track: .buildWithTools,
+            examples: [
+                .toolCallingModeLab,
+                .riskyToolConfirmation,
+                .foundationModelsSecurityPlayground,
+                .toolCallTrajectoryViewer
+            ]
+        ),
+        Xcode27ExampleSection(
+            track: .workflows,
+            examples: [
+                .dynamicProfileBuilder,
+                .reasoningLevelComparison,
+                .transcriptExplorer,
+                .agentFlowInspector,
+                .historyTransformLab,
+                .modelRouterDashboard,
+                .contextBudgetVisualizer,
+                .evaluationsLab,
+                .fmCLIPythonPlayground
+            ]
+        ),
+        Xcode27ExampleSection(
+            track: .appliedProjects,
+            examples: [
+                .geminiVideoInput,
+                .spotlightRAGExplorer,
+                .providerBridgeWalkthrough
+            ]
+        )
     ]
+
+    static let xcode27Examples = xcode27Sections.flatMap(\.examples)
 
     var title: String {
         switch self {
@@ -270,6 +292,13 @@ extension ExampleType {
         }
     }
 
+}
+
+struct Xcode27ExampleSection: Identifiable {
+    let track: ExperimentTrack
+    let examples: [ExampleType]
+
+    var id: ExperimentTrack { track }
 }
 
 // MARK: - Language Example Enum
