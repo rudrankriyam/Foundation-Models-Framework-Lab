@@ -18,10 +18,17 @@ struct GeminiDeveloperVideoLanguageModel: LanguageModel {
     let capabilities = LanguageModelCapabilities([])
     let executorConfiguration: Executor.Configuration
 
-    init(apiKey: String, modelName: String) {
+    init(
+        apiKey: String,
+        modelName: String,
+        videoData: Data,
+        videoMimeType: String
+    ) {
         executorConfiguration = Executor.Configuration(
             apiKey: apiKey,
-            modelName: modelName
+            modelName: modelName,
+            videoData: videoData,
+            videoMimeType: videoMimeType
         )
     }
 }
@@ -35,6 +42,8 @@ struct GeminiDeveloperVideoLanguageModelExecutor: LanguageModelExecutor {
     struct Configuration: Hashable, Sendable {
         let apiKey: String
         let modelName: String
+        let videoData: Data
+        let videoMimeType: String
     }
 
     private let configuration: Configuration
@@ -79,6 +88,10 @@ extension GeminiDeveloperVideoLanguageModelExecutor {
 @available(watchOS, unavailable)
 private extension GeminiDeveloperVideoLanguageModelExecutor {
     func validate(_ request: LanguageModelExecutorGenerationRequest) throws {
+        guard !configuration.videoData.isEmpty else {
+            throw GeminiDeveloperAPIError.emptyVideo
+        }
+
         guard request.schema == nil else {
             throw LanguageModelError.unsupportedGenerationGuide(
                 .init(
@@ -101,29 +114,37 @@ private extension GeminiDeveloperVideoLanguageModelExecutor {
     func convert(_ transcript: Transcript) throws -> ConvertedTranscript {
         var systemParts = [GeminiDeveloperAPIClient.Part]()
         var contents = [GeminiDeveloperAPIClient.Content]()
+        var didAttachVideo = false
 
         for entry in transcript {
             switch entry {
             case let .instructions(instructions):
                 systemParts.append(contentsOf: try geminiParts(
                     from: instructions.segments,
-                    entry: entry,
-                    allowsCustomMedia: false
+                    entry: entry
                 ))
 
             case let .prompt(prompt):
-                let parts = try geminiParts(
+                var parts = try geminiParts(
                     from: prompt.segments,
-                    entry: entry,
-                    allowsCustomMedia: true
+                    entry: entry
                 )
+                if !didAttachVideo {
+                    parts.insert(
+                        .inlineData(
+                            data: configuration.videoData,
+                            mimeType: configuration.videoMimeType
+                        ),
+                        at: 0
+                    )
+                    didAttachVideo = true
+                }
                 appendContent(role: "user", parts: parts, to: &contents)
 
             case let .response(response):
                 let parts = try geminiParts(
                     from: response.segments,
-                    entry: entry,
-                    allowsCustomMedia: true
+                    entry: entry
                 )
                 appendContent(role: "model", parts: parts, to: &contents)
 
@@ -146,7 +167,7 @@ private extension GeminiDeveloperVideoLanguageModelExecutor {
             }
         }
 
-        guard !contents.isEmpty else {
+        guard didAttachVideo, !contents.isEmpty else {
             throw GeminiDeveloperAPIError.emptyPrompt
         }
 
@@ -220,8 +241,7 @@ private extension GeminiDeveloperVideoLanguageModelExecutor {
 
     func geminiParts(
         from segments: [Transcript.Segment],
-        entry: Transcript.Entry,
-        allowsCustomMedia: Bool
+        entry: Transcript.Entry
     ) throws -> [GeminiDeveloperAPIClient.Part] {
         var parts = [GeminiDeveloperAPIClient.Part]()
 
@@ -233,30 +253,10 @@ private extension GeminiDeveloperVideoLanguageModelExecutor {
             case let .structure(structure):
                 parts.append(.text(structure.content.jsonString))
 
-            case let .custom(customSegment):
-                guard allowsCustomMedia else {
-                    throw unsupportedTranscriptError(
-                        entry,
-                        detail: "Gemini system instructions support text only."
-                    )
-                }
-
-                if let video = customSegment as? VideoSegment {
-                    parts.append(.inlineData(
-                        data: video.content.data,
-                        mimeType: video.content.mimeType
-                    ))
-                } else {
-                    throw unsupportedTranscriptError(
-                        entry,
-                        detail: "Only VideoSegment custom segments are supported."
-                    )
-                }
-
             case .attachment:
                 throw unsupportedTranscriptError(
                     entry,
-                    detail: "Use VideoSegment for video input in this experiment."
+                    detail: "Image attachments are outside this focused Gemini video experiment."
                 )
 
             @unknown default:
@@ -419,6 +419,7 @@ nonisolated struct GeminiDeveloperAPIClient: Sendable {
 nonisolated enum GeminiDeveloperAPIError: LocalizedError, Sendable {
     case apiKeyMissing
     case emptyPrompt
+    case emptyVideo
     case invalidModelName(String)
     case invalidResponse
     case inlineRequestTooLarge(Int)
@@ -431,6 +432,8 @@ nonisolated enum GeminiDeveloperAPIError: LocalizedError, Sendable {
             return String(localized: "Enter a Gemini API key or launch with GEMINI_API_KEY.")
         case .emptyPrompt:
             return String(localized: "The transcript did not contain a prompt Gemini can send.")
+        case .emptyVideo:
+            return String(localized: "The selected video is empty.")
         case let .invalidModelName(modelName):
             return String(localized: "The Gemini model name is invalid: \(modelName).")
         case .invalidResponse:
