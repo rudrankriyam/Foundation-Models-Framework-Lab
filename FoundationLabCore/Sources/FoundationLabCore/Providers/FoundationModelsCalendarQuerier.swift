@@ -28,9 +28,10 @@ public struct FoundationModelsCalendarQuerier: CalendarQuerying {
         Use this information when interpreting relative dates like "today" or "tomorrow".
         """
 
+        let service = EventKitCalendarService()
         return try await toolInvoker.respond(
             to: query,
-            using: CalendarTool(),
+            using: CalendarReadTool(service: service),
             systemPrompt: FoundationModelsPromptSupport.combinedSystemPrompt([
                 request.systemPrompt,
                 contextualInstructions

@@ -4,8 +4,20 @@ import FoundationModelsKit
 
 public struct FoundationModelsReminderManager: ReminderManaging {
     private let toolInvoker: FoundationModelsToolInvoker
+    private let mutationConfirmation: any ToolMutationConfirming
 
     public init(toolInvoker: FoundationModelsToolInvoker = FoundationModelsToolInvoker()) {
+        self.init(
+            mutationConfirmation: DenyingToolMutationConfirmation(),
+            toolInvoker: toolInvoker
+        )
+    }
+
+    public init(
+        mutationConfirmation: any ToolMutationConfirming,
+        toolInvoker: FoundationModelsToolInvoker = FoundationModelsToolInvoker()
+    ) {
+        self.mutationConfirmation = mutationConfirmation
         self.toolInvoker = toolInvoker
     }
 
@@ -33,9 +45,16 @@ public struct FoundationModelsReminderManager: ReminderManaging {
                 )
         ])
 
+        let service = EventKitRemindersService()
         return try await toolInvoker.respond(
             to: prompt,
-            using: RemindersTool(),
+            using: [
+                RemindersReadTool(service: service),
+                RemindersMutationTool(
+                    service: service,
+                    confirmation: mutationConfirmation
+                )
+            ],
             systemPrompt: instructions,
             modelUseCase: request.modelUseCase,
             guardrails: request.guardrails
@@ -97,8 +116,7 @@ public struct FoundationModelsReminderManager: ReminderManaging {
         Current date and time: \(formattedDate)
         Time zone: \(timeZone.identifier) (\(timeZoneName))
         When creating reminders, consider the current date and time zone context.
-        Always execute tool calls directly without asking for confirmation or permission from the user.
-        If you need to create a reminder, call the RemindersTool immediately with the appropriate parameters.
+        Call the reminder mutation tool when the request needs a change. The host app will review the exact mutation.
         IMPORTANT: When setting due dates, you MUST format them as 'yyyy-MM-dd HH:mm:ss' (24-hour format).
         Examples: '2025-01-15 17:00:00' for tomorrow at 5 PM, '2025-01-16 09:30:00' for day after tomorrow at 9:30 AM.
         Calculate the exact date and time based on the current date and time provided above.
@@ -118,8 +136,14 @@ public struct FoundationModelsReminderManager: ReminderManaging {
         You are a helpful assistant that creates reminders based on structured input.
         Current date and time: \(formattedDate)
         Time zone: \(timeZone.identifier) (\(timeZoneName))
-        Always execute the RemindersTool directly with the provided information.
+        Call the reminder mutation tool with the provided information. The host app will review the exact mutation.
         Format due dates as 'yyyy-MM-dd HH:mm:ss' (24-hour format).
         """
+    }
+}
+
+private struct DenyingToolMutationConfirmation: ToolMutationConfirming {
+    func confirmation(for request: ToolMutationRequest) async throws -> ToolMutationDecision {
+        .denied(reason: "The host app did not provide a mutation confirmation surface.")
     }
 }

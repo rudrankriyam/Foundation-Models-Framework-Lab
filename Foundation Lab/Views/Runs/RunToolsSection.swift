@@ -20,8 +20,8 @@ struct RunToolsSection: View {
                     Label {
                         VStack(alignment: .leading, spacing: Spacing.xSmall) {
                             Text(LocalizedStringKey(tool.displayName))
-                            Text(tool.toolName)
-                                .font(.subheadline.monospaced())
+                            Text(tool.summary)
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
                     } icon: {
