@@ -33,7 +33,8 @@ let package = Package(
             name: "FoundationLabCoreTests",
             dependencies: [
                 "FoundationLabCore",
-                .product(name: "FoundationModelsKit", package: "FoundationModelsKit")
+                .product(name: "FoundationModelsKit", package: "FoundationModelsKit"),
+                .product(name: "FoundationModelsTools", package: "FoundationModelsKit")
             ]
         )
     ]

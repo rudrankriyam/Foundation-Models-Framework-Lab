@@ -1,6 +1,7 @@
 import Foundation
 import XCTest
 import FoundationModelsKit
+import FoundationModelsTools
 @testable import FoundationLabCore
 
 final class FoundationLabExperimentTests: XCTestCase {
@@ -44,9 +45,23 @@ final class FoundationLabExperimentTests: XCTestCase {
         XCTAssertEqual(Set(tools.map(\.displayName)).count, tools.count)
         XCTAssertEqual(Set(tools.map(\.summary)).count, tools.count)
         XCTAssertEqual(Set(tools.map(\.systemImage)).count, tools.count)
-        XCTAssertEqual(Set(tools.map(\.toolName)).count, tools.count)
+        XCTAssertEqual(
+            Set(tools.flatMap(\.toolNames)).count,
+            tools.flatMap(\.toolNames).count
+        )
         XCTAssertTrue(tools.allSatisfy { !$0.summary.isEmpty })
-        XCTAssertEqual(tools.map { $0.makeTool().name }, tools.map(\.toolName))
+        XCTAssertEqual(
+            tools.flatMap { $0.makeTools().map(\.name) },
+            tools.flatMap(\.toolNames).filter { !$0.hasPrefix("mutate") }
+        )
+
+        let confirmation = ToolMutationConfirmationHandler { _ in .denied() }
+        XCTAssertEqual(
+            tools.flatMap {
+                $0.makeTools(mutationConfirmation: confirmation).map(\.name)
+            },
+            tools.flatMap(\.toolNames)
+        )
     }
 
     func testAsNewExperimentRefreshesIdentityAndTimestampsOnly() {

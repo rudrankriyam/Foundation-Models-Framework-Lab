@@ -85,50 +85,86 @@ public enum FoundationLabBuiltInTool: String, CaseIterable, Codable, Hashable, S
         }
     }
 
-    public var toolName: String {
+    public var toolNames: [String] {
         switch self {
         case .weather:
-            "getWeather"
+            ["getWeather"]
         case .web:
-            "searchWeb"
+            ["searchWeb"]
         case .contacts:
-            "manageContacts"
+            ["manageContacts"]
         case .calendar:
-            "manageCalendar"
+            ["readCalendar", "mutateCalendar"]
         case .reminders:
-            "manageReminders"
+            ["readReminders", "mutateReminders"]
         case .location:
-            "accessLocation"
+            ["accessLocation"]
         case .health:
-            "accessHealth"
+            ["accessHealth"]
         case .music:
-            "controlMusic"
+            ["controlMusic"]
         case .webMetadata:
-            "getWebMetadata"
+            ["getWebMetadata"]
         }
     }
 
     @MainActor
-    public func makeTool() -> any Tool {
+    public func makeTools(
+        mutationConfirmation: (any ToolMutationConfirming)? = nil
+    ) -> [any Tool] {
         switch self {
         case .weather:
-            WeatherTool()
+            [WeatherTool()]
         case .web:
-            Search1WebSearchTool()
+            [Search1WebSearchTool()]
         case .contacts:
-            ContactsTool()
+            [ContactsTool()]
         case .calendar:
-            CalendarTool()
+            calendarTools(mutationConfirmation: mutationConfirmation)
         case .reminders:
-            RemindersTool()
+            reminderTools(mutationConfirmation: mutationConfirmation)
         case .location:
-            LocationTool()
+            [LocationTool()]
         case .health:
-            HealthTool()
+            [HealthTool()]
         case .music:
-            MusicTool()
+            [MusicTool()]
         case .webMetadata:
-            WebMetadataTool()
+            [WebMetadataTool()]
         }
+    }
+
+    @MainActor
+    private func calendarTools(
+        mutationConfirmation: (any ToolMutationConfirming)?
+    ) -> [any Tool] {
+        let service = EventKitCalendarService()
+        var tools: [any Tool] = [CalendarReadTool(service: service)]
+        if let mutationConfirmation {
+            tools.append(
+                CalendarMutationTool(
+                    service: service,
+                    confirmation: mutationConfirmation
+                )
+            )
+        }
+        return tools
+    }
+
+    @MainActor
+    private func reminderTools(
+        mutationConfirmation: (any ToolMutationConfirming)?
+    ) -> [any Tool] {
+        let service = EventKitRemindersService()
+        var tools: [any Tool] = [RemindersReadTool(service: service)]
+        if let mutationConfirmation {
+            tools.append(
+                RemindersMutationTool(
+                    service: service,
+                    confirmation: mutationConfirmation
+                )
+            )
+        }
+        return tools
     }
 }
