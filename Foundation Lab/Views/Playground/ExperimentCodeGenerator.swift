@@ -3,14 +3,16 @@ import FoundationModelsKit
 
 enum ExperimentCodeGenerator {
     static func code(for configuration: FoundationLabExperimentConfiguration) -> String {
-        let tools = configuration.selectedTools.map(toolConstructor).joined(separator: ", ")
+        let tools = configuration.selectedTools.flatMap(toolConstructors).joined(separator: ", ")
         let model = modelDeclaration(for: configuration)
         let instructions = swiftLiteral(configuration.instructions)
         let prompt = swiftLiteral(configuration.prompt)
         let context = contextOptions(for: configuration)
         let options = generationOptions(for: configuration)
+        let toolSupport = toolSupportDeclarations(for: configuration.selectedTools)
         let experiment = """
         \(model)
+        \(toolSupport)
         let tools: [any Tool] = [\(tools)]
         let session = LanguageModelSession(
             model: model,
@@ -98,18 +100,51 @@ enum ExperimentCodeGenerator {
             : ""
     }
 
-    private static func toolConstructor(_ tool: FoundationLabBuiltInTool) -> String {
+    private static func toolConstructors(_ tool: FoundationLabBuiltInTool) -> [String] {
         switch tool {
-        case .weather: "WeatherTool()"
-        case .web: "Search1WebSearchTool()"
-        case .contacts: "ContactsTool()"
-        case .calendar: "CalendarTool()"
-        case .reminders: "RemindersTool()"
-        case .location: "LocationTool()"
-        case .health: "HealthTool()"
-        case .music: "MusicTool()"
-        case .webMetadata: "WebMetadataTool()"
+        case .weather: ["WeatherTool()"]
+        case .web: ["Search1WebSearchTool()"]
+        case .contacts: ["ContactsTool()"]
+        case .calendar:
+            [
+                "CalendarReadTool(service: calendarService)",
+                "CalendarMutationTool(service: calendarService, confirmation: mutationConfirmation)"
+            ]
+        case .reminders:
+            [
+                "RemindersReadTool(service: remindersService)",
+                "RemindersMutationTool(service: remindersService, confirmation: mutationConfirmation)"
+            ]
+        case .location: ["LocationTool()"]
+        case .health: ["HealthTool()"]
+        case .music: ["MusicTool()"]
+        case .webMetadata: ["WebMetadataTool()"]
         }
+    }
+
+    private static func toolSupportDeclarations(
+        for tools: [FoundationLabBuiltInTool]
+    ) -> String {
+        var declarations = [String]()
+
+        if tools.contains(where: { $0 == .calendar || $0 == .reminders }) {
+            declarations.append(
+                """
+                let mutationConfirmation = ToolMutationConfirmationHandler { request in
+                    print("Approval required: \\(request.summary)")
+                    return .denied(reason: "Connect this request to your app-owned confirmation UI.")
+                }
+                """
+            )
+        }
+        if tools.contains(.calendar) {
+            declarations.append("let calendarService = EventKitCalendarService()")
+        }
+        if tools.contains(.reminders) {
+            declarations.append("let remindersService = EventKitRemindersService()")
+        }
+
+        return declarations.joined(separator: "\n")
     }
 
     private static func swiftLiteral(_ value: String) -> String {

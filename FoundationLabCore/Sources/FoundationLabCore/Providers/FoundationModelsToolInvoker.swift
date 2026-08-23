@@ -13,6 +13,24 @@ public struct FoundationModelsToolInvoker: Sendable {
         guardrails: FoundationModelGuardrails? = nil,
         generationOptions: FoundationModelGenerationOptions? = nil
     ) async throws -> FoundationModelTextGenerationResult {
+        try await respond(
+            to: prompt,
+            using: [tool],
+            systemPrompt: systemPrompt,
+            modelUseCase: modelUseCase,
+            guardrails: guardrails,
+            generationOptions: generationOptions
+        )
+    }
+
+    public func respond(
+        to prompt: String,
+        using tools: [any Tool],
+        systemPrompt: String? = nil,
+        modelUseCase: FoundationModelUseCase = .general,
+        guardrails: FoundationModelGuardrails? = nil,
+        generationOptions: FoundationModelGenerationOptions? = nil
+    ) async throws -> FoundationModelTextGenerationResult {
         let trimmedPrompt = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedPrompt.isEmpty else {
             throw FoundationLabCoreError.invalidRequest("Missing prompt")
@@ -28,11 +46,11 @@ public struct FoundationModelsToolInvoker: Sendable {
            !systemPrompt.isEmpty {
             session = LanguageModelSession(
                 model: model,
-                tools: [tool],
+                tools: tools,
                 instructions: Instructions(systemPrompt)
             )
         } else {
-            session = LanguageModelSession(model: model, tools: [tool])
+            session = LanguageModelSession(model: model, tools: tools)
         }
 
         let responseContent: String

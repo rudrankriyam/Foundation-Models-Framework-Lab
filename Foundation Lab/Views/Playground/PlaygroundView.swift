@@ -27,6 +27,7 @@ struct PlaygroundView: View {
 
     var body: some View {
         @Bindable var viewModel = viewModel
+        @Bindable var approvalCoordinator = viewModel.toolMutationApprovalCoordinator
 
         VStack(spacing: 0) {
             PlaygroundHeaderView(
@@ -142,6 +143,16 @@ struct PlaygroundView: View {
         .sheet(isPresented: $showsSettings) {
             NavigationStack {
                 SettingsView()
+            }
+        }
+#endif
+        .sheet(isPresented: $approvalCoordinator.isPresentingRequest) {
+            ToolMutationApprovalSheet(coordinator: approvalCoordinator)
+        }
+#if os(iOS)
+        .onChange(of: approvalCoordinator.isPresentingRequest) { _, isPresenting in
+            if isPresenting {
+                showsSettings = false
             }
         }
 #endif

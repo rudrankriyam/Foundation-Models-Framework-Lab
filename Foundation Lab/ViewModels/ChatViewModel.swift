@@ -9,6 +9,7 @@ import Foundation
 import FoundationLabCore
 import FoundationModels
 import FoundationModelsKit
+import FoundationModelsTools
 import Observation
 import Speech
 
@@ -31,6 +32,8 @@ final class ChatViewModel {
     @ObservationIgnored let permissionManager: PermissionManager
     @ObservationIgnored let speechSynthesizer: SpeechSynthesisService
     @ObservationIgnored let conversationEngine: FoundationModelConversationEngine
+    let toolMutationApprovalCoordinator: ToolMutationApprovalCoordinator
+    @ObservationIgnored private let toolMutationConfirmation: ToolMutationConfirmationHandler
     var isSummarizing: Bool = false
     var isApplyingWindow: Bool = false
     var sessionCount: Int = 1
@@ -125,10 +128,16 @@ final class ChatViewModel {
 
     init(
         permissionManager: PermissionManager? = nil,
-        speechSynthesizer: SpeechSynthesisService? = nil
+        speechSynthesizer: SpeechSynthesisService? = nil,
+        toolMutationApprovalCoordinator: ToolMutationApprovalCoordinator? = nil
     ) {
         self.permissionManager = permissionManager ?? PermissionManager()
         self.speechSynthesizer = speechSynthesizer ?? SpeechSynthesizer.shared
+        let approvalCoordinator = toolMutationApprovalCoordinator ?? ToolMutationApprovalCoordinator()
+        self.toolMutationApprovalCoordinator = approvalCoordinator
+        self.toolMutationConfirmation = ToolMutationConfirmationHandler { request in
+            try await approvalCoordinator.confirmation(for: request)
+        }
         let configuration = FoundationModelConversationConfiguration(
             baseInstructions: Self.defaultInstructions,
             summaryInstructions: """
@@ -242,7 +251,7 @@ extension ChatViewModel {
             modelRuntime: effectiveConfiguration.modelRuntime,
             reasoningLevel: effectiveConfiguration.reasoningLevel,
             guardrails: .default,
-            tools: selectedTools.map { $0.makeTool() }
+            tools: makeTools(for: selectedTools)
         )
         conversationEngine.setMaxContextSize(provisionalContextSize(for: effectiveConfiguration.modelRuntime))
         if effectiveConfiguration.modelRuntime == configuration.modelRuntime {
@@ -275,7 +284,7 @@ extension ChatViewModel {
             selectedTools.append(tool)
         }
 
-        conversationEngine.rebuild(tools: selectedTools.map { $0.makeTool() })
+        conversationEngine.rebuild(tools: makeTools(for: selectedTools))
         syncConversationState()
     }
 
@@ -288,6 +297,7 @@ extension ChatViewModel {
     }
 
     func cancelGeneration() {
+        toolMutationApprovalCoordinator.cancelAll()
         activeGenerationTask?.cancel()
         activeGenerationTask = nil
         activeGenerationID = nil
@@ -331,6 +341,12 @@ extension ChatViewModel {
         isSummarizing = conversationEngine.isSummarizing
         isApplyingWindow = conversationEngine.isApplyingWindow
         sessionCount = conversationEngine.sessionCount
+    }
+
+    private func makeTools(for selectedTools: [FoundationLabBuiltInTool]) -> [any Tool] {
+        selectedTools.flatMap {
+            $0.makeTools(mutationConfirmation: toolMutationConfirmation)
+        }
     }
 
     func fetchContextSize(for runtime: FoundationModelRuntime? = nil) async {
