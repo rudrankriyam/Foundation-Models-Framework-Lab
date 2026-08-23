@@ -189,7 +189,7 @@ extension ExampleType {
         case .toolCallingModeLab:
             return "Compare allowed, required, and disallowed tool calling"
         case .dynamicProfileBuilder:
-            return "Build a LanguageModelSession profile from runtime controls"
+            return "Run one session across state-driven profiles"
         case .reasoningLevelComparison:
             return "Compare one prompt across three reasoning levels"
         case .transcriptExplorer:

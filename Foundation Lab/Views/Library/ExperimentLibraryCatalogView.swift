@@ -180,7 +180,7 @@ private extension ExampleType {
         case .toolCallTrajectoryViewer:
             String(localized: "Capture actual calls and outputs, then compare an authored expectation")
         case .dynamicProfileBuilder:
-            String(localized: "Compose a LanguageModelSession.Profile recipe")
+            String(localized: "Run one session across state-driven profiles")
         case .reasoningLevelComparison:
             String(localized: "Run one prompt across light, moderate, and deep reasoning budgets")
         case .transcriptExplorer:

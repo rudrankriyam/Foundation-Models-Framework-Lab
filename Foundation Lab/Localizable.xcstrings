@@ -1,6 +1,902 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "About Dynamic Profiles" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Über dynamische Profile"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About Dynamic Profiles"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acerca de los perfiles dinámicos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À propos des profils dynamiques"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informazioni sui profili dinamici"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "動的プロファイルについて"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "동적 프로필 정보"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sobre perfis dinâmicos"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关于动态配置文件"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "關於動態設定檔"
+          }
+        }
+      }
+    },
+    "Inspect requires the deterministic tool before the model answers. Review removes the tool and uses only the transcript that this session has already recorded." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Prüfen“ verlangt das deterministische Werkzeug, bevor das Modell antwortet. „Bewerten“ entfernt das Werkzeug und verwendet nur das Transkript, das diese Sitzung bereits aufgezeichnet hat."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspect requires the deterministic tool before the model answers. Review removes the tool and uses only the transcript that this session has already recorded."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspeccionar exige usar la herramienta determinista antes de que responda el modelo. Revisar quita la herramienta y usa solo la transcripción que esta sesión ya registró."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspecter impose l’outil déterministe avant la réponse du modèle. Examiner retire l’outil et utilise uniquement la transcription déjà enregistrée par cette session."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ispeziona richiede lo strumento deterministico prima che il modello risponda. Rivedi rimuove lo strumento e usa solo la trascrizione già registrata da questa sessione."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「検査」では、モデルが回答する前に決定論的なツールを必ず使います。「レビュー」ではツールを外し、このセッションがすでに記録したトランスクリプトだけを使います。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검사 단계에서는 모델이 답하기 전에 결정적 도구를 반드시 사용합니다. 검토 단계에서는 도구를 제거하고 이 세션이 이미 기록한 대화 내용만 사용합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspecionar exige a ferramenta determinística antes de o modelo responder. Revisar remove a ferramenta e usa apenas a transcrição que esta sessão já registrou."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“检查”要求模型在回答前先调用确定性工具。“审查”会移除工具，并且只使用此会话已经记录的会话内容。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「檢查」要求模型在回答前先呼叫確定性工具。「審查」會移除工具，並且只使用此工作階段已記錄的內容。"
+          }
+        }
+      }
+    },
+    "Inspect the foundation-lab sample release record. Report its stored validation results and status." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prüfe den Beispiel-Release-Datensatz „foundation-lab“. Gib die gespeicherten Validierungsergebnisse und den Status an."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspect the foundation-lab sample release record. Report its stored validation results and status."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspecciona el registro de versión de ejemplo foundation-lab. Indica los resultados de validación guardados y su estado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspectez la fiche de version d’exemple foundation-lab. Indiquez ses résultats de validation enregistrés et son état."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esamina il record di rilascio di esempio foundation-lab. Riporta i risultati di convalida memorizzati e lo stato."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "foundation-lab のサンプルリリースレコードを調べてください。保存されている検証結果とステータスを報告してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "foundation-lab 샘플 릴리스 레코드를 검사하세요. 저장된 검증 결과와 상태를 보고하세요."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspecione o registro de lançamento de exemplo foundation-lab. Informe os resultados de validação armazenados e o status."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "检查 foundation-lab 示例发布记录。报告其中存储的验证结果和状态。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "檢查 foundation-lab 範例發佈記錄。回報其中儲存的驗證結果與狀態。"
+          }
+        }
+      }
+    },
+    "Keep one session while its active profile changes with the task. Inspect the bundled release record on device, then review the recorded evidence with either the system model or Private Cloud Compute." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Behalte eine Sitzung bei, während sich ihr aktives Profil mit der Aufgabe ändert. Prüfe den mitgelieferten Release-Datensatz auf dem Gerät und bewerte die aufgezeichneten Belege anschließend mit dem Systemmodell oder Private Cloud Compute."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep one session while its active profile changes with the task. Inspect the bundled release record on device, then review the recorded evidence with either the system model or Private Cloud Compute."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantén una sola sesión mientras su perfil activo cambia con la tarea. Inspecciona en el dispositivo el registro de versión incluido y después revisa la evidencia registrada con el modelo del sistema o Private Cloud Compute."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conservez une seule session pendant que son profil actif change selon la tâche. Inspectez sur l’appareil la fiche de version fournie, puis examinez les éléments enregistrés avec le modèle système ou Private Cloud Compute."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantieni una sola sessione mentre il profilo attivo cambia in base all’attività. Esamina sul dispositivo il record di rilascio incluso, quindi valuta le prove registrate con il modello di sistema o Private Cloud Compute."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タスクに合わせてアクティブなプロファイルを切り替えながら、1 つのセッションを維持します。端末上で同梱のリリースレコードを調べた後、記録された根拠をシステムモデルまたは Private Cloud Compute で確認します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "작업에 따라 활성 프로필을 바꾸면서 하나의 세션을 유지합니다. 기기에서 포함된 릴리스 레코드를 검사한 다음 기록된 근거를 시스템 모델 또는 Private Cloud Compute로 검토합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantenha uma única sessão enquanto o perfil ativo muda conforme a tarefa. Inspecione no dispositivo o registro de lançamento incluído e depois avalie as evidências registradas com o modelo do sistema ou o Private Cloud Compute."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在任务变化时切换活动配置文件，同时保持同一个会话。先在设备上检查随附的发布记录，再使用系统模型或 Private Cloud Compute 审查已记录的证据。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在工作變更時切換使用中的設定檔，同時維持同一個工作階段。先在裝置上檢查隨附的發佈記錄，再使用系統模型或 Private Cloud Compute 審查已記錄的證據。"
+          }
+        }
+      }
+    },
+    "Live dynamic profiles require the Xcode 27 SDK and an OS 27 runtime." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live-Dynamikprofile erfordern das Xcode 27 SDK und eine Laufzeitumgebung mit OS 27."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live dynamic profiles require the Xcode 27 SDK and an OS 27 runtime."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los perfiles dinámicos en vivo requieren el SDK de Xcode 27 y un sistema con OS 27."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les profils dynamiques en direct nécessitent le SDK Xcode 27 et un système sous OS 27."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I profili dinamici dal vivo richiedono l’SDK di Xcode 27 e un sistema con OS 27."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ライブ動的プロファイルには、Xcode 27 SDK と OS 27 の実行環境が必要です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실시간 동적 프로필을 사용하려면 Xcode 27 SDK와 OS 27 실행 환경이 필요합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perfis dinâmicos em tempo real exigem o SDK do Xcode 27 e um ambiente com OS 27."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "实时动态配置文件需要 Xcode 27 SDK 和 OS 27 运行环境。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "即時動態設定檔需要 Xcode 27 SDK 與 OS 27 執行環境。"
+          }
+        }
+      }
+    },
+    "On Device" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auf dem Gerät"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On Device"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En el dispositivo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sur l’appareil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sul dispositivo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オンデバイス"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "온디바이스"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No dispositivo"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设备端"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "裝置端"
+          }
+        }
+      }
+    },
+    "Remove the tool, keep the session history, and assess only the evidence already recorded." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entferne das Werkzeug, behalte den Sitzungsverlauf und bewerte nur die bereits aufgezeichneten Belege."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove the tool, keep the session history, and assess only the evidence already recorded."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quita la herramienta, conserva el historial de la sesión y evalúa solo la evidencia ya registrada."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retirez l’outil, conservez l’historique de la session et évaluez uniquement les éléments déjà enregistrés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi lo strumento, conserva la cronologia della sessione e valuta solo le prove già registrate."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ツールを外し、セッション履歴を保持したまま、すでに記録された根拠だけを評価します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "도구를 제거하고 세션 기록을 유지한 채 이미 기록된 근거만 평가합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remova a ferramenta, mantenha o histórico da sessão e avalie apenas as evidências já registradas."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移除工具，保留会话历史，并且只评估已经记录的证据。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移除工具、保留工作階段記錄，並且只評估已記錄的證據。"
+          }
+        }
+      }
+    },
+    "Require a read-only local tool call and ground the answer in its sample output." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verlange einen Aufruf des schreibgeschützten lokalen Werkzeugs und stütze die Antwort auf dessen Beispielausgabe."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Require a read-only local tool call and ground the answer in its sample output."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exige una llamada a la herramienta local de solo lectura y basa la respuesta en su salida de ejemplo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imposez un appel à l’outil local en lecture seule et fondez la réponse sur sa sortie d’exemple."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richiedi una chiamata allo strumento locale di sola lettura e basa la risposta sul suo output di esempio."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "読み取り専用のローカルツール呼び出しを必須にし、そのサンプル出力だけを根拠に回答します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "읽기 전용 로컬 도구 호출을 요구하고 그 샘플 출력만을 근거로 답변합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exija uma chamada à ferramenta local somente leitura e baseie a resposta na saída de exemplo."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要求调用只读本地工具，并以其示例输出作为回答依据。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要求呼叫唯讀本機工具，並以其範例輸出作為回答依據。"
+          }
+        }
+      }
+    },
+    "Review the recorded evidence. Is this sample release ready, and which checks are still unknown?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bewerte die aufgezeichneten Belege. Ist dieser Beispiel-Release bereit, und welche Prüfungen sind noch unbekannt?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review the recorded evidence. Is this sample release ready, and which checks are still unknown?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revisa la evidencia registrada. ¿Está lista esta versión de ejemplo y qué comprobaciones siguen sin conocerse?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Examinez les éléments enregistrés. Cette version d’exemple est-elle prête, et quelles vérifications restent inconnues ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rivedi le prove registrate. Questa versione di esempio è pronta e quali verifiche restano sconosciute?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記録された根拠を確認してください。このサンプルリリースは準備できていますか。まだ不明なチェックは何ですか。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기록된 근거를 검토하세요. 이 샘플 릴리스는 준비되었으며 아직 확인되지 않은 검사는 무엇인가요?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revise as evidências registradas. Este lançamento de exemplo está pronto e quais verificações ainda são desconhecidas?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "审查已记录的证据。此示例发布是否就绪？还有哪些检查结果未知？"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "審查已記錄的證據。此範例發佈是否就緒？還有哪些檢查結果未知？"
+          }
+        }
+      }
+    },
+    "Run one session across changing profiles" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Sitzung mit wechselnden Profilen ausführen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Run one session across changing profiles"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ejecuta una sesión con perfiles cambiantes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exécuter une session avec des profils changeants"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esegui una sessione con profili variabili"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロファイルを切り替えながら 1 つのセッションを実行"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로필을 바꾸며 하나의 세션 실행"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Execute uma sessão com perfis variáveis"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在切换配置文件时运行同一会话"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在切換設定檔時執行同一工作階段"
+          }
+        }
+      }
+    },
+    "Run one session across state-driven profiles" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Sitzung mit zustandsgesteuerten Profilen ausführen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Run one session across state-driven profiles"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ejecuta una sesión con perfiles controlados por el estado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exécuter une session avec des profils pilotés par l’état"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esegui una sessione con profili guidati dallo stato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "状態に応じたプロファイルで 1 つのセッションを実行"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "상태 기반 프로필로 하나의 세션 실행"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Execute uma sessão com perfis controlados pelo estado"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用状态驱动的配置文件运行同一会话"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用狀態驅動的設定檔執行同一工作階段"
+          }
+        }
+      }
+    },
+    "Session Profile Builder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sitzungsprofil-Editor"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Session Profile Builder"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editor de perfiles de sesión"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Éditeur de profils de session"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editor dei profili di sessione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "セッションプロファイルビルダー"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "세션 프로필 빌더"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editor de perfis de sessão"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会话配置文件构建器"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工作階段設定檔建構器"
+          }
+        }
+      }
+    },
+    "The app chooses the stage and model. DynamicProfile re-evaluates before each request, while LanguageModelSession keeps one transcript. The tool reads labeled sample text; it does not inspect this repository, GitHub, or a real build." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die App wählt Phase und Modell. DynamicProfile wird vor jeder Anfrage neu ausgewertet, während LanguageModelSession ein gemeinsames Transkript behält. Das Werkzeug liest gekennzeichneten Beispieltext; es prüft weder dieses Repository noch GitHub oder einen echten Build."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The app chooses the stage and model. DynamicProfile re-evaluates before each request, while LanguageModelSession keeps one transcript. The tool reads labeled sample text; it does not inspect this repository, GitHub, or a real build."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La app elige la etapa y el modelo. DynamicProfile se vuelve a evaluar antes de cada solicitud, mientras LanguageModelSession conserva una sola transcripción. La herramienta lee texto de ejemplo etiquetado; no inspecciona este repositorio, GitHub ni una compilación real."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’app choisit l’étape et le modèle. DynamicProfile est réévalué avant chaque requête, tandis que LanguageModelSession conserve une seule transcription. L’outil lit un texte d’exemple identifié comme tel ; il n’inspecte ni ce dépôt, ni GitHub, ni une vraie compilation."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’app sceglie la fase e il modello. DynamicProfile viene rivalutato prima di ogni richiesta, mentre LanguageModelSession conserva un’unica trascrizione. Lo strumento legge testo di esempio dichiarato come tale; non esamina questo repository, GitHub o una build reale."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリがステージとモデルを選びます。DynamicProfile はリクエストごとに再評価され、LanguageModelSession は 1 つのトランスクリプトを保持します。ツールが読むのはサンプルと明記されたテキストだけで、このリポジトリ、GitHub、実際のビルドは調べません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱이 단계와 모델을 선택합니다. DynamicProfile은 요청 전에 매번 다시 평가되고 LanguageModelSession은 하나의 대화 기록을 유지합니다. 도구는 샘플로 표시된 텍스트만 읽으며 이 저장소, GitHub 또는 실제 빌드를 검사하지 않습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O app escolhe a etapa e o modelo. DynamicProfile é reavaliado antes de cada solicitação, enquanto LanguageModelSession mantém uma única transcrição. A ferramenta lê texto identificado como exemplo; ela não inspeciona este repositório, o GitHub nem uma build real."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App 选择阶段和模型。DynamicProfile 会在每次请求前重新求值，而 LanguageModelSession 保留同一份会话记录。工具只读取明确标记的示例文本；它不会检查此仓库、GitHub 或真实构建。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App 會選擇階段與模型。DynamicProfile 會在每次要求前重新求值，而 LanguageModelSession 保留同一份工作階段記錄。工具只讀取明確標示的範例文字；它不會檢查此儲存庫、GitHub 或真實組建。"
+          }
+        }
+      }
+    },
+    "The prompt is sent to the active profile in the shared session" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Prompt wird an das aktive Profil der gemeinsamen Sitzung gesendet"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The prompt is sent to the active profile in the shared session"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El prompt se envía al perfil activo de la sesión compartida"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le prompt est envoyé au profil actif de la session partagée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il prompt viene inviato al profilo attivo della sessione condivisa"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロンプトは共有セッションのアクティブなプロファイルに送信されます"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프롬프트가 공유 세션의 활성 프로필로 전송됩니다"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O prompt é enviado ao perfil ativo da sessão compartilhada"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "提示会发送到共享会话中的活动配置文件"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "提示會傳送到共享工作階段中使用中的設定檔"
+          }
+        }
+      }
+    },
     "@Generable Pattern" : {
       "localizations" : {
         "de" : {
@@ -18443,70 +19339,7 @@
         }
       }
     },
-    "Adjust the controls to generate a profile recipe. This page does not create a session or send a prompt." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passen Sie die Steuerelemente an, um ein Profilrezept zu generieren. Diese Seite erstellt keine Sitzung oder sendet eine Aufforderung."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adjust the controls to generate a profile recipe. This page does not create a session or send a prompt."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajuste los controles para generar una receta de perfil. Esta página no crea una sesión o envía un aviso."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajustez les contrôles pour générer une recette de profil. Cette page ne crée pas de session ou n'envoie pas d'invite."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Regolare i controlli per generare una ricetta del profilo. Questa pagina non crea una sessione o invia un prompt."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "コントロールを調整してプロファイルのレシピを生成します。 このページは、セッションを作成したり、プロンプトを送信したりしません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "프로파일 레시피를 생성하는 컨트롤을 조정합니다. 이 페이지는 세션을 만들지 않거나 프롬프트를 보내지 않습니다."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajuste os controles para gerar uma receita de perfil. Esta página não cria uma sessão ou envia um alerta."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "调整控件以生成配置文件配方 。 此页面不创建会话或发送提示 。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "調整控件以產生剖面程式配方 。 此頁面不建立會議或傳送便捷 。"
-          }
-        }
-      }
-    },
+
     "Adopt LanguageModel when the product requires a model that Apple does not provide directly. Your executor owns provider translation and streaming." : {
       "localizations" : {
         "de" : {
@@ -22987,70 +23820,7 @@
         }
       }
     },
-    "Compose a LanguageModelSession.Profile recipe" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zusammensetzung a LanguageModelSession.Profile Rezeptur"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Compose a LanguageModelSession.Profile recipe"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Preparar un LanguageModelSession.Profile receta"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Composez une LanguageModelSession.Profile recette"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Componi un LanguageModelSession.Profile ricetta"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "コンパイルする LanguageModelSession.Profile レシピ"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "지원하다 LanguageModelSession.Profile 뚱 베어"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Compor um LanguageModelSession.Profile receita"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "组成a LanguageModelSession.Profile 食谱"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "构成a LanguageModelSession.Profile 食谱"
-          }
-        }
-      }
-    },
+
     "Concrete type" : {
       "localizations" : {
         "de" : {
@@ -25163,70 +25933,7 @@
         }
       }
     },
-    "Dynamic Profile" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dynamisches Profil"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dynamic Profile"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Perfil dinámico"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profil dynamique"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profilo dinamico"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ダイナミックプロファイル"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "동적 프로파일"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Perfil Dinâmico"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "动态配置"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "动态設定檔"
-          }
-        }
-      }
-    },
+
     "Dynamic profile" : {
       "localizations" : {
         "de" : {
@@ -37649,70 +38356,7 @@
         }
       }
     },
-    "Profile Controls" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profilkontrollen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profile Controls"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Controles de Perfil"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Contrôles du profil"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Controllo dei profili"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "プロフィール制御"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "프로필 제어"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Controles de perfil"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "配置文件控件"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "設定檔控制"
-          }
-        }
-      }
-    },
+
     "Profiles, generation, transcript" : {
       "localizations" : {
         "de" : {
