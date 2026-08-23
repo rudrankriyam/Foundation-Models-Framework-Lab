@@ -147,13 +147,7 @@ struct PlaygroundView: View {
         }
 #endif
         .sheet(isPresented: $approvalCoordinator.isPresentingRequest) {
-            if let request = approvalCoordinator.currentRequest {
-                ToolMutationApprovalView(
-                    request: request,
-                    approve: approvalCoordinator.approveCurrentRequest,
-                    deny: approvalCoordinator.denyCurrentRequest
-                )
-            }
+            ToolMutationApprovalSheet(coordinator: approvalCoordinator)
         }
 #if os(iOS)
         .onChange(of: approvalCoordinator.isPresentingRequest) { _, isPresenting in
