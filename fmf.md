@@ -1,11 +1,27 @@
 ## Xcode 27 Foundation Models API Delta
 
-Source: Xcode 27.0 beta 5 (build `27A5237l`) FoundationModels Swift
+Source: Xcode 27.0 beta 6 (build `27A5252f`) FoundationModels Swift
 interface (`9705` lines), synthesized from the iOS SDK public module surface
 with an iOS 26.0 deployment target.
 
 This section records the new public API shape found in Xcode 27. The raw Swift
-interface reference below is refreshed from the beta 5 SDK.
+interface reference below is refreshed from the beta 6 SDK.
+
+### Beta 6 changes
+
+Compared with the Xcode 27 beta 5 SDK interface:
+
+- The public Foundation Models interface is unchanged. Both SDKs synthesize to
+  9,705 lines, and their normalized interface content is identical.
+- The Foundation Models documentation adds “Running a Core AI model in a
+  Foundation Models session.” It uses `CoreAILanguageModel` from Apple's
+  external `coreai-models` package with `LanguageModelSession`; it does not add
+  a declaration to the Foundation Models SDK.
+
+Apple's Xcode 27 beta 6 release notes contain no Foundation Models API entry.
+The installed Xcode 27 documentation archive (`10M13878`) contains the Core AI
+guide, while the installed SDK remains the source of truth for the public
+interface result.
 
 ### Beta 5 changes
 
