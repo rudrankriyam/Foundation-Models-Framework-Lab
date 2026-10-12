@@ -40,7 +40,7 @@ final class FoundationLabExperimentTests: XCTestCase {
     func testBuiltInToolCatalogHasUniqueTruthfulMetadata() {
         let tools = FoundationLabBuiltInTool.allCases
 
-        XCTAssertEqual(tools.count, 9)
+        XCTAssertEqual(tools.count, 10)
         XCTAssertEqual(Set(tools.map(\.id)).count, tools.count)
         XCTAssertEqual(Set(tools.map(\.displayName)).count, tools.count)
         XCTAssertEqual(Set(tools.map(\.summary)).count, tools.count)

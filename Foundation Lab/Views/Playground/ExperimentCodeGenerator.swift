@@ -119,6 +119,7 @@ enum ExperimentCodeGenerator {
         case .health: ["HealthTool()"]
         case .music: ["MusicTool()"]
         case .webMetadata: ["WebMetadataTool()"]
+        case .glintMarketDesk: ["GlintMarketDeskTool()", "GlintOptionChainTool()"]
         }
     }
 

@@ -89,6 +89,8 @@ extension ExperimentTemplate {
             "Search the Apple Music catalog from a model request."
         case .webMetadata:
             "Read a page title, description, and preview metadata from a URL."
+        case .glintMarketDesk:
+            "Read the stored NIFTY 50 5-minute bar. A gap means there is no spot."
         }
     }
 
@@ -121,6 +123,11 @@ private extension ExperimentTemplate {
             Extract the title, description, and useful preview metadata from \
             https://developer.apple.com/apple-intelligence/.
             """
+        case .glintMarketDesk:
+            """
+            Read the stored 5-minute bar for NIFTY 50. Repeat its close and time. \
+            If the tool returns a gap, repeat the gap and do not name a spot.
+            """
         }
     }
 
@@ -135,6 +142,13 @@ private extension ExperimentTemplate {
             """
             Use only measurements returned by the selected tool. Never invent health data, \
             diagnoses, correlations, or predictions.
+            """
+        case .glintMarketDesk:
+            """
+            Use glintMarketDesk only to read the stored NIFTY 50 5-minute candle. \
+            Repeat its close, candle time, source, completeness and update status. A stored close is not a live spot. \
+            This tool does not calculate indicators or ATR stops. glintOptionChain reports unavailable. \
+            Explain educational questions without inventing current market values. Preserve every gap. Orders stay locked.
             """
         default:
             """

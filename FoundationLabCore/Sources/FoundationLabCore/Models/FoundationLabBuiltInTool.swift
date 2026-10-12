@@ -13,6 +13,7 @@ public enum FoundationLabBuiltInTool: String, CaseIterable, Codable, Hashable, S
     case health
     case music
     case webMetadata
+    case glintMarketDesk
 
     public var id: String { rawValue }
 
@@ -36,6 +37,8 @@ public enum FoundationLabBuiltInTool: String, CaseIterable, Codable, Hashable, S
             String(localized: "Music")
         case .webMetadata:
             String(localized: "Web Metadata")
+        case .glintMarketDesk:
+            String(localized: "Glint Market Desk")
         }
     }
 
@@ -59,6 +62,8 @@ public enum FoundationLabBuiltInTool: String, CaseIterable, Codable, Hashable, S
             String(localized: "Search Apple Music and control playback.")
         case .webMetadata:
             String(localized: "Extract titles and preview metadata from web pages.")
+        case .glintMarketDesk:
+            String(localized: "Read the stored NIFTY 50 5-minute bar from Glint.")
         }
     }
 
@@ -82,6 +87,8 @@ public enum FoundationLabBuiltInTool: String, CaseIterable, Codable, Hashable, S
             "music.note"
         case .webMetadata:
             "link"
+        case .glintMarketDesk:
+            "chart.line.uptrend.xyaxis"
         }
     }
 
@@ -105,6 +112,8 @@ public enum FoundationLabBuiltInTool: String, CaseIterable, Codable, Hashable, S
             ["controlMusic"]
         case .webMetadata:
             ["getWebMetadata"]
+        case .glintMarketDesk:
+            ["glintMarketDesk", "glintOptionChain"]
         }
     }
 
@@ -131,6 +140,8 @@ public enum FoundationLabBuiltInTool: String, CaseIterable, Codable, Hashable, S
             [MusicTool()]
         case .webMetadata:
             [WebMetadataTool()]
+        case .glintMarketDesk:
+            [GlintMarketDeskTool(), GlintOptionChainTool()]
         }
     }
 
