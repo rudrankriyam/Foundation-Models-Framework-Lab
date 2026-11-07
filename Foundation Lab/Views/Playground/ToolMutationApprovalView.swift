@@ -61,8 +61,22 @@ struct ToolMutationApprovalView: View {
         .interactiveDismissDisabled()
 #if os(iOS)
         .presentationDetents([.medium, .large])
+        .trailingPresentationPlacement()
 #else
         .frame(minWidth: 420, minHeight: 360)
 #endif
     }
 }
+
+#if os(iOS)
+private extension View {
+    @ViewBuilder
+    func trailingPresentationPlacement() -> some View {
+        if #available(iOS 27.0, *) {
+            presentationPlacement(.trailing)
+        } else {
+            self
+        }
+    }
+}
+#endif
