@@ -10,14 +10,41 @@
 		0A5454AB2E1148A8002C2152 /* Foundation Lab.icon in Resources */ = {isa = PBXBuildFile; fileRef = 0A5454A72E1148A8002C2152 /* Foundation Lab.icon */; };
 		0A979E842E1E5921008CFA37 /* FoundationModelsKit in Frameworks */ = {isa = PBXBuildFile; productRef = 0A979E832E1E5921008CFA37 /* FoundationModelsKit */; };
 		0B0A11132ECB100100000001 /* FoundationLabCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0B0A11122ECB100100000001 /* FoundationLabCore */; };
+		0C1A0A012F0000010000000B /* Foundation Lab Watch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 0C1A0A012F00000100000001 /* Foundation Lab Watch.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		0C1A0A012F00000100000007 /* Foundation Lab.icon in Resources */ = {isa = PBXBuildFile; fileRef = 0A5454A72E1148A8002C2152 /* Foundation Lab.icon */; };
 		F1B8C56E2E5B5A1C00XYZ123 /* LumoKit in Frameworks */ = {isa = PBXBuildFile; productRef = F1B8C56D2E5B5A1C00XYZ123 /* LumoKit */; };
 		FA43F9412E13A16E00F24BCC /* HighlightSwift in Frameworks */ = {isa = PBXBuildFile; productRef = FA43F9402E13A16E00F24BCC /* HighlightSwift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0C1A0A012F0000010000000C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0AAE4FF72DF76E6600838F13 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0C1A0A012F00000100000003;
+			remoteInfo = "Foundation Lab Watch";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0C1A0A012F0000010000000D /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				0C1A0A012F0000010000000B /* Foundation Lab Watch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0A5454A72E1148A8002C2152 /* Foundation Lab.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = "Foundation Lab.icon"; sourceTree = "<group>"; };
 		0AAE4FFF2DF76E6600838F13 /* Foundation Lab.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Foundation Lab.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E7A0B1C2F00000000000001 /* Foundation Lab TV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Foundation Lab TV.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C1A0A012F00000100000001 /* Foundation Lab Watch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Foundation Lab Watch.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C9AECE22E728F6D00F4C37F /* SampleCode.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SampleCode.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -50,6 +77,11 @@
 			path = BookPlaygrounds;
 			sourceTree = "<group>";
 		};
+		0C1A0A012F00000100000002 /* Foundation Lab Watch */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Foundation Lab Watch";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +103,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0C1A0A012F00000100000005 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -80,6 +119,7 @@
 				6C9AECE22E728F6D00F4C37F /* SampleCode.xcconfig */,
 				0ADB46AD2E0CE6C100C29293 /* Foundation Lab */,
 				7E7A0B1C2F00000000000002 /* Foundation Lab TV */,
+				0C1A0A012F00000100000002 /* Foundation Lab Watch */,
 				0B0A11002ECB000100000001 /* BookPlaygrounds */,
 				0AAE50002DF76E6600838F13 /* Products */,
 				0A5454A72E1148A8002C2152 /* Foundation Lab.icon */,
@@ -92,6 +132,7 @@
 			children = (
 				0AAE4FFF2DF76E6600838F13 /* Foundation Lab.app */,
 				7E7A0B1C2F00000000000001 /* Foundation Lab TV.app */,
+				0C1A0A012F00000100000001 /* Foundation Lab Watch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -113,10 +154,12 @@
 				0AAE4FFB2DF76E6600838F13 /* Sources */,
 				0AAE4FFC2DF76E6600838F13 /* Frameworks */,
 				0AAE4FFD2DF76E6600838F13 /* Resources */,
+				0C1A0A012F0000010000000D /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				0C1A0A012F0000010000000E /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				0ADB46AD2E0CE6C100C29293 /* Foundation Lab */,
@@ -152,6 +195,28 @@
 			productReference = 7E7A0B1C2F00000000000001 /* Foundation Lab TV.app */;
 			productType = "com.apple.product-type.application";
 		};
+		0C1A0A012F00000100000003 /* Foundation Lab Watch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0C1A0A012F00000100000008 /* Build configuration list for PBXNativeTarget "Foundation Lab Watch" */;
+			buildPhases = (
+				0C1A0A012F00000100000004 /* Sources */,
+				0C1A0A012F00000100000005 /* Frameworks */,
+				0C1A0A012F00000100000006 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				0C1A0A012F00000100000002 /* Foundation Lab Watch */,
+			);
+			name = "Foundation Lab Watch";
+			packageProductDependencies = (
+			);
+			productName = FoundationLabWatch;
+			productReference = 0C1A0A012F00000100000001 /* Foundation Lab Watch.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -167,6 +232,9 @@
 					};
 					7E7A0B1C2F00000000000003 = {
 						CreatedOnToolsVersion = 27.3;
+					};
+					0C1A0A012F00000100000003 = {
+						CreatedOnToolsVersion = 27.1;
 					};
 				};
 			};
@@ -192,6 +260,7 @@
 			targets = (
 				0AAE4FFE2DF76E6600838F13 /* Foundation Lab */,
 				7E7A0B1C2F00000000000003 /* Foundation Lab TV */,
+				0C1A0A012F00000100000003 /* Foundation Lab Watch */,
 			);
 		};
 /* End PBXProject section */
@@ -212,6 +281,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0C1A0A012F00000100000006 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0C1A0A012F00000100000007 /* Foundation Lab.icon in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -229,7 +306,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0C1A0A012F00000100000004 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0C1A0A012F0000010000000E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilter = ios;
+			target = 0C1A0A012F00000100000003 /* Foundation Lab Watch */;
+			targetProxy = 0C1A0A012F0000010000000C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		0AAE50082DF76E6800838F13 /* Debug */ = {
@@ -273,6 +366,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				FOUNDATION_LAB_BUNDLE_ID = "com.rudrankriyam.foundationlab$(SAMPLE_CODE_DISAMBIGUATOR)";
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -338,6 +432,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				FOUNDATION_LAB_BUNDLE_ID = "com.rudrankriyam.foundationlab$(SAMPLE_CODE_DISAMBIGUATOR)";
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -413,7 +508,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.rudrankriyam.foundationlab${SAMPLE_CODE_DISAMBIGUATOR}";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(FOUNDATION_LAB_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
@@ -498,7 +593,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.rudrankriyam.foundationlab${SAMPLE_CODE_DISAMBIGUATOR}";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(FOUNDATION_LAB_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "$(FOUNDATION_LAB_PROFILE_NAME)";
@@ -537,7 +632,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				MARKETING_VERSION = 1.2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.rudrankriyam.foundationlab${SAMPLE_CODE_DISAMBIGUATOR}.tv";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(FOUNDATION_LAB_BUNDLE_ID).tv";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
@@ -565,7 +660,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				MARKETING_VERSION = 1.2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.rudrankriyam.foundationlab${SAMPLE_CODE_DISAMBIGUATOR}.tv";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(FOUNDATION_LAB_BUNDLE_ID).tv";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
@@ -577,6 +672,77 @@
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Release;
+		};
+		0C1A0A012F00000100000009 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "Foundation Lab";
+				CODE_SIGN_ENTITLEMENTS = "Foundation Lab Watch/FoundationLabWatch.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YQZQG7N4WG;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Foundation Lab";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "$(FOUNDATION_LAB_BUNDLE_ID)";
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(FOUNDATION_LAB_BUNDLE_ID).watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Debug;
+		};
+		0C1A0A012F0000010000000A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "Foundation Lab";
+				CODE_SIGN_ENTITLEMENTS = "Foundation Lab Watch/FoundationLabWatch.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "Apple Distribution";
+				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_STYLE[sdk=watchos*]" = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YQZQG7N4WG;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Foundation Lab";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "$(FOUNDATION_LAB_BUNDLE_ID)";
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(FOUNDATION_LAB_BUNDLE_ID).watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "$(FOUNDATION_LAB_WATCH_PROFILE_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 27.0;
 			};
 			name = Release;
 		};
@@ -606,6 +772,15 @@
 			buildConfigurations = (
 				7E7A0B1C2F00000000000007 /* Debug */,
 				7E7A0B1C2F00000000000008 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0C1A0A012F00000100000008 /* Build configuration list for PBXNativeTarget "Foundation Lab Watch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0C1A0A012F00000100000009 /* Debug */,
+				0C1A0A012F0000010000000A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
