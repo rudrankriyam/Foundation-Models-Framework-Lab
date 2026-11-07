@@ -70,11 +70,11 @@ struct RunFeedbackSheet: View {
                     Button("Done") { dismiss() }
                 }
             }
-            .onChange(of: sentiment) { attachment = nil }
-            .onChange(of: selectedCategories) { attachment = nil }
-            .onChange(of: explanation) { attachment = nil }
-            .onChange(of: includesDesiredOutput) { attachment = nil }
-            .onChange(of: desiredOutput) { attachment = nil }
+            .onChange(of: sentiment) { invalidateAttachment() }
+            .onChange(of: selectedCategories) { invalidateAttachment() }
+            .onChange(of: explanation) { invalidateAttachment() }
+            .onChange(of: includesDesiredOutput) { invalidateAttachment() }
+            .onChange(of: desiredOutput) { invalidateAttachment() }
             .fileExporter(
                 isPresented: $isExporting,
                 item: attachment,
@@ -86,6 +86,11 @@ struct RunFeedbackSheet: View {
                 }
             }
         }
+    }
+
+    private func invalidateAttachment() {
+        attachment = nil
+        errorMessage = nil
     }
 
     private var attachmentSection: some View {
