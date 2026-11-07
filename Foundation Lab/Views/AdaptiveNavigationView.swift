@@ -153,10 +153,10 @@ struct AdaptiveNavigationView: View {
             }
         }
         .onChange(of: columnVisibility) { _, newValue in
-            persistSidebarVisibility(newValue != .detailOnly)
+            syncSidebarVisibility(newValue != .detailOnly)
         }
         .onChange(of: listColumnVisibility) { _, newValue in
-            persistSidebarVisibility(newValue != .doubleColumn && newValue != .detailOnly)
+            syncSidebarVisibility(newValue != .doubleColumn && newValue != .detailOnly)
         }
     }
 
@@ -206,12 +206,6 @@ struct AdaptiveNavigationView: View {
 #endif
     }
 
-    private func persistSidebarVisibility(_ isVisible: Bool) {
-#if os(macOS)
-        persistedSidebarIsVisible = isVisible
-#endif
-    }
-
     private func persistSidebarWidth(_ width: CGFloat) {
 #if os(macOS)
         guard (FoundationLabLayout.sidebarMinimumWidth ... FoundationLabLayout.sidebarMaximumWidth).contains(width),
@@ -224,6 +218,22 @@ struct AdaptiveNavigationView: View {
 }
 
 private extension AdaptiveNavigationView {
+    func syncSidebarVisibility(_ isVisible: Bool) {
+        if (columnVisibility != .detailOnly) != isVisible {
+            columnVisibility = isVisible ? .all : .detailOnly
+        }
+        if (listColumnVisibility != .doubleColumn && listColumnVisibility != .detailOnly) != isVisible {
+            listColumnVisibility = isVisible ? .all : .doubleColumn
+        }
+        persistSidebarVisibility(isVisible)
+    }
+
+    func persistSidebarVisibility(_ isVisible: Bool) {
+#if os(macOS)
+        persistedSidebarIsVisible = isVisible
+#endif
+    }
+
     var sidebar: some View {
         @Bindable var navigationCoordinator = navigationCoordinator
         return SidebarView(
