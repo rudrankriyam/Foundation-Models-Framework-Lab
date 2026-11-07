@@ -17,7 +17,7 @@ The product serves two audiences without splitting into two apps:
 ## Toolchain
 
 - Deployment targets: iOS 26.0+ and macOS 26.0+
-- Supported compiler: Xcode 27.1 or later
+- Supported compiler: Xcode 27.3 beta or later
 - Swift 6 with strict concurrency and Main Actor default isolation
 - Live on-device execution requires Apple Silicon and Apple Intelligence
 
