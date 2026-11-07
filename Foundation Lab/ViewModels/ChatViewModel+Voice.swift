@@ -103,46 +103,53 @@ extension ChatViewModel {
         speechSynthesizer.cancelSpeaking()
     }
 
-    func stopVoiceModeAndSend() async -> (prompt: String, response: String)? {
-        guard case .listening(let text) = voiceState else { return nil }
-        guard !isLoading, !session.isResponding else { return nil }
+    func stopVoiceModeAndSend(
+        willGenerate: (String) -> Void,
+        didGenerate: (String, ChatGenerationOutcome) -> Void
+    ) async {
+        guard case .listening(let text) = voiceState else { return }
+        guard !isLoading, !session.isResponding else { return }
 
         let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedText.isEmpty else {
             cancelVoiceMode()
-            return nil
+            return
         }
 
         guard let recognizer = speechRecognizer else {
-            handleVoiceError("Speech recognizer not initialized")
-            return nil
+            handleVoiceError(String(localized: "Speech recognizer not initialized"))
+            return
         }
         recognizer.stopRecognition()
         voiceState = .processing
+        willGenerate(trimmedText)
         isLoading = true
 
+        let response: String
         do {
-            let response = try await conversationEngine.sendMessage(
+            response = try await conversationEngine.sendMessage(
                 trimmedText,
                 generationOptions: generationOptions
             )
-            isLoading = false
-            syncConversationState()
-            guard case .processing = voiceState else {
-                return (trimmedText, response)
-            }
-            voiceState = .speaking(response: response)
-            await speak(response)
-            return (trimmedText, response)
         } catch is CancellationError {
             isLoading = false
             voiceState = .idle
-            return nil
+            didGenerate(trimmedText, .cancelled)
+            return
         } catch {
             isLoading = false
-            handleVoiceError(message(for: error))
-            return nil
+            let failureMessage = message(for: error)
+            handleVoiceError(failureMessage)
+            didGenerate(trimmedText, .failed(failureMessage))
+            return
         }
+
+        isLoading = false
+        syncConversationState()
+        didGenerate(trimmedText, .succeeded(response))
+        guard case .processing = voiceState else { return }
+        voiceState = .speaking(response: response)
+        await speak(response)
     }
 }
 
@@ -189,7 +196,7 @@ extension ChatViewModel {
 
     func restartListening() async {
         guard let recognizer = speechRecognizer else {
-            handleVoiceError("Speech recognizer not initialized")
+            handleVoiceError(String(localized: "Speech recognizer not initialized"))
             return
         }
 
@@ -261,7 +268,8 @@ extension ChatViewModel {
                 }
             case .completed(let finalText):
                 if case .listening = voiceState {
-                    voiceState = .listening(partialText: finalText)
+                    suspendVoiceMode()
+                    draftPrompt = finalText
                 }
             case .error(let speechError):
                 handleVoiceError(speechError.localizedDescription)
