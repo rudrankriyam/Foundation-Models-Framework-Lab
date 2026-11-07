@@ -11,6 +11,7 @@ import SwiftUI
 struct RunsView: View {
     @Environment(ExperimentStore.self) private var store
     @Environment(NavigationCoordinator.self) private var navigationCoordinator
+    @Binding var selection: FoundationLabExperimentRun.ID?
     @State private var searchText = ""
     @State private var showsSettings = false
 
@@ -31,17 +32,6 @@ struct RunsView: View {
         .navigationSubtitle("Exact configurations, output, and timing")
         #endif
         .searchable(text: $searchText, prompt: "Search runs")
-        .navigationDestination(for: UUID.self) { runID in
-            if let run = store.runs.first(where: { $0.id == runID }) {
-                RunDetailView(run: run)
-            } else {
-                ContentUnavailableView(
-                    "Run Not Found",
-                    systemImage: "questionmark.folder",
-                    description: Text("This run may have been deleted in another window.")
-                )
-            }
-        }
         .toolbar {
 #if os(iOS)
             ToolbarItem(placement: .primaryAction) {
@@ -80,7 +70,7 @@ struct RunsView: View {
     }
 
     private var runsList: some View {
-        List {
+        List(selection: listSelection) {
             ForEach(groupedRuns, id: \.date) { group in
                 Section {
                     ForEach(group.runs) { run in
@@ -116,6 +106,18 @@ struct RunsView: View {
         #else
         .listStyle(.inset)
         #endif
+    }
+
+    private var listSelection: Binding<FoundationLabExperimentRun.ID?> {
+        Binding(
+            get: { selection },
+            set: { newValue in
+                if newValue == nil, let selection, !filteredRuns.contains(where: { $0.id == selection }) {
+                    return
+                }
+                selection = newValue
+            }
+        )
     }
 
     private var filteredRuns: [FoundationLabExperimentRun] {
@@ -158,7 +160,7 @@ struct RunsView: View {
 }
 
 #Preview("Empty Runs") {
-    RunsView()
+    RunsView(selection: .constant(nil))
         .environment(
             ExperimentStore(
                 userDefaults: UserDefaults(suiteName: "RunsViewPreview") ?? .standard

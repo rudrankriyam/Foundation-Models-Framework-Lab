@@ -24,7 +24,7 @@ final class NavigationCoordinator {
     var splitViewSelection: TabSelection? = .library
     var libraryPath = NavigationPath()
     var playgroundPath = NavigationPath()
-    var runsPath = NavigationPath()
+    var runSelection: FoundationLabExperimentRun.ID?
     private var hasPendingNavigation = false
 
     init() {}
@@ -37,7 +37,7 @@ final class NavigationCoordinator {
             splitViewSelection = Self.fallback.splitViewSelection
             libraryPath = Self.fallback.libraryPath
             playgroundPath = Self.fallback.playgroundPath
-            runsPath = Self.fallback.runsPath
+            runSelection = Self.fallback.runSelection
             Self.fallback.resetPendingNavigation()
         }
 
@@ -120,7 +120,7 @@ final class NavigationCoordinator {
         splitViewSelection = .library
         libraryPath = NavigationPath()
         playgroundPath = NavigationPath()
-        runsPath = NavigationPath()
+        runSelection = nil
         hasPendingNavigation = false
     }
 }

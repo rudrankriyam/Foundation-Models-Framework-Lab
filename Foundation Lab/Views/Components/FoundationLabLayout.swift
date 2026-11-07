@@ -13,6 +13,9 @@ enum FoundationLabLayout {
     static let sidebarMinimumWidth: CGFloat = 180
     static let sidebarIdealWidth: CGFloat = 220
     static let sidebarMaximumWidth: CGFloat = 280
+    static let listColumnMinimumWidth: CGFloat = 280
+    static let listColumnIdealWidth: CGFloat = 320
+    static let listColumnMaximumWidth: CGFloat = 420
     static let inspectorMinimumWidth: CGFloat = 300
     static let inspectorIdealWidth: CGFloat = 360
     static let inspectorMaximumWidth: CGFloat = 440
