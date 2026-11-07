@@ -36,6 +36,7 @@ enum ExampleType: String, CaseIterable, Identifiable {
     case usagePerformanceTrace = "usage_performance_trace"
     case spotlightRAGExplorer = "spotlight_rag_explorer"
     case providerBridgeWalkthrough = "provider_bridge_walkthrough"
+    case dataContentLab = "data_content_lab"
     case evaluationsLab = "evaluations_lab"
     case fmCLIPythonPlayground = "fm_cli_python_playground"
     case health = "health"
@@ -84,7 +85,8 @@ extension ExampleType {
             examples: [
                 .geminiVideoInput,
                 .spotlightRAGExplorer,
-                .providerBridgeWalkthrough
+                .providerBridgeWalkthrough,
+                .dataContentLab
             ]
         )
     ]
@@ -147,6 +149,8 @@ extension ExampleType {
             return "Spotlight RAG"
         case .providerBridgeWalkthrough:
             return "Custom Model Provider"
+        case .dataContentLab:
+            return "Data Content"
         case .evaluationsLab:
             return "Evaluations"
         case .fmCLIPythonPlayground:
@@ -214,6 +218,8 @@ extension ExampleType {
             return "Ground responses in content indexed by your app"
         case .providerBridgeWalkthrough:
             return "Connect a custom model to LanguageModelSession"
+        case .dataContentLab:
+            return "Send custom data attachments and receive data entries"
         case .evaluationsLab:
             return "Design datasets, graders, and tool trajectory checks"
         case .fmCLIPythonPlayground:
@@ -281,6 +287,8 @@ extension ExampleType {
             return "magnifyingglass.circle"
         case .providerBridgeWalkthrough:
             return "link"
+        case .dataContentLab:
+            return "shippingbox"
         case .evaluationsLab:
             return "checkmark.seal"
         case .fmCLIPythonPlayground:

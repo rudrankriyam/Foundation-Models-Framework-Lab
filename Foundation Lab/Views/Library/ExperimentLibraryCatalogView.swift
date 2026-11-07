@@ -199,6 +199,8 @@ private extension ExampleType {
             String(localized: "Ground a session in your app's indexed content")
         case .providerBridgeWalkthrough:
             String(localized: "How a custom LanguageModel executes session requests")
+        case .dataContentLab:
+            String(localized: "Round-trip app-defined binary content through a local demo model")
         case .evaluationsLab:
             String(localized: "Design a test suite before trusting a score")
         case .fmCLIPythonPlayground:
