@@ -22,13 +22,22 @@ struct TVRecipeView: View {
                         Button(dish) {
                             model.generate(dish)
                         }
-                        .disabled(model.isResponding)
                     }
                 }
 
-                if model.isResponding {
-                    Button("Stop", systemImage: "stop.circle", action: model.stop)
+                Button {
+                    if model.isResponding {
+                        model.stop()
+                    } else if let dish = model.dish {
+                        model.generate(dish)
+                    }
+                } label: {
+                    Label(
+                        model.isResponding ? "Stop" : "Run",
+                        systemImage: model.isResponding ? "stop.circle" : "play.fill"
+                    )
                 }
+                .disabled(!model.isResponding && model.dish == nil)
 
                 if let errorMessage = model.errorMessage {
                     Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
@@ -57,7 +66,7 @@ struct TVRecipeView: View {
                 section("Ingredients", items: ingredients)
             }
             if let steps = recipe.steps, !steps.isEmpty {
-                section("Steps", items: steps)
+                section("Preparation", items: steps)
             }
         }
     }

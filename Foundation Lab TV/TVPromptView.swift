@@ -22,7 +22,6 @@ struct TVPromptView: View {
                             model.prompt = preset
                             model.run()
                         }
-                        .disabled(model.isResponding)
                     }
                 }
 
@@ -39,14 +38,20 @@ struct TVPromptView: View {
         }
     }
 
-    @ViewBuilder
     private var actionButton: some View {
-        if model.isResponding {
-            Button("Stop", systemImage: "stop.circle", action: model.stop)
-        } else {
-            Button("Run", systemImage: "play.fill", action: model.run)
-                .disabled(!model.canRun)
+        Button {
+            if model.isResponding {
+                model.stop()
+            } else {
+                model.run()
+            }
+        } label: {
+            Label(
+                model.isResponding ? "Stop" : "Run",
+                systemImage: model.isResponding ? "stop.circle" : "play.fill"
+            )
         }
+        .disabled(!model.isResponding && !model.hasPrompt)
     }
 }
 #endif

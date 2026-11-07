@@ -9,10 +9,21 @@ import SwiftUI
 
 @available(tvOS 27.3, *)
 struct TVLabView: View {
-    private let model = SystemLanguageModel.default
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var availability = SystemLanguageModel.default.availability
 
     var body: some View {
-        switch model.availability {
+        content
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active {
+                    refreshAvailability()
+                }
+            }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch availability {
         case .available:
             TabView {
                 Tab("Prompt", systemImage: "text.bubble") {
@@ -23,8 +34,12 @@ struct TVLabView: View {
                 }
             }
         case .unavailable(let reason):
-            TVModelUnavailableView(reason: reason)
+            TVModelUnavailableView(reason: reason, retry: refreshAvailability)
         }
+    }
+
+    private func refreshAvailability() {
+        availability = SystemLanguageModel.default.availability
     }
 }
 #endif

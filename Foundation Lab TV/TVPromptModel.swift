@@ -22,25 +22,32 @@ final class TVPromptModel {
     private(set) var isResponding = false
     private(set) var errorMessage: String?
     private var task: Task<Void, Never>?
+    private var runCount = 0
 
-    var canRun: Bool {
-        !isResponding && !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    var hasPrompt: Bool {
+        !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     func run() {
-        guard canRun else { return }
         let prompt = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !prompt.isEmpty else { return }
+        task?.cancel()
+        runCount += 1
+        let run = runCount
         response = ""
         errorMessage = nil
         isResponding = true
 
         task = Task {
-            defer { isResponding = false }
+            defer {
+                if run == runCount { isResponding = false }
+            }
             do {
                 let session = LanguageModelSession(
                     instructions: "Answer clearly and keep responses short enough to read on a TV screen."
                 )
                 for try await snapshot in session.streamResponse(to: prompt) {
+                    guard !Task.isCancelled else { break }
                     response = snapshot.content
                 }
             } catch {

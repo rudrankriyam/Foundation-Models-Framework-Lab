@@ -18,18 +18,25 @@ final class TVRecipeModel {
     ]
 
     private(set) var recipe: TVRecipe.PartiallyGenerated?
+    private(set) var dish: String?
     private(set) var isResponding = false
     private(set) var errorMessage: String?
     private var task: Task<Void, Never>?
+    private var runCount = 0
 
     func generate(_ dish: String) {
-        guard !isResponding else { return }
+        task?.cancel()
+        runCount += 1
+        let run = runCount
+        self.dish = dish
         recipe = nil
         errorMessage = nil
         isResponding = true
 
         task = Task {
-            defer { isResponding = false }
+            defer {
+                if run == runCount { isResponding = false }
+            }
             do {
                 let session = LanguageModelSession()
                 let stream = session.streamResponse(
@@ -37,6 +44,7 @@ final class TVRecipeModel {
                     generating: TVRecipe.self
                 )
                 for try await snapshot in stream {
+                    guard !Task.isCancelled else { break }
                     recipe = snapshot.content
                 }
             } catch {
