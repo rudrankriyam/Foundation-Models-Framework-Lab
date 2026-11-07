@@ -10,16 +10,16 @@ struct ChatInputView: View {
     var chatViewModel: ChatViewModel
     @FocusState.Binding var isTextFieldFocused: Bool
     var onSend: (@MainActor (String) async -> Void)?
-    var onVoiceWillSend: (@MainActor () -> Void)?
-    var onVoiceCompleted: (@MainActor (String, String, Date, TimeInterval) -> Void)?
+    var onVoiceWillSend: (@MainActor (String) -> Void)?
+    var onVoiceCompleted: (@MainActor (String, ChatGenerationOutcome, Date) -> Void)?
 
     init(
         messageText: Binding<String>,
         chatViewModel: ChatViewModel,
         isTextFieldFocused: FocusState<Bool>.Binding,
         onSend: (@MainActor (String) async -> Void)? = nil,
-        onVoiceWillSend: (@MainActor () -> Void)? = nil,
-        onVoiceCompleted: (@MainActor (String, String, Date, TimeInterval) -> Void)? = nil
+        onVoiceWillSend: (@MainActor (String) -> Void)? = nil,
+        onVoiceCompleted: (@MainActor (String, ChatGenerationOutcome, Date) -> Void)? = nil
     ) {
         _messageText = messageText
         self.chatViewModel = chatViewModel
@@ -192,14 +192,15 @@ private extension ChatInputView {
 
     @MainActor
     func endVoiceAndSend() async {
-        onVoiceWillSend?()
-        let startedAt = Date.now
-        guard let result = await chatViewModel.stopVoiceModeAndSend() else { return }
-        onVoiceCompleted?(
-            result.prompt,
-            result.response,
-            startedAt,
-            Date.now.timeIntervalSince(startedAt)
+        var startedAt = Date.now
+        await chatViewModel.stopVoiceModeAndSend(
+            willGenerate: { prompt in
+                startedAt = .now
+                onVoiceWillSend?(prompt)
+            },
+            didGenerate: { prompt, outcome in
+                onVoiceCompleted?(prompt, outcome, startedAt)
+            }
         )
     }
 }

@@ -270,18 +270,20 @@ final class PermissionManager: PermissionServiceProtocol {
         var deniedPermissions: [String] = []
 
         if microphonePermissionStatus == .denied {
-            deniedPermissions.append("Microphone")
+            deniedPermissions.append(String(localized: "Microphone"))
         }
 
         if speechPermissionStatus == .denied || speechPermissionStatus == .restricted {
-            deniedPermissions.append("Speech Recognition")
+            deniedPermissions.append(String(localized: "Speech Recognition"))
         }
 
         if deniedPermissions.isEmpty {
-            permissionAlertMessage = "Microphone and Speech Recognition access are required to use Voice."
+            permissionAlertMessage = String(
+                localized: "Microphone and Speech Recognition access are required to use Voice."
+            )
         } else {
-            let permissionsList = deniedPermissions.joined(separator: ", ")
-            permissionAlertMessage = "Please enable \(permissionsList) in Settings to use Voice features."
+            let permissionsList = deniedPermissions.formatted(.list(type: .and))
+            permissionAlertMessage = String(localized: "Please enable \(permissionsList) in Settings to use Voice features.")
         }
         showPermissionAlert = true
     }
