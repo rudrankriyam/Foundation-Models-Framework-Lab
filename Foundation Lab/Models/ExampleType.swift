@@ -24,6 +24,7 @@ enum ExampleType: String, CaseIterable, Identifiable {
     case geminiVideoInput = "gemini_video_input"
     case toolCallingModeLab = "tool_calling_mode_lab"
     case dynamicProfileBuilder = "dynamic_profile_builder"
+    case sessionStateLab = "session_state_lab"
     case reasoningLevelComparison = "reasoning_level_comparison"
     case transcriptExplorer = "transcript_explorer"
     case agentFlowInspector = "agent_flow_inspector"
@@ -36,6 +37,7 @@ enum ExampleType: String, CaseIterable, Identifiable {
     case usagePerformanceTrace = "usage_performance_trace"
     case spotlightRAGExplorer = "spotlight_rag_explorer"
     case providerBridgeWalkthrough = "provider_bridge_walkthrough"
+    case dataContentLab = "data_content_lab"
     case evaluationsLab = "evaluations_lab"
     case fmCLIPythonPlayground = "fm_cli_python_playground"
     case health = "health"
@@ -69,6 +71,7 @@ extension ExampleType {
             track: .workflows,
             examples: [
                 .dynamicProfileBuilder,
+                .sessionStateLab,
                 .reasoningLevelComparison,
                 .transcriptExplorer,
                 .agentFlowInspector,
@@ -84,7 +87,8 @@ extension ExampleType {
             examples: [
                 .geminiVideoInput,
                 .spotlightRAGExplorer,
-                .providerBridgeWalkthrough
+                .providerBridgeWalkthrough,
+                .dataContentLab
             ]
         )
     ]
@@ -123,6 +127,8 @@ extension ExampleType {
             return "Tool Calling Modes"
         case .dynamicProfileBuilder:
             return "Session Profile Builder"
+        case .sessionStateLab:
+            return "Session State"
         case .reasoningLevelComparison:
             return "Reasoning Levels"
         case .transcriptExplorer:
@@ -147,6 +153,8 @@ extension ExampleType {
             return "Spotlight RAG"
         case .providerBridgeWalkthrough:
             return "Custom Model Provider"
+        case .dataContentLab:
+            return "Data Content"
         case .evaluationsLab:
             return "Evaluations"
         case .fmCLIPythonPlayground:
@@ -190,6 +198,8 @@ extension ExampleType {
             return "Compare allowed, required, and disallowed tool calling"
         case .dynamicProfileBuilder:
             return "Run one session across state-driven profiles"
+        case .sessionStateLab:
+            return "Share session-owned state with child profiles"
         case .reasoningLevelComparison:
             return "Compare one prompt across three reasoning levels"
         case .transcriptExplorer:
@@ -214,6 +224,8 @@ extension ExampleType {
             return "Ground responses in content indexed by your app"
         case .providerBridgeWalkthrough:
             return "Connect a custom model to LanguageModelSession"
+        case .dataContentLab:
+            return "Send custom data attachments and receive data entries"
         case .evaluationsLab:
             return "Design datasets, graders, and tool trajectory checks"
         case .fmCLIPythonPlayground:
@@ -257,6 +269,8 @@ extension ExampleType {
             return "hammer"
         case .dynamicProfileBuilder:
             return "slider.horizontal.below.rectangle"
+        case .sessionStateLab:
+            return "memorychip"
         case .reasoningLevelComparison:
             return "brain.head.profile"
         case .transcriptExplorer:
@@ -281,6 +295,8 @@ extension ExampleType {
             return "magnifyingglass.circle"
         case .providerBridgeWalkthrough:
             return "link"
+        case .dataContentLab:
+            return "shippingbox"
         case .evaluationsLab:
             return "checkmark.seal"
         case .fmCLIPythonPlayground:

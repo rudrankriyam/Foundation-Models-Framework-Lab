@@ -42,6 +42,8 @@ extension ExampleType {
             ToolCallingModeLabView()
         case .dynamicProfileBuilder:
             DynamicProfileBuilderView()
+        case .sessionStateLab:
+            SessionStateLabView()
         case .reasoningLevelComparison:
             ReasoningLevelComparisonView()
         case .transcriptExplorer:
@@ -66,6 +68,8 @@ extension ExampleType {
             SpotlightRAGExplorerView()
         case .providerBridgeWalkthrough:
             ProviderBridgeWalkthroughView()
+        case .dataContentLab:
+            DataContentLabView()
         case .evaluationsLab:
 #if os(macOS)
             EvaluationsLabView()

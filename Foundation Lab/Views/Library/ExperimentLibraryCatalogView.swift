@@ -181,6 +181,8 @@ private extension ExampleType {
             String(localized: "Capture actual calls and outputs, then compare an authored expectation")
         case .dynamicProfileBuilder:
             String(localized: "Run one session across state-driven profiles")
+        case .sessionStateLab:
+            String(localized: "Pass @SessionState to child profiles and watch it change per turn")
         case .reasoningLevelComparison:
             String(localized: "Run one prompt across light, moderate, and deep reasoning budgets")
         case .transcriptExplorer:
@@ -199,6 +201,8 @@ private extension ExampleType {
             String(localized: "Ground a session in your app's indexed content")
         case .providerBridgeWalkthrough:
             String(localized: "How a custom LanguageModel executes session requests")
+        case .dataContentLab:
+            String(localized: "Round-trip app-defined binary content through a local demo model")
         case .evaluationsLab:
             String(localized: "Design a test suite before trusting a score")
         case .fmCLIPythonPlayground:
