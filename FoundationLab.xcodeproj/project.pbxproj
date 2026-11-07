@@ -554,6 +554,7 @@
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSAppleMusicUsageDescription = "This app needs access to Apple Music to search and play music from your library.";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Foundation Lab needs full access to read, create, and update calendar events from your requests.";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "This app needs access to your calendar to create and manage events.";
 				INFOPLIST_KEY_NSContactsUsageDescription = "This app needs access to your contacts to search and display contact information.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "This app needs access to your health data to read steps, heart rate, workouts, and other health metrics.";
@@ -640,6 +641,7 @@
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSAppleMusicUsageDescription = "This app needs access to Apple Music to search and play music from your library.";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Foundation Lab needs full access to read, create, and update calendar events from your requests.";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "This app needs access to your calendar to create and manage events.";
 				INFOPLIST_KEY_NSContactsUsageDescription = "This app needs access to your contacts to search and display contact information.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "This app needs access to your health data to read steps, heart rate, workouts, and other health metrics.";
