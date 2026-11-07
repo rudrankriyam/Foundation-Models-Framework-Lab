@@ -68,6 +68,8 @@ extension ExampleType {
             SpotlightRAGExplorerView()
         case .providerBridgeWalkthrough:
             ProviderBridgeWalkthroughView()
+        case .dataContentLab:
+            DataContentLabView()
         case .evaluationsLab:
 #if os(macOS)
             EvaluationsLabView()
