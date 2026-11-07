@@ -50,6 +50,7 @@ struct TVRecipeView: View {
             }
             .padding(60)
         }
+        .onDisappear(perform: model.stop)
     }
 
     private func recipeContent(_ recipe: TVRecipe.PartiallyGenerated) -> some View {

@@ -57,6 +57,9 @@ final class TVRecipeModel {
 
     func stop() {
         task?.cancel()
+        task = nil
+        runCount += 1
+        isResponding = false
     }
 }
 #endif

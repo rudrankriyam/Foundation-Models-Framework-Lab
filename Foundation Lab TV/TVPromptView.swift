@@ -36,6 +36,7 @@ struct TVPromptView: View {
             }
             .padding(60)
         }
+        .onDisappear(perform: model.stop)
     }
 
     private var actionButton: some View {
