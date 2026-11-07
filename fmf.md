@@ -1,11 +1,52 @@
 ## Xcode 27 Foundation Models API Delta
 
-Source: Xcode 27.2 beta (build `27B5019j`) FoundationModels Swift interface
-(`10315` lines), synthesized from the iOS SDK public module surface
+Source: Xcode 27.3 beta (build `27C5020n`) FoundationModels Swift interface
+(`10145` lines), synthesized from the iOS SDK public module surface
 with an iOS 26.0 deployment target.
 
 This section records the new public API shape found in Xcode 27. The raw Swift
-interface reference below is refreshed from the Xcode 27.2 beta SDK.
+interface reference below is refreshed from the Xcode 27.3 beta SDK.
+
+### Xcode 27.3 beta changes
+
+Compared with Xcode 27.2 beta (build `27B5019j`), the last interface recorded
+here:
+
+- Foundation Models comes to tvOS. Declarations previously marked
+  `@available(tvOS, unavailable)` now carry `tvOS 27.0`, matching their watchOS
+  floor. `SystemLanguageModel`, its availability, use cases, guardrails, and
+  executor, plus `LanguageModelSession.init(model:dynamicInstructions:history:)`
+  and `GenerationError.Refusal.explanationStream`, are available from
+  `tvOS 27.3`. `PrivateCloudComputeLanguageModel`, `SystemLanguageModel.Adapter`,
+  image attachments, and the deprecated `source`-based and `sampling:` initializers
+  stay unavailable on tvOS.
+- `LanguageModelSession.SessionState` and `LanguageModelSession.SessionBinding`
+  are new property wrappers. `@SessionState` owns mutable state for a session's
+  lifetime; its projected value is a `SessionBinding` that child dynamic
+  instructions or profiles receive through an initializer. Both are marked
+  available from 27.0 and are exposed as `SessionState` and `SessionBinding`
+  typealiases on `DynamicInstructions` and `DynamicProfile`. `SessionState` is
+  `Sendable` when `Value` is.
+- `DynamicInstructionsGroup` (also `DynamicInstructions.Group`) groups dynamic
+  instructions so one `onActivate` or `onDeactivate` applies to the whole group.
+  `DynamicInstructions` gains `onActivate(perform:)` and
+  `onDeactivate(perform:)`, matching the existing `DynamicProfile` modifiers.
+  These are marked 27.2, but they weren't in the 27.2 beta interface.
+- `@Guide` gains `key:` overloads, `Guide(key:description:)`,
+  `Guide(key:description:_:)` with `GenerationGuide` values, and a `Regex`
+  form. These name the generated property's key independently of the Swift
+  property name, and they're available from iOS and macOS 26.0.
+- `DynamicProfile.onDataEntry(perform:)` runs an action when the profile
+  produces a `Transcript.DataEntry`, with a parameterless overload. It needs
+  27.3, and data entries only appear for models whose
+  `supportsDataEntryType(_:)` accepts the content type.
+- The normalized synthesized interface shrinks from 10,315 to 10,145 lines,
+  mostly from dropping the per-declaration `tvOS, unavailable` attributes. The
+  framework's text-based stub moves from version `2.1.7` to `2.2.6`.
+
+Verified on November 7, 2026, against the installed Xcode 27.3 beta iOS SDK.
+The [Xcode 27.3 beta release notes](https://developer.apple.com/documentation/xcode-release-notes/xcode-27_3-release-notes)
+have no Foundation Models entry.
 
 ### Xcode 27.2 beta changes
 
@@ -409,7 +450,7 @@ Xcode 27 ships additional Foundation Models bridge frameworks:
 
 ### Platform availability
 
-Many Foundation Models prompting, schema, transcript, tool, feedback, and dynamic generation types now include `watchOS 27.0` availability. `tvOS` remains unavailable in the public API annotations even though Xcode 27 ships tvOS framework stubs.
+Many Foundation Models prompting, schema, transcript, tool, feedback, and dynamic generation types include `watchOS 27.0` availability. As of Xcode 27.3, they also include `tvOS 27.0`, and `SystemLanguageModel` is available from `tvOS 27.3`. Private Cloud Compute, adapters, and image attachments remain unavailable on tvOS.
 
 ## Raw Swift Interface Reference
 
@@ -422,8 +463,7 @@ import Observation
 import UniformTypeIdentifiers
 
 /// A dynamic instructions type that's type-erased.
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 public struct AnyDynamicInstructions : DynamicInstructions {
 
     /// Creates an instance from the dynamic instructions you specify.
@@ -433,13 +473,11 @@ public struct AnyDynamicInstructions : DynamicInstructions {
     public init(_ dynamicInstructions: any DynamicInstructions)
 
     /// The type of dynamic instructions that represent these instructions.
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
     public typealias Body = Never
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension AnyDynamicInstructions {
 
     /// Creates an instance from the dynamic instructions you specify.
@@ -476,13 +514,11 @@ extension AnyDynamicInstructions {
 ///         .label("image-1")
 /// }
 /// ```
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 public struct Attachment<Content> {
 }
 
-@available(iOS 27.2, macOS 27.2, watchOS 27.2, *)
-@available(tvOS, unavailable)
+@available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
 extension Attachment where Content : DataAttachmentRepresentable {
 
     /// Creates an attachment from data content.
@@ -491,8 +527,7 @@ extension Attachment where Content : DataAttachmentRepresentable {
     public init(_ content: Content)
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Attachment {
 
     /// Assigns a label to an attachment.
@@ -508,8 +543,7 @@ extension Attachment {
     public func label(_ label: String) -> Attachment<Content>
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Attachment : PromptRepresentable, InstructionsRepresentable {
 
     /// An instance that represents a prompt.
@@ -519,8 +553,7 @@ extension Attachment : PromptRepresentable, InstructionsRepresentable {
     public var instructionsRepresentation: Instructions { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Attachment where Content == ImageAttachmentContent {
 
     /// Creates an attachment from a Core Graphics image.
@@ -557,8 +590,7 @@ extension Attachment where Content == ImageAttachmentContent {
 }
 
 /// A dynamic instructions type that conditionally selects between two conditions.
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 public struct ConditionalDynamicInstructions<TrueContent, FalseContent> : DynamicInstructions where TrueContent : DynamicInstructions, FalseContent : DynamicInstructions {
 
     /// Creates a dynamic instructions instance that selects between two conditions.
@@ -568,13 +600,11 @@ public struct ConditionalDynamicInstructions<TrueContent, FalseContent> : Dynami
     public init(_ branch: ConditionalDynamicInstructions<TrueContent, FalseContent>.Branch)
 
     /// The type of dynamic instructions that represent these instructions.
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
     public typealias Body = Never
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension ConditionalDynamicInstructions {
 
     /// An enumeration that represents a condition to evaluate.
@@ -588,8 +618,7 @@ extension ConditionalDynamicInstructions {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension ConditionalDynamicInstructions {
 
     /// The content of the dynamic instructions.
@@ -600,8 +629,13 @@ extension ConditionalDynamicInstructions {
 ///
 /// Create a ``ContextOptions`` structure when you need to bias the model's behavior by
 /// adjusting how the model receives your prompt.
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+///
+/// When a property is `nil`, the framework defers to the underlying
+/// ``LanguageModel`` to select an appropriate value. Each model, and each version
+/// of a given model, may pick a different default, and the framework doesn't
+/// guarantee a specific value or that the value remains stable across OS or model
+/// updates.
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 public struct ContextOptions : Sendable, Equatable {
 
     /// A Boolean value that indicates whether to inject the schema into the prompt to bias the model.
@@ -631,8 +665,7 @@ public struct ContextOptions : Sendable, Equatable {
     public static func == (a: ContextOptions, b: ContextOptions) -> Bool
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension ContextOptions {
 
     /// A level of reasoning the model is allowed to output before producing a response.
@@ -663,8 +696,7 @@ extension ContextOptions {
 }
 
 /// A type that can be initialized from generated content.
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 public protocol ConvertibleFromGeneratedContent : SendableMetatype {
 
     /// Creates an instance from content generated by a model.
@@ -694,8 +726,7 @@ public protocol ConvertibleFromGeneratedContent : SendableMetatype {
 }
 
 /// A type that can be converted to generated content.
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 public protocol ConvertibleToGeneratedContent : InstructionsRepresentable, PromptRepresentable {
 
     /// This instance represented as generated content.
@@ -724,8 +755,7 @@ public protocol ConvertibleToGeneratedContent : InstructionsRepresentable, Promp
     var generatedContent: GeneratedContent { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension ConvertibleToGeneratedContent {
 
     /// An instance that represents the instructions.
@@ -747,8 +777,7 @@ extension ConvertibleToGeneratedContent {
 /// ``LanguageModel/supportsDataAttachmentType(_:)``; the framework validates
 /// each data attachment's ``Transcript/DataAttachment/contentType`` against
 /// that predicate before dispatching to the executor.
-@available(iOS 27.2, macOS 27.2, watchOS 27.2, *)
-@available(tvOS, unavailable)
+@available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
 public protocol DataAttachmentRepresentable : Sendable {
 
     /// Rehydrates this content from its transcript representation.
@@ -776,8 +805,7 @@ public protocol DataAttachmentRepresentable : Sendable {
 /// doesn't control, and could be malformed. The asymmetry mirrors
 /// Foundation's `String.init(data:encoding:)` (failable) and `String.utf8`
 /// (total).
-@available(iOS 27.2, macOS 27.2, watchOS 27.2, *)
-@available(tvOS, unavailable)
+@available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
 public protocol DataEntryRepresentable : Sendable {
 
     /// Rehydrate this type from its transcript representation.
@@ -792,13 +820,11 @@ public protocol DataEntryRepresentable : Sendable {
 /// An individual schema may reference other schemas by
 /// name, and references are resolved when converting a set of
 /// dynamic schemas into a ``GenerationSchema``.
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 public struct DynamicGenerationSchema : Sendable {
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension DynamicGenerationSchema {
 
     /// A schema that represents a null value.
@@ -808,7 +834,7 @@ extension DynamicGenerationSchema {
     ///
     ///     let person = DynamicGenerationSchema(
     ///         name: "Person",
-    ///         properties: []
+    ///         properties: [
     ///             DynamicGenerationSchema.Property(
     ///               name: "fullName",
     ///               schema: DynamicGenerationSchema(type: String.self)
@@ -823,8 +849,7 @@ extension DynamicGenerationSchema {
     ///
     ///     let schema = try GenerationSchema(root: nullablePerson, dependencies: [])
     ///
-    @available(iOS 26.4, macOS 26.4, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.4, macOS 26.4, watchOS 27.0, tvOS 27.0, *)
     public static var null: DynamicGenerationSchema { get }
 
     /// Creates an object schema.
@@ -842,8 +867,7 @@ extension DynamicGenerationSchema {
     ///   - description: A natural language description of this schema.
     ///   - representNilExplicitlyInGeneratedContent: If `true`, the model represents `nil` explicitly.
     ///   - properties: The properties associated with this schema.
-    @available(iOS 26.4, macOS 26.4, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.4, macOS 26.4, watchOS 27.0, tvOS 27.0, *)
     public init(name: String, description: String? = nil, representNilExplicitlyInGeneratedContent explicitNil: Bool, properties: [DynamicGenerationSchema.Property])
 
     /// Creates an any-of schema.
@@ -884,22 +908,19 @@ extension DynamicGenerationSchema {
     public init(referenceTo name: String)
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension DynamicGenerationSchema {
 
     /// A property that belongs to a dynamic generation schema.
     ///
     /// Fields are named members of object types. Fields are strongly
     /// typed and have optional descriptions.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     public struct Property : Sendable {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension DynamicGenerationSchema.Property {
 
     /// Creates a property referencing a dynamic schema.
@@ -941,8 +962,7 @@ extension DynamicGenerationSchema.Property {
 ///     }
 /// }
 /// ```
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 public protocol DynamicInstructions {
 
     /// The type of dynamic instructions that represent these instructions.
@@ -952,30 +972,86 @@ public protocol DynamicInstructions {
     @DynamicInstructionsBuilder var body: Self.Body { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
+extension DynamicInstructions {
+
+    public typealias Group = DynamicInstructionsGroup
+}
+
+@available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
+extension DynamicInstructions {
+
+    /// Runs an action when these dynamic instructions become active.
+    ///
+    /// Dynamic instructions become active when they are first included in the session's resolved
+    /// configuration, or when they are re-included after being absent. Use this to set up state
+    /// tied to the instructions' lifecycle:
+    ///
+    /// ```swift
+    /// struct MyInstructions: DynamicInstructions {
+    ///   var body: some DynamicInstructions {
+    ///     Instructions("You are a helpful assistant.")
+    ///       .onActivate {
+    ///         activeInstructions = "assistant"
+    ///       }
+    ///   }
+    /// }
+    /// ```
+    public func onActivate(perform action: sending @escaping @isolated(any) () async -> Void) -> some DynamicInstructions
+
+
+    /// Runs an action when these dynamic instructions become inactive.
+    ///
+    /// Dynamic instructions become inactive when they are no longer included in the session's
+    /// resolved configuration after previously being active. Use this to tear down state tied to
+    /// the instructions' lifecycle:
+    ///
+    /// ```swift
+    /// struct MyInstructions: DynamicInstructions {
+    ///   var body: some DynamicInstructions {
+    ///     Instructions("You are a helpful assistant.")
+    ///       .onDeactivate {
+    ///         activeInstructions = nil
+    ///       }
+    ///   }
+    /// }
+    /// ```
+    public func onDeactivate(perform action: sending @escaping @isolated(any) () async -> Void) -> some DynamicInstructions
+
+}
+
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension DynamicInstructions {
 
     /// A shorthand for producing content for each element of a collection.
     public typealias ForEach = DynamicInstructionsForEach
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension DynamicInstructions {
 
     /// A property wrapper that provides access to a session property within dynamic instructions.
     public typealias SessionProperty = LanguageModelSession.SessionProperty
 }
 
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
+extension DynamicInstructions {
+
+    public typealias SessionState = LanguageModelSession.SessionState
+}
+
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
+extension DynamicInstructions {
+
+    public typealias SessionBinding = LanguageModelSession.SessionBinding
+}
+
 /// A result builder that combines tools and other content into dynamic instructions.
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 @resultBuilder public struct DynamicInstructionsBuilder {
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension DynamicInstructionsBuilder {
 
     /// Creates a builder with a tool expression.
@@ -1014,26 +1090,22 @@ extension DynamicInstructionsBuilder {
 ///
 /// Don't use this type directly. Instead, use ``DynamicInstructions/ForEach`` within the
 /// `body` of your ``DynamicInstructions``.
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 public struct DynamicInstructionsForEach<Data, ID, Content> : DynamicInstructions where Data : RandomAccessCollection, ID : Hashable, Content : DynamicInstructions {
 
     /// The type of dynamic instructions that represent these instructions.
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
     public typealias Body = Never
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension DynamicInstructionsForEach {
 
     /// The content of the dynamic instructions.
     public var body: Never { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension DynamicInstructionsForEach {
 
     /// Creates dynamic instructions that produce content for each element of a collection.
@@ -1048,8 +1120,7 @@ extension DynamicInstructionsForEach {
     public init(_ data: Data, id: KeyPath<Data.Element, ID>, @DynamicInstructionsBuilder content: @escaping (Data.Element) -> Content)
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension DynamicInstructionsForEach where ID == Data.Element.ID, Data.Element : Identifiable {
 
     /// Creates dynamic instructions that produce content for each element of an identifiable
@@ -1064,22 +1135,52 @@ extension DynamicInstructionsForEach where ID == Data.Element.ID, Data.Element :
     public init(_ data: Data, @DynamicInstructionsBuilder content: @escaping (Data.Element) -> Content)
 }
 
+/// A dynamic instructions type that groups its content so a single modifier can apply to the
+/// whole group.
+///
+/// Use `Group` to gather several instructions and tools under one lifecycle, for example to run a
+/// single `onActivate` / `onDeactivate` for the entire group:
+///
+/// ```swift
+/// struct MyInstructions: DynamicInstructions {
+///   var body: some DynamicInstructions {
+///     Group {
+///       Instructions("You are a helpful assistant.")
+///       SomeTool()
+///     }
+///     .onActivate {
+///       activeInstructions = "assistant"
+///     }
+///   }
+/// }
+/// ```
+@available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
+public struct DynamicInstructionsGroup<Content> : DynamicInstructions where Content : DynamicInstructions {
+
+    /// Creates a group from the content you specify.
+    ///
+    /// - Parameters:
+    ///   - content: The dynamic instructions to group.
+    public init(@DynamicInstructionsBuilder content: () -> Content)
+
+    /// The type of dynamic instructions that represent these instructions.
+    @available(macOS 27.2, iOS 27.2, tvOS 27.2, watchOS 27.2, *)
+    public typealias Body = Never
+}
+
 /// An empty dynamic instructions type.
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 public struct EmptyDynamicInstructions : DynamicInstructions, Sendable {
 
     /// Creates an empty instance.
     public init()
 
     /// The type of dynamic instructions that represent these instructions.
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
     public typealias Body = Never
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension EmptyDynamicInstructions {
 
     /// The content of the dynamic instructions.
@@ -1125,8 +1226,7 @@ extension EmptyDynamicInstructions {
 /// all it needs to generate your type, eliminating the need of ``Guide(description:)``.
 /// For more information on managing the context window size, see
 /// <doc:managing-the-context-window>.
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 public protocol Generable : ConvertibleFromGeneratedContent, ConvertibleToGeneratedContent {
 
     /// A representation of partially generated content
@@ -1136,49 +1236,41 @@ public protocol Generable : ConvertibleFromGeneratedContent, ConvertibleToGenera
     static var generationSchema: GenerationSchema { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Generable {
 
     /// Returns the partially generated representation of the current instance.
     public func asPartiallyGenerated() -> Self.PartiallyGenerated
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Generable {
 
     /// A representation of partially generated content, which defaults to the conforming type itself.
     public typealias PartiallyGenerated = Self
 
     /// An instance that represents a prompt.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public var promptRepresentation: Prompt { get }
 
     /// An instance that represents the instructions.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public var instructionsRepresentation: Instructions { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 @attached(extension, conformances: Generable, names: named(init(_:)), named(generatedContent)) @attached(member, names: arbitrary) public macro Generable(description: String? = nil) = #externalMacro(module: "FoundationModelsMacros", type: "GenerableMacro")
 
-@available(iOS 26.4, macOS 26.4, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.4, macOS 26.4, watchOS 27.0, tvOS 27.0, *)
 @attached(extension, conformances: Generable, names: named(init(_:)), named(generatedContent)) @attached(member, names: arbitrary) public macro Generable(description: String? = nil, representNilExplicitlyInGeneratedContent: Bool) = #externalMacro(module: "FoundationModelsMacros", type: "GenerableMacro")
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 @attached(extension, conformances: Generable, names: named(init(_:)), named(generatedContent)) @attached(member, names: arbitrary) public macro Generable(name: String, description: String? = nil, representNilExplicitlyInGeneratedContent: Bool = false) = #externalMacro(module: "FoundationModelsMacros", type: "GenerableMacro")
 
 /// A type that represents structured, generated content.
 ///
 /// Generated content may contain a single value, an array, or key-value pairs with unique keys.
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 public struct GeneratedContent : Sendable, Equatable, Generable {
 
     /// A unique id that is stable for the duration of a generated response.
@@ -1202,8 +1294,7 @@ public struct GeneratedContent : Sendable, Equatable, Generable {
     public static func == (a: GeneratedContent, b: GeneratedContent) -> Bool
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GeneratedContent {
 
     /// An instance of the generation schema.
@@ -1314,16 +1405,14 @@ extension GeneratedContent {
     public var isComplete: Bool { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GeneratedContent : CustomDebugStringConvertible {
 
     /// A string representation for the debug description.
     public var debugDescription: String { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GeneratedContent {
 
     /// A representation of the different types of content that can be stored in generated content.
@@ -1369,8 +1458,7 @@ extension GeneratedContent {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GeneratedContent {
 
     /// Creates content with the specified kind and generation identifier.
@@ -1389,13 +1477,11 @@ extension GeneratedContent {
     public var kind: GeneratedContent.Kind { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GeneratedContent {
 
     /// A failure that occurs when a string cannot be parsed into generated content.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public struct ParsingError : LocalizedError, Sendable {
 
         /// The raw content that could not be parsed.
@@ -1416,13 +1502,11 @@ extension GeneratedContent {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension GeneratedContent.ParsingError : CustomDebugStringConvertible {
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension GeneratedContent.ParsingError {
 
     /// A localized message describing what error occurred.
@@ -1430,13 +1514,11 @@ extension GeneratedContent.ParsingError {
 }
 
 /// Guides that control how values are generated.
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 public struct GenerationGuide<Value> {
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationGuide where Value == String {
 
     /// Enforces that the string be precisely the given value.
@@ -1449,8 +1531,7 @@ extension GenerationGuide where Value == String {
     public static func pattern<Output>(_ regex: Regex<Output>) -> GenerationGuide<String>
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationGuide where Value == Int {
 
     /// Enforces a minimum value.
@@ -1508,8 +1589,7 @@ extension GenerationGuide where Value == Int {
     public static func range(_ range: ClosedRange<Int>) -> GenerationGuide<Int>
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationGuide where Value == Float {
 
     /// Enforces a minimum value.
@@ -1569,8 +1649,7 @@ extension GenerationGuide where Value == Float {
     public static func range(_ range: ClosedRange<Float>) -> GenerationGuide<Float>
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationGuide where Value == Decimal {
 
     /// Enforces a minimum value.
@@ -1630,8 +1709,7 @@ extension GenerationGuide where Value == Decimal {
     public static func range(_ range: ClosedRange<Decimal>) -> GenerationGuide<Decimal>
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationGuide where Value == Double {
 
     /// Enforces a minimum value.
@@ -1691,8 +1769,7 @@ extension GenerationGuide where Value == Double {
     public static func range(_ range: ClosedRange<Double>) -> GenerationGuide<Double>
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationGuide {
 
     /// Enforces a minimum number of elements in the array.
@@ -1792,8 +1869,7 @@ extension GenerationGuide {
     public static func element<Element>(_ guide: GenerationGuide<Element>) -> GenerationGuide<[Element]> where Value == [Element]
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationGuide where Value == [Never] {
 
     /// Enforces a minimum number of elements in the array.
@@ -1846,17 +1922,19 @@ extension GenerationGuide where Value == [Never] {
 ///         // to be both present and stable.
 ///         List {
 ///             ForEach(people) { person in
-///                 Text("Name: \(person.name)")
+///                 Text("Name: \(person.name ?? "")")
 ///             }
 ///         }
 ///         .task {
 ///             do {
-///                 for try! await people in stream.streamResponse(
+///                 let stream = session.streamResponse(
 ///                     to: "Who were the first 3 presidents of the US?",
 ///                     generating: [Person].self
-///                 ) {
+///                 )
+///                 for try await snapshot in stream {
 ///                     withAnimation {
-///                         self.people = people
+///                         self.people = snapshot.content
+///                     }
 ///                 }
 ///             } catch {
 ///                 // Handle the thrown error.
@@ -1865,8 +1943,7 @@ extension GenerationGuide where Value == [Never] {
 ///     }
 /// }
 /// ```
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 public struct GenerationID : Sendable, Hashable {
 
     /// Returns a Boolean value indicating whether two values are equal.
@@ -1907,8 +1984,7 @@ public struct GenerationID : Sendable, Hashable {
     public var hashValue: Int { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationID {
 
     /// Creates a unique identifier.
@@ -1932,8 +2008,13 @@ extension GenerationID {
 /// ``LanguageModelError/contextSizeExceeded(_:)``. For more
 /// information on managing the context window size, see
 /// <doc:managing-the-context-window>.
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+///
+/// When a property is `nil`, the framework defers to the underlying
+/// ``LanguageModel`` to select an appropriate value. Each model, and each version
+/// of a given model, may pick a different default, and the framework doesn't
+/// guarantee a specific value or that the value remains stable across OS or model
+/// updates.
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 public struct GenerationOptions : Sendable, Equatable {
 
     /// A sampling strategy for how the model picks tokens when generating a
@@ -1948,7 +2029,7 @@ public struct GenerationOptions : Sendable, Equatable {
     ///
     /// - Note: Leaving the `sampling` to `nil` lets the system choose a
     ///   reasonable default on your behalf.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     @available(*, deprecated, renamed: "samplingMode")
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -1969,8 +2050,7 @@ public struct GenerationOptions : Sendable, Equatable {
     ///
     /// - Note: Leaving `temperature` nil lets the system choose a reasonable
     ///   default on your behalf.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     public var temperature: Double?
 
     /// The maximum number of tokens the model is allowed to produce in its response.
@@ -1982,13 +2062,11 @@ public struct GenerationOptions : Sendable, Equatable {
     /// If no value is specified, then the model is allowed to produce the longest answer
     /// its context size supports. If the response exceeds that limit without terminating,
     /// the framework throws an error.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     public var maximumResponseTokens: Int?
 
     /// The tool calling requirements.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public var toolCallingMode: GenerationOptions.ToolCallingMode?
 
     /// Creates generation options that control token sampling behavior.
@@ -1999,9 +2077,8 @@ public struct GenerationOptions : Sendable, Equatable {
     ///     favors its most likely responses. A higher value increases variety.
     ///   - maximumResponseTokens: The maximum number of tokens the model produces
     ///     before being halted. Must be positive.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     @backDeployed(before: iOS 27.0, macOS 27.0, visionOS 27.0)
-    @available(tvOS, unavailable)
     public init(samplingMode: GenerationOptions.SamplingMode? = nil, temperature: Double? = nil, maximumResponseTokens: Int? = nil)
 
     /// Returns a Boolean value indicating whether two values are equal.
@@ -2015,8 +2092,7 @@ public struct GenerationOptions : Sendable, Equatable {
     public static func == (a: GenerationOptions, b: GenerationOptions) -> Bool
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationOptions {
 
     /// A sampling strategy for how the model picks tokens when generating a
@@ -2031,14 +2107,12 @@ extension GenerationOptions {
     ///
     /// - Note: Leaving the `sampling` to `nil` lets the system choose a
     ///   reasonable default on your behalf.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     @backDeployed(before: iOS 27.0, macOS 27.0, visionOS 27.0)
-    @available(tvOS, unavailable)
     public var samplingMode: GenerationOptions.SamplingMode?
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationOptions {
 
     /// Creates generation options that control token sampling behavior.
@@ -2050,13 +2124,11 @@ extension GenerationOptions {
     ///   - maximumResponseTokens: The maximum number of tokens the model is allowed
     ///     to produce before being artificially halted. Must be positive.
     ///   - toolCallingMode: The requirements defining how the model should call tools.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public init(samplingMode: GenerationOptions.SamplingMode? = nil, temperature: Double? = nil, maximumResponseTokens: Int? = nil, toolCallingMode: GenerationOptions.ToolCallingMode?)
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationOptions {
 
     /// A type that defines how values are sampled from a probability distribution.
@@ -2065,13 +2137,11 @@ extension GenerationOptions {
     /// loop the model produces a probability distribution for all the tokens in its
     /// vocabulary. The sampling mode controls how a token is selected from that
     /// distribution.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     public struct SamplingMode : Sendable, Equatable {
 
         /// The strategy this sampling mode uses to choose the next token.
-        @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
         public let kind: GenerationOptions.SamplingMode.Kind
 
         /// Returns a Boolean value indicating whether two values are equal.
@@ -2086,8 +2156,7 @@ extension GenerationOptions {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationOptions {
 
     /// A value that describes how the model uses tools.
@@ -2132,8 +2201,7 @@ extension GenerationOptions {
     /// ``Tool/call(arguments:)`` method or by changing the mode dynamically using a
     /// ``LanguageModelSession/DynamicProfile``; otherwise, the model continues to call
     /// the tool.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public struct ToolCallingMode : Sendable, Equatable {
 
         /// The tool-calling behavior this mode represents.
@@ -2146,7 +2214,9 @@ extension GenerationOptions {
 
         /// The model must call one or multiple tools.
         ///
-        /// Please note that ``LanguageModelSession`` will loop until a `Tool` throws an error or this value is changed dynamically via `LanguageModelSession.Manifest`.
+        /// ``LanguageModelSession`` keeps calling tools until a tool throws an error from its
+        /// ``Tool/call(arguments:)`` method or you change the mode dynamically using a
+        /// ``LanguageModelSession/DynamicProfile``.
         public static let required: GenerationOptions.ToolCallingMode
 
         /// The model may not call any tool.
@@ -2164,8 +2234,7 @@ extension GenerationOptions {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationOptions {
 
     /// Creates generation options that control token sampling behavior.
@@ -2176,15 +2245,14 @@ extension GenerationOptions {
     ///     responses. Must be between `0` and `1`, inclusive.
     ///   - maximumResponseTokens: The maximum number of tokens the model is allowed
     ///     to produce before being artificially halted. Must be positive.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     @available(*, deprecated, renamed: "init(samplingMode:temperature:maximumResponseTokens:)")
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     public init(sampling: GenerationOptions.SamplingMode?, temperature: Double? = nil, maximumResponseTokens: Int? = nil)
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationOptions.SamplingMode {
 
     /// A sampling mode that always chooses the most likely token.
@@ -2194,8 +2262,7 @@ extension GenerationOptions.SamplingMode {
     /// are statistically likely, but may lack the human-like quality
     /// and variety of other sampling strategies.
     /// - SeeAlso: Sampling modes ``random(top:seed:)`` and ``random(probabilityThreshold:seed:)``
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     public static var greedy: GenerationOptions.SamplingMode { get }
 
     /// A sampling mode that considers a fixed number of high-probability tokens.
@@ -2215,8 +2282,7 @@ extension GenerationOptions.SamplingMode {
     ///   - k: The number of tokens to consider.
     ///   - seed: An optional random seed used to make output more deterministic.
     /// - SeeAlso: Sampling modes ``greedy`` and ``random(probabilityThreshold:seed:)``
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     public static func random(top k: Int, seed: UInt64? = nil) -> GenerationOptions.SamplingMode
 
     /// A mode that considers a variable number of high-probability tokens
@@ -2241,18 +2307,15 @@ extension GenerationOptions.SamplingMode {
     ///       increases sampling pool size.
     ///     - seed: An optional random seed used to make output more deterministic.
     /// - SeeAlso: Sampling modes ``greedy`` and ``random(top:seed:)``
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     public static func random(probabilityThreshold: Double, seed: UInt64? = nil) -> GenerationOptions.SamplingMode
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationOptions.SamplingMode {
 
     /// A representation of the different strategies for choosing the next token.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public enum Kind : Sendable, Equatable {
 
         /// A strategy that always chooses the most likely token.
@@ -2277,8 +2340,7 @@ extension GenerationOptions.SamplingMode {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationOptions.ToolCallingMode {
 
     /// A representation of the different ways a model can use tools.
@@ -2332,8 +2394,7 @@ extension GenerationOptions.ToolCallingMode {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationOptions.ToolCallingMode.Kind : Hashable {
 }
 
@@ -2342,37 +2403,31 @@ extension GenerationOptions.ToolCallingMode.Kind : Hashable {
 ///
 /// Generation schemas guide the output of a language model to deterministically
 /// ensure the output is in the desired format.
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 public struct GenerationSchema : Sendable {
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationSchema {
 
     /// The name of this generation schema.
     ///
     /// Typically this will the name of a Swift type, but it can be an arbitrary
     /// string for schemas created dynamically.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public var name: String { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationSchema {
 
     /// A named, strongly typed member of an object type with an optional description and guides.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     public struct Property : Sendable {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationSchema {
 
     /// Creates a schema by providing an array of properties.
@@ -2384,8 +2439,7 @@ extension GenerationSchema {
     public init(type: any Generable.Type, description: String? = nil, properties: [GenerationSchema.Property])
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationSchema : Codable {
 
     /// Creates a new instance by decoding from the given decoder.
@@ -2408,8 +2462,7 @@ extension GenerationSchema : Codable {
     public func encode(to encoder: any Encoder) throws
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationSchema : CustomDebugStringConvertible {
 
     /// A textual representation of this instance, suitable for debugging.
@@ -2438,8 +2491,7 @@ extension GenerationSchema : CustomDebugStringConvertible {
     public var debugDescription: String { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationSchema {
 
     /// Creates a schema by providing an array of properties.
@@ -2449,8 +2501,7 @@ extension GenerationSchema {
     ///   - description: A natural language description of this schema.
     ///   - representNilExplicitlyInGeneratedContent: If `true`, the model represents `nil` explicitly.
     ///   - properties: An array of properties.
-    @available(iOS 26.4, macOS 26.4, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.4, macOS 26.4, watchOS 27.0, tvOS 27.0, *)
     public init(type: any Generable.Type, description: String? = nil, representNilExplicitlyInGeneratedContent explicitNil: Bool, properties: [GenerationSchema.Property])
 
     /// Creates a schema for a string enumeration.
@@ -2479,13 +2530,11 @@ extension GenerationSchema {
     public init(root: DynamicGenerationSchema, dependencies: [DynamicGenerationSchema]) throws
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationSchema {
 
     /// An error that occurs when there is a problem creating a generation schema.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     @nonexhaustive public enum SchemaError : Error, LocalizedError {
 
         /// An error that represents an attempt to construct a schema from dynamic schemas
@@ -2506,8 +2555,7 @@ extension GenerationSchema {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationSchema.Property {
 
     /// Creates a property that contains a generable type.
@@ -2553,13 +2601,11 @@ extension GenerationSchema.Property {
     public init<RegexOutput>(name: String, description: String? = nil, type: String?.Type, guides: [Regex<RegexOutput>] = [])
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationSchema.SchemaError {
 
     /// The context in which the error occurred.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     public struct Context : Sendable {
 
         /// A string representation of the debug description.
@@ -2569,8 +2615,7 @@ extension GenerationSchema.SchemaError {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationSchema.SchemaError {
 
     /// A string representation of the error description.
@@ -2580,8 +2625,7 @@ extension GenerationSchema.SchemaError {
     public var recoverySuggestion: String? { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension GenerationSchema.SchemaError.Context {
 
     /// Creates a context with the debug description you provide.
@@ -2590,17 +2634,23 @@ extension GenerationSchema.SchemaError.Context {
     public init(debugDescription: String)
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 @attached(peer) public macro Guide<T>(description: String? = nil, _ guides: GenerationGuide<T>...) = #externalMacro(module: "FoundationModelsMacros", type: "GuideMacro") where T : Generable
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 @attached(peer) public macro Guide<RegexOutput>(description: String? = nil, _ guides: Regex<RegexOutput>) = #externalMacro(module: "FoundationModelsMacros", type: "GuideMacro")
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 @attached(peer) public macro Guide(description: String) = #externalMacro(module: "FoundationModelsMacros", type: "GuideMacro")
+
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
+@attached(peer) public macro Guide<T>(key: String, description: String? = nil, _ guides: GenerationGuide<T>...) = #externalMacro(module: "FoundationModelsMacros", type: "GuideMacro") where T : Generable
+
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
+@attached(peer) public macro Guide<RegexOutput>(key: String, description: String? = nil, _ guides: Regex<RegexOutput>) = #externalMacro(module: "FoundationModelsMacros", type: "GuideMacro")
+
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
+@attached(peer) public macro Guide(key: String, description: String? = nil) = #externalMacro(module: "FoundationModelsMacros", type: "GuideMacro")
 
 /// A type that holds image data.
 ///
@@ -2610,8 +2660,7 @@ extension GenerationSchema.SchemaError.Context {
 /// <doc://com.apple.documentation/documentation/coreimage/ciimage>,
 /// <doc://com.apple.documentation/documentation/corevideo/cvpixelbuffer-q2e>,
 /// or image file URL.
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 public struct ImageAttachmentContent : Sendable, Equatable {
 
     /// Returns a Boolean value indicating whether two values are equal.
@@ -2649,8 +2698,7 @@ public struct ImageAttachmentContent : Sendable, Equatable {
 ///   }
 /// }
 /// ```
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 public struct ImageReference : Sendable, Equatable {
 
     /// The label of the referenced image.
@@ -2667,8 +2715,7 @@ public struct ImageReference : Sendable, Equatable {
     public static func == (a: ImageReference, b: ImageReference) -> Bool
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension ImageReference {
 
     /// Returns the referenced image from the transcript.
@@ -2682,8 +2729,7 @@ extension ImageReference {
     public func resolved(in transcript: some Sequence<Transcript.Entry>) -> Transcript.ImageAttachment?
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension ImageReference {
 
     /// A representation of an image reference that the model has only partially generated.
@@ -2732,14 +2778,12 @@ extension ImageReference {
 
         /// A type representing the stable identity of the entity associated with
         /// an instance.
-        @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
         public typealias ID = GenerationID
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension ImageReference : nonisolated Generable {
 
     /// An instance of the generation schema.
@@ -2833,42 +2877,36 @@ extension ImageReference : nonisolated Generable {
 /// policy, or extra content.
 ///
 /// For more information on managing the context window size, see <doc:managing-the-context-window>.
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 public struct Instructions : Sendable {
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Instructions : DynamicInstructions {
 
     /// The content of the dynamic instructions.
     public var body: some DynamicInstructions { get }
 
     /// The type of dynamic instructions that represent these instructions.
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
     public typealias Body = some DynamicInstructions
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Instructions {
 
     /// Creates an instance with the content you specify.
     public init(_ content: some InstructionsRepresentable)
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Instructions : InstructionsRepresentable {
 
     /// An instance that represents the instructions.
     public var instructionsRepresentation: Instructions { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Instructions {
 
     /// Creates instructions from the content of a builder closure.
@@ -2878,13 +2916,11 @@ extension Instructions {
 }
 
 /// A type that represents an instructions builder.
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 @resultBuilder public struct InstructionsBuilder {
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension InstructionsBuilder {
 
     /// Creates a builder with a block.
@@ -2913,8 +2949,7 @@ extension InstructionsBuilder {
 }
 
 /// A type that can be represented as instructions.
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 public protocol InstructionsRepresentable {
 
     /// An instance that represents the instructions.
@@ -2941,8 +2976,7 @@ public protocol InstructionsRepresentable {
 /// // Use the same API surface to prompt the model.
 /// let response = try await session.respond(to: "Tell me a joke!")
 /// ```
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 public protocol LanguageModel : Sendable {
 
     associatedtype Executor : LanguageModelExecutor where Self == Self.Executor.Model
@@ -2958,17 +2992,14 @@ public protocol LanguageModel : Sendable {
     /// A configuration for an executor capable of running this model.
     var executorConfiguration: Self.Executor.Configuration { get }
 
-    @available(iOS 27.2, macOS 27.2, watchOS 27.2, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
     nonisolated(nonsending) func supportsDataAttachmentType(_ type: UTType) async throws -> Bool
 
-    @available(iOS 27.2, macOS 27.2, watchOS 27.2, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
     nonisolated(nonsending) func supportsDataEntryType(_ type: UTType) async throws -> Bool
 }
 
-@available(iOS 27.2, macOS 27.2, watchOS 27.2, *)
-@available(tvOS, unavailable)
+@available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
 extension LanguageModel {
 
     nonisolated(nonsending) public func supportsDataAttachmentType(_ type: UTType) async throws -> Bool
@@ -3007,24 +3038,21 @@ extension LanguageModel {
 /// When a model doesn't support a capability, the framework can refuse to dispatch
 /// incompatible requests to the executor and throw an
 /// ``LanguageModelError/unsupportedCapability(_:)`` error instead.
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 public struct LanguageModelCapabilities : Sendable {
 
     /// Creates a capabilities instance from a list of supported capabilities.
     public init(_ capabilities: [LanguageModelCapabilities.Capability])
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelCapabilities {
 
     /// Returns a Boolean value that indicates whether the specified capability is supported.
     public func contains(_ capability: LanguageModelCapabilities.Capability) -> Bool
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelCapabilities {
 
     /// A capability that a given language model may or may not have.
@@ -3069,8 +3097,7 @@ extension LanguageModelCapabilities {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelCapabilities.Capability {
 
     /// The capability to accept image inputs in prompts.
@@ -3087,8 +3114,25 @@ extension LanguageModelCapabilities.Capability {
 }
 
 /// A failure that may occur while generating a response when using any language model.
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+///
+/// - Note: If your app deploys to iOS 26, macOS 26, or visionOS 26, where this error is
+///   unavailable, use an availability check and fall back to
+///   ``LanguageModelSession/GenerationError``:
+///
+///   ```swift
+///   do {
+///       let response = try await session.respond(to: prompt)
+///   } catch {
+///       if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *),
+///           let error = error as? LanguageModelError
+///       {
+///           // Handle the error.
+///       } else if let error = error as? LanguageModelSession.GenerationError {
+///           // Handle the deprecated error.
+///       }
+///   }
+///   ```
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 @nonexhaustive public enum LanguageModelError : LocalizedError {
 
     /// The session's transcript exceeded the model's context size.
@@ -3141,8 +3185,7 @@ extension LanguageModelCapabilities.Capability {
     case timeout(LanguageModelError.Timeout)
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError {
 
     /// Information about exceeding the context window size.
@@ -3162,8 +3205,7 @@ extension LanguageModelError {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError {
 
     /// Information about a rate limiting event.
@@ -3180,8 +3222,7 @@ extension LanguageModelError {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError {
 
     /// Information about a guardrail violation.
@@ -3195,8 +3236,7 @@ extension LanguageModelError {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError {
 
     /// Information about a model refusal.
@@ -3212,8 +3252,7 @@ extension LanguageModelError {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError {
 
     /// Information about an unsupported capability.
@@ -3230,8 +3269,7 @@ extension LanguageModelError {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError {
 
     /// Information about unsupported prompt content.
@@ -3248,8 +3286,7 @@ extension LanguageModelError {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError {
 
     /// Information about an unsupported generation guide.
@@ -3266,8 +3303,7 @@ extension LanguageModelError {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError {
 
     /// Information about an unsupported language or locale.
@@ -3284,8 +3320,7 @@ extension LanguageModelError {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError {
 
     /// Information about a timeout.
@@ -3299,8 +3334,7 @@ extension LanguageModelError {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError : CustomDebugStringConvertible {
 
     /// A textual representation of this instance, suitable for debugging.
@@ -3329,16 +3363,14 @@ extension LanguageModelError : CustomDebugStringConvertible {
     public var debugDescription: String { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError {
 
     /// A localized message describing what error occurred.
     public var errorDescription: String? { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError.ContextSizeExceeded {
 
     /// Creates information describing a transcript that exceeded the model's context size.
@@ -3351,8 +3383,7 @@ extension LanguageModelError.ContextSizeExceeded {
     public init(contextSize: Int, tokenCount: Int, debugDescription: String, metadata: [String : any Sendable] = [:])
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError.RateLimited {
 
     /// Creates information describing a rate-limiting event.
@@ -3364,8 +3395,7 @@ extension LanguageModelError.RateLimited {
     public init(resetDate: Date?, debugDescription: String, metadata: [String : any Sendable] = [:])
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError.GuardrailViolation {
 
     /// Creates information describing a guardrail violation.
@@ -3376,8 +3406,7 @@ extension LanguageModelError.GuardrailViolation {
     public init(debugDescription: String, metadata: [String : any Sendable] = [:])
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError.Refusal {
 
     /// Creates information describing a model refusal.
@@ -3389,8 +3418,7 @@ extension LanguageModelError.Refusal {
     public init(explanation: String, debugDescription: String, metadata: [String : any Sendable] = [:])
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError.Refusal {
 
     /// The model's explanation for why it refused to generate a response.
@@ -3400,8 +3428,7 @@ extension LanguageModelError.Refusal {
     public var explanationStream: LanguageModelSession.ResponseStream<String> { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError.UnsupportedCapability {
 
     /// Creates information describing a capability the model doesn't support.
@@ -3413,8 +3440,7 @@ extension LanguageModelError.UnsupportedCapability {
     public init(capability: LanguageModelCapabilities.Capability, debugDescription: String, metadata: [String : any Sendable] = [:])
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError.UnsupportedTranscriptContent {
 
     /// Creates information describing transcript content the model can't process.
@@ -3426,8 +3452,7 @@ extension LanguageModelError.UnsupportedTranscriptContent {
     public init(unsupportedContent: [Transcript.Entry], debugDescription: String, metadata: [String : any Sendable] = [:])
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError.UnsupportedGenerationGuide {
 
     /// Creates information describing a generation guide the model doesn't support.
@@ -3439,8 +3464,7 @@ extension LanguageModelError.UnsupportedGenerationGuide {
     public init(schemaName: String?, debugDescription: String, metadata: [String : any Sendable] = [:])
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError.UnsupportedLanguageOrLocale {
 
     /// Creates information describing a language or locale the model doesn't support.
@@ -3452,8 +3476,7 @@ extension LanguageModelError.UnsupportedLanguageOrLocale {
     public init(languageCode: Locale.LanguageCode, debugDescription: String, metadata: [String : any Sendable] = [:])
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelError.Timeout {
 
     /// Creates information describing a request timeout.
@@ -3503,8 +3526,7 @@ extension LanguageModelError.Timeout {
 /// Use ``LanguageModelExecutorGenerationChannel`` to stream incremental events back
 /// as generation progresses. You don't return a value or close the channel explicitly.
 /// The channel finishes when the method returns or when an error is thrown.
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 public protocol LanguageModelExecutor : Sendable {
 
     associatedtype Configuration : Hashable, Sendable
@@ -3535,8 +3557,7 @@ public protocol LanguageModelExecutor : Sendable {
     nonisolated(nonsending) func respond(to request: LanguageModelExecutorGenerationRequest, model: Self.Model, streamingInto channel: LanguageModelExecutorGenerationChannel) async throws
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelExecutor {
 
     /// Loads assets into memory or pre-fills caches ahead of a request.
@@ -3586,34 +3607,29 @@ extension LanguageModelExecutor {
 ///     ))
 /// }
 /// ```
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 public struct LanguageModelExecutorGenerationChannel : AsyncSequence, Sendable {
 
     /// Creates a generation channel instance.
     public init()
 
     /// The type of element produced by this asynchronous sequence.
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
     public typealias Element = LanguageModelExecutorGenerationChannel.Event
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelExecutorGenerationChannel {
 
     /// An asynchronous iterator that produces the generation events sent on a channel.
     public struct AsyncIterator : AsyncIteratorProtocol {
 
-        @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
         public typealias Element = LanguageModelExecutorGenerationChannel.Event
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelExecutorGenerationChannel {
 
     /// Creates the asynchronous iterator that produces elements of this
@@ -3630,8 +3646,7 @@ extension LanguageModelExecutorGenerationChannel {
     nonisolated(nonsending) public func send(_ event: LanguageModelExecutorGenerationChannel.Event) async
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelExecutorGenerationChannel {
 
     /// A generation event sent on a generation channel.
@@ -3643,8 +3658,7 @@ extension LanguageModelExecutorGenerationChannel {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelExecutorGenerationChannel {
 
     /// Snapshot of an entry's metadata dictionary.
@@ -3771,8 +3785,7 @@ extension LanguageModelExecutorGenerationChannel {
     /// action is ``Action/update(contentType:content:metadata:)``, which upserts a
     /// data entry with the given fields — replacing the existing entry that
     /// matches `entryID`, or appending a new one.
-    @available(iOS 27.2, macOS 27.2, watchOS 27.2, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
     public struct DataEntry : Sendable {
 
         /// The identifier for the entry.
@@ -3783,8 +3796,7 @@ extension LanguageModelExecutorGenerationChannel {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelExecutorGenerationChannel.AsyncIterator {
 
     /// Asynchronously advances to the next element and returns it, or ends the
@@ -3795,8 +3807,7 @@ extension LanguageModelExecutorGenerationChannel.AsyncIterator {
     public mutating func next(isolation actor: isolated (any Actor)?) async throws -> LanguageModelExecutorGenerationChannel.Event?
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelExecutorGenerationChannel.Event {
 
     /// A response event addressed to a transcript entry.
@@ -3837,13 +3848,11 @@ extension LanguageModelExecutorGenerationChannel.Event {
     ///   - entryID: The identifier for the data entry to upsert. Pass `nil` to
     ///     have the framework assign a fresh id.
     ///   - action: The operation to perform on the data entry.
-    @available(iOS 27.2, macOS 27.2, watchOS 27.2, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
     public static func data(entryID: String? = nil, action: LanguageModelExecutorGenerationChannel.DataEntry.Action) -> LanguageModelExecutorGenerationChannel.Event
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelExecutorGenerationChannel.Usage {
 
     /// Token counts for the transcript submitted to the model.
@@ -3883,8 +3892,7 @@ extension LanguageModelExecutorGenerationChannel.Usage {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelExecutorGenerationChannel.Response {
 
     /// An operation that can be performed on a response entry.
@@ -3895,8 +3903,7 @@ extension LanguageModelExecutorGenerationChannel.Response {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelExecutorGenerationChannel.Reasoning {
 
     /// An operation that can be performed on a reasoning entry.
@@ -3907,8 +3914,7 @@ extension LanguageModelExecutorGenerationChannel.Reasoning {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelExecutorGenerationChannel.ToolCalls {
 
     /// An operation that can be performed on a tool-calls entry.
@@ -3935,8 +3941,7 @@ extension LanguageModelExecutorGenerationChannel.ToolCalls {
     }
 }
 
-@available(iOS 27.2, macOS 27.2, watchOS 27.2, *)
-@available(tvOS, unavailable)
+@available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
 extension LanguageModelExecutorGenerationChannel.DataEntry {
 
     /// An operation that can be performed on a data entry.
@@ -3947,8 +3952,7 @@ extension LanguageModelExecutorGenerationChannel.DataEntry {
     }
 }
 
-@available(iOS 27.2, macOS 27.2, watchOS 27.2, *)
-@available(tvOS, unavailable)
+@available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
 extension LanguageModelExecutorGenerationChannel.DataEntry {
 
     /// The content carried by an ``Action/update(contentType:content:metadata:)`` action.
@@ -3965,8 +3969,7 @@ extension LanguageModelExecutorGenerationChannel.DataEntry {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelExecutorGenerationChannel.Response.Action {
 
     /// Creates an action that appends text to the entry's current text segment.
@@ -4011,8 +4014,7 @@ extension LanguageModelExecutorGenerationChannel.Response.Action {
     public static func updateUsage(input: LanguageModelExecutorGenerationChannel.Usage.Input, output: LanguageModelExecutorGenerationChannel.Usage.Output, metadata: [String : any ConvertibleToGeneratedContent] = [:]) -> LanguageModelExecutorGenerationChannel.Response.Action
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelExecutorGenerationChannel.Reasoning.Action {
 
     /// Creates an action that appends text to the entry's current text segment.
@@ -4054,8 +4056,7 @@ extension LanguageModelExecutorGenerationChannel.Reasoning.Action {
     public static func updateUsage(input: LanguageModelExecutorGenerationChannel.Usage.Input, output: LanguageModelExecutorGenerationChannel.Usage.Output, metadata: [String : any ConvertibleToGeneratedContent] = [:]) -> LanguageModelExecutorGenerationChannel.Reasoning.Action
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelExecutorGenerationChannel.ToolCalls.Action {
 
     /// Creates an action that routes an event to a specific tool call within the entry.
@@ -4085,8 +4086,7 @@ extension LanguageModelExecutorGenerationChannel.ToolCalls.Action {
     public static func updateUsage(input: LanguageModelExecutorGenerationChannel.Usage.Input, output: LanguageModelExecutorGenerationChannel.Usage.Output, metadata: [String : any ConvertibleToGeneratedContent] = [:]) -> LanguageModelExecutorGenerationChannel.ToolCalls.Action
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelExecutorGenerationChannel.ToolCalls.ToolCall {
 
     /// An operation that can be performed on a tool call.
@@ -4110,15 +4110,13 @@ extension LanguageModelExecutorGenerationChannel.ToolCalls.ToolCall {
     }
 }
 
-@available(iOS 27.2, macOS 27.2, watchOS 27.2, *)
-@available(tvOS, unavailable)
+@available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
 extension LanguageModelExecutorGenerationChannel.DataEntry.Action {
 
     public static func update(contentType: UTType, content: Data, metadata: GeneratedContent = GeneratedContent(properties: [:])) -> LanguageModelExecutorGenerationChannel.DataEntry.Action
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelExecutorGenerationChannel.ToolCalls.ToolCall.Action {
 
     /// Creates an action that appends argument text to the tool call.
@@ -4140,8 +4138,7 @@ extension LanguageModelExecutorGenerationChannel.ToolCalls.ToolCall.Action {
 /// ``LanguageModelExecutor/respond(to:model:streamingInto:)`` handles. It bundles
 /// everything the executor needs to translate a framework call into a backend request,
 /// like the conversation so far, what tools are available, and so on.
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 public struct LanguageModelExecutorGenerationRequest : Sendable {
 
     /// A request id for logging and tracing purposes.
@@ -4166,8 +4163,7 @@ public struct LanguageModelExecutorGenerationRequest : Sendable {
     public var metadata: [String : GeneratedContent]
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelExecutorGenerationRequest {
 
     /// Creates a generation request.
@@ -4185,7 +4181,7 @@ extension LanguageModelExecutorGenerationRequest {
 
 /// Feedback appropriate for logging or attaching to Feedback Assistant.
 ///
-/// `LanguageModelFeedback` is a namespace with  structures for describing feedback in a consistent way.
+/// `LanguageModelFeedback` is a namespace with structures for describing feedback in a consistent way.
 /// ``LanguageModelFeedback/Sentiment`` describes the sentiment of the feedback, while
 /// ``LanguageModelFeedback/Issue`` offers a standard template for issues.
 ///
@@ -4209,18 +4205,15 @@ extension LanguageModelExecutorGenerationRequest {
 ///     desiredOutput: Transcript.Entry.response(...)
 /// )
 /// ```
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 public struct LanguageModelFeedback {
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelFeedback {
 
     /// A sentiment regarding the model's response.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     public enum Sentiment : Sendable, CaseIterable {
 
         /// A positive sentiment.
@@ -4243,8 +4236,7 @@ extension LanguageModelFeedback {
         public static func == (a: LanguageModelFeedback.Sentiment, b: LanguageModelFeedback.Sentiment) -> Bool
 
         /// A type that can represent a collection of all values of this type.
-        @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
         public typealias AllCases = [LanguageModelFeedback.Sentiment]
 
         /// A collection of all values of this type.
@@ -4279,13 +4271,11 @@ extension LanguageModelFeedback {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelFeedback {
 
     /// An issue with the model's response.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     public struct Issue : Sendable {
 
         /// Creates an issue.
@@ -4297,23 +4287,19 @@ extension LanguageModelFeedback {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelFeedback.Sentiment : Equatable {
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelFeedback.Sentiment : Hashable {
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelFeedback.Issue {
 
     /// Categories for model response issues.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     public enum Category : Sendable, CaseIterable {
 
         /// An unhelpful response.
@@ -4342,7 +4328,7 @@ extension LanguageModelFeedback.Issue {
         /// A response that exhibits bias or perpetuates a stereotype.
         ///
         /// A stereotype or bias issue might be where you ask the model to summarize an article written by
-        /// a male, and the model doesn't state the authors sex, but the model uses male pronouns.
+        /// a male, and the model doesn't state the author's sex, but the model uses male pronouns.
         case stereotypeOrBias
 
         /// A response with suggestive or sexual material.
@@ -4374,8 +4360,7 @@ extension LanguageModelFeedback.Issue {
         public static func == (a: LanguageModelFeedback.Issue.Category, b: LanguageModelFeedback.Issue.Category) -> Bool
 
         /// A type that can represent a collection of all values of this type.
-        @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
         public typealias AllCases = [LanguageModelFeedback.Issue.Category]
 
         /// A collection of all values of this type.
@@ -4410,13 +4395,11 @@ extension LanguageModelFeedback.Issue {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelFeedback.Issue.Category : Equatable {
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelFeedback.Issue.Category : Hashable {
 }
 
@@ -4446,8 +4429,7 @@ extension LanguageModelFeedback.Issue.Category : Hashable {
 /// opportunities to improve performance, like with ``prewarm(promptPrefix:)``. For more
 /// information on Instruments, see
 /// <doc:analyzing-the-runtime-performance-of-your-foundation-models-app>.
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 final public class LanguageModelSession {
 
     /// A full history of interactions, including user inputs and model responses.
@@ -4456,7 +4438,7 @@ final public class LanguageModelSession {
     @objc deinit
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 extension LanguageModelSession {
@@ -4464,10 +4446,12 @@ extension LanguageModelSession {
     /// An error that may occur while generating a response.
     ///
     /// @DeprecationSummary {
-    ///   Use ``LanguageModelError``, ``SystemLanguageModel/Error``, or
-    ///   ``LanguageModelSession/Error`` instead. Apps built with Xcode 26 will continue
-    ///   to catch this error until you rebuild with Xcode 27. You must update to Xcode
-    ///   27 to catch the new error types before submitting your app.
+    ///   When your app is built against Xcode 27 or later, the framework throws ``LanguageModelError``,
+    ///   ``SystemLanguageModel/Error``, or ``LanguageModelSession/Error`` instead. If
+    ///   your app deploys to iOS 26, macOS 26 or visionOS 26, match the new types inside an availability
+    ///   check and fall back to ``LanguageModelSession/GenerationError`` for earlier system versions.
+    ///
+    ///   Apps built against Xcode 26 continues to receive ``LanguageModelSession/GenerationError``.
     /// }
     @available(iOS, introduced: 26.0, deprecated: 27.0)
     @available(macOS, introduced: 26.0, deprecated: 27.0)
@@ -4599,9 +4583,8 @@ extension LanguageModelSession {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, *)
+@available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension LanguageModelSession {
 
     /// Creates a session in a blank slate state with string-based instructions.
@@ -4610,6 +4593,7 @@ extension LanguageModelSession {
     ///   - model: The language model to use for this session.
     ///   - tools: Tools to make available to the model for this session.
     ///   - instructions: Instructions that control the model's behavior.
+    @available(watchOS, unavailable)
     public convenience init(model: SystemLanguageModel = .default, tools: [any Tool] = [], instructions: String? = nil)
 
     /// Creates a session in a blank slate state with an instructions builder.
@@ -4618,6 +4602,7 @@ extension LanguageModelSession {
     ///   - model: The language model to use for this session.
     ///   - tools: Tools to make available to the model for this session.
     ///   - instructions: Instructions that control the model's behavior.
+    @available(watchOS, unavailable)
     public convenience init(model: SystemLanguageModel = .default, tools: [any Tool] = [], @InstructionsBuilder instructions: () throws -> Instructions) rethrows
 
     /// Creates a session in a blank slate state with instructions.
@@ -4626,6 +4611,7 @@ extension LanguageModelSession {
     ///   - model: The language model to use for this session.
     ///   - tools: Tools to make available to the model for this session.
     ///   - instructions: Instructions that control the model's behavior.
+    @available(watchOS, unavailable)
     public convenience init(model: SystemLanguageModel = .default, tools: [any Tool] = [], instructions: Instructions? = nil)
 
     /// Creates a session by rehydrating from a transcript.
@@ -4634,11 +4620,11 @@ extension LanguageModelSession {
     ///   - model: The language model to use for this session.
     ///   - transcript: A transcript to resume from.
     ///   - tools: Tools to make available to the model for this session.
+    @available(watchOS, unavailable)
     public convenience init(model: SystemLanguageModel = .default, tools: [any Tool] = [], transcript: Transcript)
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession {
 
     /// A type-erased dynamic profile.
@@ -4651,14 +4637,12 @@ extension LanguageModelSession {
         public init(_ dynamicProfile: any LanguageModelSession.DynamicProfile)
 
         /// The type of dynamic profile that represent this profile.
-        @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
         public typealias Body = Never
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession {
 
     /// A dynamic profile that contains one or more profiles.
@@ -4705,8 +4689,7 @@ extension LanguageModelSession {
     ///     Array(history.suffix(20))
     /// }
     /// ```
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public protocol DynamicProfile {
 
         /// The type of dynamic profile that represent this profile.
@@ -4747,46 +4730,38 @@ extension LanguageModelSession {
     ///     // Runs after the tool to log any necessary activity.
     /// }
     /// ```
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public struct Profile : LanguageModelSession.DynamicProfile {
 
         /// The type of dynamic profile that represent this profile.
-        @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
         public typealias Body = Never
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession {
 
     /// A dynamic profile that resolves to one of two profiles, depending on a condition.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public struct ConditionalDynamicProfile<TrueContent, FalseContent> : LanguageModelSession.DynamicProfile where TrueContent : LanguageModelSession.DynamicProfile, FalseContent : LanguageModelSession.DynamicProfile {
 
         /// The type of dynamic profile that represent this profile.
-        @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
         public typealias Body = Never
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession {
 
     /// A type that represents a dynamic profile builder.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     @resultBuilder public struct DynamicProfileBuilder {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession {
 
     /// Creates a session with a profile.
@@ -4797,13 +4772,11 @@ extension LanguageModelSession {
     public convenience init(profile: sending some LanguageModelSession.DynamicProfile, history: some Collection<Transcript.Entry> = [])
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession {
 
     /// A protocol for creating reusable wrappers around dynamic profile content.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public protocol DynamicProfileModifier {
 
         /// The type of dynamic profile modifier that represents this modifier.
@@ -4817,30 +4790,25 @@ extension LanguageModelSession {
     }
 
     /// A type that represents the dynamic profile a modifier applies to.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public struct DynamicProfileModifierContent<Modifier> : LanguageModelSession.DynamicProfile where Modifier : LanguageModelSession.DynamicProfileModifier {
 
         /// The type of dynamic profile that represent this profile.
-        @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
         public typealias Body = Never
     }
 
     /// A dynamic profile with a modifier applied to it.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public struct ModifiedDynamicProfile<Content, Modifier> : LanguageModelSession.DynamicProfile where Content : LanguageModelSession.DynamicProfile, Modifier : LanguageModelSession.DynamicProfileModifier {
 
         /// The type of dynamic profile that represent this profile.
-        @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
         public typealias Body = Never
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession {
 
     /// A property wrapper that provides access to properties from within profiles, dynamic
@@ -4870,8 +4838,86 @@ extension LanguageModelSession {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
+extension LanguageModelSession {
+
+    /// A property wrapper type that stores session state.
+    ///
+    /// Use `@SessionState` to store mutable state that persists across
+    /// a session's lifetime.
+    ///
+    /// You can use `@SessionState` as a property wrapper:
+    /// ```swift
+    /// @SessionState var counter: Int = 0
+    /// ```
+    @propertyWrapper public struct SessionState<Value> {
+
+        /// The underlying value.
+        public var wrappedValue: Value { get nonmutating set }
+
+        /// A binding to this state for passing to child components.
+        public var projectedValue: LanguageModelSession.SessionBinding<Value> { get }
+
+        /// Creates a session state with a closure providing the initial value.
+        @abi(LanguageModelSession.SessionState<Value>.init(initialValue value: @autoclosure @escaping () -> Value))
+        public init(wrappedValue value: @autoclosure @escaping () -> Value)
+    }
+}
+
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
+extension LanguageModelSession {
+
+    /// A property wrapper type that provides a binding to session state from a parent scope.
+    ///
+    /// Use `@SessionBinding` when a child component needs to access state
+    /// that is owned by a parent. The binding must be provided via an initializer.
+    ///
+    /// Unlike `@SessionState` which owns and initializes its value, `@SessionBinding`
+    /// receives its value from an external source (typically via `$parentState`).
+    ///
+    /// You can use `@SessionBinding` as a property wrapper:
+    /// ```swift
+    /// @SessionBinding var value: Int
+    /// ```
+    ///
+    /// Or as a type directly:
+    /// ```swift
+    /// var value: SessionBinding<Int>
+    /// ```
+    ///
+    /// ```swift
+    /// // Parent component owns the state
+    /// struct BudgetWorkflow: DynamicInstructions {
+    ///     @SessionState var budget = 100
+    ///
+    ///     var body: some DynamicInstructions {
+    ///       IncrementBudget(value: $budget)
+    ///     }
+    /// }
+    ///
+    /// // Child component receives binding
+    /// struct IncrementBudget: Tool {
+    ///     @SessionBinding var value: Int
+    ///
+    ///     init(value: SessionBinding<Int>) {
+    ///         self._value = value
+    ///     }
+    ///
+    ///     func call(arguments: Args) -> String {
+    ///         value += arguments.amount
+    ///         return "Budget is now \(value)"
+    ///     }
+    /// }
+    /// ```
+    @propertyWrapper public struct SessionBinding<Value> {
+
+        public var wrappedValue: Value { get nonmutating set }
+
+        public var projectedValue: LanguageModelSession.SessionBinding<Value> { get }
+    }
+}
+
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession {
 
     /// Creates a session with dynamic instructions.
@@ -4879,21 +4925,18 @@ extension LanguageModelSession {
     /// - Parameters:
     ///   - dynamicInstructions: The instructions to use for this session.
     ///   - history: Transcript entries without the initial instructions, since that's defined by the profile.
+    @available(iOS 27.0, macOS 27.0, tvOS 27.3, *)
     public convenience init(model: some LanguageModel = SystemLanguageModel.default, dynamicInstructions: sending some DynamicInstructions, history: some Collection<Transcript.Entry> = [])
 
     /// The values of the session's managed properties.
     final public var properties: SessionPropertyValues { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession {
 
     /// An error that occurs while a language model is calling a tool.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     public struct ToolCallError : Error, LocalizedError {
 
         /// The tool that produced the error.
@@ -4911,18 +4954,15 @@ extension LanguageModelSession {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession : nonisolated Observable {
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession {
 
     /// The session's policy for managing the transcript when errors occur.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     final public var transcriptErrorHandlingPolicy: TranscriptErrorHandlingPolicy?
 
     /// A Boolean value that indicates whether a response is being generated.
@@ -4955,13 +4995,11 @@ extension LanguageModelSession {
     /// The total accumulated usage across all responses generated by this session.
     ///
     /// This value increases monotonically over the lifetime of the session.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     final public var usage: LanguageModelSession.Usage { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession {
 
     /// Creates a session with the model, tools, and instructions you provide.
@@ -4971,8 +5009,7 @@ extension LanguageModelSession {
     ///   - tools: The tools the model can call while responding.
     ///   - instructions: A builder closure that produces the instructions guiding the
     ///     model's behavior for the session.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public convenience init<Failure>(model: some LanguageModel, tools: [any Tool] = [], @InstructionsBuilder instructions: () throws(Failure) -> Instructions) throws(Failure) where Failure : Error
 
     /// Creates a session that resumes from an existing transcript.
@@ -4981,8 +5018,7 @@ extension LanguageModelSession {
     ///   - model: The language model the session uses to generate responses.
     ///   - tools: The tools the model can call while responding.
     ///   - transcript: The transcript of a conversation to continue.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public convenience init(model: some LanguageModel, tools: [any Tool] = [], transcript: Transcript)
 
     /// Creates a session with the model, tools, and instructions you provide.
@@ -4991,8 +5027,7 @@ extension LanguageModelSession {
     ///   - model: The language model the session uses to generate responses.
     ///   - tools: The tools the model can call while responding.
     ///   - instructions: The instructions that guide the model's behavior for the session.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public convenience init(model: some LanguageModel, tools: [any Tool] = [], instructions: Instructions? = nil)
 
     /// Creates a session with the model, tools, and instructions you provide.
@@ -5001,13 +5036,11 @@ extension LanguageModelSession {
     ///   - model: The language model the session uses to generate responses.
     ///   - tools: The tools the model can call while responding.
     ///   - instructions: The instructions that guide the model's behavior for the session.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public convenience init(model: some LanguageModel, tools: [any Tool] = [], instructions: String? = nil)
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession {
 
     /// Loads the resources required for this session into memory ahead of a request.
@@ -5028,13 +5061,11 @@ extension LanguageModelSession {
     final public func prewarm(promptPrefix: Prompt? = nil)
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession {
 
     /// A structure that stores the output of a response call.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     public struct Response<Content> where Content : Generable {
 
         /// The response content.
@@ -5049,19 +5080,16 @@ extension LanguageModelSession {
         public let transcriptEntries: ArraySlice<Transcript.Entry>
 
         /// Information about how many tokens were used by this response.
-        @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
         public let usage: LanguageModelSession.Usage
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession {
 
     /// Information about how many tokens were used by a response.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public struct Usage : Sendable {
 
         /// The input token counts from the transcript.
@@ -5083,18 +5111,33 @@ extension LanguageModelSession {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession : @unchecked Sendable {
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession {
 
     /// A failure caused by incorrect use of a language model session.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    ///
+    /// - Note: If your app deploys to iOS 26, macOS 26, or visionOS 26, where this error is
+    ///   unavailable, use an availability check and fall back to
+    ///   ``LanguageModelSession/GenerationError``:
+    ///
+    ///   ```swift
+    ///   do {
+    ///       let response = try await session.respond(to: prompt)
+    ///   } catch {
+    ///       if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *),
+    ///           let error = error as? LanguageModelSession.Error
+    ///       {
+    ///           // Handle the error.
+    ///       } else if case .concurrentRequests = error as? LanguageModelSession.GenerationError {
+    ///           // Handle the deprecated error.
+    ///       }
+    ///   }
+    ///   ```
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public enum Error : LocalizedError {
 
         /// The session received multiple concurrent requests.
@@ -5147,8 +5190,7 @@ extension LanguageModelSession {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession {
 
     /// Produces a response stream to a prompt.
@@ -5256,7 +5298,7 @@ extension LanguageModelSession {
     ///   - type: A type to produce as the response.
     ///   - includeSchemaInPrompt: If `true`, injects the schema into the prompt to bias the model.
     ///   - options: Options that control how tokens are sampled from the distribution the model produces.
-    /// - Returns: A response stream that produces ``GeneratedContent`` containing the fields and values defined in the schema.
+    /// - Returns: A response stream that produces an instance of the `Generable` type.
     final public func streamResponse<Content>(to prompt: Prompt, generating type: Content.Type = Content.self, includeSchemaInPrompt: Bool = true, options: GenerationOptions = GenerationOptions()) -> sending LanguageModelSession.ResponseStream<Content> where Content : Generable
 
     /// Produces a response stream to a prompt.
@@ -5274,7 +5316,7 @@ extension LanguageModelSession {
     ///   - type: A type to produce as the response.
     ///   - includeSchemaInPrompt: If `true`, injects the schema into the prompt to bias the model.
     ///   - options: Options that control how tokens are sampled from the distribution the model produces.
-    /// - Returns: A response stream that produces ``GeneratedContent`` containing the fields and values defined in the schema.
+    /// - Returns: A response stream that produces an instance of the `Generable` type.
     final public func streamResponse<Content>(to prompt: String, generating type: Content.Type = Content.self, includeSchemaInPrompt: Bool = true, options: GenerationOptions = GenerationOptions()) -> sending LanguageModelSession.ResponseStream<Content> where Content : Generable
 
     /// Produces a response stream to a prompt.
@@ -5292,7 +5334,7 @@ extension LanguageModelSession {
     ///   - type: A type to produce as the response.
     ///   - includeSchemaInPrompt: If `true`, injects the schema into the prompt to bias the model.
     ///   - options: Options that control how tokens are sampled from the distribution the model produces.
-    /// - Returns: A response stream that produces ``GeneratedContent`` containing the fields and values defined in the schema.
+    /// - Returns: A response stream that produces an instance of the `Generable` type.
     final public func streamResponse<Content>(generating type: Content.Type = Content.self, includeSchemaInPrompt: Bool = true, options: GenerationOptions = GenerationOptions(), @PromptBuilder prompt: () throws -> Prompt) rethrows -> sending LanguageModelSession.ResponseStream<Content> where Content : Generable
 
     /// Produces a response stream to a prompt.
@@ -5307,8 +5349,7 @@ extension LanguageModelSession {
     ///   - contextOptions: Settings that configure how the model is prompted.
     ///   - metadata: Metadata to attach to the request.
     /// - Returns: A response stream that produces aggregated tokens.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     final public func streamResponse(to prompt: Prompt, options: GenerationOptions = GenerationOptions(), contextOptions: ContextOptions = ContextOptions(), metadata: [String : any ConvertibleToGeneratedContent] = [:]) -> sending LanguageModelSession.ResponseStream<String>
 
     /// Produces a response stream to a prompt.
@@ -5323,8 +5364,7 @@ extension LanguageModelSession {
     ///   - contextOptions: Settings that configure how the model is prompted.
     ///   - metadata: Metadata to attach to the request.
     /// - Returns: A response stream that produces aggregated tokens.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     final public func streamResponse(to prompt: String, options: GenerationOptions = GenerationOptions(), contextOptions: ContextOptions = ContextOptions(), metadata: [String : any ConvertibleToGeneratedContent] = [:]) -> sending LanguageModelSession.ResponseStream<String>
 
     /// Produces a response stream to a prompt.
@@ -5339,13 +5379,12 @@ extension LanguageModelSession {
     ///   - contextOptions: Settings that configure how the model is prompted.
     ///   - metadata: Metadata to attach to the request.
     /// - Returns: A response stream that produces aggregated tokens.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     final public func streamResponse(options: GenerationOptions = GenerationOptions(), contextOptions: ContextOptions = ContextOptions(), metadata: [String : any ConvertibleToGeneratedContent] = [:], @PromptBuilder prompt: () throws -> Prompt) rethrows -> sending LanguageModelSession.ResponseStream<String>
 
     /// Produces a response stream to a prompt and schema.
     ///
-    /// Consider using the default value of `true` for `includeSchemaInPrompt`.
+    /// Consider using the default value of `true` for ``ContextOptions/includeSchemaInPrompt``.
     /// The exception to the rule is when the model has knowledge about the expected response format, either
     /// because it has been trained on it, or because it has seen exhaustive examples during this session.
     ///
@@ -5360,13 +5399,12 @@ extension LanguageModelSession {
     ///   - contextOptions: Settings that configure how the model is prompted.
     ///   - metadata: Metadata to attach to the request.
     /// - Returns: A response stream that produces ``GeneratedContent`` containing the fields and values defined in the schema.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     final public func streamResponse(to prompt: Prompt, schema: GenerationSchema, options: GenerationOptions = GenerationOptions(), contextOptions: ContextOptions = ContextOptions(includeSchemaInPrompt: true), metadata: [String : any ConvertibleToGeneratedContent] = [:]) -> sending LanguageModelSession.ResponseStream<GeneratedContent>
 
     /// Produces a response stream to a prompt and schema.
     ///
-    /// Consider using the default value of `true` for `includeSchemaInPrompt`.
+    /// Consider using the default value of `true` for ``ContextOptions/includeSchemaInPrompt``.
     /// The exception to the rule is when the model has knowledge about the expected response format, either
     /// because it has been trained on it, or because it has seen exhaustive examples during this session.
     ///
@@ -5381,13 +5419,12 @@ extension LanguageModelSession {
     ///   - contextOptions: Settings that configure how the model is prompted.
     ///   - metadata: Metadata to attach to the request.
     /// - Returns: A response stream that produces ``GeneratedContent`` containing the fields and values defined in the schema.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     final public func streamResponse(to prompt: String, schema: GenerationSchema, options: GenerationOptions = GenerationOptions(), contextOptions: ContextOptions = ContextOptions(includeSchemaInPrompt: true), metadata: [String : any ConvertibleToGeneratedContent] = [:]) -> sending LanguageModelSession.ResponseStream<GeneratedContent>
 
     /// Produces a response stream to a prompt and schema.
     ///
-    /// Consider using the default value of `true` for `includeSchemaInPrompt`.
+    /// Consider using the default value of `true` for ``ContextOptions/includeSchemaInPrompt``.
     /// The exception to the rule is when the model has knowledge about the expected response format, either
     /// because it has been trained on it, or because it has seen exhaustive examples during this session.
     ///
@@ -5402,13 +5439,12 @@ extension LanguageModelSession {
     ///   - contextOptions: Settings that configure how the model is prompted.
     ///   - metadata: Metadata to attach to the request.
     /// - Returns: A response stream that produces ``GeneratedContent`` containing the fields and values defined in the schema.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     final public func streamResponse(schema: GenerationSchema, options: GenerationOptions = GenerationOptions(), contextOptions: ContextOptions = ContextOptions(includeSchemaInPrompt: true), metadata: [String : any ConvertibleToGeneratedContent] = [:], @PromptBuilder prompt: () throws -> Prompt) rethrows -> sending LanguageModelSession.ResponseStream<GeneratedContent>
 
     /// Produces a response stream to a prompt.
     ///
-    /// Consider using the default value of `true` for `includeSchemaInPrompt`.
+    /// Consider using the default value of `true` for ``ContextOptions/includeSchemaInPrompt``.
     /// The exception to the rule is when the model has knowledge about the expected response format, either
     /// because it has been trained on it, or because it has seen exhaustive examples during this session.
     ///
@@ -5422,14 +5458,13 @@ extension LanguageModelSession {
     ///   - options: Options that control how tokens are sampled from the distribution the model produces.
     ///   - contextOptions: Settings that configure how the model is prompted.
     ///   - metadata: Metadata to attach to the request.
-    /// - Returns: A response stream that produces ``GeneratedContent`` containing the fields and values defined in the schema.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    /// - Returns: A response stream that produces an instance of the `Generable` type.
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     final public func streamResponse<Content>(to prompt: Prompt, generating type: Content.Type = Content.self, options: GenerationOptions = GenerationOptions(), contextOptions: ContextOptions = ContextOptions(includeSchemaInPrompt: true), metadata: [String : any ConvertibleToGeneratedContent] = [:]) -> sending LanguageModelSession.ResponseStream<Content> where Content : Generable
 
     /// Produces a response stream to a prompt.
     ///
-    /// Consider using the default value of `true` for `includeSchemaInPrompt`.
+    /// Consider using the default value of `true` for ``ContextOptions/includeSchemaInPrompt``.
     /// The exception to the rule is when the model has knowledge about the expected response format, either
     /// because it has been trained on it, or because it has seen exhaustive examples during this session.
     ///
@@ -5443,14 +5478,13 @@ extension LanguageModelSession {
     ///   - options: Options that control how tokens are sampled from the distribution the model produces.
     ///   - contextOptions: Settings that configure how the model is prompted.
     ///   - metadata: Metadata to attach to the request.
-    /// - Returns: A response stream that produces ``GeneratedContent`` containing the fields and values defined in the schema.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    /// - Returns: A response stream that produces an instance of the `Generable` type.
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     final public func streamResponse<Content>(to prompt: String, generating type: Content.Type = Content.self, options: GenerationOptions = GenerationOptions(), contextOptions: ContextOptions = ContextOptions(includeSchemaInPrompt: true), metadata: [String : any ConvertibleToGeneratedContent] = [:]) -> sending LanguageModelSession.ResponseStream<Content> where Content : Generable
 
     /// Produces a response stream to a prompt.
     ///
-    /// Consider using the default value of `true` for `includeSchemaInPrompt`.
+    /// Consider using the default value of `true` for ``ContextOptions/includeSchemaInPrompt``.
     /// The exception to the rule is when the model has knowledge about the expected response format, either
     /// because it has been trained on it, or because it has seen exhaustive examples during this session.
     ///
@@ -5464,9 +5498,8 @@ extension LanguageModelSession {
     ///   - options: Options that control how tokens are sampled from the distribution the model produces.
     ///   - contextOptions: Settings that configure how the model is prompted.
     ///   - metadata: Metadata to attach to the request.
-    /// - Returns: A response stream that produces ``GeneratedContent`` containing the fields and values defined in the schema.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    /// - Returns: A response stream that produces an instance of the `Generable` type.
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     final public func streamResponse<Content>(generating type: Content.Type = Content.self, options: GenerationOptions = GenerationOptions(), contextOptions: ContextOptions = ContextOptions(includeSchemaInPrompt: true), metadata: [String : any ConvertibleToGeneratedContent] = [:], @PromptBuilder prompt: () throws -> Prompt) rethrows -> sending LanguageModelSession.ResponseStream<Content> where Content : Generable
 
     /// Produces a response to a prompt.
@@ -5552,7 +5585,7 @@ extension LanguageModelSession {
     ///   - type: A type to produce as the response.
     ///   - includeSchemaInPrompt: If `true`, injects the schema into the prompt to bias the model.
     ///   - options: Options that control how tokens are sampled from the distribution the model produces.
-    /// - Returns: ``GeneratedContent`` containing the fields and values defined in the schema.
+    /// - Returns: An instance of the `Generable` type.
     @discardableResult
     nonisolated(nonsending) final public func respond<Content>(to prompt: Prompt, generating type: Content.Type = Content.self, includeSchemaInPrompt: Bool = true, options: GenerationOptions = GenerationOptions()) async throws -> LanguageModelSession.Response<Content> where Content : Generable
 
@@ -5567,7 +5600,7 @@ extension LanguageModelSession {
     ///   - type: A type to produce as the response.
     ///   - includeSchemaInPrompt: If `true`, injects the schema into the prompt to bias the model.
     ///   - options: Options that control how tokens are sampled from the distribution the model produces.
-    /// - Returns: ``GeneratedContent`` containing the fields and values defined in the schema.
+    /// - Returns: An instance of the `Generable` type.
     @discardableResult
     nonisolated(nonsending) final public func respond<Content>(to prompt: String, generating type: Content.Type = Content.self, includeSchemaInPrompt: Bool = true, options: GenerationOptions = GenerationOptions()) async throws -> LanguageModelSession.Response<Content> where Content : Generable
 
@@ -5582,7 +5615,7 @@ extension LanguageModelSession {
     ///   - type: A type to produce as the response.
     ///   - includeSchemaInPrompt: If `true`, injects the schema into the prompt to bias the model.
     ///   - options: Options that control how tokens are sampled from the distribution the model produces.
-    /// - Returns: ``GeneratedContent`` containing the fields and values defined in the schema.
+    /// - Returns: An instance of the `Generable` type.
     @discardableResult
     nonisolated(nonsending) final public func respond<Content>(generating type: Content.Type = Content.self, includeSchemaInPrompt: Bool = true, options: GenerationOptions = GenerationOptions(), @PromptBuilder prompt: () throws -> Prompt) async throws -> LanguageModelSession.Response<Content> where Content : Generable
 
@@ -5594,8 +5627,7 @@ extension LanguageModelSession {
     ///   - contextOptions: Settings that configure how the model is prompted.
     ///   - metadata: Metadata to attach to the request.
     /// - Returns: A string composed of the tokens produced by sampling model output.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     @discardableResult
     nonisolated(nonsending) final public func respond(to prompt: Prompt, options: GenerationOptions = GenerationOptions(), contextOptions: ContextOptions = ContextOptions(), metadata: [String : any ConvertibleToGeneratedContent] = [:]) async throws -> LanguageModelSession.Response<String>
 
@@ -5607,8 +5639,7 @@ extension LanguageModelSession {
     ///   - contextOptions: Settings that configure how the model is prompted.
     ///   - metadata: Metadata to attach to the request.
     /// - Returns: A string composed of the tokens produced by sampling model output.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     @discardableResult
     nonisolated(nonsending) final public func respond(to prompt: String, options: GenerationOptions = GenerationOptions(), contextOptions: ContextOptions = ContextOptions(), metadata: [String : any ConvertibleToGeneratedContent] = [:]) async throws -> LanguageModelSession.Response<String>
 
@@ -5620,14 +5651,13 @@ extension LanguageModelSession {
     ///   - contextOptions: Settings that configure how the model is prompted.
     ///   - metadata: Metadata to attach to the request.
     /// - Returns: A string composed of the tokens produced by sampling model output.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     @discardableResult
     nonisolated(nonsending) final public func respond(options: GenerationOptions = GenerationOptions(), contextOptions: ContextOptions = ContextOptions(), metadata: [String : any ConvertibleToGeneratedContent] = [:], @PromptBuilder prompt: () throws -> Prompt) async throws -> LanguageModelSession.Response<String>
 
     /// Produces a generated content type as a response to a prompt and schema.
     ///
-    /// Consider using the default value of `true` for `includeSchemaInPrompt`.
+    /// Consider using the default value of `true` for ``ContextOptions/includeSchemaInPrompt``.
     /// The exception to the rule is when the model has knowledge about the expected response format, either
     /// because it has been trained on it, or because it has seen exhaustive examples during this session.
     ///
@@ -5638,14 +5668,13 @@ extension LanguageModelSession {
     ///   - contextOptions: Settings that configure how the model is prompted.
     ///   - metadata: Metadata to attach to the request.
     /// - Returns: ``GeneratedContent`` containing the fields and values defined in the schema.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     @discardableResult
     nonisolated(nonsending) final public func respond(to prompt: Prompt, schema: GenerationSchema, options: GenerationOptions = GenerationOptions(), contextOptions: ContextOptions = ContextOptions(includeSchemaInPrompt: true), metadata: [String : any ConvertibleToGeneratedContent] = [:]) async throws -> LanguageModelSession.Response<GeneratedContent>
 
     /// Produces a generated content type as a response to a prompt and schema.
     ///
-    /// Consider using the default value of `true` for `includeSchemaInPrompt`.
+    /// Consider using the default value of `true` for ``ContextOptions/includeSchemaInPrompt``.
     /// The exception to the rule is when the model has knowledge about the expected response format, either
     /// because it has been trained on it, or because it has seen exhaustive examples during this session.
     ///
@@ -5656,14 +5685,13 @@ extension LanguageModelSession {
     ///   - contextOptions: Settings that configure how the model is prompted.
     ///   - metadata: Metadata to attach to the request.
     /// - Returns: ``GeneratedContent`` containing the fields and values defined in the schema.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     @discardableResult
     nonisolated(nonsending) final public func respond(to prompt: String, schema: GenerationSchema, options: GenerationOptions = GenerationOptions(), contextOptions: ContextOptions = ContextOptions(includeSchemaInPrompt: true), metadata: [String : any ConvertibleToGeneratedContent] = [:]) async throws -> LanguageModelSession.Response<GeneratedContent>
 
     /// Produces a generated content type as a response to a prompt and schema.
     ///
-    /// Consider using the default value of `true` for `includeSchemaInPrompt`.
+    /// Consider using the default value of `true` for ``ContextOptions/includeSchemaInPrompt``.
     /// The exception to the rule is when the model has knowledge about the expected response format, either
     /// because it has been trained on it, or because it has seen exhaustive examples during this session.
     ///
@@ -5674,14 +5702,13 @@ extension LanguageModelSession {
     ///   - contextOptions: Settings that configure how the model is prompted.
     ///   - metadata: Metadata to attach to the request.
     /// - Returns: ``GeneratedContent`` containing the fields and values defined in the schema.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     @discardableResult
     nonisolated(nonsending) final public func respond(schema: GenerationSchema, options: GenerationOptions = GenerationOptions(), contextOptions: ContextOptions = ContextOptions(includeSchemaInPrompt: true), metadata: [String : any ConvertibleToGeneratedContent] = [:], @PromptBuilder prompt: () throws -> Prompt) async throws -> LanguageModelSession.Response<GeneratedContent>
 
     /// Produces a generable object as a response to a prompt.
     ///
-    /// Consider using the default value of `true` for `includeSchemaInPrompt`.
+    /// Consider using the default value of `true` for ``ContextOptions/includeSchemaInPrompt``.
     /// The exception to the rule is when the model has knowledge about the expected response format, either
     /// because it has been trained on it, or because it has seen exhaustive examples during this session.
     ///
@@ -5691,15 +5718,14 @@ extension LanguageModelSession {
     ///   - options: Options that control how tokens are sampled from the distribution the model produces.
     ///   - contextOptions: Settings that configure how the model is prompted.
     ///   - metadata: Metadata to attach to the request.
-    /// - Returns: ``GeneratedContent`` containing the fields and values defined in the schema.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    /// - Returns: An instance of the `Generable` type.
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     @discardableResult
     nonisolated(nonsending) final public func respond<Content>(to prompt: Prompt, generating type: Content.Type = Content.self, options: GenerationOptions = GenerationOptions(), contextOptions: ContextOptions = ContextOptions(includeSchemaInPrompt: true), metadata: [String : any ConvertibleToGeneratedContent] = [:]) async throws -> LanguageModelSession.Response<Content> where Content : Generable
 
     /// Produces a generable object as a response to a prompt.
     ///
-    /// Consider using the default value of `true` for `includeSchemaInPrompt`.
+    /// Consider using the default value of `true` for ``ContextOptions/includeSchemaInPrompt``.
     /// The exception to the rule is when the model has knowledge about the expected response format, either
     /// because it has been trained on it, or because it has seen exhaustive examples during this session.
     ///
@@ -5709,15 +5735,14 @@ extension LanguageModelSession {
     ///   - options: Options that control how tokens are sampled from the distribution the model produces.
     ///   - contextOptions: Settings that configure how the model is prompted.
     ///   - metadata: Metadata to attach to the request.
-    /// - Returns: ``GeneratedContent`` containing the fields and values defined in the schema.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    /// - Returns: An instance of the `Generable` type.
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     @discardableResult
     nonisolated(nonsending) final public func respond<Content>(to prompt: String, generating type: Content.Type = Content.self, options: GenerationOptions = GenerationOptions(), contextOptions: ContextOptions = ContextOptions(includeSchemaInPrompt: true), metadata: [String : any ConvertibleToGeneratedContent] = [:]) async throws -> LanguageModelSession.Response<Content> where Content : Generable
 
     /// Produces a generable object as a response to a prompt.
     ///
-    /// Consider using the default value of `true` for `includeSchemaInPrompt`.
+    /// Consider using the default value of `true` for ``ContextOptions/includeSchemaInPrompt``.
     /// The exception to the rule is when the model has knowledge about the expected response format, either
     /// because it has been trained on it, or because it has seen exhaustive examples during this session.
     ///
@@ -5727,26 +5752,22 @@ extension LanguageModelSession {
     ///   - options: Options that control how tokens are sampled from the distribution the model produces.
     ///   - contextOptions: Settings that configure how the model is prompted.
     ///   - metadata: Metadata to attach to the request.
-    /// - Returns: ``GeneratedContent`` containing the fields and values defined in the schema.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    /// - Returns: An instance of the `Generable` type.
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     @discardableResult
     nonisolated(nonsending) final public func respond<Content>(generating type: Content.Type = Content.self, options: GenerationOptions = GenerationOptions(), contextOptions: ContextOptions = ContextOptions(includeSchemaInPrompt: true), metadata: [String : any ConvertibleToGeneratedContent] = [:], @PromptBuilder prompt: () throws -> Prompt) async throws -> LanguageModelSession.Response<Content> where Content : Generable
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession {
 
     /// An async sequence of snapshots of partially generated content.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     public struct ResponseStream<Content> where Content : Generable {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession {
 
     /// Logs and serializes a feedback attachment that can be submitted to Apple.
@@ -5792,7 +5813,7 @@ extension LanguageModelSession {
     ///
     /// ```swift
     /// let customType = MyCustomType(...) // A generable type.
-    /// let structure = Transcript.StructuredSegment(schemaName: String(describing: Foo.self), content: customType.generatedContent)
+    /// let structure = Transcript.StructuredSegment(schemaName: String(describing: MyCustomType.self), content: customType.generatedContent)
     /// let segment = Transcript.Segment.structure(structure)
     /// let response = Transcript.Response(segments: [segment])
     /// let entry = Transcript.Entry.response(response)
@@ -5800,7 +5821,7 @@ extension LanguageModelSession {
     ///
     /// Finally, if you'd like to submit the feedback to Apple, write your feedback to a `.json` file and include the file as an
     /// attachment to [Feedback Assistant](https://feedbackassistant.apple.com). You can include one or many
-    /// feedback attachment in the same file:
+    /// feedback attachments in the same file:
     ///
     /// ```swift
     /// let allFeedback = feedbackData + feedbackData2 + feedbackData3
@@ -5813,8 +5834,7 @@ extension LanguageModelSession {
     ///   - issues: An array of specific issues identified with the model's response. Defaults to an empty array.
     ///   - desiredOutput: An optional transcript entry showing what the desired output should have been.
     /// - Returns: A `Data` object containing the JSON-encoded feedback attachment that can be submitted to Feedback Assistant.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     @discardableResult
     final public func logFeedbackAttachment(sentiment: LanguageModelFeedback.Sentiment?, issues: [LanguageModelFeedback.Issue] = [], desiredOutput: Transcript.Entry? = nil) -> Data
 
@@ -5827,9 +5847,8 @@ extension LanguageModelSession {
     ///   - desiredResponseText: The text the model should have produced, if you have one.
     /// - Returns: A `Data` object containing the JSON-encoded feedback attachment that can be
     ///   submitted to Feedback Assistant.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     @backDeployed(before: iOS 26.1, macOS 26.1, visionOS 26.1)
-    @available(tvOS, unavailable)
     @discardableResult
     final public func logFeedbackAttachment(sentiment: LanguageModelFeedback.Sentiment?, issues: [LanguageModelFeedback.Issue] = [], desiredResponseText: String?) -> Data
 
@@ -5842,14 +5861,13 @@ extension LanguageModelSession {
     ///   - desiredResponseContent: The content the model should’ve produced.
     /// - Returns: A `Data` object containing the JSON-encoded feedback attachment that can be
     ///   submitted to Feedback Assistant.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     @backDeployed(before: iOS 26.1, macOS 26.1, visionOS 26.1)
-    @available(tvOS, unavailable)
     @discardableResult
     final public func logFeedbackAttachment(sentiment: LanguageModelFeedback.Sentiment?, issues: [LanguageModelFeedback.Issue] = [], desiredResponseContent: (any ConvertibleToGeneratedContent)?) -> Data
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 extension LanguageModelSession.GenerationError {
@@ -5870,20 +5888,20 @@ extension LanguageModelSession.GenerationError {
     ///     print("Something went wrong: \(error)")
     /// }
     /// ```
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     public struct Refusal : Sendable {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 extension LanguageModelSession.GenerationError {
 
     /// The context in which the error occurred.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     public struct Context : Sendable {
@@ -5895,7 +5913,7 @@ extension LanguageModelSession.GenerationError {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 extension LanguageModelSession.GenerationError {
@@ -5910,8 +5928,7 @@ extension LanguageModelSession.GenerationError {
     public var failureReason: String? { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.AnyDynamicProfile {
 
     /// The content of the dynamic profile.
@@ -5924,8 +5941,7 @@ extension LanguageModelSession.AnyDynamicProfile {
     @export(implementation) public init(erasing dynamicProfile: some LanguageModelSession.DynamicProfile)
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.DynamicProfile {
 
     /// The profile type that a dynamic profile activates.
@@ -5935,8 +5951,7 @@ extension LanguageModelSession.DynamicProfile {
     public typealias DynamicProfile = LanguageModelSession.DynamicProfile
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.DynamicProfile {
 
     /// Applies a modifier to the dynamic profile.
@@ -5944,8 +5959,7 @@ extension LanguageModelSession.DynamicProfile {
 
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.DynamicProfile {
 
     /// Sets the model.
@@ -6123,6 +6137,34 @@ extension LanguageModelSession.DynamicProfile {
     public func onReasoning(perform action: nonisolated(nonsending) sending @escaping (Transcript.Reasoning) async throws -> Void) -> some LanguageModelSession.DynamicProfile
 
 
+    /// Runs an action whenever this dynamic profile produces a data entry.
+    ///
+    /// Data entries are only produced by models that accept the entry's content type through
+    /// ``LanguageModel/supportsDataEntryType(_:)``.
+    ///
+    /// When the `onDataEntry` closure throws an error, the caller's `respond` or `response`
+    /// propagates that error.
+    ///
+    /// Use this to observe or log the custom data the model produces as it works toward a
+    /// response.
+    @available(iOS 27.3, macOS 27.3, watchOS 27.3, tvOS 27.3, *)
+    @export(implementation) public func onDataEntry(perform action: nonisolated(nonsending) sending @escaping () async throws -> Void) -> some LanguageModelSession.DynamicProfile
+
+
+    /// Runs an action whenever this dynamic profile produces a data entry.
+    ///
+    /// Data entries are only produced by models that accept the entry's content type through
+    /// ``LanguageModel/supportsDataEntryType(_:)``.
+    ///
+    /// When the `onDataEntry` closure throws an error, the caller's `respond` or `response`
+    /// propagates that error.
+    ///
+    /// Use this to observe or log the custom data the model produces as it works toward a
+    /// response.
+    @available(iOS 27.3, macOS 27.3, watchOS 27.3, tvOS 27.3, *)
+    public func onDataEntry(perform action: nonisolated(nonsending) sending @escaping (Transcript.DataEntry) async throws -> Void) -> some LanguageModelSession.DynamicProfile
+
+
     /// Runs an action whenever a tool is called within this dynamic profile.
     ///
     /// When the `onToolCall` closure throws an error, the caller's `respond` or
@@ -6259,16 +6301,26 @@ extension LanguageModelSession.DynamicProfile {
 
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.DynamicProfile {
 
     /// A property wrapper that provides access to a session property from within a dynamic profile.
     public typealias SessionProperty = LanguageModelSession.SessionProperty
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
+extension LanguageModelSession.DynamicProfile {
+
+    public typealias SessionState = LanguageModelSession.SessionState
+}
+
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
+extension LanguageModelSession.DynamicProfile {
+
+    public typealias SessionBinding = LanguageModelSession.SessionBinding
+}
+
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.Profile {
 
     /// Creates a profile that contains dynamic instructions.
@@ -6281,16 +6333,14 @@ extension LanguageModelSession.Profile {
     public var body: Never { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.ConditionalDynamicProfile {
 
     /// The content of the dynamic profile.
     public var body: Never { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.DynamicProfileBuilder {
 
     /// Creates a builder with a block.
@@ -6308,16 +6358,14 @@ extension LanguageModelSession.DynamicProfileBuilder {
     @export(implementation) public static func buildLimitedAvailability(_ component: some LanguageModelSession.DynamicProfile) -> LanguageModelSession.AnyDynamicProfile
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.DynamicProfileModifier {
 
     /// The dynamic profile type that a modifier's body returns.
     public typealias DynamicProfile = LanguageModelSession.DynamicProfile
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.DynamicProfileModifier {
 
     /// A property wrapper that provides access to a session property from within a
@@ -6325,42 +6373,39 @@ extension LanguageModelSession.DynamicProfileModifier {
     public typealias SessionProperty = LanguageModelSession.SessionProperty
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.DynamicProfileModifierContent {
 
     /// The content of the dynamic profile.
     public var body: Never { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.ModifiedDynamicProfile {
 
     /// The content of the dynamic profile.
     public var body: Never { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.SessionProperty : Sendable where Value : Sendable {
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
+extension LanguageModelSession.SessionState : Sendable where Value : Sendable {
+}
+
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.ToolCallError {
 
     /// A string representation of the error description.
     public var errorDescription: String? { get }
 }
 
-@available(tvOS, unavailable)
 extension LanguageModelSession.Response : Sendable where Content : Sendable {
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.Usage {
 
     /// Token counts for the transcript submitted to the model.
@@ -6383,8 +6428,7 @@ extension LanguageModelSession.Usage {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.Usage {
 
     /// Token counts for the output produced by the model.
@@ -6410,16 +6454,14 @@ extension LanguageModelSession.Usage {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.Usage {
 
     /// The total number of tokens involved in this generation, combining input and output counts.
     public var totalTokenCount: Int { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.Error : CustomDebugStringConvertible {
 
     /// A textual representation of this instance, suitable for debugging.
@@ -6448,26 +6490,22 @@ extension LanguageModelSession.Error : CustomDebugStringConvertible {
     public var debugDescription: String { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.Error {
 
     /// A localized message describing what error occurred.
     public var errorDescription: String? { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.Error : Equatable {
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.Error : Hashable {
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.ResponseStream {
 
     /// A snapshot of partially generated content.
@@ -6482,19 +6520,16 @@ extension LanguageModelSession.ResponseStream {
         public var rawContent: GeneratedContent
 
         /// The list of transcript entries.
-        @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
         public var transcriptEntries: ArraySlice<Transcript.Entry>
 
         /// Information about how many tokens were used by this response.
-        @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
         public var usage: LanguageModelSession.Usage
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.ResponseStream : AsyncSequence {
 
     /// The type of snapshot the stream produces.
@@ -6517,40 +6552,37 @@ extension LanguageModelSession.ResponseStream : AsyncSequence {
     nonisolated(nonsending) public func collect() async throws -> sending LanguageModelSession.Response<Content>
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.ResponseStream {
 
     /// An asynchronous iterator that produces snapshots of partially generated content.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     public struct AsyncIterator : AsyncIteratorProtocol {
 
-        @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
         public typealias Element = LanguageModelSession.ResponseStream<Content>.Snapshot
     }
 }
 
-@available(iOS 26.0, macOS 26.0, *)
+@available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
 @available(tvOS, unavailable)
 extension LanguageModelSession.GenerationError.Refusal {
 
     /// An explanation for why the model refused to respond.
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
     @available(watchOS, unavailable)
     @available(tvOS, unavailable)
     nonisolated(nonsending) public var explanation: LanguageModelSession.Response<String> { get async throws }
 
     /// A stream containing an explanation about why the model refused to respond.
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
     @available(watchOS, unavailable)
     @available(tvOS, unavailable)
     public var explanationStream: LanguageModelSession.ResponseStream<String> { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 extension LanguageModelSession.GenerationError.Refusal {
@@ -6562,7 +6594,7 @@ extension LanguageModelSession.GenerationError.Refusal {
     public init(transcriptEntries: [Transcript.Entry])
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 extension LanguageModelSession.GenerationError.Context {
@@ -6574,8 +6606,7 @@ extension LanguageModelSession.GenerationError.Context {
     public init(debugDescription: String)
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension LanguageModelSession.ResponseStream.AsyncIterator {
 
     /// Asynchronously advances to the next element and returns it, or ends the
@@ -7104,29 +7135,25 @@ extension PrivateCloudComputeLanguageModel.QuotaUsage.LimitIncreaseSuggestion {
 /// Prompting the same session eventually leads to exceeding the context window size. You can recover
 /// from this error by removing entries from the transcript and trying again. For more information on
 /// managing the context window size, see <doc:managing-the-context-window>.
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 public struct Prompt : Sendable {
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Prompt {
 
     /// Creates an instance with the content you specify.
     public init(_ content: some PromptRepresentable)
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Prompt : PromptRepresentable {
 
     /// An instance that represents a prompt.
     public var promptRepresentation: Prompt { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Prompt {
 
     /// Creates a prompt from the content of a builder closure.
@@ -7136,13 +7163,11 @@ extension Prompt {
 }
 
 /// A type that represents a prompt builder.
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 @resultBuilder public struct PromptBuilder {
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension PromptBuilder {
 
     /// Creates a builder with a block.
@@ -7204,21 +7229,18 @@ extension PromptBuilder {
 ///     )
 /// }
 /// ```
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 public protocol PromptRepresentable {
 
     /// An instance that represents a prompt.
     @PromptBuilder var promptRepresentation: Prompt { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 @attached(accessor) @attached(peer, names: prefixed(__Key_)) public macro SessionPropertyEntry() = #externalMacro(module: "FoundationModelsMacros", type: "SessionPropertyEntryMacro")
 
 /// A protocol for defining a custom session property key.
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 public protocol SessionPropertyKey : SendableMetatype {
 
     /// The type of value that represent this property key.
@@ -7257,23 +7279,20 @@ public protocol SessionPropertyKey : SendableMetatype {
 /// information, see <doc:optimizing-key-value-caching-in-language-model-sessions>.
 ///
 /// Use ``SessionPropertyEntry()`` to create custom session properties.
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 final public class SessionPropertyValues : Sendable {
 
     @objc deinit
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension SessionPropertyValues {
 
     /// The history portion of the session's transcript.
     final public var history: Transcript.HistoryView
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension SessionPropertyValues {
 
     /// Accesses the value stored for the given session property key.
@@ -7282,8 +7301,7 @@ extension SessionPropertyValues {
     final public subscript<K>(key: K.Type) -> K.Value where K : SessionPropertyKey
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension SessionPropertyValues : nonisolated Observable {
 }
 
@@ -7329,17 +7347,15 @@ extension SessionPropertyValues : nonisolated Observable {
 ///     }
 /// }
 /// ```
-@available(iOS 26.0, macOS 26.0, *)
+@available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 final public class SystemLanguageModel : Sendable {
 
     @objc deinit
 }
 
-@available(iOS 26.0, macOS 26.0, *)
+@available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel {
 
     /// The availability of the language model.
@@ -7349,15 +7365,12 @@ extension SystemLanguageModel {
     final public var isAvailable: Bool { get }
 }
 
-@available(iOS 26.0, macOS 26.0, *)
+@available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel {
 
     /// A type that represents the use case for prompting.
-    @available(iOS 26.0, macOS 26.0, *)
-    @available(watchOS, unavailable)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
     public struct UseCase : Sendable, Equatable {
 
         /// A use case for general prompting.
@@ -7385,15 +7398,13 @@ extension SystemLanguageModel {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, *)
+@available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel : nonisolated Observable {
 }
 
-@available(iOS 27.0, macOS 27.0, *)
+@available(iOS 27.0, macOS 27.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel : LanguageModel {
 
     /// The capabilities of this language model.
@@ -7408,9 +7419,8 @@ extension SystemLanguageModel : LanguageModel {
     final public var executorConfiguration: SystemLanguageModel.Executor.Configuration { get }
 }
 
-@available(iOS 27.0, macOS 27.0, *)
+@available(iOS 27.0, macOS 27.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel {
 
     /// An executor that responds to session requests using the on-device system model.
@@ -7443,29 +7453,23 @@ extension SystemLanguageModel {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, *)
+@available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel {
 
     /// A set of controls that flag sensitive content from model input and output.
-    @available(iOS 26.0, macOS 26.0, *)
-    @available(watchOS, unavailable)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
     public struct Guardrails : Sendable {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, *)
+@available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel {
 
     /// The availability status for a specific system language model.
     /// - SeeAlso: ``SystemLanguageModel/availability``
-    @available(iOS 26.0, macOS 26.0, *)
-    @available(watchOS, unavailable)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
     @frozen public enum Availability : Equatable, Sendable {
 
         /// The system is ready to make requests.
@@ -7486,9 +7490,8 @@ extension SystemLanguageModel {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, *)
+@available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel {
 
     /// The base version of the model.
@@ -7496,19 +7499,17 @@ extension SystemLanguageModel {
     /// The base model is a generic model that is useful for a
     /// wide variety of applications, but is not specialized to
     /// any particular use case.
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
     @available(watchOS, unavailable)
-    @available(tvOS, unavailable)
     public static var `default`: SystemLanguageModel { get }
 
     /// Creates a system language model instance for a specific use case.
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
     @available(watchOS, unavailable)
-    @available(tvOS, unavailable)
     public convenience init(useCase: SystemLanguageModel.UseCase = .general, guardrails: SystemLanguageModel.Guardrails = Guardrails.default)
 
     /// Creates the base version of the model with an adapter.
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
     @available(iOS, obsoleted: 27.0)
     @available(macOS, obsoleted: 27.0)
     @available(visionOS, obsoleted: 27.0)
@@ -7529,60 +7530,53 @@ extension SystemLanguageModel {
     final public func supportsLocale(_ locale: Locale = Locale.current) -> Bool
 }
 
-@available(iOS 26.4, macOS 26.4, *)
+@available(iOS 26.4, macOS 26.4, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel {
 
     /// Returns the token count for the specified prompt.
     ///
     /// - Parameter prompt: The prompt to calculate the token count for.
     /// - Returns: The token count for the prompt.
-    @available(iOS 26.4, macOS 26.4, *)
+    @available(iOS 26.4, macOS 26.4, tvOS 27.3, *)
     @available(watchOS, unavailable)
-    @available(tvOS, unavailable)
     nonisolated(nonsending) final public func tokenCount(for prompt: some PromptRepresentable) async throws -> Int
 
     /// Returns the token count for the specified instructions.
     ///
     /// - Parameter instructions: The instructions to calculate the token count for.
     /// - Returns: The token count for the instructions.
-    @available(iOS 26.4, macOS 26.4, *)
+    @available(iOS 26.4, macOS 26.4, tvOS 27.3, *)
     @available(watchOS, unavailable)
-    @available(tvOS, unavailable)
     nonisolated(nonsending) final public func tokenCount(for instructions: Instructions) async throws -> Int
 
     /// Returns the token count for the specified tools.
     ///
     /// - Parameter tools: An array of tools to calculate the token count for.
     /// - Returns: The token count for the tools.
-    @available(iOS 26.4, macOS 26.4, *)
+    @available(iOS 26.4, macOS 26.4, tvOS 27.3, *)
     @available(watchOS, unavailable)
-    @available(tvOS, unavailable)
     nonisolated(nonsending) final public func tokenCount(for tools: [any Tool]) async throws -> Int
 
     /// Returns the token count for the specified schema.
     ///
     /// - Parameter schema: The schema to calculate the token count for.
     /// - Returns: The token count for the schema.
-    @available(iOS 26.4, macOS 26.4, *)
+    @available(iOS 26.4, macOS 26.4, tvOS 27.3, *)
     @available(watchOS, unavailable)
-    @available(tvOS, unavailable)
     nonisolated(nonsending) final public func tokenCount(for schema: GenerationSchema) async throws -> Int
 
     /// Returns the token count for the specified collection of transcript entries.
     ///
     /// - Parameter transcriptEntries: A collection of transcript entries to calculate the token count for.
     /// - Returns: The token count for the transcript.
-    @available(iOS 26.4, macOS 26.4, *)
+    @available(iOS 26.4, macOS 26.4, tvOS 27.3, *)
     @available(watchOS, unavailable)
-    @available(tvOS, unavailable)
     nonisolated(nonsending) final public func tokenCount(for transcriptEntries: some Collection<Transcript.Entry>) async throws -> Int
 }
 
-@available(iOS 26.0, macOS 26.0, *)
+@available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel {
 
     /// The maximum context size in tokens that the model supports.
@@ -7592,32 +7586,24 @@ extension SystemLanguageModel {
     ///
     /// - Returns: The context size, in tokens.
     /// - Throws: An error if the context size cannot be determined. Typically this is due to the model not being available or Apple Intelligence is disabled.
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
     @backDeployed(before: iOS 26.4, macOS 26.4, visionOS 26.4)
-    @available(watchOS, unavailable)
-    @available(tvOS, unavailable)
     final public var contextSize: Int { get }
 }
 
+@available(iOS 27.0, macOS 27.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel {
 
     /// The variant of the on-device model backing this instance.
-    @available(iOS 27.0, macOS 27.0, *)
-    @available(watchOS, unavailable)
-    @available(tvOS, unavailable)
     final public var variant: SystemLanguageModel.Variant { get }
 }
 
+@available(iOS 27.0, macOS 27.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel {
 
     /// The variant of an on-device model.
-    @available(iOS 27.0, macOS 27.0, *)
-    @available(watchOS, unavailable)
-    @available(tvOS, unavailable)
     public struct Variant : Sendable, Hashable {
 
         /// The user-facing name of the variant.
@@ -7680,15 +7666,29 @@ extension SystemLanguageModel {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, *)
+@available(iOS 27.0, macOS 27.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel {
 
     /// An error specific to the on-device system language model.
-    @available(iOS 27.0, macOS 27.0, *)
-    @available(watchOS, unavailable)
-    @available(tvOS, unavailable)
+    ///
+    /// - Note: If your app deploys to iOS 26, macOS 26, or visionOS 26, where this error is
+    ///   unavailable, use an availability check and fall back to
+    ///   ``LanguageModelSession/GenerationError/assetsUnavailable(_:)``:
+    ///
+    ///   ```swift
+    ///   do {
+    ///       let response = try await session.respond(to: prompt)
+    ///   } catch {
+    ///       if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *),
+    ///           let error = error as? SystemLanguageModel.Error
+    ///       {
+    ///           // Handle the error.
+    ///       } else if case .assetsUnavailable = error as? LanguageModelSession.GenerationError {
+    ///           // Handle the deprecated error.
+    ///       }
+    ///   }
+    ///   ```
     public enum Error : LocalizedError {
 
         /// The assets required for the session are unavailable.
@@ -7703,9 +7703,8 @@ extension SystemLanguageModel {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, *)
+@available(iOS 27.0, macOS 27.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel.Executor {
 
     /// A configuration for an executor capable of running an on-device system model.
@@ -7750,9 +7749,8 @@ extension SystemLanguageModel.Executor {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, *)
+@available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel.Guardrails {
 
     /// Guardrails that default to ensuring that the system blocks unsafe content in prompts and responses.
@@ -7777,15 +7775,12 @@ extension SystemLanguageModel.Guardrails {
     public static let permissiveContentTransformations: SystemLanguageModel.Guardrails
 }
 
-@available(iOS 26.0, macOS 26.0, *)
+@available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel.Availability {
 
     /// The reason the system language model is unavailable.
-    @available(iOS 26.0, macOS 26.0, *)
-    @available(watchOS, unavailable)
-    @available(tvOS, unavailable)
+    @available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
     public enum UnavailableReason : Equatable, Sendable {
 
         /// The device does not support Apple Intelligence.
@@ -7839,20 +7834,14 @@ extension SystemLanguageModel.Availability {
     }
 }
 
+@available(iOS 27.0, macOS 27.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel.Variant {
 
     /// AFM 3 Core.
-    @available(iOS 27.0, macOS 27.0, *)
-    @available(watchOS, unavailable)
-    @available(tvOS, unavailable)
     public static var core3: SystemLanguageModel.Variant { get }
 
     /// AFM 3 Core Advanced.
-    @available(iOS 27.0, macOS 27.0, *)
-    @available(watchOS, unavailable)
-    @available(tvOS, unavailable)
     public static var coreAdvanced3: SystemLanguageModel.Variant { get }
 }
 
@@ -7951,9 +7940,8 @@ extension SystemLanguageModel.Adapter {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, *)
+@available(iOS 27.0, macOS 27.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel.Error : CustomDebugStringConvertible {
 
     /// A textual representation of this instance, suitable for debugging.
@@ -7982,9 +7970,8 @@ extension SystemLanguageModel.Error : CustomDebugStringConvertible {
     public var debugDescription: String { get }
 }
 
-@available(iOS 27.0, macOS 27.0, *)
+@available(iOS 27.0, macOS 27.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel.Error {
 
     /// Information about unavailable model assets.
@@ -7999,9 +7986,8 @@ extension SystemLanguageModel.Error {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, *)
+@available(iOS 26.0, macOS 26.0, tvOS 27.3, *)
 @available(watchOS, unavailable)
-@available(tvOS, unavailable)
 extension SystemLanguageModel.Availability.UnavailableReason : Hashable {
 }
 
@@ -8103,8 +8089,7 @@ extension SystemLanguageModel.Adapter.AssetError.Context {
 /// model can decide when and how often to call the tool. After calling your tool,
 /// the framework returns the tool's output back to the model for further processing.
 /// For more information on managing the context window size, see <doc:managing-the-context-window>.
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 public protocol Tool<Arguments, Output> : Sendable {
 
     /// The output that this tool produces for the language model to reason about in subsequent
@@ -8149,16 +8134,26 @@ public protocol Tool<Arguments, Output> : Sendable {
     @concurrent func call(arguments: Self.Arguments) async throws -> Self.Output
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Tool {
 
     /// A property wrapper that provides access to a session property from within a tool.
     public typealias SessionProperty = LanguageModelSession.SessionProperty
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
+extension Tool {
+
+    public typealias SessionState = LanguageModelSession.SessionState
+}
+
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
+extension Tool {
+
+    public typealias SessionBinding = LanguageModelSession.SessionBinding
+}
+
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Tool {
 
     /// A unique name for the tool.
@@ -8177,8 +8172,7 @@ extension Tool {
     public var includesSchemaInInstructions: Bool { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Tool where Self.Arguments : Generable {
 
     /// A schema for the parameters this tool accepts.
@@ -8236,8 +8230,7 @@ extension Tool where Self.Arguments : Generable {
 ///     return session
 /// }
 /// ```
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 public struct Transcript : Sendable, Equatable {
 
     /// Creates a transcript.
@@ -8257,8 +8250,7 @@ public struct Transcript : Sendable, Equatable {
     public static func == (a: Transcript, b: Transcript) -> Bool
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript : RandomAccessCollection {
 
     /// The type that represents a position of an entry in a transcript.
@@ -8294,8 +8286,7 @@ extension Transcript : RandomAccessCollection {
 
     /// A type that represents the indices that are valid for subscripting the
     /// collection, in ascending order.
-    @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
     public typealias Indices = Range<Transcript.Index>
 
     /// A type that provides the collection's iteration interface and
@@ -8304,13 +8295,11 @@ extension Transcript : RandomAccessCollection {
     /// By default, a collection conforms to the `Sequence` protocol by
     /// supplying `IndexingIterator` as its associated `Iterator`
     /// type.
-    @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
     public typealias Iterator = IndexingIterator<Transcript>
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript {
 
     /// An entry in a transcript.
@@ -8336,15 +8325,13 @@ extension Transcript {
         case response(Transcript.Response)
 
         /// Reasoning from the model.
-        @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
         case reasoning(Transcript.Reasoning)
 
         /// An entry representing a custom type encoded as data.
         ///
         /// The `contentType` allows you to identify which type the data can be decoded as.
-        @available(iOS 27.2, macOS 27.2, watchOS 27.2, *)
-        @available(tvOS, unavailable)
+        @available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
         case data(Transcript.DataEntry)
 
         /// Returns a Boolean value indicating whether two values are equal.
@@ -8359,14 +8346,12 @@ extension Transcript {
 
         /// A type representing the stable identity of the entity associated with
         /// an instance.
-        @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
         public typealias ID = String
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript {
 
     /// The types of segments that may be included in a transcript entry.
@@ -8379,20 +8364,17 @@ extension Transcript {
         case structure(Transcript.StructuredSegment)
 
         /// A segment containing an attachment.
-        @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
         case attachment(Transcript.AttachmentSegment)
 
         /// A type representing the stable identity of the entity associated with
         /// an instance.
-        @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
         public typealias ID = String
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript {
 
     /// A segment containing text.
@@ -8423,14 +8405,12 @@ extension Transcript {
 
         /// A type representing the stable identity of the entity associated with
         /// an instance.
-        @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
         public typealias ID = String
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript {
 
     /// A segment containing structured content.
@@ -8469,14 +8449,12 @@ extension Transcript {
 
         /// A type representing the stable identity of the entity associated with
         /// an instance.
-        @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
         public typealias ID = String
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript {
 
     /// A segment containing attached files or images.
@@ -8511,14 +8489,12 @@ extension Transcript {
 
         /// A type representing the stable identity of the entity associated with
         /// an instance.
-        @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
         public typealias ID = String
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript {
 
     /// The types of attached content.
@@ -8528,8 +8504,7 @@ extension Transcript {
         case image(Transcript.ImageAttachment)
 
         /// An attached data payload identified by a content type identifier.
-        @available(iOS 27.2, macOS 27.2, watchOS 27.2, *)
-        @available(tvOS, unavailable)
+        @available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
         case data(Transcript.DataAttachment)
 
         /// Returns a Boolean value indicating whether two values are equal.
@@ -8544,8 +8519,7 @@ extension Transcript {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript {
 
     /// An image attachment in a transcript entry.
@@ -8563,8 +8537,7 @@ extension Transcript {
     }
 }
 
-@available(iOS 27.2, macOS 27.2, watchOS 27.2, *)
-@available(tvOS, unavailable)
+@available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
 extension Transcript {
 
     /// A data attachment payload in a serialized, portable format.
@@ -8614,8 +8587,7 @@ extension Transcript {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript {
 
     /// Instructions you provide to the model that define its behavior.
@@ -8657,14 +8629,12 @@ extension Transcript {
 
         /// A type representing the stable identity of the entity associated with
         /// an instance.
-        @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
         public typealias ID = String
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript {
 
     /// A definition of a tool.
@@ -8677,8 +8647,7 @@ extension Transcript {
         public var description: String
 
         /// A schema that specifies the parameters of the tool.
-        @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
         public var parameters: GenerationSchema
 
         /// Creates a tool definition with the name, description, and parameter schema you provide.
@@ -8691,8 +8660,7 @@ extension Transcript {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript {
 
     /// A prompt from the user to the model.
@@ -8712,13 +8680,11 @@ extension Transcript {
         public var options: GenerationOptions
 
         /// Configuration of the prompt.
-        @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
         public var contextOptions: ContextOptions
 
         /// Metadata provided as part of this prompt.
-        @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
         public var metadata: [String : GeneratedContent]
 
         /// An optional response format that describes the desired output structure.
@@ -8727,34 +8693,30 @@ extension Transcript {
         /// Creates a prompt.
         ///
         /// - Parameters:
-        ///   - id: A ``Generable`` type to use as the response format.
+        ///   - id: A unique identifier for the prompt.
         ///   - metadata: Metadata provided as part of this prompt.
         ///   - segments: An array of segments that make up the prompt.
         ///   - options: Options that control how tokens are sampled from the distribution the model produces.
         ///   - responseFormat: A response format that describes the output structure.
         ///   - contextOptions: Settings that configure how the model is prompted.
-        @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
         public init(id: String = UUID().uuidString, metadata: [String : any ConvertibleToGeneratedContent] = [:], segments: [Transcript.Segment], options: GenerationOptions = GenerationOptions(), responseFormat: Transcript.ResponseFormat? = nil, contextOptions: ContextOptions = ContextOptions())
 
         /// A type representing the stable identity of the entity associated with
         /// an instance.
-        @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
         public typealias ID = String
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript {
 
     /// A response format that the model must conform its output to.
     public struct ResponseFormat : Sendable, Equatable {
 
         /// The way the response format constrains the model's output.
-        @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
         public let kind: Transcript.ResponseFormat.Kind
 
         /// Returns a Boolean value indicating whether two values are equal.
@@ -8769,8 +8731,7 @@ extension Transcript {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript {
 
     /// A collection of tool calls generated by the model.
@@ -8798,14 +8759,12 @@ extension Transcript {
 
         /// A type representing the stable identity of the entity associated with
         /// an instance.
-        @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
         public typealias ID = String
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript {
 
     /// A tool call generated by the model containing the name of a tool and arguments to pass to it.
@@ -8821,20 +8780,17 @@ extension Transcript {
         public var arguments: GeneratedContent
 
         /// Metadata produced by the model while generating this tool call.
-        @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
         public var metadata: [String : GeneratedContent]
 
         /// A type representing the stable identity of the entity associated with
         /// an instance.
-        @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
         public typealias ID = String
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript {
 
     /// A tool output provided back to the model.
@@ -8869,14 +8825,12 @@ extension Transcript {
 
         /// A type representing the stable identity of the entity associated with
         /// an instance.
-        @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
         public typealias ID = String
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript {
 
     /// A response from the model.
@@ -8893,14 +8847,12 @@ extension Transcript {
 
         /// A type representing the stable identity of the entity associated with
         /// an instance.
-        @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
         public typealias ID = String
     }
 }
 
-@available(iOS 27.2, macOS 27.2, watchOS 27.2, *)
-@available(tvOS, unavailable)
+@available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
 extension Transcript {
 
     /// A top-level transcript entry payload in a serialized, portable format.
@@ -8954,14 +8906,12 @@ extension Transcript {
 
         /// A type representing the stable identity of the entity associated with
         /// an instance.
-        @available(macOS 27.2, iOS 27.2, watchOS 27.2, *)
-        @available(tvOS, unavailable)
+        @available(macOS 27.2, iOS 27.2, tvOS 27.2, watchOS 27.2, *)
         public typealias ID = String
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript {
 
     /// A reasoning entry from the model.
@@ -8996,19 +8946,16 @@ extension Transcript {
 
         /// A type representing the stable identity of the entity associated with
         /// an instance.
-        @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
         public typealias ID = String
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript : MutableCollection {
 
     /// A type representing the sequence's elements.
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
     public typealias Element = Transcript.Entry
 
     /// A collection representing a contiguous subrange of this collection's
@@ -9016,13 +8963,11 @@ extension Transcript : MutableCollection {
     ///
     /// The default subsequence type for collections that don't define their own
     /// is `Slice`.
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
     public typealias SubSequence = Slice<Transcript>
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript : RangeReplaceableCollection {
 
     /// Creates a new, empty collection.
@@ -9067,12 +9012,10 @@ extension Transcript : RangeReplaceableCollection {
     public mutating func replaceSubrange<C>(_ subrange: Range<Int>, with newElements: consuming C) where C : Collection, C.Element == Transcript.Entry
 }
 
-@available(tvOS, unavailable)
 extension Transcript {
 
     /// A mutable view into the conversational entries of a transcript.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public struct HistoryView : MutableCollection, RandomAccessCollection, RangeReplaceableCollection, Sendable {
 
         /// The type of entry the view contains.
@@ -9166,8 +9109,7 @@ extension Transcript {
 
         /// A type that represents the indices that are valid for subscripting the
         /// collection, in ascending order.
-        @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
         public typealias Indices = Range<Transcript.HistoryView.Index>
 
         /// A type that provides the collection's iteration interface and
@@ -9176,8 +9118,7 @@ extension Transcript {
         /// By default, a collection conforms to the `Sequence` protocol by
         /// supplying `IndexingIterator` as its associated `Iterator`
         /// type.
-        @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
         public typealias Iterator = IndexingIterator<Transcript.HistoryView>
     }
 
@@ -9193,13 +9134,11 @@ extension Transcript {
     ///
     /// When writing, the new value replaces all entries except the leading instructions
     /// entry, which is preserved.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public var history: Transcript.HistoryView
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript : Codable {
 
     /// Creates a new instance by decoding from the given decoder.
@@ -9222,16 +9161,14 @@ extension Transcript : Codable {
     public func encode(to encoder: any Encoder) throws
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.Entry {
 
     /// The stable identity of the entity associated with this instance.
     public var id: String { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.Entry : CustomStringConvertible {
 
     /// A textual representation of this instance.
@@ -9260,8 +9197,7 @@ extension Transcript.Entry : CustomStringConvertible {
     public var description: String { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.Segment {
 
     /// The stable identity of the entity associated with this instance.
@@ -9278,8 +9214,7 @@ extension Transcript.Segment {
     public static func == (lhs: Transcript.Segment, rhs: Transcript.Segment) -> Bool
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.Segment : CustomStringConvertible {
 
     /// A textual representation of this instance.
@@ -9308,8 +9243,7 @@ extension Transcript.Segment : CustomStringConvertible {
     public var description: String { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.TextSegment : CustomStringConvertible {
 
     /// A textual representation of this instance.
@@ -9338,14 +9272,12 @@ extension Transcript.TextSegment : CustomStringConvertible {
     public var description: String { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.StructuredSegment {
 
     /// A name that can be used to understand which type the content represents.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     @backDeployed(before: iOS 27.0, macOS 27.0, visionOS 27.0)
-    @available(tvOS, unavailable)
     public var schemaName: String
 
     /// Creates a structured segment that contains the generated content you provide.
@@ -9354,13 +9286,11 @@ extension Transcript.StructuredSegment {
     ///   - id: A unique identifier for the segment.
     ///   - schemaName: A name that describes which type the content represents.
     ///   - content: The structured content of the segment.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public init(id: String = UUID().uuidString, schemaName: String, content: GeneratedContent)
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.StructuredSegment : CustomStringConvertible {
 
     /// A textual representation of this instance.
@@ -9389,8 +9319,7 @@ extension Transcript.StructuredSegment : CustomStringConvertible {
     public var description: String { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.AttachmentSegment : CustomStringConvertible {
 
     /// A textual representation of this instance.
@@ -9419,16 +9348,14 @@ extension Transcript.AttachmentSegment : CustomStringConvertible {
     public var description: String { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.ImageAttachment {
 
     /// The URL of the original image asset, if the attachment was created from a URL.
     public var url: URL? { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.ImageAttachment {
 
     /// The image as a Core Graphics image.
@@ -9465,8 +9392,7 @@ extension Transcript.ImageAttachment {
     public init(imageURL: URL, orientation: CGImagePropertyOrientation? = nil)
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.Instructions : CustomStringConvertible {
 
     /// A textual representation of this instance.
@@ -9495,8 +9421,7 @@ extension Transcript.Instructions : CustomStringConvertible {
     public var description: String { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.ToolDefinition {
 
     /// Creates a tool definition that describes the tool you provide.
@@ -9515,14 +9440,13 @@ extension Transcript.ToolDefinition {
     public static func == (lhs: Transcript.ToolDefinition, rhs: Transcript.ToolDefinition) -> Bool
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.Prompt {
 
     /// Creates a prompt.
     ///
     /// - Parameters:
-    ///   - id: A ``Generable`` type to use as the response format.
+    ///   - id: A unique identifier for the prompt.
     ///   - segments: An array of segments that make up the prompt.
     ///   - options: Options that control how tokens are sampled from the distribution the model produces.
     ///   - responseFormat: A response format that describes the output structure.
@@ -9539,8 +9463,7 @@ extension Transcript.Prompt {
     public static func == (lhs: Transcript.Prompt, rhs: Transcript.Prompt) -> Bool
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.Prompt : CustomStringConvertible {
 
     /// A textual representation of this instance.
@@ -9569,8 +9492,7 @@ extension Transcript.Prompt : CustomStringConvertible {
     public var description: String { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.ResponseFormat {
 
     /// A name associated with the response format.
@@ -9589,13 +9511,11 @@ extension Transcript.ResponseFormat {
     public init(schema: GenerationSchema)
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.ResponseFormat {
 
     /// A representation of the different ways a response format can constrain model output.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     @nonexhaustive public enum Kind : Sendable {
 
         /// A format that constrains the model's output to a generation schema.
@@ -9603,8 +9523,7 @@ extension Transcript.ResponseFormat {
     }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.ResponseFormat : CustomStringConvertible {
 
     /// A textual representation of this instance.
@@ -9633,8 +9552,7 @@ extension Transcript.ResponseFormat : CustomStringConvertible {
     public var description: String { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.ToolCalls : RandomAccessCollection {
 
     /// Accesses the tool call at the specified position.
@@ -9666,8 +9584,7 @@ extension Transcript.ToolCalls : RandomAccessCollection {
     public var endIndex: Int { get }
 
     /// A type representing the sequence's elements.
-    @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
     public typealias Element = Transcript.ToolCall
 
     /// A type that represents a position in the collection.
@@ -9675,14 +9592,12 @@ extension Transcript.ToolCalls : RandomAccessCollection {
     /// Valid indices consist of the position of every element and a
     /// "past the end" position that's not valid for use as a subscript
     /// argument.
-    @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
     public typealias Index = Int
 
     /// A type that represents the indices that are valid for subscripting the
     /// collection, in ascending order.
-    @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
     public typealias Indices = Range<Int>
 
     /// A type that provides the collection's iteration interface and
@@ -9691,8 +9606,7 @@ extension Transcript.ToolCalls : RandomAccessCollection {
     /// By default, a collection conforms to the `Sequence` protocol by
     /// supplying `IndexingIterator` as its associated `Iterator`
     /// type.
-    @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
     public typealias Iterator = IndexingIterator<Transcript.ToolCalls>
 
     /// A collection representing a contiguous subrange of this collection's
@@ -9700,13 +9614,11 @@ extension Transcript.ToolCalls : RandomAccessCollection {
     ///
     /// The default subsequence type for collections that don't define their own
     /// is `Slice`.
-    @available(macOS 26.0, iOS 26.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(macOS 26.0, iOS 26.0, tvOS 27.0, watchOS 27.0, *)
     public typealias SubSequence = Slice<Transcript.ToolCalls>
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.ToolCalls : CustomStringConvertible {
 
     /// A textual representation of this instance.
@@ -9735,8 +9647,7 @@ extension Transcript.ToolCalls : CustomStringConvertible {
     public var description: String { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.ToolCall {
 
     /// Creates a tool call that invokes a tool with the arguments you provide.
@@ -9754,8 +9665,7 @@ extension Transcript.ToolCall {
     ///   - metadata: Additional information to associate with the tool call, keyed by name.
     ///   - toolName: The name of the tool to invoke.
     ///   - arguments: The arguments to pass to the invoked tool.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public init(id: String, metadata: [String : any ConvertibleToGeneratedContent], toolName: String, arguments: GeneratedContent)
 
     /// Returns a Boolean value indicating whether two values are equal.
@@ -9769,8 +9679,7 @@ extension Transcript.ToolCall {
     public static func == (lhs: Transcript.ToolCall, rhs: Transcript.ToolCall) -> Bool
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.ToolCall : CustomStringConvertible {
 
     /// A textual representation of this instance.
@@ -9799,8 +9708,7 @@ extension Transcript.ToolCall : CustomStringConvertible {
     public var description: String { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.ToolOutput : CustomStringConvertible {
 
     /// A textual representation of this instance.
@@ -9829,14 +9737,12 @@ extension Transcript.ToolOutput : CustomStringConvertible {
     public var description: String { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.Response {
 
     /// Metadata associated with generating the response.
-    @available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
+    @available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
     @backDeployed(before: iOS 27.0, macOS 27.0, visionOS 27.0)
-    @available(tvOS, unavailable)
     public var metadata: [String : GeneratedContent] { get }
 
     /// Creates a response that contains the segments you provide.
@@ -9853,8 +9759,7 @@ extension Transcript.Response {
     ///   - id: A unique identifier for the response.
     ///   - metadata: Additional information to associate with the response, keyed by name.
     ///   - segments: The segments of the response, in order.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public init(id: String = UUID().uuidString, metadata: [String : any ConvertibleToGeneratedContent] = [:], segments: [Transcript.Segment])
 
     /// Returns a Boolean value indicating whether two values are equal.
@@ -9868,8 +9773,7 @@ extension Transcript.Response {
     public static func == (lhs: Transcript.Response, rhs: Transcript.Response) -> Bool
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.Response : CustomStringConvertible {
 
     /// A textual representation of this instance.
@@ -9898,8 +9802,7 @@ extension Transcript.Response : CustomStringConvertible {
     public var description: String { get }
 }
 
-@available(iOS 27.2, macOS 27.2, watchOS 27.2, *)
-@available(tvOS, unavailable)
+@available(iOS 27.2, macOS 27.2, watchOS 27.2, tvOS 27.2, *)
 extension Transcript.DataEntry : CustomStringConvertible {
 
     /// A textual representation of this instance.
@@ -9928,8 +9831,7 @@ extension Transcript.DataEntry : CustomStringConvertible {
     public var description: String { get }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.Reasoning {
 
     /// Returns a Boolean value indicating whether two values are equal.
@@ -9943,21 +9845,17 @@ extension Transcript.Reasoning {
     public static func == (lhs: Transcript.Reasoning, rhs: Transcript.Reasoning) -> Bool
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(watchOS, unavailable)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.Reasoning {
 
     /// A textual representation of the reasoning entry.
     public var description: String { get }
 }
 
-@available(tvOS, unavailable)
 extension Transcript.HistoryView {
 
     /// A position of an entry within a history view.
-    @available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
     public struct Index : Comparable, Hashable, Sendable, Strideable {
 
         /// Returns a Boolean value indicating whether the value of the first
@@ -9972,7 +9870,7 @@ extension Transcript.HistoryView {
         ///   - rhs: Another value to compare.
         public static func < (lhs: Transcript.HistoryView.Index, rhs: Transcript.HistoryView.Index) -> Bool
 
-        /// Returns the distance from this value to the given value, expressed as a
+        /// Returns the distance from this value to the given value, expressed as a 
         /// stride.
         ///
         /// If this type's `Stride` type conforms to `BinaryInteger`, then for two
@@ -10017,8 +9915,7 @@ extension Transcript.HistoryView {
         public func advanced(by n: Int) -> Transcript.HistoryView.Index
 
         /// A type that represents the distance between two values.
-        @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-        @available(tvOS, unavailable)
+        @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
         public typealias Stride = Int
 
         /// Hashes the essential components of this value by feeding them into the
@@ -10050,8 +9947,7 @@ extension Transcript.HistoryView {
     }
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.HistoryView : ExpressibleByArrayLiteral {
 
     /// The type of entry an array literal contains when it creates a history view.
@@ -10061,8 +9957,7 @@ extension Transcript.HistoryView : ExpressibleByArrayLiteral {
     public init(arrayLiteral elements: Transcript.Entry...)
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Transcript.ResponseFormat.Kind : Equatable {
 
     /// Returns a Boolean value indicating whether two values are equal.
@@ -10077,8 +9972,7 @@ extension Transcript.ResponseFormat.Kind : Equatable {
 }
 
 /// Options for controlling how a language model session manages the transcript when errors occur.
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 public struct TranscriptErrorHandlingPolicy : Sendable {
 
     /// A policy that reverts the transcript back to the state it was in just before the most recent request.
@@ -10091,8 +9985,7 @@ public struct TranscriptErrorHandlingPolicy : Sendable {
 }
 
 /// A dynamic instructions type that represents a tuple.
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 public struct TupleDynamicInstructions<each Content> : DynamicInstructions where repeat each Content : DynamicInstructions {
 
     /// Creates a dynamic instructions instance that represents a tuple.
@@ -10102,52 +9995,44 @@ public struct TupleDynamicInstructions<each Content> : DynamicInstructions where
     public init(_ contents: repeat each Content)
 
     /// The type of dynamic instructions that represent these instructions.
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
     public typealias Body = Never
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Optional : DynamicInstructions where Wrapped : DynamicInstructions {
 
     /// The content of the dynamic instructions.
     public var body: Never { get }
 
     /// The type of dynamic instructions that represent these instructions.
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
     public typealias Body = Never
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Never : DynamicInstructions {
 
     /// The content of the dynamic instructions.
     public var body: Never { get }
 
     /// The type of dynamic instructions that represent these instructions.
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
+    @available(macOS 27.0, iOS 27.0, tvOS 27.0, watchOS 27.0, *)
     public typealias Body = Never
 }
 
-@available(iOS 27.0, macOS 27.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 27.0, macOS 27.0, watchOS 27.0, tvOS 27.0, *)
 extension Never : LanguageModelSession.DynamicProfile {
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Optional where Wrapped : Generable {
 
     /// A representation of partially generated content for the wrapped type.
     public typealias PartiallyGenerated = Wrapped.PartiallyGenerated
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Optional : ConvertibleToGeneratedContent, PromptRepresentable, InstructionsRepresentable where Wrapped : ConvertibleToGeneratedContent {
 
     /// This instance represented as generated content.
@@ -10176,8 +10061,7 @@ extension Optional : ConvertibleToGeneratedContent, PromptRepresentable, Instruc
     public var generatedContent: GeneratedContent { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Bool : Generable {
 
     /// An instance of the generation schema.
@@ -10240,8 +10124,7 @@ extension Bool : Generable {
     public var instructionsRepresentation: Instructions { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension String : Generable {
 
     /// An instance of the generation schema.
@@ -10298,8 +10181,7 @@ extension String : Generable {
     public var generatedContent: GeneratedContent { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Int : Generable {
 
     /// An instance of the generation schema.
@@ -10362,8 +10244,7 @@ extension Int : Generable {
     public var instructionsRepresentation: Instructions { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Float : Generable {
 
     /// An instance of the generation schema.
@@ -10426,8 +10307,7 @@ extension Float : Generable {
     public var instructionsRepresentation: Instructions { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Double : Generable {
 
     /// An instance of the generation schema.
@@ -10490,8 +10370,7 @@ extension Double : Generable {
     public var instructionsRepresentation: Instructions { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Decimal : Generable {
 
     /// An instance of the generation schema.
@@ -10554,8 +10433,7 @@ extension Decimal : Generable {
     public var instructionsRepresentation: Instructions { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Array : Generable where Element : Generable {
 
     /// A representation of partially generated content, as an array of partially generated elements.
@@ -10565,8 +10443,7 @@ extension Array : Generable where Element : Generable {
     public static var generationSchema: GenerationSchema { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Array : ConvertibleToGeneratedContent where Element : ConvertibleToGeneratedContent {
 
     /// This instance represented as generated content.
@@ -10595,8 +10472,7 @@ extension Array : ConvertibleToGeneratedContent where Element : ConvertibleToGen
     public var generatedContent: GeneratedContent { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Array : ConvertibleFromGeneratedContent where Element : ConvertibleFromGeneratedContent {
 
     /// Creates an instance from content generated by a model.
@@ -10625,8 +10501,7 @@ extension Array : ConvertibleFromGeneratedContent where Element : ConvertibleFro
     public init(_ content: GeneratedContent) throws
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Never : Generable {
 
     /// An instance of the generation schema.
@@ -10683,32 +10558,28 @@ extension Never : Generable {
     public var generatedContent: GeneratedContent { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension String : InstructionsRepresentable {
 
     /// An instance that represents the instructions.
     public var instructionsRepresentation: Instructions { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Array : InstructionsRepresentable where Element : InstructionsRepresentable {
 
     /// An instance that represents the instructions.
     public var instructionsRepresentation: Instructions { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension String : PromptRepresentable {
 
     /// An instance that represents a prompt.
     public var promptRepresentation: Prompt { get }
 }
 
-@available(iOS 26.0, macOS 26.0, watchOS 27.0, *)
-@available(tvOS, unavailable)
+@available(iOS 26.0, macOS 26.0, watchOS 27.0, tvOS 27.0, *)
 extension Array : PromptRepresentable where Element : PromptRepresentable {
 
     /// An instance that represents a prompt.
@@ -10727,3 +10598,4 @@ extension Attachment where Content == ImageAttachmentContent {
 
     public init(_ uiImage: UIImage, orientation: UIImage.Orientation? = nil)
 }
+
