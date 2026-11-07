@@ -65,6 +65,8 @@ private extension FoundationLabExperimentEvent {
             String(localized: "Tool Call")
         case .toolResult:
             String(localized: "Tool Result")
+        case .reasoning:
+            String(localized: "Reasoning")
         }
     }
 
@@ -74,6 +76,8 @@ private extension FoundationLabExperimentEvent {
             "wrench.and.screwdriver"
         case .toolResult:
             "checkmark.bubble"
+        case .reasoning:
+            "brain"
         case .message:
             role.systemImage
         }
