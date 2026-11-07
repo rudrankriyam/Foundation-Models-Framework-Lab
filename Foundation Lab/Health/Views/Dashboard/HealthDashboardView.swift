@@ -13,7 +13,6 @@ struct HealthDashboardView: View {
     @State private var isLoading = true
     @State private var loadErrorMessage: String?
     @State private var healthDataManager = HealthDataManager.shared
-    @Environment(\.modelContext) private var modelContext
 
     @State private var todayMetrics: [MetricType: Double] = [:]
 
@@ -129,7 +128,6 @@ private extension HealthDashboardView {
     func loadHealthData() async {
         isLoading = true
         loadErrorMessage = nil
-        healthDataManager.configureModelContext(modelContext)
 
         if !healthDataManager.isAuthorized {
             do {

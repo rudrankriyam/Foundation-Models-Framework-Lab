@@ -25,7 +25,7 @@ struct HealthDataTool: Tool {
         )
         var dataType: String
 
-        @Guide(description: "Whether to fetch from HealthKit (true) or SwiftData cache (false). Defaults to false.")
+        @Guide(description: "Whether to refresh from HealthKit (true) or reuse values from the last refresh (false). Defaults to false.")
         var refreshFromHealthKit: Bool?
     }
 

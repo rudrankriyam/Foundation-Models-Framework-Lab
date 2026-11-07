@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftData
 import Observation
 
 @MainActor
@@ -15,7 +14,6 @@ final class HealthDataManager {
     // MARK: - Services
 
     let healthKitService: HealthKitService
-    private(set) var healthRepository: HealthRepository
 
     // MARK: - Observable State
 
@@ -40,7 +38,6 @@ final class HealthDataManager {
 
     init() {
         self.healthKitService = HealthKitService()
-        self.healthRepository = HealthRepository()
     }
 
     // MARK: - Authorization
@@ -66,28 +63,12 @@ final class HealthDataManager {
         todayDistance = metrics.distance
         currentHeartRate = metrics.heartRate
         lastNightSleep = metrics.sleep
-
-        // Persist only actual positive samples; absence stays distinct from zero.
-        let metricsToSave = currentMetrics.filter { $0.value > 0 }
-        healthRepository.saveMetrics(metricsToSave)
     }
 
     // MARK: - Fetch Weekly Data
 
     func fetchWeeklyData() async -> [MetricType: [DailyMetricData]] {
         await healthKitService.fetchWeeklyData()
-    }
-
-    // MARK: - SwiftData Context
-
-    func configureModelContext(_ context: ModelContext) {
-        healthRepository.setModelContext(context)
-    }
-
-    // MARK: - Fetch Recent Metrics
-
-    func fetchRecentMetrics(days: Int = 7) -> [HealthMetric] {
-        healthRepository.fetchRecentMetrics(days: days)
     }
 }
 
