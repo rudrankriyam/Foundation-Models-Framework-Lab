@@ -41,11 +41,11 @@ jobs:
       - name: Typecheck book playgrounds
         run: bash Tools/BookPlaygrounds/typecheck.sh
 
-      - name: Build Foundation Lab Watch
+      - name: Build Foundation Lab for iOS with embedded watch app
         run: |
           xcodebuild \
             -project FoundationLab.xcodeproj \
-            -scheme 'Foundation Lab Watch' \
-            -destination 'generic/platform=watchOS Simulator' \
+            -scheme 'Foundation Lab' \
+            -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO \
             build

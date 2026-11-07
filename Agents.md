@@ -17,8 +17,8 @@ The product serves two audiences without splitting into two apps:
 ## Toolchain
 
 - Deployment targets: iOS 26.0+ and macOS 26.0+; the `Foundation Lab Watch`
-  target is watchOS 27.0+ and uses only Private Cloud Compute, because
-  `SystemLanguageModel` is unavailable on watchOS
+  companion is watchOS 27.0+, embedded in the iOS app, and uses only Private
+  Cloud Compute, because `SystemLanguageModel` is unavailable on watchOS
 - Supported compiler: Xcode 27.1 or later
 - Swift 6 with strict concurrency and Main Actor default isolation
 - Live on-device execution requires Apple Silicon and Apple Intelligence
@@ -226,7 +226,7 @@ Do not leave references to retired providers, screens, or navigation labels.
 
 ```text
 Foundation Lab/                 Native app
-Foundation Lab Watch/           Self-contained watchOS app (Private Cloud Compute only)
+Foundation Lab Watch/           watchOS companion embedded in the iOS app (Private Cloud Compute only)
 FoundationLabCore/              Shared capability and experiment runtime
 Tools/AdapterStudio/            fmas adapter tooling
 BookPlaygrounds/                Chapter-oriented Xcode playgrounds

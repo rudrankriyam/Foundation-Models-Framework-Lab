@@ -12,6 +12,8 @@
 	<dict>
 		<key>__TARGET_BUNDLE_ID__</key>
 		<string>__PROFILE_NAME__</string>
+		<key>__TARGET_BUNDLE_ID__.watchkitapp</key>
+		<string>__WATCH_PROFILE_NAME__</string>
 	</dict>
 </dict>
 </plist>

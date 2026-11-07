@@ -24,9 +24,12 @@ struct WatchResponseView: View {
                 if let errorMessage {
                     Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
                         .foregroundStyle(.orange)
-                } else if response.isEmpty {
+                } else if response.isEmpty && !hasCompleted {
                     ProgressView()
                         .frame(maxWidth: .infinity)
+                } else if response.isEmpty {
+                    Text("The model returned an empty response.")
+                        .foregroundStyle(.secondary)
                 } else {
                     Text(response)
                 }
