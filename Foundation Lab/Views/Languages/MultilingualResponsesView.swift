@@ -27,13 +27,15 @@ struct MultilingualResponsesView: View {
                 ToolExecuteButton(
                     "Generate Responses",
                     systemImage: "character.bubble",
-                    isRunning: isRunning,
+                    isRunning: isRunning || runTask != nil,
                     stopAction: cancelRun
                 ) {
                     runTask = Task {
+                        defer {
+                            isRunning = false
+                            runTask = nil
+                        }
                         await generateMultilingualResponses()
-                        guard !Task.isCancelled else { return }
-                        runTask = nil
                     }
                 }
 
@@ -68,8 +70,6 @@ struct MultilingualResponsesView: View {
 
     private func cancelRun() {
         runTask?.cancel()
-        runTask = nil
-        isRunning = false
     }
 
     private var codeExample: String {

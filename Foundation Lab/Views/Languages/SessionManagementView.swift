@@ -25,13 +25,15 @@ struct SessionManagementView: View {
                 ToolExecuteButton(
                     "Run Conversation",
                     systemImage: "bubble.left.and.bubble.right",
-                    isRunning: isRunning,
+                    isRunning: isRunning || runTask != nil,
                     stopAction: cancelRun
                 ) {
                     runTask = Task {
+                        defer {
+                            isRunning = false
+                            runTask = nil
+                        }
                         await startMultilingualConversation()
-                        guard !Task.isCancelled else { return }
-                        runTask = nil
                     }
                 }
 
@@ -65,8 +67,6 @@ struct SessionManagementView: View {
 
     private func cancelRun() {
         runTask?.cancel()
-        runTask = nil
-        isRunning = false
     }
 
     private var codeExample: String {
