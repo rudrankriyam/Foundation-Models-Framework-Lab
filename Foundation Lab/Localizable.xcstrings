@@ -30144,13 +30144,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "生成的配方"
+            "value" : "生成的食谱"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "產生的配方"
+            "value" : "產生的食譜"
           }
         }
       }
