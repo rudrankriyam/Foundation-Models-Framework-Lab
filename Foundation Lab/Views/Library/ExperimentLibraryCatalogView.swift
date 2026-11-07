@@ -181,6 +181,8 @@ private extension ExampleType {
             String(localized: "Capture actual calls and outputs, then compare an authored expectation")
         case .dynamicProfileBuilder:
             String(localized: "Run one session across state-driven profiles")
+        case .sessionStateLab:
+            String(localized: "Pass @SessionState to child profiles and watch it change per turn")
         case .reasoningLevelComparison:
             String(localized: "Run one prompt across light, moderate, and deep reasoning budgets")
         case .transcriptExplorer:
