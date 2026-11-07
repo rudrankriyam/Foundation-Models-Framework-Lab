@@ -13,6 +13,7 @@ struct SessionManagementView: View {
     @State private var conversationResults: [LanguageSessionExchange] = []
     @State private var isRunning = false
     @State private var errorMessage: String?
+    @State private var runTask: Task<Void, Never>?
     private let runLanguageSessionDemoUseCase = RunLanguageSessionDemoUseCase()
 
     var body: some View {
@@ -24,9 +25,14 @@ struct SessionManagementView: View {
                 ToolExecuteButton(
                     "Run Conversation",
                     systemImage: "bubble.left.and.bubble.right",
-                    isRunning: isRunning
+                    isRunning: isRunning,
+                    stopAction: cancelRun
                 ) {
-                    Task { await startMultilingualConversation() }
+                    runTask = Task {
+                        await startMultilingualConversation()
+                        guard !Task.isCancelled else { return }
+                        runTask = nil
+                    }
                 }
 
                 if let errorMessage {
@@ -54,6 +60,13 @@ struct SessionManagementView: View {
 #if os(iOS)
         .navigationBarTitleDisplayMode(.large)
 #endif
+        .onDisappear(perform: cancelRun)
+    }
+
+    private func cancelRun() {
+        runTask?.cancel()
+        runTask = nil
+        isRunning = false
     }
 
     private var codeExample: String {
@@ -111,8 +124,10 @@ let result = try await RunConversationUseCase().execute(
                     )
                 )
             )
+            guard !Task.isCancelled else { return }
             conversationResults = result.exchanges
         } catch {
+            guard !Task.isCancelled else { return }
             errorMessage = error.localizedDescription
         }
 
