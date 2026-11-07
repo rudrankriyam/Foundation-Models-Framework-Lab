@@ -12,19 +12,12 @@ struct RunDetailView: View {
 
     @Environment(ExperimentStore.self) private var store
     @Environment(NavigationCoordinator.self) private var navigationCoordinator
+#if os(iOS)
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+#endif
 
     var body: some View {
-        List {
-            RunDetailOverviewSection(run: run)
-            RunTranscriptSections(run: run)
-            RunConfigurationSection(run: run)
-            RunToolsSection(tools: run.configuration.selectedTools)
-        }
-#if os(iOS)
-        .listStyle(.insetGrouped)
-#else
-        .listStyle(.inset)
-#endif
+        content
         .navigationTitle(
             run.configuration.name.isEmpty ? String(localized: "Run Detail") : run.configuration.name
         )
@@ -38,6 +31,48 @@ struct RunDetailView: View {
                 .accessibilityHint("Loads this run's exact configuration without running it")
             }
         }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+#if os(iOS)
+        if #available(iOS 27.1, *), horizontalSizeClass == .regular {
+            ArrangementView {
+                detailList {
+                    RunDetailOverviewSection(run: run)
+                    RunTranscriptSections(run: run)
+                }
+            } secondary: {
+                detailList {
+                    RunConfigurationSection(run: run)
+                    RunToolsSection(tools: run.configuration.selectedTools)
+                }
+            }
+            .arrangementViewStyle(.split)
+        } else {
+            combinedList
+        }
+#else
+        combinedList
+#endif
+    }
+
+    private var combinedList: some View {
+        detailList {
+            RunDetailOverviewSection(run: run)
+            RunTranscriptSections(run: run)
+            RunConfigurationSection(run: run)
+            RunToolsSection(tools: run.configuration.selectedTools)
+        }
+    }
+
+    private func detailList(@ViewBuilder content: () -> some View) -> some View {
+        List(content: content)
+#if os(iOS)
+            .listStyle(.insetGrouped)
+#else
+            .listStyle(.inset)
+#endif
     }
 
     private func loadConfiguration() {
