@@ -30,12 +30,10 @@ struct AdaptiveNavigationView: View {
     var body: some View {
         Group {
 #if os(iOS)
-            if horizontalSizeClass == .compact {
-                // iPhone or iPad in compact width (portrait on smaller iPads)
-                tabBasedNavigation
-            } else {
-                // iPad in regular width (landscape or larger iPads)
+            if horizontalSizeClass == .regular {
                 splitViewNavigation
+            } else {
+                tabBasedNavigation
             }
 #else
             // macOS always uses split view

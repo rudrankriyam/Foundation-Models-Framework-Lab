@@ -8,7 +8,6 @@ struct PlaygroundView: View {
     @Environment(NavigationCoordinator.self) private var navigationCoordinator
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let viewModel: ChatViewModel
-    @State private var messageText = ""
     @State private var scrollID: String?
 #if os(macOS)
     @AppStorage(FoundationLabPreferenceKey.playgroundInspectorIsVisible)
@@ -52,7 +51,7 @@ struct PlaygroundView: View {
             )
 
             ChatInputView(
-                messageText: $messageText,
+                messageText: $viewModel.draftPrompt,
                 chatViewModel: viewModel,
                 isTextFieldFocused: $isPromptFocused,
                 onSend: run,
@@ -87,7 +86,7 @@ struct PlaygroundView: View {
             if showsInspector {
                 Group {
 #if os(iOS)
-                    if horizontalSizeClass == .compact {
+                    if horizontalSizeClass != .regular {
                         VStack(spacing: 0) {
                             HStack {
                                 Text("Configuration")
@@ -209,7 +208,7 @@ private extension PlaygroundView {
             experimentStore.updateActiveExperiment(effectiveConfiguration)
         }
         pendingVoiceConfiguration = nil
-        messageText = effectiveConfiguration.prompt
+        viewModel.draftPrompt = effectiveConfiguration.prompt
         scrollID = "bottom"
     }
 
@@ -220,7 +219,7 @@ private extension PlaygroundView {
             return
         }
 
-        messageText = ""
+        viewModel.draftPrompt = ""
         Task {
             await run(prompt)
         }

@@ -20,6 +20,7 @@ final class ChatViewModel {
     // MARK: - Published Properties
 
     var isLoading: Bool = false
+    var draftPrompt = ""
 
     // MARK: - Voice State
 
