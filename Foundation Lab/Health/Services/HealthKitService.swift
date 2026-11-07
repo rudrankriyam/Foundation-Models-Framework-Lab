@@ -153,34 +153,7 @@ actor HealthKitService {
     }
 
     func fetchLastNightSleep() async -> Double? {
-        guard let healthStore = healthStore,
-              let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else {
-            return nil
-        }
-
-        let calendar = Calendar.current
-        let endDate = calendar.startOfDay(for: Date())
-        guard let startDate = calendar.date(byAdding: .day, value: -1, to: endDate) else {
-            logger.error("Failed to calculate start date for sleep data")
-            return nil
-        }
-
-        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
-        let samplePredicate = HKSamplePredicate.categorySample(type: sleepType, predicate: predicate)
-
-        let descriptor = HKSampleQueryDescriptor(
-            predicates: [samplePredicate],
-            sortDescriptors: [SortDescriptor(\.startDate, order: .forward)]
-        )
-
-        do {
-            let sleepSamples = try await descriptor.result(for: healthStore)
-            return totalAsleepDuration(in: sleepSamples).map { $0 / secondsToHours }
-        } catch {
-            logger.error("Failed to fetch sleep data: \(error.localizedDescription)")
-        }
-
-        return nil
+        await fetchSleepHours(forNightEndingOn: Date())
     }
 
     private func fetchQuantityData(
@@ -247,7 +220,7 @@ actor HealthKitService {
                     to: dayEnd
                 )
             case .sleep:
-                value = await fetchSleepValue(for: dayStart)
+                value = await fetchSleepHours(forNightEndingOn: dayStart)
             default:
                 value = nil
             }
@@ -263,20 +236,23 @@ actor HealthKitService {
         return dailyData
     }
 
-    private func fetchSleepValue(for date: Date) async -> Double? {
+    private func fetchSleepHours(forNightEndingOn date: Date) async -> Double? {
         guard let healthStore = healthStore,
               let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else {
             return nil
         }
 
         let calendar = Calendar.current
-        let endDate = calendar.startOfDay(for: date)
-        guard let startDate = calendar.date(byAdding: .day, value: -1, to: endDate) else {
-            logger.error("Failed to calculate start date for sleep value")
+        let morning = calendar.startOfDay(for: date)
+        guard let previousDay = calendar.date(byAdding: .day, value: -1, to: morning),
+              let windowStart = calendar.date(bySettingHour: 18, minute: 0, second: 0, of: previousDay),
+              let noon = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: morning) else {
+            logger.error("Failed to calculate sleep window")
             return nil
         }
+        let window = DateInterval(start: windowStart, end: max(windowStart, min(noon, Date())))
 
-        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        let predicate = HKQuery.predicateForSamples(withStart: window.start, end: window.end)
         let samplePredicate = HKSamplePredicate.categorySample(type: sleepType, predicate: predicate)
 
         let descriptor = HKSampleQueryDescriptor(
@@ -286,7 +262,7 @@ actor HealthKitService {
 
         do {
             let sleepSamples = try await descriptor.result(for: healthStore)
-            return totalAsleepDuration(in: sleepSamples).map { $0 / secondsToHours }
+            return totalAsleepDuration(in: sleepSamples, within: window).map { $0 / secondsToHours }
         } catch {
             logger.error("Failed to fetch sleep value: \(error.localizedDescription)")
         }
@@ -294,14 +270,16 @@ actor HealthKitService {
         return nil
     }
 
-    private func totalAsleepDuration(in samples: [HKCategorySample]) -> TimeInterval? {
+    private func totalAsleepDuration(in samples: [HKCategorySample], within window: DateInterval) -> TimeInterval? {
         let intervals = samples.compactMap { sample -> DateInterval? in
             guard let value = HKCategoryValueSleepAnalysis(rawValue: sample.value),
                   HKCategoryValueSleepAnalysis.allAsleepValues.contains(value),
-                  sample.endDate > sample.startDate else {
+                  sample.endDate > sample.startDate,
+                  let clipped = DateInterval(start: sample.startDate, end: sample.endDate).intersection(with: window),
+                  clipped.duration > 0 else {
                 return nil
             }
-            return DateInterval(start: sample.startDate, end: sample.endDate)
+            return clipped
         }
         .sorted { $0.start < $1.start }
 
