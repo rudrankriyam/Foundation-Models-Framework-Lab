@@ -96,7 +96,7 @@ struct AdaptiveNavigationView: View {
         TabView(selection: $navigationCoordinator.tabSelection) {
             Tab(TabSelection.library.displayName, systemImage: TabSelection.library.systemImage, value: .library) {
                 NavigationSplitView {
-                    libraryList
+                    libraryList(showsPreviews: false)
                 } detail: {
                     libraryDetail
                 }
@@ -247,7 +247,7 @@ private extension AdaptiveNavigationView {
         if navigationCoordinator.splitViewSelection == .runs {
             runsList
         } else {
-            libraryList
+            libraryList(showsPreviews: true)
         }
     }
 
@@ -260,9 +260,12 @@ private extension AdaptiveNavigationView {
         }
     }
 
-    var libraryList: some View {
+    func libraryList(showsPreviews: Bool) -> some View {
         @Bindable var navigationCoordinator = navigationCoordinator
-        return LibraryView(selection: $navigationCoordinator.librarySelection)
+        return LibraryView(
+            selection: $navigationCoordinator.librarySelection,
+            showsPreviews: showsPreviews
+        )
     }
 
     var libraryDetail: some View {
