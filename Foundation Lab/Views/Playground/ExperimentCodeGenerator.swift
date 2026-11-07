@@ -104,7 +104,7 @@ enum ExperimentCodeGenerator {
         switch tool {
         case .weather: ["WeatherTool()"]
         case .web: ["Search1WebSearchTool()"]
-        case .contacts: ["ContactsTool()"]
+        case .contacts: ["ContactsTool(confirmation: mutationConfirmation)"]
         case .calendar:
             [
                 "CalendarReadTool(service: calendarService)",
@@ -127,7 +127,7 @@ enum ExperimentCodeGenerator {
     ) -> String {
         var declarations = [String]()
 
-        if tools.contains(where: { $0 == .calendar || $0 == .reminders }) {
+        if tools.contains(where: { $0 == .contacts || $0 == .calendar || $0 == .reminders }) {
             declarations.append(
                 """
                 let mutationConfirmation = ToolMutationConfirmationHandler { request in

@@ -118,7 +118,7 @@ public enum FoundationLabBuiltInTool: String, CaseIterable, Codable, Hashable, S
         case .web:
             [Search1WebSearchTool()]
         case .contacts:
-            [ConfirmedContactsTool(mutationConfirmation: mutationConfirmation)]
+            [mutationConfirmation.map { ContactsTool(confirmation: $0) } ?? ContactsTool()]
         case .calendar:
             calendarTools(mutationConfirmation: mutationConfirmation)
         case .reminders:
