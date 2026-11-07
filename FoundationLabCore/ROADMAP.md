@@ -37,5 +37,5 @@ This roadmap tracks the shared-capability refactor after the initial package bou
 
 ### Cleanup audit
 
-- The remaining direct `LanguageModelSession(...)`, `session.respond(...)`, and `Prompt(...)` references in the app target are now teaching snippets and example-code strings rather than live adapter execution.
+- The app target still creates `LanguageModelSession` directly in several Xcode 27 lab view models (for example image input, Spotlight RAG, reasoning levels, session state, and data content) alongside teaching snippets and example-code strings. Moving that live execution behind shared capabilities is not finished.
 - Remaining runtime `FoundationModels` imports in the app are primarily used for model types, `@Generable` examples, or adapter-facing configuration such as guardrails and transcript display.

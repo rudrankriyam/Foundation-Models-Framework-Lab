@@ -16,7 +16,7 @@ Its job is not to own delivery layers or UI concerns.
 
 - `FoundationLabCore` must not import `SwiftUI`, `AppIntents`, or `ArgumentParser`.
 - `FoundationLabCore` must not own navigation, tabs, routes, or screen-local state.
-- App targets, App Intents adapters, and CLI adapters may depend on `FoundationLabCore`.
+- App targets and App Intents adapters may depend on `FoundationLabCore`.
 - Shared capability implementations may live here as long as they stay UI-free and reusable across adapters.
 
 ## Initial conventions
