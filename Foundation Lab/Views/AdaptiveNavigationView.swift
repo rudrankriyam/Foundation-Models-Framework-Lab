@@ -12,6 +12,7 @@ import SwiftUI
 struct AdaptiveNavigationView: View {
     @State private var languageService = LanguageService()
     @State private var columnVisibility: NavigationSplitViewVisibility
+    @State private var listColumnVisibility: NavigationSplitViewVisibility
     @State private var navigationCoordinator = NavigationCoordinator()
     @State private var experimentStore = ExperimentStore()
     @State private var playgroundViewModel = ChatViewModel()
@@ -125,7 +126,7 @@ struct AdaptiveNavigationView: View {
     private var splitViewNavigation: some View {
         Group {
             if navigationCoordinator.splitViewSelection == .runs {
-                NavigationSplitView(columnVisibility: $columnVisibility) {
+                NavigationSplitView(columnVisibility: $listColumnVisibility) {
                     sidebar
                 } content: {
                     runsList
@@ -152,7 +153,10 @@ struct AdaptiveNavigationView: View {
             }
         }
         .onChange(of: columnVisibility) { _, newValue in
-            persistSidebarVisibility(newValue)
+            persistSidebarVisibility(newValue != .detailOnly)
+        }
+        .onChange(of: listColumnVisibility) { _, newValue in
+            persistSidebarVisibility(newValue != .doubleColumn && newValue != .detailOnly)
         }
     }
 
@@ -192,6 +196,7 @@ struct AdaptiveNavigationView: View {
             navigationCoordinator.splitViewSelection = selection
         }
         columnVisibility = persistedSidebarIsVisible ? .all : .detailOnly
+        listColumnVisibility = persistedSidebarIsVisible ? .all : .doubleColumn
 #endif
     }
 
@@ -201,9 +206,9 @@ struct AdaptiveNavigationView: View {
 #endif
     }
 
-    private func persistSidebarVisibility(_ visibility: NavigationSplitViewVisibility) {
+    private func persistSidebarVisibility(_ isVisible: Bool) {
 #if os(macOS)
-        persistedSidebarIsVisible = visibility != .detailOnly
+        persistedSidebarIsVisible = isVisible
 #endif
     }
 
@@ -263,8 +268,12 @@ extension AdaptiveNavigationView {
         _columnVisibility = State(
             initialValue: isSidebarVisible ? .all : .detailOnly
         )
+        _listColumnVisibility = State(
+            initialValue: isSidebarVisible ? .all : .doubleColumn
+        )
 #else
         _columnVisibility = State(initialValue: .automatic)
+        _listColumnVisibility = State(initialValue: .automatic)
 #endif
     }
 }
