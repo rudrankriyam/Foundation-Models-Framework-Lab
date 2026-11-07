@@ -53,9 +53,10 @@ Library entries identify how they open:
 ## Requirements
 
 - iOS 26.0+ or macOS 26.0+
+- watchOS 27.0+ for the `Foundation Lab Watch` companion, which ships inside the iOS app and runs prompts on Private Cloud Compute
 - Apple Silicon for on-device model execution
 - Apple Intelligence enabled for live model runs
-- Xcode 27.1 or later
+- Xcode 27.2 or later
 
 The app still runs on OS 26. APIs introduced with OS 27 are availability-gated,
 so the newest labs appear only on an OS 27 runtime.
