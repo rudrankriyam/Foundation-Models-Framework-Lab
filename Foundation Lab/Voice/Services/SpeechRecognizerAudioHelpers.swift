@@ -227,7 +227,7 @@ extension SpeechRecognizer {
         logger.debug("Starting recognition task")
         recognitionTask = speechRecognizer?.recognitionTask(with: request) { [weak self] result, error in
             Task { @MainActor [weak self] in
-                guard let self, self.recognitionRequest === request, !self.hasProcessedFinalResult else {
+                guard let self, !self.hasProcessedFinalResult else {
                     if VoiceLogging.isVerboseEnabled {
                         if let error {
                             VoiceLogging.recognition.debug(
@@ -259,11 +259,11 @@ extension SpeechRecognizer {
 
         if case .listening(let partialText) = state,
            !partialText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            if partialText != finalizedText {
-                continueRecognition(after: partialText)
-            } else {
-                scheduleIdleRestart(with: partialText)
+            if VoiceLogging.isVerboseEnabled {
+                logger.debug("Ignoring error due to partial text: \(partialText, privacy: .private)")
             }
+            hasProcessedFinalResult = true
+            state = .completed(finalText: partialText)
         } else {
             hasProcessedFinalResult = true
             state = .error(.recognitionFailed(error.localizedDescription))
@@ -271,50 +271,19 @@ extension SpeechRecognizer {
     }
 
     func processRecognitionResult(_ result: SFSpeechRecognitionResult) {
-        let transcription = combinedTranscription(result.bestTranscription.formattedString)
+        let transcription = result.bestTranscription.formattedString
 
         if result.isFinal {
             if VoiceLogging.isVerboseEnabled {
                 logger.debug("Final result: \(transcription, privacy: .private)")
             }
-            continueRecognition(after: transcription)
+            hasProcessedFinalResult = true
+            state = .completed(finalText: transcription)
         } else if !hasProcessedFinalResult {
             if VoiceLogging.isVerboseEnabled {
                 logger.debug("Partial result: \(transcription, privacy: .private)")
             }
             state = .listening(partialText: transcription)
         }
-    }
-
-    private func combinedTranscription(_ text: String) -> String {
-        guard !finalizedText.isEmpty else { return text }
-        guard !text.isEmpty else { return finalizedText }
-        return "\(finalizedText) \(text)"
-    }
-
-    func cancelIdleRestart() {
-        idleRestartTask?.cancel()
-        idleRestartTask = nil
-    }
-
-    private func scheduleIdleRestart(with text: String) {
-        idleRestartTask?.cancel()
-        idleRestartTask = Task { [weak self] in
-            try? await Task.sleep(for: .milliseconds(500))
-            guard !Task.isCancelled, let self else { return }
-            self.idleRestartTask = nil
-            self.continueRecognition(after: text)
-        }
-    }
-
-    private func continueRecognition(after text: String) {
-        cancelIdleRestart()
-        finalizedText = text
-        recognitionTask?.cancel()
-        recognitionRequest?.endAudio()
-        let request = prepareRecognitionRequest()
-        recognitionRequest = request
-        configureRecognitionTask(with: request)
-        state = .listening(partialText: text)
     }
 }
