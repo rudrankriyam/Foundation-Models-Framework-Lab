@@ -16,8 +16,8 @@ public struct ConfirmedContactsTool: Tool {
     }
 
     public func call(arguments: Arguments) async throws -> GeneratedContent {
-        let firstName = arguments.firstName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        guard arguments.action.lowercased() == "create", !firstName.isEmpty else {
+        let action = arguments.action.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard action == "create" else {
             return try await contactsTool.call(arguments: arguments)
         }
 
