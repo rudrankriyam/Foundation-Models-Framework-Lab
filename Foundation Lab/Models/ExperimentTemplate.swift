@@ -162,6 +162,10 @@ extension ExperimentTemplate {
         curatedLibrary.filter { $0.track == track }
     }
 
+    static func template(for launch: ExperimentLaunch) -> ExperimentTemplate? {
+        curatedLibrary.first { $0.launch == launch }
+    }
+
     private static let startHereTemplates: [ExperimentTemplate] = [
         ExperimentTemplate(
             id: "blank-playground",
