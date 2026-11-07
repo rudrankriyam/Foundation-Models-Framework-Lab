@@ -35,6 +35,7 @@ public struct GenerateMultilingualResponsesUseCase: FoundationModelCapabilityUse
         var successfulResponses = 0
 
         for prompt in prompts {
+            try Task.checkCancellation()
             do {
                 let response = try await textGenerator.execute(
                     FoundationModelTextGenerationRequest(
@@ -58,6 +59,7 @@ public struct GenerateMultilingualResponsesUseCase: FoundationModelCapabilityUse
                 }
                 successfulResponses += 1
             } catch {
+                try Task.checkCancellation()
                 responses.append(
                     MultilingualResponseEntry(
                         language: prompt.language,

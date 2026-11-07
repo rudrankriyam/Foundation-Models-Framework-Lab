@@ -34,6 +34,7 @@ public struct FoundationModelsConversationRunner: ConversationRunning {
         var exchanges: [ConversationExchange] = []
 
         for prompt in prompts {
+            try Task.checkCancellation()
             do {
                 let responseContent: String
                 if let generationOptions = request.generationOptions {
@@ -53,6 +54,7 @@ public struct FoundationModelsConversationRunner: ConversationRunning {
                     )
                 )
             } catch {
+                try Task.checkCancellation()
                 exchanges.append(
                     ConversationExchange(
                         prompt: prompt,
