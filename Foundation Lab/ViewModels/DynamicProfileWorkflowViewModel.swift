@@ -35,6 +35,7 @@ final class DynamicProfileWorkflowViewModel {
 
     var stage: DynamicProfileWorkflowStage { state.stage }
     var reviewRuntime: DynamicProfileReviewRuntime { state.reviewRuntime }
+    var instructionEvents: [DynamicProfileInstructionEvent] { state.instructionEvents }
 
     var activeRuntime: DynamicProfileReviewRuntime {
         stage == .inspect ? .onDevice : reviewRuntime
@@ -100,6 +101,7 @@ final class DynamicProfileWorkflowViewModel {
         guard !isExecuting else { return }
         state.stage = .inspect
         state.reviewRuntime = .privateCloudCompute
+        state.clearInstructionEvents()
         prompt = DynamicProfileWorkflowStage.inspect.defaultPrompt
         turns = []
         transcriptEntryCount = 0
@@ -123,6 +125,8 @@ final class DynamicProfileWorkflowViewModel {
             enum Stage { case inspect, review }
             var stage = Stage.inspect
             var usePrivateCloudCompute = true
+            var lifecycle: [String] = []
+            func log(_ event: String) { lifecycle.append(event) }
         }
 
         struct WorkflowProfile: LanguageModelSession.DynamicProfile {
@@ -137,8 +141,12 @@ final class DynamicProfileWorkflowViewModel {
                 switch state.stage {
                 case .inspect:
                     LanguageModelSession.Profile {
-                        Instructions("Inspect with the read-only tool.")
-                        tool
+                        DynamicInstructionsGroup {
+                            Instructions("Inspect with the read-only tool.")
+                            tool
+                        }
+                        .onActivate { @MainActor [state] in state.log("Inspect activated") }
+                        .onDeactivate { @MainActor [state] in state.log("Inspect deactivated") }
                     }
                     .model(SystemLanguageModel.default)
                     .toolCallingMode(requiresToolCall ? .required : .allowed)
@@ -147,7 +155,11 @@ final class DynamicProfileWorkflowViewModel {
                 case .review:
                     if state.usePrivateCloudCompute {
                         LanguageModelSession.Profile {
-                            Instructions("Review evidence already in the session history.")
+                            DynamicInstructionsGroup {
+                                Instructions("Review evidence already in the session history.")
+                            }
+                            .onActivate { @MainActor [state] in state.log("Review activated") }
+                            .onDeactivate { @MainActor [state] in state.log("Review deactivated") }
                         }
                         .model(pccModel)
                         .reasoningLevel(.moderate)
@@ -174,6 +186,7 @@ final class DynamicProfileWorkflowViewModel {
         try await session.respond(to: "Inspect the sample release record.")
         state.stage = .review
         try await session.respond(to: "Which checks are still unknown?")
+        print(state.lifecycle)
         """
     }
 }

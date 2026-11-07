@@ -189,6 +189,45 @@ let book = response.recommendation
 """
   }
 
+#if canImport(FoundationModels, _version: 2.2)
+  static func generationGuidesCode(prompt: String) -> String {
+    let escapedPrompt = codeEscaped(prompt)
+    return """
+import FoundationModels
+import FoundationModelsKit
+
+@Generable
+struct ProductReview {
+    @Guide(key: "product_name", description: "Product name")
+    let productName: String
+
+    @Guide(key: "star_rating", description: "Rating from 1 to 5", .range(1...5))
+    let rating: Int
+
+    @Guide(description: "Review text between 50-200 words")
+    let reviewText: String
+
+    @Guide(key: "verdict", description: "Would recommend this product", /Recommended|Not recommended/)
+    let recommendation: String
+
+    @Guide(description: "Key pros of the product")
+    let pros: [String]
+
+    @Guide(description: "Key cons of the product")
+    let cons: [String]
+}
+
+let session = LanguageModelSession()
+let response = try await session.respond(
+    to: "\(escapedPrompt)",
+    generating: ProductReview.self
+)
+let review = response.content
+print(response.rawContent.jsonString) // {"product_name": ..., "star_rating": ..., "verdict": ...}
+
+"""
+  }
+#else
   static func generationGuidesCode(prompt: String) -> String {
     let escapedPrompt = codeEscaped(prompt)
     return """
@@ -205,6 +244,7 @@ let review = response.content
 
 """
   }
+#endif
 
   static func streamingResponseCode(prompt: String) -> String {
     let escapedPrompt = codeEscaped(prompt)
