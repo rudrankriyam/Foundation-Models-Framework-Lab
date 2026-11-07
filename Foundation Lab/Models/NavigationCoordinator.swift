@@ -22,6 +22,13 @@ final class NavigationCoordinator {
 
     var tabSelection: TabSelection = .library
     var splitViewSelection: TabSelection? = .library
+    var librarySelection: LibraryItem? {
+        didSet {
+            if librarySelection != oldValue {
+                libraryPath = NavigationPath()
+            }
+        }
+    }
     var libraryPath = NavigationPath()
     var playgroundPath = NavigationPath()
     var runSelection: FoundationLabExperimentRun.ID?
@@ -35,6 +42,7 @@ final class NavigationCoordinator {
            Self.fallback.hasPendingNavigation {
             tabSelection = Self.fallback.tabSelection
             splitViewSelection = Self.fallback.splitViewSelection
+            librarySelection = Self.fallback.librarySelection
             libraryPath = Self.fallback.libraryPath
             playgroundPath = Self.fallback.playgroundPath
             runSelection = Self.fallback.runSelection
@@ -53,12 +61,12 @@ final class NavigationCoordinator {
     public func navigateToExample(_ example: ExampleType) {
         if let configuration = ExperimentTemplate.recipeConfiguration(for: example) {
             openRecipe(configuration)
+        } else if let template = ExperimentTemplate.template(for: .guidedLab(example)) {
+            showInLibrary(.template(template.id))
+        } else if ExampleType.xcode27Examples.contains(example) {
+            showInLibrary(workshop: .xcode27, destination: example)
         } else {
-            tabSelection = .library
-            splitViewSelection = .library
-            libraryPath = NavigationPath()
-            libraryPath.append(example)
-            markPendingNavigationIfNeeded()
+            showInLibrary(nil, destination: example)
         }
     }
 
@@ -67,19 +75,11 @@ final class NavigationCoordinator {
     }
 
     public func navigateToSchema(_ schema: DynamicSchemaExampleType) {
-        tabSelection = .library
-        splitViewSelection = .library
-        libraryPath = NavigationPath()
-        libraryPath.append(schema)
-        markPendingNavigationIfNeeded()
+        showInLibrary(workshop: .schemas, destination: schema)
     }
 
     public func navigateToLanguage(_ language: LanguageExample) {
-        tabSelection = .library
-        splitViewSelection = .library
-        libraryPath = NavigationPath()
-        libraryPath.append(language)
-        markPendingNavigationIfNeeded()
+        showInLibrary(workshop: .languages, destination: language)
     }
 
     public func openChat() {
@@ -109,6 +109,22 @@ final class NavigationCoordinator {
         openPlayground()
     }
 
+    private func showInLibrary(workshop catalog: ExperimentLibraryCatalog, destination: some Hashable) {
+        let workshop = ExperimentTemplate.template(for: .workshop(catalog))
+        showInLibrary(workshop.map { .template($0.id) }, destination: destination)
+    }
+
+    private func showInLibrary(_ item: LibraryItem?, destination: (any Hashable)? = nil) {
+        tabSelection = .library
+        splitViewSelection = .library
+        librarySelection = item
+        libraryPath = NavigationPath()
+        if let destination {
+            libraryPath.append(destination)
+        }
+        markPendingNavigationIfNeeded()
+    }
+
     private func markPendingNavigationIfNeeded() {
         if Self.activeCoordinator == nil, self === Self.fallback {
             hasPendingNavigation = true
@@ -118,6 +134,7 @@ final class NavigationCoordinator {
     private func resetPendingNavigation() {
         tabSelection = .library
         splitViewSelection = .library
+        librarySelection = nil
         libraryPath = NavigationPath()
         playgroundPath = NavigationPath()
         runSelection = nil

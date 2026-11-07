@@ -95,8 +95,10 @@ struct AdaptiveNavigationView: View {
         @Bindable var navigationCoordinator = navigationCoordinator
         TabView(selection: $navigationCoordinator.tabSelection) {
             Tab(TabSelection.library.displayName, systemImage: TabSelection.library.systemImage, value: .library) {
-                NavigationStack(path: $navigationCoordinator.libraryPath) {
-                    LibraryView()
+                NavigationSplitView {
+                    libraryList(showsPreviews: false)
+                } detail: {
+                    libraryDetail
                 }
             }
 
@@ -125,24 +127,24 @@ struct AdaptiveNavigationView: View {
     @ViewBuilder
     private var splitViewNavigation: some View {
         Group {
-            if navigationCoordinator.splitViewSelection == .runs {
+            if navigationCoordinator.splitViewSelection == .playground {
+                NavigationSplitView(columnVisibility: $columnVisibility) {
+                    sidebar
+                } detail: {
+                    playgroundDetail
+                }
+            } else {
                 NavigationSplitView(columnVisibility: $listColumnVisibility) {
                     sidebar
                 } content: {
-                    runsList
+                    listColumn
                         .navigationSplitViewColumnWidth(
                             min: FoundationLabLayout.listColumnMinimumWidth,
                             ideal: FoundationLabLayout.listColumnIdealWidth,
                             max: FoundationLabLayout.listColumnMaximumWidth
                         )
                 } detail: {
-                    runDetail
-                }
-            } else {
-                NavigationSplitView(columnVisibility: $columnVisibility) {
-                    sidebar
-                } detail: {
-                    detailView
+                    detailColumn
                 }
             }
         }
@@ -243,17 +245,43 @@ private extension AdaptiveNavigationView {
         )
     }
 
-    @ViewBuilder
-    var detailView: some View {
+    var playgroundDetail: some View {
         @Bindable var navigationCoordinator = navigationCoordinator
-        if navigationCoordinator.splitViewSelection == .playground {
-            NavigationStack(path: $navigationCoordinator.playgroundPath) {
-                PlaygroundView(viewModel: playgroundViewModel)
-            }
+        return NavigationStack(path: $navigationCoordinator.playgroundPath) {
+            PlaygroundView(viewModel: playgroundViewModel)
+        }
+    }
+
+    @ViewBuilder
+    var listColumn: some View {
+        if navigationCoordinator.splitViewSelection == .runs {
+            runsList
         } else {
-            NavigationStack(path: $navigationCoordinator.libraryPath) {
-                LibraryView()
-            }
+            libraryList(showsPreviews: true)
+        }
+    }
+
+    @ViewBuilder
+    var detailColumn: some View {
+        if navigationCoordinator.splitViewSelection == .runs {
+            runDetail
+        } else {
+            libraryDetail
+        }
+    }
+
+    func libraryList(showsPreviews: Bool) -> some View {
+        @Bindable var navigationCoordinator = navigationCoordinator
+        return LibraryView(
+            selection: $navigationCoordinator.librarySelection,
+            showsPreviews: showsPreviews
+        )
+    }
+
+    var libraryDetail: some View {
+        @Bindable var navigationCoordinator = navigationCoordinator
+        return NavigationStack(path: $navigationCoordinator.libraryPath) {
+            LibraryDetailColumn(item: navigationCoordinator.librarySelection)
         }
     }
 

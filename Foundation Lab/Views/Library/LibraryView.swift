@@ -10,6 +10,8 @@ import SwiftUI
 struct LibraryView: View {
     @Environment(ExperimentStore.self) private var experimentStore
     @Environment(NavigationCoordinator.self) private var navigationCoordinator
+    @Binding var selection: LibraryItem?
+    let showsPreviews: Bool
     @State private var searchText = ""
     @State private var showsSettings = false
     @State private var experimentPendingDeletion: FoundationLabExperimentConfiguration?
@@ -55,41 +57,21 @@ struct LibraryView: View {
                 Text("\(experimentPendingDeletion.name) will be permanently deleted. Recorded runs are not affected.")
             }
         }
-        .navigationDestination(for: ExampleType.self) { example in
-            example.destination
-        }
-        .navigationDestination(for: DynamicSchemaExampleType.self) { schema in
-            schema.destination
-        }
-        .navigationDestination(for: LanguageExample.self) { language in
-            language.destination
-        }
-        .navigationDestination(for: ExperimentLibraryCatalog.self) { catalog in
-            ExperimentLibraryCatalogView(catalog: catalog)
-        }
-        .navigationDestination(for: Workspace.self) { workspace in
-            WorkspaceView(workspace: workspace)
-        }
     }
 }
 
 private extension LibraryView {
     private var libraryList: some View {
-        List {
+        List(selection: listSelection) {
             if !filteredSavedExperiments.isEmpty {
                 Section("My Experiments") {
                     ForEach(filteredSavedExperiments) { experiment in
-                        Button(
-                            action: { openSavedExperiment(experiment) },
-                            label: { SavedExperimentRow(experiment: experiment) }
-                        )
-                        .buttonStyle(.plain)
-                        .accessibilityHint("Opens this saved experiment in Playground")
-                        .swipeActions {
-                            Button("Delete Experiment", systemImage: "trash", role: .destructive) {
-                                experimentPendingDeletion = experiment
+                        savedExperimentRow(experiment)
+                            .swipeActions {
+                                Button("Delete Experiment", systemImage: "trash", role: .destructive) {
+                                    experimentPendingDeletion = experiment
+                                }
                             }
-                        }
                     }
                 }
             }
@@ -110,27 +92,56 @@ private extension LibraryView {
     }
 
     @ViewBuilder
+    private func savedExperimentRow(_ experiment: FoundationLabExperimentConfiguration) -> some View {
+        if showsPreviews {
+            NavigationLink(value: LibraryItem.savedExperiment(experiment.id)) {
+                SavedExperimentRow(experiment: experiment)
+            }
+        } else {
+            Button(
+                action: { openSavedExperiment(experiment) },
+                label: { SavedExperimentRow(experiment: experiment) }
+            )
+            .buttonStyle(.plain)
+            .accessibilityHint("Opens this saved experiment in Playground")
+        }
+    }
+
+    @ViewBuilder
     private func templateDestination(_ template: ExperimentTemplate) -> some View {
         switch template.launch {
-        case .recipe(let configuration):
+        case .recipe(let configuration) where !showsPreviews:
             Button(
                 action: { openTemplate(configuration) },
                 label: { LibraryTemplateRow(template: template) }
             )
             .buttonStyle(.plain)
             .accessibilityHint("Opens this recipe in Playground")
-        case .guidedLab(let example):
-            NavigationLink(value: example) {
+        default:
+            NavigationLink(value: LibraryItem.template(template.id)) {
                 LibraryTemplateRow(template: template)
             }
-        case .workshop(let catalog):
-            NavigationLink(value: catalog) {
-                LibraryTemplateRow(template: template)
+        }
+    }
+
+    private var listSelection: Binding<LibraryItem?> {
+        Binding(
+            get: { selection },
+            set: { newValue in
+                if newValue == nil, let selection, !isVisible(selection) {
+                    return
+                }
+                selection = newValue
             }
-        case .workspace(let workspace):
-            NavigationLink(value: workspace) {
-                LibraryTemplateRow(template: template)
-            }
+        )
+    }
+
+    private func isVisible(_ item: LibraryItem) -> Bool {
+        switch item {
+        case .template(let id):
+            filteredTemplates.contains { $0.id == id }
+        case .savedExperiment(let id):
+            filteredSavedExperiments.contains { $0.id == id }
         }
     }
 
@@ -218,7 +229,7 @@ private extension LibraryView {
 
 #Preview {
     NavigationStack {
-        LibraryView()
+        LibraryView(selection: .constant(nil), showsPreviews: false)
     }
     .environment(ExperimentStore.shared)
     .environment(NavigationCoordinator.shared)
