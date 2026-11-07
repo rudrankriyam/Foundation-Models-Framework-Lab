@@ -2,6 +2,7 @@ included:
   - "Foundation Lab"
   - "Foundation Lab UITests"
   - "Foundation Lab Watch"
+  - "Foundation Lab TV"
 
 excluded:
   - Carthage

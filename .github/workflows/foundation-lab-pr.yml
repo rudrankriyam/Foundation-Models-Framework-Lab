@@ -7,6 +7,7 @@ on:
       - 'BookPlaygrounds/**'
       - 'Foundation Lab/**'
       - 'Foundation Lab Watch/**'
+      - 'Foundation Lab TV/**'
       - 'FoundationLabCore/**'
       - 'FoundationLab.xcodeproj/**'
       - 'Package.swift'
@@ -47,5 +48,14 @@ jobs:
             -project FoundationLab.xcodeproj \
             -scheme 'Foundation Lab' \
             -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Build Foundation Lab TV
+        run: |
+          xcodebuild \
+            -project FoundationLab.xcodeproj \
+            -scheme 'Foundation Lab TV' \
+            -destination 'generic/platform=tvOS Simulator' \
             CODE_SIGNING_ALLOWED=NO \
             build

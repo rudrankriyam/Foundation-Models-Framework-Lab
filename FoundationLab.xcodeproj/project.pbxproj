@@ -50,6 +50,7 @@
 /* Begin PBXFileReference section */
 		0A5454A72E1148A8002C2152 /* Foundation Lab.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = "Foundation Lab.icon"; sourceTree = "<group>"; };
 		0AAE4FFF2DF76E6600838F13 /* Foundation Lab.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Foundation Lab.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7E7A0B1C2F00000000000001 /* Foundation Lab TV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Foundation Lab TV.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C1A0A012F00000100000001 /* Foundation Lab Watch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Foundation Lab Watch.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C9AECE22E728F6D00F4C37F /* SampleCode.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SampleCode.xcconfig; sourceTree = "<group>"; };
 		0D17E5000000000000000002 /* Foundation Lab UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Foundation Lab UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -72,6 +73,11 @@
 				0A5454A82E1148A8002C2152 /* Exceptions for "Foundation Lab" folder in "Foundation Lab" target */,
 			);
 			path = "Foundation Lab";
+			sourceTree = "<group>";
+		};
+		7E7A0B1C2F00000000000002 /* Foundation Lab TV */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Foundation Lab TV";
 			sourceTree = "<group>";
 		};
 		0B0A11002ECB000100000001 /* BookPlaygrounds */ = {
@@ -103,6 +109,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7E7A0B1C2F00000000000005 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0C1A0A012F00000100000005 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -125,6 +138,7 @@
 			children = (
 				6C9AECE22E728F6D00F4C37F /* SampleCode.xcconfig */,
 				0ADB46AD2E0CE6C100C29293 /* Foundation Lab */,
+				7E7A0B1C2F00000000000002 /* Foundation Lab TV */,
 				0C1A0A012F00000100000002 /* Foundation Lab Watch */,
 				0D17E5000000000000000003 /* Foundation Lab UITests */,
 				0B0A11002ECB000100000001 /* BookPlaygrounds */,
@@ -138,6 +152,7 @@
 			isa = PBXGroup;
 			children = (
 				0AAE4FFF2DF76E6600838F13 /* Foundation Lab.app */,
+				7E7A0B1C2F00000000000001 /* Foundation Lab TV.app */,
 				0C1A0A012F00000100000001 /* Foundation Lab Watch.app */,
 				0D17E5000000000000000002 /* Foundation Lab UITests.xctest */,
 			);
@@ -180,6 +195,26 @@
 			);
 			productName = FoundationLab;
 			productReference = 0AAE4FFF2DF76E6600838F13 /* Foundation Lab.app */;
+			productType = "com.apple.product-type.application";
+		};
+		7E7A0B1C2F00000000000003 /* Foundation Lab TV */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7E7A0B1C2F00000000000009 /* Build configuration list for PBXNativeTarget "Foundation Lab TV" */;
+			buildPhases = (
+				7E7A0B1C2F00000000000004 /* Sources */,
+				7E7A0B1C2F00000000000005 /* Frameworks */,
+				7E7A0B1C2F00000000000006 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				7E7A0B1C2F00000000000002 /* Foundation Lab TV */,
+			);
+			name = "Foundation Lab TV";
+			productName = FoundationLabTV;
+			productReference = 7E7A0B1C2F00000000000001 /* Foundation Lab TV.app */;
 			productType = "com.apple.product-type.application";
 		};
 		0C1A0A012F00000100000003 /* Foundation Lab Watch */ = {
@@ -240,6 +275,9 @@
 					0AAE4FFE2DF76E6600838F13 = {
 						CreatedOnToolsVersion = 26.0;
 					};
+					7E7A0B1C2F00000000000003 = {
+						CreatedOnToolsVersion = 27.3;
+					};
 					0C1A0A012F00000100000003 = {
 						CreatedOnToolsVersion = 27.1;
 					};
@@ -270,6 +308,7 @@
 			projectRoot = "";
 			targets = (
 				0AAE4FFE2DF76E6600838F13 /* Foundation Lab */,
+				7E7A0B1C2F00000000000003 /* Foundation Lab TV */,
 				0C1A0A012F00000100000003 /* Foundation Lab Watch */,
 				0D17E5000000000000000001 /* Foundation Lab UITests */,
 			);
@@ -282,6 +321,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A5454AB2E1148A8002C2152 /* Foundation Lab.icon in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7E7A0B1C2F00000000000006 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -304,6 +350,13 @@
 
 /* Begin PBXSourcesBuildPhase section */
 		0AAE4FFB2DF76E6600838F13 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7E7A0B1C2F00000000000004 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -635,6 +688,62 @@
 			};
 			name = Release;
 		};
+		7E7A0B1C2F00000000000007 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YQZQG7N4WG;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Foundation Lab";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				MARKETING_VERSION = 1.2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(FOUNDATION_LAB_BUNDLE_ID).tv";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Debug;
+		};
+		7E7A0B1C2F00000000000008 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YQZQG7N4WG;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Foundation Lab";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				MARKETING_VERSION = 1.2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(FOUNDATION_LAB_BUNDLE_ID).tv";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Release;
+		};
 		0C1A0A012F00000100000009 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -761,6 +870,15 @@
 			buildConfigurations = (
 				0AAE500B2DF76E6800838F13 /* Debug */,
 				0AAE500C2DF76E6800838F13 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7E7A0B1C2F00000000000009 /* Build configuration list for PBXNativeTarget "Foundation Lab TV" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7E7A0B1C2F00000000000007 /* Debug */,
+				7E7A0B1C2F00000000000008 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

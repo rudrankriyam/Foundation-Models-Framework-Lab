@@ -19,6 +19,8 @@ The product serves two audiences without splitting into two apps:
 - Deployment targets: iOS 26.0+ and macOS 26.0+; the `Foundation Lab Watch`
   companion is watchOS 27.0+, embedded in the iOS app, and uses only Private
   Cloud Compute, because `SystemLanguageModel` is unavailable on watchOS
+- Foundation Lab TV: tvOS 27.0+ deployment target; Foundation Models needs tvOS 27.3
+  and an Xcode 27.3 SDK, gated with `#if canImport(FoundationModels, _version: 2.2)`
 - Supported compiler: Xcode 27.2 or later
 - Swift 6 with strict concurrency and Main Actor default isolation
 - Live on-device execution requires Apple Silicon and Apple Intelligence
@@ -57,6 +59,13 @@ xcodebuild \
   -project FoundationLab.xcodeproj \
   -scheme 'Foundation Lab' \
   -destination 'generic/platform=iOS Simulator' \
+  CODE_SIGNING_ALLOWED=NO \
+  build
+
+xcodebuild \
+  -project FoundationLab.xcodeproj \
+  -scheme 'Foundation Lab TV' \
+  -destination 'generic/platform=tvOS Simulator' \
   CODE_SIGNING_ALLOWED=NO \
   build
 ```
@@ -241,6 +250,7 @@ Do not leave references to retired providers, screens, or navigation labels.
 ```text
 Foundation Lab/                 Native app
 Foundation Lab Watch/           watchOS companion embedded in the iOS app (Private Cloud Compute only)
+Foundation Lab TV/              Standalone tvOS app (prompt, streaming, @Generable)
 FoundationLabCore/              Shared capability and experiment runtime
 Tools/AdapterStudio/            fmas adapter tooling
 BookPlaygrounds/                Chapter-oriented Xcode playgrounds
