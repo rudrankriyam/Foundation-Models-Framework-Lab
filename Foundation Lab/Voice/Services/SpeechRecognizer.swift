@@ -156,8 +156,7 @@ class SpeechRecognizer: NSObject, SpeechRecognitionService {
     private var stateHandlers: [UUID: (SpeechRecognitionState) -> Void] = [:]
     var audioBufferCount = 0
 
-    // Simple flag to prevent double processing
-    var hasProcessedFinalResult = false
+    var transcript = SpeechTranscript()
 
     // Amplitude monitoring parameters
     var amplitudeHistory: [Double] = []
@@ -214,11 +213,8 @@ class SpeechRecognizer: NSObject, SpeechRecognitionService {
         try await configureAudioSessionIfNeeded()
         try Task.checkCancellation()
 
-        let request = prepareRecognitionRequest()
-        recognitionRequest = request
-        hasProcessedFinalResult = false
-
-        configureRecognitionTask(with: request)
+        transcript = SpeechTranscript()
+        startRecognitionRequest()
         try prepareAudioEngine()
 
         state = .listening()
@@ -329,7 +325,6 @@ class SpeechRecognizer: NSObject, SpeechRecognitionService {
             inputNode.removeTap(onBus: 0)
         }
 
-        hasProcessedFinalResult = true
         state = .idle
         currentAmplitude = 0
     }
@@ -355,8 +350,6 @@ class SpeechRecognizer: NSObject, SpeechRecognitionService {
         if inputNode.numberOfInputs > 0 {
             inputNode.removeTap(onBus: 0)
         }
-
-        hasProcessedFinalResult = true
 
         logger.debug("CLEANUP COMPLETED")
     }

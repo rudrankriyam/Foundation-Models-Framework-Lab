@@ -56,9 +56,10 @@ extension SpeechRecognizer {
             let frameLength = bufferCopy.frameLength
 
             Task { @MainActor [weak recognizer] in
-                guard let recognizer, !recognizer.hasProcessedFinalResult else { return }
+                guard let recognizer, let request = recognizer.recognitionRequest else { return }
                 let bufferCopy = transferredBuffer.value
-                recognizer.recognitionRequest?.append(bufferCopy)
+                request.append(bufferCopy)
+                recognizer.transcript.receiveAudio()
                 recognizer.processAudioBuffer(bufferCopy)
 
                 if VoiceLogging.isVerboseEnabled {
@@ -223,67 +224,63 @@ extension SpeechRecognizer {
         return request
     }
 
-    func configureRecognitionTask(with request: SFSpeechAudioBufferRecognitionRequest) {
+    func startRecognitionRequest() {
+        let request = prepareRecognitionRequest()
+        recognitionRequest = request
+        transcript.beginRequest()
         logger.debug("Starting recognition task")
         recognitionTask = speechRecognizer?.recognitionTask(with: request) { [weak self] result, error in
             Task { @MainActor [weak self] in
-                guard let self, !self.hasProcessedFinalResult else {
+                guard let self, request === self.recognitionRequest else {
                     if VoiceLogging.isVerboseEnabled {
-                        if let error {
-                            VoiceLogging.recognition.debug(
-                                "Callback ignored (already processed) error: \(error.localizedDescription, privacy: .public)"
-                            )
-                        } else if let result {
-                            VoiceLogging.recognition.debug("Callback ignored (already processed) result final=\(result.isFinal)")
-                        } else {
-                            VoiceLogging.recognition.debug("Callback ignored (already processed) unknown payload")
-                        }
+                        VoiceLogging.recognition.debug("Callback ignored for a retired recognition request")
                     }
                     return
                 }
 
                 if let error {
                     self.handleRecognitionError(error)
-                    return
-                }
-
-                if let result {
+                } else if let result {
                     self.processRecognitionResult(result)
                 }
             }
         }
     }
 
+    func restartRecognitionRequest() {
+        recognitionRequest?.endAudio()
+        recognitionTask?.cancel()
+        startRecognitionRequest()
+    }
+
     func handleRecognitionError(_ error: Error) {
         logger.error("Speech recognition error: \(error.localizedDescription, privacy: .public)")
 
-        if case .listening(let partialText) = state,
-           !partialText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            if VoiceLogging.isVerboseEnabled {
-                logger.debug("Ignoring error due to partial text: \(partialText, privacy: .private)")
-            }
-            hasProcessedFinalResult = true
-            state = .completed(finalText: partialText)
-        } else {
-            hasProcessedFinalResult = true
+        let nsError = error as NSError
+        let isNoSpeech = nsError.domain == "kAFAssistantErrorDomain" && nsError.code == 1110
+        guard transcript.receiveError(isNoSpeech: isNoSpeech) == .restartRequest else {
+            recognitionRequest = nil
             state = .error(.recognitionFailed(error.localizedDescription))
+            return
         }
+        restartRecognitionRequest()
+        state = .listening(partialText: transcript.text)
     }
 
     func processRecognitionResult(_ result: SFSpeechRecognitionResult) {
         let transcription = result.bestTranscription.formattedString
-
-        if result.isFinal {
-            if VoiceLogging.isVerboseEnabled {
-                logger.debug("Final result: \(transcription, privacy: .private)")
-            }
-            hasProcessedFinalResult = true
-            state = .completed(finalText: transcription)
-        } else if !hasProcessedFinalResult {
-            if VoiceLogging.isVerboseEnabled {
-                logger.debug("Partial result: \(transcription, privacy: .private)")
-            }
-            state = .listening(partialText: transcription)
+        if VoiceLogging.isVerboseEnabled {
+            logger.debug("Result final=\(result.isFinal): \(transcription, privacy: .private)")
         }
+
+        let outcome = transcript.receiveResult(
+            transcription,
+            isFinal: result.isFinal,
+            endsUtterance: result.speechRecognitionMetadata != nil
+        )
+        if outcome == .restartRequest {
+            restartRecognitionRequest()
+        }
+        state = .listening(partialText: transcript.text)
     }
 }
