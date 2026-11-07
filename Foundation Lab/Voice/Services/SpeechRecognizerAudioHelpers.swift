@@ -277,11 +277,7 @@ extension SpeechRecognizer {
             if VoiceLogging.isVerboseEnabled {
                 logger.debug("Final result: \(transcription, privacy: .private)")
             }
-            if transcription == finalizedText {
-                scheduleIdleRestart(with: transcription)
-            } else {
-                continueRecognition(after: transcription)
-            }
+            continueRecognition(after: transcription)
         } else if !hasProcessedFinalResult {
             if VoiceLogging.isVerboseEnabled {
                 logger.debug("Partial result: \(transcription, privacy: .private)")
@@ -312,6 +308,7 @@ extension SpeechRecognizer {
     }
 
     private func continueRecognition(after text: String) {
+        cancelIdleRestart()
         finalizedText = text
         recognitionTask?.cancel()
         recognitionRequest?.endAudio()
