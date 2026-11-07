@@ -268,7 +268,8 @@ extension ChatViewModel {
                 }
             case .completed(let finalText):
                 if case .listening = voiceState {
-                    voiceState = .listening(partialText: finalText)
+                    suspendVoiceMode()
+                    draftPrompt = finalText
                 }
             case .error(let speechError):
                 handleVoiceError(speechError.localizedDescription)

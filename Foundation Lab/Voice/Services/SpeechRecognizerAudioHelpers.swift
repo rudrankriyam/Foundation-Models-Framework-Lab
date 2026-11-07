@@ -254,16 +254,21 @@ extension SpeechRecognizer {
         }
     }
 
+    private static let maximumIdleRestarts = 3
+
     func handleRecognitionError(_ error: Error) {
         logger.error("Speech recognition error: \(error.localizedDescription, privacy: .public)")
 
         if case .listening(let partialText) = state,
            !partialText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            if partialText != finalizedText {
-                continueRecognition(after: partialText)
-            } else {
-                stopRecognition()
+            if partialText == finalizedText {
+                guard idleRestartCount < Self.maximumIdleRestarts else {
+                    stopRecognition()
+                    return
+                }
+                idleRestartCount += 1
             }
+            continueRecognition(after: partialText)
         } else {
             hasProcessedFinalResult = true
             state = .error(.recognitionFailed(error.localizedDescription))
@@ -282,6 +287,9 @@ extension SpeechRecognizer {
             if VoiceLogging.isVerboseEnabled {
                 logger.debug("Partial result: \(transcription, privacy: .private)")
             }
+            if transcription != finalizedText {
+                idleRestartCount = 0
+            }
             state = .listening(partialText: transcription)
         }
     }
@@ -293,6 +301,9 @@ extension SpeechRecognizer {
     }
 
     private func continueRecognition(after text: String) {
+        if text != finalizedText {
+            idleRestartCount = 0
+        }
         finalizedText = text
         recognitionTask?.cancel()
         recognitionRequest?.endAudio()

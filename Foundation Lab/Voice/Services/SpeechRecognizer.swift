@@ -159,6 +159,7 @@ class SpeechRecognizer: NSObject, SpeechRecognitionService {
     // Simple flag to prevent double processing
     var hasProcessedFinalResult = false
     var finalizedText = ""
+    var idleRestartCount = 0
 
     // Amplitude monitoring parameters
     var amplitudeHistory: [Double] = []
@@ -219,6 +220,7 @@ class SpeechRecognizer: NSObject, SpeechRecognitionService {
         recognitionRequest = request
         hasProcessedFinalResult = false
         finalizedText = ""
+        idleRestartCount = 0
 
         configureRecognitionTask(with: request)
         try prepareAudioEngine()
