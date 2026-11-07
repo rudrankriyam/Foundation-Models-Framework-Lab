@@ -12,6 +12,7 @@ struct RunDetailView: View {
 
     @Environment(ExperimentStore.self) private var store
     @Environment(NavigationCoordinator.self) private var navigationCoordinator
+    @State private var isShowingFeedback = false
 #if os(iOS)
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 #endif
@@ -30,6 +31,14 @@ struct RunDetailView: View {
                 )
                 .accessibilityHint("Loads this run's exact configuration without running it")
             }
+            ToolbarItem {
+                Button("Send Feedback", systemImage: "exclamationmark.bubble") {
+                    isShowingFeedback = true
+                }
+            }
+        }
+        .sheet(isPresented: $isShowingFeedback) {
+            RunFeedbackSheet(run: run)
         }
     }
 
