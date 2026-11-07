@@ -85151,6 +85151,390 @@
         }
       }
     },
+    "Activated" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktiviert"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activated"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attivato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有効化"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "활성화됨"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ativado"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已激活"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已啟用"
+          }
+        }
+      }
+    },
+    "Deactivated" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deaktiviert"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deactivated"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desactivado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désactivé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disattivato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無効化"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "비활성화됨"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desativado"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已停用"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已停用"
+          }
+        }
+      }
+    },
+    "Each stage groups its instructions with DynamicInstructions.Group. The framework calls onActivate and onDeactivate when the resolved profile includes or drops a group." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jede Phase gruppiert ihre Anweisungen mit DynamicInstructions.Group. Das Framework ruft onActivate und onDeactivate auf, wenn das aufgelöste Profil eine Gruppe aufnimmt oder entfernt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Each stage groups its instructions with DynamicInstructions.Group. The framework calls onActivate and onDeactivate when the resolved profile includes or drops a group."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada etapa agrupa sus instrucciones con DynamicInstructions.Group. El framework llama a onActivate y onDeactivate cuando el perfil resuelto incluye o descarta un grupo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chaque étape regroupe ses instructions avec DynamicInstructions.Group. Le framework appelle onActivate et onDeactivate lorsque le profil résolu inclut ou retire un groupe."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ogni fase raggruppa le proprie istruzioni con DynamicInstructions.Group. Il framework chiama onActivate e onDeactivate quando il profilo risolto include o rimuove un gruppo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "各ステージは DynamicInstructions.Group で指示をまとめます。解決されたプロファイルにグループが含まれるか外れると、フレームワークが onActivate と onDeactivate を呼び出します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "각 단계는 DynamicInstructions.Group으로 지침을 묶습니다. 확인된 프로필에 그룹이 포함되거나 빠지면 프레임워크가 onActivate와 onDeactivate를 호출합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada etapa agrupa suas instruções com DynamicInstructions.Group. O framework chama onActivate e onDeactivate quando o perfil resolvido inclui ou remove um grupo."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每个阶段都使用 DynamicInstructions.Group 将指令分组。当解析后的配置文件包含或移除某个分组时，框架会调用 onActivate 和 onDeactivate。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每個階段都使用 DynamicInstructions.Group 將指令分組。當解析後的設定檔包含或移除某個群組時，框架會呼叫 onActivate 和 onDeactivate。"
+          }
+        }
+      }
+    },
+    "Instruction Lifecycle" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lebenszyklus der Anweisungen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instruction Lifecycle"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ciclo de vida de las instrucciones"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cycle de vie des instructions"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ciclo di vita delle istruzioni"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指示のライフサイクル"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지침 수명 주기"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ciclo de vida das instruções"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指令生命周期"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指令生命週期"
+          }
+        }
+      }
+    },
+    "Instruction lifecycle callbacks require iOS 27.2, macOS 27.2, or visionOS 27.2." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lebenszyklus-Callbacks für Anweisungen erfordern iOS 27.2, macOS 27.2 oder visionOS 27.2."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instruction lifecycle callbacks require iOS 27.2, macOS 27.2, or visionOS 27.2."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las devoluciones de llamada del ciclo de vida de las instrucciones requieren iOS 27.2, macOS 27.2 o visionOS 27.2."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les rappels de cycle de vie des instructions nécessitent iOS 27.2, macOS 27.2 ou visionOS 27.2."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I callback del ciclo di vita delle istruzioni richiedono iOS 27.2, macOS 27.2 o visionOS 27.2."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指示のライフサイクルコールバックには iOS 27.2、macOS 27.2、または visionOS 27.2 が必要です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지침 수명 주기 콜백에는 iOS 27.2, macOS 27.2 또는 visionOS 27.2가 필요합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os callbacks de ciclo de vida das instruções exigem iOS 27.2, macOS 27.2 ou visionOS 27.2."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指令生命周期回调需要 iOS 27.2、macOS 27.2 或 visionOS 27.2。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指令生命週期回呼需要 iOS 27.2、macOS 27.2 或 visionOS 27.2。"
+          }
+        }
+      }
+    },
+    "No lifecycle events recorded yet." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine Lebenszyklusereignisse aufgezeichnet."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No lifecycle events recorded yet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no se han registrado eventos del ciclo de vida."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun événement de cycle de vie enregistré pour l’instant."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun evento del ciclo di vita registrato finora."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ライフサイクルイベントはまだ記録されていません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 기록된 수명 주기 이벤트가 없습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum evento de ciclo de vida registrado ainda."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未记录生命周期事件。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未記錄生命週期事件。"
+          }
+        }
+      }
+    },
     "The model couldn’t generate a response. Try again or start a new experiment." : {
       "localizations" : {
         "de" : {
