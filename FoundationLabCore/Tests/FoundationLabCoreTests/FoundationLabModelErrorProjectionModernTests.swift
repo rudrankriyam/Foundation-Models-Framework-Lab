@@ -1,4 +1,3 @@
-#if compiler(>=6.4)
 import Darwin
 import Foundation
 import FoundationModels
@@ -201,4 +200,3 @@ final class FoundationModelErrorProjectionModernTests: XCTestCase {
         XCTAssertEqual(quotaProjection.hasQuotaLimitIncreaseSuggestion, false)
     }
 }
-#endif

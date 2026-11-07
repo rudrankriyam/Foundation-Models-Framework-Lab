@@ -3,7 +3,6 @@
 //  FoundationLab
 //
 
-#if compiler(>=6.4)
 import Foundation
 
 struct ImageInputRunResult: Identifiable {
@@ -20,4 +19,3 @@ struct ImageInputRunResult: Identifiable {
     let attachmentSegmentCount: Int
     let duration: Duration
 }
-#endif

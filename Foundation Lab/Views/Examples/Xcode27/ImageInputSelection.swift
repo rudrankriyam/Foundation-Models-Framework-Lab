@@ -3,7 +3,6 @@
 //  FoundationLab
 //
 
-#if compiler(>=6.4)
 import CoreGraphics
 import Foundation
 import ImageIO
@@ -28,4 +27,3 @@ struct ImageInputSelection: Identifiable {
         "\(pixelWidth) × \(pixelHeight)"
     }
 }
-#endif

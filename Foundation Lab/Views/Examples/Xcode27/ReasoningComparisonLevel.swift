@@ -4,9 +4,7 @@
 //
 
 import Foundation
-#if compiler(>=6.4)
 import FoundationModels
-#endif
 
 nonisolated enum ReasoningComparisonLevel: String, CaseIterable, Identifiable, Sendable {
     case light
@@ -53,7 +51,6 @@ nonisolated enum ReasoningComparisonLevel: String, CaseIterable, Identifiable, S
         """
     }
 
-    #if compiler(>=6.4)
     @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
     var frameworkValue: ContextOptions.ReasoningLevel {
         switch self {
@@ -65,5 +62,4 @@ nonisolated enum ReasoningComparisonLevel: String, CaseIterable, Identifiable, S
             .deep
         }
     }
-    #endif
 }

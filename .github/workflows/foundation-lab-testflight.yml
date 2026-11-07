@@ -29,7 +29,7 @@ concurrency:
 
 jobs:
   upload:
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 90
     env:
       ASC_BYPASS_KEYCHAIN: "1"
@@ -46,7 +46,7 @@ jobs:
       - name: Select Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '26.5'
+          xcode-version: '27.1'
 
       - name: Install asc
         env:

@@ -55,11 +55,10 @@ Library entries identify how they open:
 - iOS 26.0+ or macOS 26.0+
 - Apple Silicon for on-device model execution
 - Apple Intelligence enabled for live model runs
-- Xcode 26.6 or Xcode 27
+- Xcode 27.1 or later
 
-The project builds with both Xcode 26.6 and Xcode 27. APIs introduced with the
-OS 27 SDK are compiler- and availability-gated, so the core app remains usable
-with Xcode 26 while Xcode 27 exposes the newest labs.
+The app still runs on OS 26. APIs introduced with OS 27 are availability-gated,
+so the newest labs appear only on an OS 27 runtime.
 
 ## Getting Started
 

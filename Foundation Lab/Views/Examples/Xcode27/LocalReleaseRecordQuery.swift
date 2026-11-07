@@ -3,7 +3,6 @@
 //  FoundationLab
 //
 
-#if compiler(>=6.4)
 import FoundationModels
 import FoundationModelsKit
 
@@ -15,4 +14,3 @@ struct LocalReleaseRecordQuery: RuntimeCompatibleGenerable {
     @Guide(description: "The record identifier. Use foundation-lab for this experiment.")
     let recordID: String
 }
-#endif

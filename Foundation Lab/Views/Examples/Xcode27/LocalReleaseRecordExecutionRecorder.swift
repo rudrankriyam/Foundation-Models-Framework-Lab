@@ -3,7 +3,6 @@
 //  FoundationLab
 //
 
-#if compiler(>=6.4)
 actor LocalReleaseRecordExecutionRecorder {
     private var outputs: [String] = []
 
@@ -15,4 +14,3 @@ actor LocalReleaseRecordExecutionRecorder {
         outputs
     }
 }
-#endif

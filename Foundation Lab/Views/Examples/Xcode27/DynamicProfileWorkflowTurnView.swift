@@ -3,7 +3,6 @@
 //  FoundationLab
 //
 
-#if compiler(>=6.4)
 import SwiftUI
 
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
@@ -76,4 +75,3 @@ struct DynamicProfileWorkflowTurnView: View {
         count == 1 ? String(localized: "1 token") : String(localized: "\(count) tokens")
     }
 }
-#endif

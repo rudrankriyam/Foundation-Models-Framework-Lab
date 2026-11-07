@@ -6,15 +6,11 @@ import SwiftUI
 
 struct DynamicProfileBuilderView: View {
     var body: some View {
-        #if compiler(>=6.4)
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) {
             DynamicProfileBuilderLiveView()
         } else {
             unsupportedView
         }
-        #else
-        unsupportedView
-        #endif
     }
 
     private var unsupportedView: some View {

@@ -93,7 +93,6 @@ struct UsagePerformanceTraceView: View {
             }
         }
 
-        #if compiler(>=6.4)
         guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else {
             guard runID == id else { return }
             errorMessage = String(localized: "Response usage requires an OS 27 runtime.")
@@ -134,10 +133,6 @@ struct UsagePerformanceTraceView: View {
             guard runID == id, currentPrompt == prompt else { return }
             errorMessage = error.localizedDescription
         }
-        #else
-        guard runID == id else { return }
-        errorMessage = String(localized: "Response usage requires the Xcode 27 SDK.")
-        #endif
     }
 
     private func reset() {
@@ -148,7 +143,6 @@ struct UsagePerformanceTraceView: View {
         errorMessage = nil
     }
 
-    #if compiler(>=6.4)
     @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
     private func traceContextOptions() -> ContextOptions {
         let supportsReasoning = SystemLanguageModel.default.capabilities.contains(.reasoning)
@@ -180,7 +174,6 @@ struct UsagePerformanceTraceView: View {
             totalDuration: startedAt.duration(to: finishedAt)
         )
     }
-    #endif
 
     private func tokenLabel(_ count: Int) -> String {
         count == 1 ? String(localized: "\(count) token") : String(localized: "\(count) tokens")

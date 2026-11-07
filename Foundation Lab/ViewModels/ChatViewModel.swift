@@ -86,12 +86,10 @@ final class ChatViewModel {
     }
 
     var canSelectPrivateCloudCompute: Bool {
-        #if compiler(>=6.4)
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) {
             let model = PrivateCloudComputeLanguageModel()
             return model.isAvailable && !model.quotaUsage.isLimitReached
         }
-        #endif
 
         return false
     }
@@ -406,7 +404,6 @@ extension ChatViewModel {
     }
 
     var privateCloudComputeStatus: String {
-        #if compiler(>=6.4)
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) {
             let model = PrivateCloudComputeLanguageModel()
             switch model.availability {
@@ -423,7 +420,6 @@ extension ChatViewModel {
                 return String(localized: "Private Cloud Compute is currently unavailable.")
             }
         }
-        #endif
 
         return String(
             localized: "Private Cloud Compute requires Xcode 27 and iOS, macOS, visionOS, or watchOS 27."
@@ -431,14 +427,12 @@ extension ChatViewModel {
     }
 
     func privateCloudComputeContextSize() async -> Int {
-        #if compiler(>=6.4)
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) {
             let model = PrivateCloudComputeLanguageModel()
             if let contextSize = try? await model.contextSize {
                 return contextSize
             }
         }
-        #endif
 
         return 32_768
     }

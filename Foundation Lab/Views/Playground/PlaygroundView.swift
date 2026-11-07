@@ -453,7 +453,6 @@ private extension PlaygroundView {
                 text: transcriptText(from: output.segments),
                 toolName: output.toolName
             )]
-        #if compiler(>=6.4)
         case .reasoning(let reasoning):
             if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) {
                 return [FoundationLabExperimentEvent(
@@ -462,7 +461,6 @@ private extension PlaygroundView {
                 )]
             }
             return []
-        #endif
         @unknown default:
             return []
         }
@@ -475,13 +473,11 @@ private extension PlaygroundView {
                 return text.content
             case .structure(let structure):
                 return structure.content.jsonString
-            #if compiler(>=6.4)
             case .attachment(let attachment):
                 if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) {
                     return attachment.label.map { "[Attachment: \($0)]" } ?? "[Image attachment]"
                 }
                 return nil
-            #endif
             @unknown default:
                 return nil
             }

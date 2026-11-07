@@ -3,7 +3,6 @@
 //  FoundationLab
 //
 
-#if compiler(>=6.4)
 import SwiftUI
 
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
@@ -92,4 +91,3 @@ struct ImageInputResultSection: View {
         return String(localized: "\(seconds.formatted(.number.precision(.fractionLength(2)))) s")
     }
 }
-#endif

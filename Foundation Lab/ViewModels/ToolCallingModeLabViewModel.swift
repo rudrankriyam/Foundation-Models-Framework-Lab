@@ -3,7 +3,6 @@
 //  FoundationLab
 //
 
-#if compiler(>=6.4)
 import Foundation
 import FoundationModels
 import FoundationModelsKit
@@ -219,4 +218,3 @@ private extension ToolCallingModeLabViewModel {
         errorMessage = nil
     }
 }
-#endif

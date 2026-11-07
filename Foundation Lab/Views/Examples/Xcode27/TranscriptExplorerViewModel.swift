@@ -46,7 +46,6 @@ final class TranscriptExplorerViewModel {
             }
         }
 
-        #if compiler(>=6.4)
         guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else {
             guard activeRunID == runID else { return }
             errorMessage = String(localized: "Live reasoning and segment inspection requires an OS 27 runtime.")
@@ -76,10 +75,6 @@ final class TranscriptExplorerViewModel {
             guard activeRunID == runID else { return }
             errorMessage = error.localizedDescription
         }
-        #else
-        guard activeRunID == runID else { return }
-        errorMessage = String(localized: "Live transcript inspection requires the Xcode 27 SDK.")
-        #endif
     }
 
     func selectEntry(_ id: String?) {

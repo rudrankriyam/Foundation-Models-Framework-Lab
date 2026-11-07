@@ -139,7 +139,6 @@ private extension PrivateCloudComputeView {
             }
         }
 
-        #if compiler(>=6.4)
         guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) else {
             guard inspectionID == id else { return }
             report = .unsupported
@@ -176,11 +175,6 @@ private extension PrivateCloudComputeView {
         } catch {
             return
         }
-        #else
-        guard inspectionID == id else { return }
-        report = .unsupported
-        errorMessage = String(localized: "PrivateCloudComputeLanguageModel requires the Xcode 27 SDK.")
-        #endif
     }
 
     func reset() {
@@ -189,7 +183,6 @@ private extension PrivateCloudComputeView {
         errorMessage = nil
     }
 
-    #if compiler(>=6.4)
     @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
     func unavailableReasonDescription(
         _ reason: PrivateCloudComputeLanguageModel.Availability.UnavailableReason
@@ -261,7 +254,6 @@ private extension PrivateCloudComputeView {
             return String(localized: "Unknown")
         }
     }
-    #endif
 
     var codeExample: String {
         """

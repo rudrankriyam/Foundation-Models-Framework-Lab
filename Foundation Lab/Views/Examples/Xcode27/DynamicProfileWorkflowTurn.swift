@@ -3,7 +3,6 @@
 //  FoundationLab
 //
 
-#if compiler(>=6.4)
 import Foundation
 
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
@@ -24,4 +23,3 @@ nonisolated struct DynamicProfileWorkflowTurn: Identifiable, Sendable {
     let totalTokens: Int
     let transcriptEntryCount: Int
 }
-#endif

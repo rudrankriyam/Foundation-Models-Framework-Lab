@@ -75,10 +75,8 @@ import Playgrounds
                     return nil
                 }.joined(separator: " ")
                 print("\(index): Model response: \(responseText.prefix(100))...")
-            #if compiler(>=6.4)
             case .reasoning:
                 print("\(index): Reasoning trace")
-            #endif
             @unknown default:
                 print("\(index): Unknown transcript entry type")
             }

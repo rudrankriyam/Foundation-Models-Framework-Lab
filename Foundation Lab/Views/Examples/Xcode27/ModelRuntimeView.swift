@@ -181,7 +181,6 @@ struct ModelRuntimeView: View {
     }
 
     private func capabilityRows(for model: SystemLanguageModel) -> [ModelCapabilityRow] {
-        #if compiler(>=6.4)
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) {
             let capabilities = model.capabilities
             return [
@@ -191,7 +190,6 @@ struct ModelRuntimeView: View {
                 ModelCapabilityRow(name: String(localized: "Tool calling"), isSupported: capabilities.contains(.toolCalling))
             ]
         }
-        #endif
 
         return [
             ModelCapabilityRow(name: String(localized: "Vision"), isSupported: nil),

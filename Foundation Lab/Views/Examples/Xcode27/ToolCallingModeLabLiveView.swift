@@ -3,7 +3,6 @@
 //  FoundationLab
 //
 
-#if compiler(>=6.4)
 import SwiftUI
 
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
@@ -174,4 +173,3 @@ struct ToolCallingModeLabLiveView: View {
         }
     }
 }
-#endif

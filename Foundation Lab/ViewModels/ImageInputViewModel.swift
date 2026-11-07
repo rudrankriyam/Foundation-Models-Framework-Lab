@@ -3,7 +3,6 @@
 //  FoundationLab
 //
 
-#if compiler(>=6.4)
 import Foundation
 import FoundationModels
 import Observation
@@ -269,4 +268,3 @@ private extension ImageInputViewModel {
         return count
     }
 }
-#endif
