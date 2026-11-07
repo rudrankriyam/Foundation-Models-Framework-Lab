@@ -67017,6 +67017,582 @@
         }
       }
     },
+    "Couldn’t fully restore the experiment library because it was created by a newer app version. Your in-memory work is still available." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Experimentbibliothek konnte nicht vollständig wiederhergestellt werden, da sie mit einer neueren App-Version erstellt wurde. Deine Arbeit im Arbeitsspeicher ist weiterhin verfügbar."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t fully restore the experiment library because it was created by a newer app version. Your in-memory work is still available."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo restaurar por completo la biblioteca de experimentos porque se creó con una versión más reciente de la app. Tu trabajo en memoria sigue disponible."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de restaurer entièrement la bibliothèque d’expériences, car elle a été créée par une version plus récente de l’app. Votre travail en mémoire reste disponible."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile ripristinare completamente la libreria degli esperimenti perché è stata creata da una versione più recente dell’app. Il lavoro in memoria è ancora disponibile."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "実験ライブラリは新しいバージョンのアプリで作成されたため、完全には復元できませんでした。メモリ上の作業は引き続き利用できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실험 라이브러리가 최신 버전의 앱에서 생성되어 완전히 복원할 수 없습니다. 메모리에 있는 작업은 계속 사용할 수 있습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível restaurar totalmente a biblioteca de experimentos porque ela foi criada por uma versão mais recente do app. Seu trabalho em memória continua disponível."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法完全恢复实验库，因为它是由更新版本的 App 创建的。内存中的工作仍然可用。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法完整復原實驗資料庫，因為它是由較新版本的 App 建立的。記憶體中的工作仍可使用。"
+          }
+        }
+      }
+    },
+    "Couldn’t fully restore some damaged experiment library entries. Your in-memory work is still available." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einige beschädigte Einträge der Experimentbibliothek konnten nicht vollständig wiederhergestellt werden. Deine Arbeit im Arbeitsspeicher ist weiterhin verfügbar."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t fully restore some damaged experiment library entries. Your in-memory work is still available."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudieron restaurar por completo algunas entradas dañadas de la biblioteca de experimentos. Tu trabajo en memoria sigue disponible."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de restaurer entièrement certaines entrées endommagées de la bibliothèque d’expériences. Votre travail en mémoire reste disponible."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile ripristinare completamente alcune voci danneggiate della libreria degli esperimenti. Il lavoro in memoria è ancora disponibile."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "実験ライブラリの破損した一部の項目を完全には復元できませんでした。メモリ上の作業は引き続き利用できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "손상된 일부 실험 라이브러리 항목을 완전히 복원할 수 없습니다. 메모리에 있는 작업은 계속 사용할 수 있습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível restaurar totalmente algumas entradas danificadas da biblioteca de experimentos. Seu trabalho em memória continua disponível."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法完全恢复部分已损坏的实验库条目。内存中的工作仍然可用。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法完整復原部分已損毀的實驗資料庫項目。記憶體中的工作仍可使用。"
+          }
+        }
+      }
+    },
+    "Couldn’t fully restore the experiment library because its file is unreadable. Your in-memory work is still available." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Experimentbibliothek konnte nicht vollständig wiederhergestellt werden, da ihre Datei nicht lesbar ist. Deine Arbeit im Arbeitsspeicher ist weiterhin verfügbar."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t fully restore the experiment library because its file is unreadable. Your in-memory work is still available."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo restaurar por completo la biblioteca de experimentos porque su archivo no se puede leer. Tu trabajo en memoria sigue disponible."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de restaurer entièrement la bibliothèque d’expériences, car son fichier est illisible. Votre travail en mémoire reste disponible."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile ripristinare completamente la libreria degli esperimenti perché il relativo file non è leggibile. Il lavoro in memoria è ancora disponibile."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "実験ライブラリのファイルを読み取れないため、完全には復元できませんでした。メモリ上の作業は引き続き利用できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실험 라이브러리 파일을 읽을 수 없어 완전히 복원할 수 없습니다. 메모리에 있는 작업은 계속 사용할 수 있습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível restaurar totalmente a biblioteca de experimentos porque o arquivo dela não pode ser lido. Seu trabalho em memória continua disponível."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法完全恢复实验库，因为其文件无法读取。内存中的工作仍然可用。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法完整復原實驗資料庫，因為其檔案無法讀取。記憶體中的工作仍可使用。"
+          }
+        }
+      }
+    },
+    "Couldn’t fully restore the damaged experiment library; a backup was preserved. Your in-memory work is still available." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die beschädigte Experimentbibliothek konnte nicht vollständig wiederhergestellt werden; eine Sicherung wurde aufbewahrt. Deine Arbeit im Arbeitsspeicher ist weiterhin verfügbar."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t fully restore the damaged experiment library; a backup was preserved. Your in-memory work is still available."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo restaurar por completo la biblioteca de experimentos dañada; se conservó una copia de seguridad. Tu trabajo en memoria sigue disponible."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de restaurer entièrement la bibliothèque d’expériences endommagée ; une sauvegarde a été conservée. Votre travail en mémoire reste disponible."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile ripristinare completamente la libreria degli esperimenti danneggiata; è stato conservato un backup. Il lavoro in memoria è ancora disponibile."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "破損した実験ライブラリを完全には復元できませんでした。バックアップは保存されています。メモリ上の作業は引き続き利用できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "손상된 실험 라이브러리를 완전히 복원할 수 없습니다. 백업은 보존되었습니다. 메모리에 있는 작업은 계속 사용할 수 있습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível restaurar totalmente a biblioteca de experimentos danificada; um backup foi preservado. Seu trabalho em memória continua disponível."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法完全恢复已损坏的实验库；已保留一份备份。内存中的工作仍然可用。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法完整復原已損毀的實驗資料庫；已保留一份備份。記憶體中的工作仍可使用。"
+          }
+        }
+      }
+    },
+    "Couldn’t fully restore some legacy experiment library entries. Your in-memory work is still available." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einige ältere Einträge der Experimentbibliothek konnten nicht vollständig wiederhergestellt werden. Deine Arbeit im Arbeitsspeicher ist weiterhin verfügbar."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t fully restore some legacy experiment library entries. Your in-memory work is still available."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudieron restaurar por completo algunas entradas antiguas de la biblioteca de experimentos. Tu trabajo en memoria sigue disponible."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de restaurer entièrement certaines anciennes entrées de la bibliothèque d’expériences. Votre travail en mémoire reste disponible."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile ripristinare completamente alcune voci precedenti della libreria degli esperimenti. Il lavoro in memoria è ancora disponibile."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "実験ライブラリの古い形式の一部の項目を完全には復元できませんでした。メモリ上の作業は引き続き利用できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "일부 이전 형식의 실험 라이브러리 항목을 완전히 복원할 수 없습니다. 메모리에 있는 작업은 계속 사용할 수 있습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível restaurar totalmente algumas entradas antigas da biblioteca de experimentos. Seu trabalho em memória continua disponível."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法完全恢复部分旧版实验库条目。内存中的工作仍然可用。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法完整復原部分舊版實驗資料庫項目。記憶體中的工作仍可使用。"
+          }
+        }
+      }
+    },
+    "This experiment library was created by a newer app version and can’t be overwritten." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Experimentbibliothek wurde mit einer neueren App-Version erstellt und kann nicht überschrieben werden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This experiment library was created by a newer app version and can’t be overwritten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta biblioteca de experimentos se creó con una versión más reciente de la app y no se puede sobrescribir."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette bibliothèque d’expériences a été créée par une version plus récente de l’app et ne peut pas être écrasée."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa libreria degli esperimenti è stata creata da una versione più recente dell’app e non può essere sovrascritta."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この実験ライブラリは新しいバージョンのアプリで作成されたため、上書きできません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 실험 라이브러리는 최신 버전의 앱에서 생성되어 덮어쓸 수 없습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta biblioteca de experimentos foi criada por uma versão mais recente do app e não pode ser substituída."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此实验库由更新版本的 App 创建，无法覆盖。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此實驗資料庫由較新版本的 App 建立，無法覆寫。"
+          }
+        }
+      }
+    },
+    "Your experiment library couldn’t be saved. You can keep working and retry." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Experimentbibliothek konnte nicht gesichert werden. Du kannst weiterarbeiten und es erneut versuchen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your experiment library couldn’t be saved. You can keep working and retry."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo guardar tu biblioteca de experimentos. Puedes seguir trabajando y volver a intentarlo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible d’enregistrer votre bibliothèque d’expériences. Vous pouvez continuer à travailler et réessayer."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile salvare la libreria degli esperimenti. Puoi continuare a lavorare e riprovare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "実験ライブラリを保存できませんでした。作業を続けて、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실험 라이브러리를 저장할 수 없습니다. 작업을 계속하면서 다시 시도할 수 있습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível salvar sua biblioteca de experimentos. Você pode continuar trabalhando e tentar novamente."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法存储你的实验库。你可以继续工作并重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法儲存你的實驗資料庫。你可以繼續工作並重試。"
+          }
+        }
+      }
+    },
+    "Couldn’t restore the active experiment. Your library is still available." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das aktive Experiment konnte nicht wiederhergestellt werden. Deine Bibliothek ist weiterhin verfügbar."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t restore the active experiment. Your library is still available."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo restaurar el experimento activo. Tu biblioteca sigue disponible."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de restaurer l’expérience active. Votre bibliothèque reste disponible."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile ripristinare l’esperimento attivo. La libreria è ancora disponibile."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アクティブな実験を復元できませんでした。ライブラリは引き続き利用できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "활성 실험을 복원할 수 없습니다. 라이브러리는 계속 사용할 수 있습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível restaurar o experimento ativo. Sua biblioteca continua disponível."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法恢复当前实验。你的实验库仍然可用。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法復原目前的實驗。你的資料庫仍可使用。"
+          }
+        }
+      }
+    },
+    "Your active experiment couldn’t be saved. You can keep working and retry." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein aktives Experiment konnte nicht gesichert werden. Du kannst weiterarbeiten und es erneut versuchen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your active experiment couldn’t be saved. You can keep working and retry."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo guardar tu experimento activo. Puedes seguir trabajando y volver a intentarlo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible d’enregistrer votre expérience active. Vous pouvez continuer à travailler et réessayer."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile salvare l’esperimento attivo. Puoi continuare a lavorare e riprovare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アクティブな実験を保存できませんでした。作業を続けて、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "활성 실험을 저장할 수 없습니다. 작업을 계속하면서 다시 시도할 수 있습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível salvar seu experimento ativo. Você pode continuar trabalhando e tentar novamente."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法存储你的当前实验。你可以继续工作并重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法儲存你目前的實驗。你可以繼續工作並重試。"
+          }
+        }
+      }
+    },
     "Describe a meal" : {
       "localizations" : {
         "de" : {

@@ -84,7 +84,12 @@ actor ExperimentPersistenceRepository {
             guard document.schemaVersion <= currentSchemaVersion else {
                 return ExperimentCollectionRestoration(
                     document: emptyDocument,
-                    message: "the experiment library because it was created by a newer app version",
+                    message: String(
+                        localized: """
+                            Couldn’t fully restore the experiment library because it was created by a newer app version. \
+                            Your in-memory work is still available.
+                            """
+                    ),
                     blocksWrites: true
                 )
             }
@@ -92,14 +97,21 @@ actor ExperimentPersistenceRepository {
                 document: document,
                 message: document.discardedElementCount == 0
                     ? nil
-                    : "some damaged experiment library entries",
+                    : String(
+                        localized: "Couldn’t fully restore some damaged experiment library entries. Your in-memory work is still available."
+                    ),
                 shouldPersist: document.discardedElementCount > 0
             )
         } catch {
             guard backUpCorruptStorageFile(at: storageURL, fileManager: fileManager) else {
                 return ExperimentCollectionRestoration(
                     document: emptyDocument,
-                    message: "the experiment library because its file is unreadable",
+                    message: String(
+                        localized: """
+                            Couldn’t fully restore the experiment library because its file is unreadable. \
+                            Your in-memory work is still available.
+                            """
+                    ),
                     blocksWrites: true
                 )
             }
@@ -108,7 +120,12 @@ actor ExperimentPersistenceRepository {
                 from: userDefaults,
                 decoder: decoder
             )
-            legacyRestoration.message = "the damaged experiment library; a backup was preserved"
+            legacyRestoration.message = String(
+                localized: """
+                    Couldn’t fully restore the damaged experiment library; a backup was preserved. \
+                    Your in-memory work is still available.
+                    """
+            )
             legacyRestoration.shouldPersist = true
             return legacyRestoration
         }
@@ -180,9 +197,13 @@ private extension ExperimentPersistenceRepository {
                 savedExperiments: experiments.values,
                 runs: runs.values
             ),
-            message: hadFailures ? "some legacy experiment library entries" : nil,
+            message: hadFailures
+                ? String(
+                    localized: "Couldn’t fully restore some legacy experiment library entries. Your in-memory work is still available."
+                )
+                : nil,
             shouldPersist: true,
-            removeLegacyValuesAfterPersisting: hadLegacyValues
+            removeLegacyValuesAfterPersisting: hadLegacyValues && !hadFailures
         )
     }
 

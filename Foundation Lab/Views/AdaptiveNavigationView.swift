@@ -237,9 +237,15 @@ private extension AdaptiveNavigationView {
     }
 
     var sidebar: some View {
-        @Bindable var navigationCoordinator = navigationCoordinator
-        return SidebarView(
-            selection: $navigationCoordinator.splitViewSelection,
+        SidebarView(
+            selection: Binding(
+                get: { navigationCoordinator.splitViewSelection },
+                set: { selection in
+                    if let selection {
+                        navigationCoordinator.splitViewSelection = selection
+                    }
+                }
+            ),
             preferredWidth: sidebarPreferredWidth,
             onWidthChange: persistSidebarWidth
         )
