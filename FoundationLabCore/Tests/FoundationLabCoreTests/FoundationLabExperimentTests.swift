@@ -64,6 +64,26 @@ final class FoundationLabExperimentTests: XCTestCase {
         )
     }
 
+    func testContactCreationRequiresAppOwnedConfirmation() async {
+        let arguments = ContactsTool.Arguments(action: "create", firstName: "Alex")
+        let confirmers: [(any ToolMutationConfirming)?] = [
+            nil,
+            ToolMutationConfirmationHandler { _ in .denied() }
+        ]
+
+        for (confirmer, expectedStatus) in zip(confirmers, [ToolMutationReceiptStatus.confirmationRequired, .denied]) {
+            do {
+                _ = try await ConfirmedContactsTool(mutationConfirmation: confirmer).call(arguments: arguments)
+                XCTFail("Contact creation ran without approval")
+            } catch let error as ToolMutationExecutionError {
+                XCTAssertEqual(error.receipt.status, expectedStatus)
+                XCTAssertEqual(error.receipt.commitState, .notAttempted)
+            } catch {
+                XCTFail("Unexpected error: \(error)")
+            }
+        }
+    }
+
     func testAsNewExperimentRefreshesIdentityAndTimestampsOnly() {
         let originalDate = Date(timeIntervalSince1970: 1_700_000_000)
         let newDate = originalDate.addingTimeInterval(3_600)
