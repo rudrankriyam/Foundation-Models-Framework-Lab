@@ -70,7 +70,7 @@ struct RunsView: View {
     }
 
     private var runsList: some View {
-        List(selection: $selection) {
+        List(selection: listSelection) {
             ForEach(groupedRuns, id: \.date) { group in
                 Section {
                     ForEach(group.runs) { run in
@@ -106,6 +106,18 @@ struct RunsView: View {
         #else
         .listStyle(.inset)
         #endif
+    }
+
+    private var listSelection: Binding<FoundationLabExperimentRun.ID?> {
+        Binding(
+            get: { selection },
+            set: { newValue in
+                if newValue == nil, let selection, !filteredRuns.contains(where: { $0.id == selection }) {
+                    return
+                }
+                selection = newValue
+            }
+        )
     }
 
     private var filteredRuns: [FoundationLabExperimentRun] {
