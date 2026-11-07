@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'Foundation Lab/**'
+      - 'Foundation Lab Watch/**'
       - 'Foundation Lab.icon/**'
       - 'FoundationLabCore/**'
       - 'FoundationLab.xcodeproj/**'
@@ -38,6 +39,7 @@ jobs:
       TARGET_BUNDLE_ID: ${{ vars.FOUNDATION_LAB_BUNDLE_ID }}
       TEAM_ID: ${{ vars.FOUNDATION_LAB_TEAM_ID }}
       PROFILE_NAME: ${{ vars.FOUNDATION_LAB_PROFILE_NAME }}
+      WATCH_PROFILE_NAME: ${{ vars.FOUNDATION_LAB_WATCH_PROFILE_NAME }}
       UPLOAD: ${{ github.event_name == 'push' || inputs.upload }}
     steps:
       - name: Check out repository
@@ -46,7 +48,7 @@ jobs:
       - name: Select Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '27.1'
+          xcode-version: '27.2'
 
       - name: Install asc
         env:
@@ -77,8 +79,9 @@ jobs:
           SIGNING_CERTIFICATE_P12_B64_SECRET: ${{ secrets.FOUNDATION_LAB_DISTRIBUTION_P12_B64 }}
           SIGNING_CERTIFICATE_PASSWORD_SECRET: ${{ secrets.FOUNDATION_LAB_DISTRIBUTION_P12_PASSWORD }}
           PROVISIONING_PROFILE_B64_SECRET: ${{ secrets.FOUNDATION_LAB_PROVISIONING_PROFILE_B64 }}
+          WATCH_PROVISIONING_PROFILE_B64_SECRET: ${{ secrets.FOUNDATION_LAB_WATCH_PROVISIONING_PROFILE_B64 }}
         run: |
-          for key in APP_ID TESTFLIGHT_GROUP TARGET_BUNDLE_ID TEAM_ID PROFILE_NAME; do
+          for key in APP_ID TESTFLIGHT_GROUP TARGET_BUNDLE_ID TEAM_ID PROFILE_NAME WATCH_PROFILE_NAME; do
             if [ -z "${!key}" ]; then
               echo "Missing required repository variable: $key" >&2
               exit 1
@@ -91,7 +94,8 @@ jobs:
             ASC_PRIVATE_KEY_B64_SECRET \
             SIGNING_CERTIFICATE_P12_B64_SECRET \
             SIGNING_CERTIFICATE_PASSWORD_SECRET \
-            PROVISIONING_PROFILE_B64_SECRET; do
+            PROVISIONING_PROFILE_B64_SECRET \
+            WATCH_PROVISIONING_PROFILE_B64_SECRET; do
             if [ -z "${!key}" ]; then
               echo "Missing required repository secret for $key" >&2
               exit 1
@@ -119,17 +123,15 @@ jobs:
           SIGNING_CERTIFICATE_P12_B64: ${{ secrets.FOUNDATION_LAB_DISTRIBUTION_P12_B64 }}
           SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.FOUNDATION_LAB_DISTRIBUTION_P12_PASSWORD }}
           PROVISIONING_PROFILE_B64: ${{ secrets.FOUNDATION_LAB_PROVISIONING_PROFILE_B64 }}
+          WATCH_PROVISIONING_PROFILE_B64: ${{ secrets.FOUNDATION_LAB_WATCH_PROVISIONING_PROFILE_B64 }}
         run: |
           set -euo pipefail
 
           CERTIFICATE_PATH="$RUNNER_TEMP/foundation-lab-distribution.p12"
-          PROFILE_PATH="$RUNNER_TEMP/foundation-lab.mobileprovision"
-          PROFILE_PLIST="$RUNNER_TEMP/foundation-lab-profile.plist"
           KEYCHAIN_PATH="$RUNNER_TEMP/foundation-lab-signing.keychain-db"
           KEYCHAIN_PASSWORD="$(openssl rand -base64 36)"
 
           printf '%s' "$SIGNING_CERTIFICATE_P12_B64" | base64 --decode > "$CERTIFICATE_PATH"
-          printf '%s' "$PROVISIONING_PROFILE_B64" | base64 --decode > "$PROFILE_PATH"
 
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
@@ -148,18 +150,31 @@ jobs:
             "$KEYCHAIN_PATH" \
             "$HOME/Library/Keychains/login.keychain-db"
 
-          security cms -D -i "$PROFILE_PATH" > "$PROFILE_PLIST"
-          PROFILE_UUID="$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$PROFILE_PLIST")"
-          INSTALLED_PROFILE_NAME="$(/usr/libexec/PlistBuddy -c 'Print :Name' "$PROFILE_PLIST")"
+          install_profile() {
+            local encoded="$1" expected_name="$2" variable_name="$3" label="$4"
+            local profile_path="$RUNNER_TEMP/$label.mobileprovision"
+            local profile_plist="$RUNNER_TEMP/$label-profile.plist"
 
-          if [ "$INSTALLED_PROFILE_NAME" != "$PROFILE_NAME" ]; then
-            echo "Provisioning profile name does not match FOUNDATION_LAB_PROFILE_NAME" >&2
-            exit 1
-          fi
+            printf '%s' "$encoded" | base64 --decode > "$profile_path"
+            security cms -D -i "$profile_path" > "$profile_plist"
+            local profile_uuid installed_name
+            profile_uuid="$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$profile_plist")"
+            installed_name="$(/usr/libexec/PlistBuddy -c 'Print :Name' "$profile_plist")"
 
-          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          cp "$PROFILE_PATH" \
-            "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
+            if [ "$installed_name" != "$expected_name" ]; then
+              echo "Provisioning profile name does not match $variable_name" >&2
+              exit 1
+            fi
+
+            mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+            cp "$profile_path" \
+              "$HOME/Library/MobileDevice/Provisioning Profiles/$profile_uuid.mobileprovision"
+          }
+
+          install_profile "$PROVISIONING_PROFILE_B64" "$PROFILE_NAME" \
+            FOUNDATION_LAB_PROFILE_NAME foundation-lab
+          install_profile "$WATCH_PROVISIONING_PROFILE_B64" "$WATCH_PROFILE_NAME" \
+            FOUNDATION_LAB_WATCH_PROFILE_NAME foundation-lab-watch
 
           security find-identity -v -p codesigning
           echo "SIGNING_KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"

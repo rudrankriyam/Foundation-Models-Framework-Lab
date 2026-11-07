@@ -129,6 +129,70 @@
         }
       }
     },
+    "@Guide(key:) maps productName, rating, and recommendation to product_name, star_rating, and verdict in the generated content." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:) ordnet productName, rating und recommendation im generierten Inhalt product_name, star_rating und verdict zu."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:) maps productName, rating, and recommendation to product_name, star_rating, and verdict in the generated content."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:) asigna productName, rating y recommendation a product_name, star_rating y verdict en el contenido generado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:) associe productName, rating et recommendation à product_name, star_rating et verdict dans le contenu généré."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:) associa productName, rating e recommendation a product_name, star_rating e verdict nel contenuto generato."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:) は、生成されたコンテンツ内で productName、rating、recommendation を product_name、star_rating、verdict に対応付けます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:)는 생성된 콘텐츠에서 productName, rating, recommendation을 product_name, star_rating, verdict에 매핑합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:) mapeia productName, rating e recommendation para product_name, star_rating e verdict no conteúdo gerado."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:) 会在生成的内容中将 productName、rating 和 recommendation 映射为 product_name、star_rating 和 verdict。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:) 會在產生的內容中將 productName、rating 和 recommendation 對應為 product_name、star_rating 和 verdict。"
+          }
+        }
+      }
+    },
     "About Dynamic Profiles" : {
       "localizations" : {
         "de" : {
@@ -253,6 +317,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "初始值"
+          }
+        }
+      }
+    },
+    "Generated Content" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generierter Inhalt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generated Content"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contenido generado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contenu généré"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contenuto generato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成されたコンテンツ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "생성된 콘텐츠"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conteúdo gerado"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成的内容"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "產生的內容"
           }
         }
       }
@@ -1478,7 +1606,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wählen Sie eine Rezeptur, ein Labor oder ein gespeichertes Experiment aus, um es hier zu sehen."
+            "value" : "Wählen Sie ein Rezept, ein Labor oder ein gespeichertes Experiment aus, um es hier zu sehen."
           }
         },
         "en" : {
@@ -1526,13 +1654,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "选择一个食谱、实验室或已保存的实验，即可在此处查看。"
+            "value" : "选择一个配方、实验室或已保存的实验，即可在此处查看。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "選取一個食譜、實驗室或已儲存的實驗，即可在此處查看。"
+            "value" : "選取一個配方、實驗室或已儲存的實驗，即可在此處查看。"
           }
         }
       }
@@ -2694,7 +2822,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "@Generable Pattern"
+            "value" : "@Generable-Muster"
           }
         },
         "en" : {
@@ -2706,49 +2834,49 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "@Generable Pattern"
+            "value" : "Patrón @Generable"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "@Generable Pattern"
+            "value" : "Modèle @Generable"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "@Generable Pattern"
+            "value" : "Modello @Generable"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "@Generable Pattern"
+            "value" : "@Generable パターン"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "@Generable Pattern"
+            "value" : "@Generable 패턴"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "@Generable Pattern"
+            "value" : "Padrão @Generable"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "@Generable Pattern"
+            "value" : "@Generable 模式"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "@Generable Pattern"
+            "value" : "@Generable 模式"
           }
         }
       }
@@ -4524,7 +4652,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Book Recommendation"
+            "value" : "Buchempfehlung generieren"
           }
         },
         "en" : {
@@ -4536,49 +4664,49 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Book Recommendation"
+            "value" : "Generar recomendación de libro"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Book Recommendation"
+            "value" : "Générer une recommandation de livre"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Book Recommendation"
+            "value" : "Genera un consiglio di lettura"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Book Recommendation"
+            "value" : "おすすめの本を生成"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Book Recommendation"
+            "value" : "도서 추천 생성"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Book Recommendation"
+            "value" : "Gerar recomendação de livro"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Book Recommendation"
+            "value" : "生成书籍推荐"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Book Recommendation"
+            "value" : "產生書籍推薦"
           }
         }
       }
@@ -4588,7 +4716,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Localized Response"
+            "value" : "Lokalisierte Antwort generieren"
           }
         },
         "en" : {
@@ -4600,49 +4728,49 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Localized Response"
+            "value" : "Generar respuesta localizada"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Localized Response"
+            "value" : "Générer une réponse localisée"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Localized Response"
+            "value" : "Genera risposta localizzata"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Localized Response"
+            "value" : "ローカライズされた応答を生成"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Localized Response"
+            "value" : "현지화된 응답 생성"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Localized Response"
+            "value" : "Gerar resposta localizada"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Localized Response"
+            "value" : "生成本地化回复"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Localized Response"
+            "value" : "產生本地化回應"
           }
         }
       }
@@ -4652,7 +4780,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Web Page Summary"
+            "value" : "Webseitenzusammenfassung generieren"
           }
         },
         "en" : {
@@ -4664,49 +4792,49 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Web Page Summary"
+            "value" : "Generar resumen de página web"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Web Page Summary"
+            "value" : "Générer un résumé de page web"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Web Page Summary"
+            "value" : "Genera riepilogo della pagina web"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Web Page Summary"
+            "value" : "ウェブページの要約を生成"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Web Page Summary"
+            "value" : "웹 페이지 요약 생성"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Web Page Summary"
+            "value" : "Gerar resumo de página da web"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Web Page Summary"
+            "value" : "生成网页摘要"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generate Web Page Summary"
+            "value" : "產生網頁摘要"
           }
         }
       }
@@ -5008,7 +5136,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Get Location"
+            "value" : "位置情報を取得"
           }
         },
         "ko" : {
@@ -5026,13 +5154,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Get Location"
+            "value" : "获取位置"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Get Location"
+            "value" : "取得位置"
           }
         }
       }
@@ -5561,7 +5689,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Invoice Processing"
+            "value" : "Rechnungsverarbeitung"
           }
         },
         "en" : {
@@ -5573,49 +5701,49 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Invoice Processing"
+            "value" : "Procesamiento de facturas"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Invoice Processing"
+            "value" : "Traitement des factures"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Invoice Processing"
+            "value" : "Elaborazione fatture"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Invoice Processing"
+            "value" : "請求書の処理"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Invoice Processing"
+            "value" : "청구서 처리"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Invoice Processing"
+            "value" : "Processamento de faturas"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Invoice Processing"
+            "value" : "发票处理"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Invoice Processing"
+            "value" : "發票處理"
           }
         }
       }
@@ -5819,7 +5947,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Language Example"
+            "value" : "Sprachbeispiel"
           }
         },
         "en" : {
@@ -5831,49 +5959,49 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Language Example"
+            "value" : "Ejemplo de idioma"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Language Example"
+            "value" : "Exemple de langue"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Language Example"
+            "value" : "Esempio di lingua"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Language Example"
+            "value" : "言語の例"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Language Example"
+            "value" : "언어 예시"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Language Example"
+            "value" : "Exemplo de idioma"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Language Example"
+            "value" : "语言示例"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Language Example"
+            "value" : "語言範例"
           }
         }
       }
@@ -6239,7 +6367,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Manage Reminders"
+            "value" : "リマインダーを管理"
           }
         },
         "ko" : {
@@ -6257,13 +6385,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Manage Reminders"
+            "value" : "管理提醒事项"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Manage Reminders"
+            "value" : "管理提醒事項"
           }
         }
       }
@@ -6597,7 +6725,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nested Objects"
+            "value" : "Verschachtelte Objekte"
           }
         },
         "en" : {
@@ -6609,49 +6737,49 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nested Objects"
+            "value" : "Objetos anidados"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nested Objects"
+            "value" : "Objets imbriqués"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nested Objects"
+            "value" : "Oggetti annidati"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nested Objects"
+            "value" : "ネストされたオブジェクト"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nested Objects"
+            "value" : "중첩 객체"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nested Objects"
+            "value" : "Objetos aninhados"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nested Objects"
+            "value" : "嵌套对象"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nested Objects"
+            "value" : "巢狀對象"
           }
         }
       }
@@ -6661,7 +6789,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Example"
+            "value" : "Beispiel öffnen"
           }
         },
         "en" : {
@@ -6673,49 +6801,49 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Example"
+            "value" : "Abrir ejemplo"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Example"
+            "value" : "Ouvrir l’exemple"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Example"
+            "value" : "Apri esempio"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Example"
+            "value" : "例を開く"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Example"
+            "value" : "예시 열기"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Example"
+            "value" : "Abrir exemplo"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Example"
+            "value" : "打开示例"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Example"
+            "value" : "打開範例"
           }
         }
       }
@@ -6725,7 +6853,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Language Example"
+            "value" : "Sprachbeispiel öffnen"
           }
         },
         "en" : {
@@ -6737,49 +6865,49 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Language Example"
+            "value" : "Abrir ejemplo de idioma"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Language Example"
+            "value" : "Ouvrir l’exemple de langue"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Language Example"
+            "value" : "Apri esempio di lingua"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Language Example"
+            "value" : "言語の例を開く"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Language Example"
+            "value" : "언어 예시 열기"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Language Example"
+            "value" : "Abrir exemplo de idioma"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Language Example"
+            "value" : "打开语言示例"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Language Example"
+            "value" : "打開語言範例"
           }
         }
       }
@@ -6789,7 +6917,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Schema Example"
+            "value" : "Schema-Beispiel öffnen"
           }
         },
         "en" : {
@@ -6801,49 +6929,49 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Schema Example"
+            "value" : "Abrir ejemplo de esquema"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Schema Example"
+            "value" : "Ouvrir l’exemple de schéma"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Schema Example"
+            "value" : "Apri esempio di schema"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Schema Example"
+            "value" : "スキーマの例を開く"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Schema Example"
+            "value" : "스키마 예시 열기"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Schema Example"
+            "value" : "Abrir exemplo de esquema"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Schema Example"
+            "value" : "打开模式示例"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Schema Example"
+            "value" : "打開結構範例"
           }
         }
       }
@@ -6949,13 +7077,13 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Tool"
+            "value" : "ツールを開く"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Tool"
+            "value" : "도구 열기"
           }
         },
         "pt-BR" : {
@@ -6967,13 +7095,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Tool"
+            "value" : "打开工具"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Tool"
+            "value" : "打開工具"
           }
         }
       }
@@ -7245,7 +7373,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recommend Book"
+            "value" : "Buch empfehlen"
           }
         },
         "en" : {
@@ -7257,49 +7385,49 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recommend Book"
+            "value" : "Recomendar libro"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recommend Book"
+            "value" : "Recommander un livre"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recommend Book"
+            "value" : "Consiglia un libro"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recommend Book"
+            "value" : "本をおすすめ"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recommend Book"
+            "value" : "도서 추천"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recommend Book"
+            "value" : "Recomendar livro"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recommend Book"
+            "value" : "推荐书籍"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recommend Book"
+            "value" : "推薦書籍"
           }
         }
       }
@@ -8031,7 +8159,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Schema Example"
+            "value" : "Schema-Beispiel"
           }
         },
         "en" : {
@@ -8043,49 +8171,49 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Schema Example"
+            "value" : "Ejemplo de esquema"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Schema Example"
+            "value" : "Exemple de schéma"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Schema Example"
+            "value" : "Esempio di schema"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Schema Example"
+            "value" : "スキーマの例"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Schema Example"
+            "value" : "스키마 예시"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Schema Example"
+            "value" : "Exemplo de esquema"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Schema Example"
+            "value" : "模式示例"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Schema Example"
+            "value" : "結構範例"
           }
         }
       }
@@ -8217,7 +8345,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "結構結構"
+            "value" : "Schema 結構"
           }
         }
       }
@@ -8389,7 +8517,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Search Music Catalog"
+            "value" : "ミュージックカタログを検索"
           }
         },
         "ko" : {
@@ -8407,13 +8535,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Search Music Catalog"
+            "value" : "搜索音乐目录"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Search Music Catalog"
+            "value" : "搜尋音樂目錄"
           }
         }
       }
@@ -9455,7 +9583,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Union Types"
+            "value" : "Union-Typen"
           }
         },
         "en" : {
@@ -9467,49 +9595,49 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Union Types"
+            "value" : "Tipos de unión"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Union Types"
+            "value" : "Types union"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Union Types"
+            "value" : "Tipi unione"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Union Types"
+            "value" : "ユニオン型"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Union Types"
+            "value" : "유니온 타입"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Union Types"
+            "value" : "Tipos de união"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Union Types"
+            "value" : "联合类型"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Union Types"
+            "value" : "聯合型別"
           }
         }
       }
@@ -11453,7 +11581,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vorgefertigte Vorlagen und gespeicherte Experimente"
+            "value" : "Vorgefertigte Rezepte und gespeicherte Experimente"
           }
         },
         "en" : {
@@ -11465,49 +11593,49 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ejemplos listos para usar y experimentos guardados"
+            "value" : "Recetas listas para usar y experimentos guardados"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Exemples prêts à l’emploi et expériences enregistrées"
+            "value" : "Recettes prêtes à l’emploi et expériences enregistrées"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Esempi pronti all’uso ed esperimenti salvati"
+            "value" : "Ricette pronte all’uso ed esperimenti salvati"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "すぐに使えるサンプルと保存済みの実験"
+            "value" : "すぐに使えるレシピと保存済みの実験"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "바로 사용할 수 있는 예제와 저장된 실험"
+            "value" : "바로 사용할 수 있는 레시피와 저장된 실험"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Exemplos prontos e experimentos salvos"
+            "value" : "Receitas prontas e experimentos salvos"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "现成范例与已保存的实验"
+            "value" : "现成配方与已保存的实验"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "現成範例與已儲存的實驗"
+            "value" : "現成配方與已儲存的實驗"
           }
         }
       }
@@ -11709,7 +11837,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Öffnet diese Vorlage im Experimentierbereich"
+            "value" : "Öffnet dieses Rezept im Experimentierbereich"
           }
         },
         "en" : {
@@ -11721,49 +11849,49 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Abre este ejemplo en el Área de pruebas"
+            "value" : "Abre esta receta en el Área de pruebas"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ouvre cet exemple dans l’Espace de test"
+            "value" : "Ouvre cette recette dans l’Espace de test"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apre questo esempio nell’Area di prova"
+            "value" : "Apre questa ricetta nell’Area di prova"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "このサンプルをプレイグラウンドで開きます"
+            "value" : "このレシピをプレイグラウンドで開きます"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "이 예제를 플레이그라운드에서 엽니다"
+            "value" : "이 레시피를 플레이그라운드에서 엽니다"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Abre este exemplo na Área de testes"
+            "value" : "Abre esta receita na Área de testes"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在试验场中打开这个范例"
+            "value" : "在试验场中打开这个配方"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在試驗場中打開這個範例"
+            "value" : "在試驗場中打開這個配方"
           }
         }
       }
@@ -20237,7 +20365,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "AI Studio API Schlüssel"
+            "value" : "AI Studio-API-Schlüssel"
           }
         },
         "en" : {
@@ -20249,25 +20377,25 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "AI Studio API clave"
+            "value" : "Clave de API de AI Studio"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "AI Studio API clé"
+            "value" : "Clé d’API AI Studio"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "AI Studio API chiave"
+            "value" : "Chiave API AI Studio"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "AI Studio API キーキー"
+            "value" : "AI Studio API キー"
           }
         },
         "ko" : {
@@ -20279,19 +20407,19 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "AI Studio API Chave"
+            "value" : "Chave de API do AI Studio"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "AI Studio API 键"
+            "value" : "AI Studio API 密钥"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "AI Studio API 按鍵"
+            "value" : "AI Studio API 金鑰"
           }
         }
       }
@@ -21072,7 +21200,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Addition Gemini API Schlüssel"
+            "value" : "Gemini-API-Schlüssel hinzufügen"
           }
         },
         "en" : {
@@ -21084,25 +21212,25 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Añadir Gemini API clave"
+            "value" : "Añadir clave de API de Gemini"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ajouter Gemini API clé"
+            "value" : "Ajouter une clé d’API Gemini"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aggiungi Gemini API chiave"
+            "value" : "Aggiungi chiave API Gemini"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "追加する Gemini API キーキー"
+            "value" : "Gemini API キーを追加"
           }
         },
         "ko" : {
@@ -21114,19 +21242,19 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Adicionar Gemini API Chave"
+            "value" : "Adicionar chave de API do Gemini"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "添加 Gemini API 键"
+            "value" : "添加 Gemini API 密钥"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "添加 Gemini API 按鍵"
+            "value" : "加入 Gemini API 金鑰"
           }
         }
       }
@@ -21184,13 +21312,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "调整控件以生成配置文件配方 。 此页面不创建会话或发送提示 。"
+            "value" : "调整控件以生成配置文件配方。此页面不会创建会话或发送提示。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "調整控件以產生剖面程式配方 。 此頁面不建立會議或傳送便捷 。"
+            "value" : "調整控制項以產生設定檔配方。此頁面不會建立工作階段或傳送提示。"
           }
         }
       }
@@ -25006,7 +25134,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "コードコード"
+            "value" : "コード"
           }
         },
         "ko" : {
@@ -25680,7 +25808,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zusammensetzung a LanguageModelSession.Profile Rezeptur"
+            "value" : "Ein LanguageModelSession.Profile-Rezept zusammenstellen"
           }
         },
         "en" : {
@@ -25692,49 +25820,49 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Preparar un LanguageModelSession.Profile receta"
+            "value" : "Componer una receta de LanguageModelSession.Profile"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Composez une LanguageModelSession.Profile recette"
+            "value" : "Composer une recette LanguageModelSession.Profile"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Componi un LanguageModelSession.Profile ricetta"
+            "value" : "Componi una ricetta LanguageModelSession.Profile"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "コンパイルする LanguageModelSession.Profile レシピ"
+            "value" : "LanguageModelSession.Profile のレシピを作成"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "지원하다 LanguageModelSession.Profile 뚱 베어"
+            "value" : "LanguageModelSession.Profile 레시피 구성"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Compor um LanguageModelSession.Profile receita"
+            "value" : "Compor uma receita de LanguageModelSession.Profile"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "组成a LanguageModelSession.Profile 食谱"
+            "value" : "组合 LanguageModelSession.Profile 配方"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "构成a LanguageModelSession.Profile 食谱"
+            "value" : "組合 LanguageModelSession.Profile 配方"
           }
         }
       }
@@ -28112,7 +28240,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Edit Gemini API Schlüssel"
+            "value" : "Gemini-API-Schlüssel bearbeiten"
           }
         },
         "en" : {
@@ -28124,25 +28252,25 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editar Gemini API clave"
+            "value" : "Editar clave de API de Gemini"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Modifier Gemini API clé"
+            "value" : "Modifier la clé d’API Gemini"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Modifica Gemini API chiave"
+            "value" : "Modifica chiave API Gemini"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "編集 Gemini API キーキー"
+            "value" : "Gemini API キーを編集"
           }
         },
         "ko" : {
@@ -28154,19 +28282,19 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editar Gemini API Chave"
+            "value" : "Editar chave de API do Gemini"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "编辑 Gemini API 键"
+            "value" : "编辑 Gemini API 密钥"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "編輯 Gemini API 按鍵"
+            "value" : "編輯 Gemini API 金鑰"
           }
         }
       }
@@ -31120,7 +31248,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gemini API Schlüssel"
+            "value" : "Gemini-API-Schlüssel"
           }
         },
         "en" : {
@@ -31132,25 +31260,25 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gemini API Clave"
+            "value" : "Clave de API de Gemini"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gemini API Clé"
+            "value" : "Clé d’API Gemini"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gemini API Chiave"
+            "value" : "Chiave API Gemini"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gemini API キーキー"
+            "value" : "Gemini API キー"
           }
         },
         "ko" : {
@@ -31162,7 +31290,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gemini API Chave"
+            "value" : "Chave de API do Gemini"
           }
         },
         "zh-Hans" : {
@@ -38934,7 +39062,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Eröffnungsrezept"
+            "value" : "Rezept wird geöffnet"
           }
         },
         "en" : {
@@ -38946,25 +39074,25 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Receta de apertura"
+            "value" : "Abriendo receta"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recette d'ouverture"
+            "value" : "Ouverture de la recette"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ricetta di apertura"
+            "value" : "Apertura della ricetta"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "オープニングレシピ"
+            "value" : "レシピを開いています"
           }
         },
         "ko" : {
@@ -38976,19 +39104,19 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recipe de Abertura"
+            "value" : "Abrindo receita"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "打开食谱"
+            "value" : "正在打开配方"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "開啟食譜"
+            "value" : "正在開啟配方"
           }
         }
       }
@@ -41753,7 +41881,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rezeptur"
+            "value" : "Rezept"
           }
         },
         "en" : {
@@ -41777,7 +41905,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ricetta ricetta"
+            "value" : "Ricetta"
           }
         },
         "ja" : {
@@ -41801,13 +41929,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "食谱"
+            "value" : "配方"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "食道"
+            "value" : "配方"
           }
         }
       }
@@ -41841,13 +41969,13 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ricetta Non disponibile"
+            "value" : "Ricetta non disponibile"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "レシピ 利用不可"
+            "value" : "レシピを利用できません"
           }
         },
         "ko" : {
@@ -41865,13 +41993,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "食谱不可用"
+            "value" : "配方不可用"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "食谱不可用"
+            "value" : "配方無法使用"
           }
         }
       }
@@ -46391,7 +46519,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "サインイン"
+            "value" : "署名済み"
           }
         },
         "ko" : {
@@ -46403,7 +46531,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Assinado."
+            "value" : "Assinado"
           }
         },
         "zh-Hans" : {
@@ -48924,7 +49052,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Der Executor sendet inkrementelle Generationsereignisse durch LanguageModelExecutorGenerationChannelDer Kanal endet, wenn die Antwort zurückkehrt oder wirft."
+            "value" : "Der Executor sendet inkrementelle Generierungsereignisse über LanguageModelExecutorGenerationChannel. Der Kanal wird beendet, wenn respond zurückkehrt oder einen Fehler auslöst."
           }
         },
         "en" : {
@@ -48936,49 +49064,49 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "El ejecutor envía eventos de generación incremental a través de LanguageModelExecutorGenerationChannel. El canal termina cuando responde devuelve o lanza."
+            "value" : "El ejecutor envía eventos de generación incrementales a través de LanguageModelExecutorGenerationChannel. El canal finaliza cuando respond devuelve un resultado o lanza un error."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "L'exécuteur envoie des événements de génération progressive à travers LanguageModelExecutorGenerationChannel. Le canal se termine lorsque la réponse revient ou lance."
+            "value" : "L’exécuteur envoie des événements de génération incrémentiels via LanguageModelExecutorGenerationChannel. Le canal se termine lorsque respond renvoie un résultat ou lève une erreur."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "L'esecutore invia eventi di generazione incrementale attraverso LanguageModelExecutorGenerationChannel. Il canale termina quando risponde restituisce o lancia."
+            "value" : "L’esecutore invia eventi di generazione incrementali tramite LanguageModelExecutorGenerationChannel. Il canale termina quando respond restituisce un risultato o genera un errore."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "エクセプターは、増分生成イベントを通し、 LanguageModelExecutorGenerationChannel. 戻りや投げる時にチャンネルが終了する。"
+            "value" : "エグゼキュータは LanguageModelExecutorGenerationChannel を通じて増分生成イベントを送信します。respond が戻るかエラーをスローすると、チャンネルは終了します。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "executor는 incremental 생성 이벤트를 통해 보냅니다. LanguageModelExecutorGenerationChannel. 응답 반환 또는 던지기 때 수로 끝."
+            "value" : "실행기는 LanguageModelExecutorGenerationChannel을 통해 증분 생성 이벤트를 보냅니다. respond가 반환되거나 오류를 던지면 채널이 종료됩니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O executor envia eventos de geração incremental através LanguageModelExecutorGenerationChannelO canal termina quando responder retorna ou atira."
+            "value" : "O executor envia eventos de geração incrementais por meio de LanguageModelExecutorGenerationChannel. O canal termina quando respond retorna ou lança um erro."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "执行者通过 LanguageModelExecutorGenerationChannel。在回复返回或丢弃时,频道会结束。"
+            "value" : "执行器通过 LanguageModelExecutorGenerationChannel 发送增量生成事件。respond 返回或抛出错误时，通道结束。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "執行器傳送增量產生事件 LanguageModelExecutorGenerationChannel。回應回應或丟棄時, 頻道完成 。"
+            "value" : "執行器透過 LanguageModelExecutorGenerationChannel 傳送增量產生事件。respond 傳回或擲出錯誤時，通道即結束。"
           }
         }
       }
@@ -50304,7 +50432,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "이 예제는 아직 편집 가능한 조리법이 없습니다."
+            "value" : "이 예제에는 아직 편집 가능한 레시피가 없습니다."
           }
         },
         "pt-BR" : {
@@ -50316,13 +50444,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "此示例尚未有可编辑的配方 。"
+            "value" : "此示例尚未有可编辑的配方。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "此示例尚未有可編輯的食譜 。"
+            "value" : "此示例尚未有可編輯的配方。"
           }
         }
       }
@@ -50368,7 +50496,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "이 예제는 이제 편집 가능한 놀이터 레시피로 실행됩니다."
+            "value" : "이 예제는 이제 편집 가능한 플레이그라운드 레시피로 실행됩니다."
           }
         },
         "pt-BR" : {
@@ -50380,13 +50508,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "这个示例现在作为可编辑的 Playground 食谱运行 。"
+            "value" : "这个示例现在作为可编辑的 Playground 配方运行。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "此示例目前為可編輯的 Playground 配方 。"
+            "value" : "此示例目前為可編輯的 Playground 配方。"
           }
         }
       }
@@ -56509,7 +56637,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "データデータ"
+            "value" : "データ"
           }
         },
         "ko" : {
@@ -86491,6 +86619,390 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "模型無法產生回覆。請再試一次。"
+          }
+        }
+      }
+    },
+    "Activated" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktiviert"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activated"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attivato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有効化"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "활성화됨"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ativado"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已激活"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已啟用"
+          }
+        }
+      }
+    },
+    "Deactivated" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deaktiviert"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deactivated"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desactivado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désactivé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disattivato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無効化"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "비활성화됨"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desativado"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已停用"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已停用"
+          }
+        }
+      }
+    },
+    "Each stage groups its instructions with DynamicInstructions.Group. The framework calls onActivate and onDeactivate when the resolved profile includes or drops a group." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jede Phase gruppiert ihre Anweisungen mit DynamicInstructions.Group. Das Framework ruft onActivate und onDeactivate auf, wenn das aufgelöste Profil eine Gruppe aufnimmt oder entfernt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Each stage groups its instructions with DynamicInstructions.Group. The framework calls onActivate and onDeactivate when the resolved profile includes or drops a group."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada etapa agrupa sus instrucciones con DynamicInstructions.Group. El framework llama a onActivate y onDeactivate cuando el perfil resuelto incluye o descarta un grupo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chaque étape regroupe ses instructions avec DynamicInstructions.Group. Le framework appelle onActivate et onDeactivate lorsque le profil résolu inclut ou retire un groupe."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ogni fase raggruppa le proprie istruzioni con DynamicInstructions.Group. Il framework chiama onActivate e onDeactivate quando il profilo risolto include o rimuove un gruppo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "各ステージは DynamicInstructions.Group で指示をまとめます。解決されたプロファイルにグループが含まれるか外れると、フレームワークが onActivate と onDeactivate を呼び出します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "각 단계는 DynamicInstructions.Group으로 지침을 묶습니다. 확인된 프로필에 그룹이 포함되거나 빠지면 프레임워크가 onActivate와 onDeactivate를 호출합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada etapa agrupa suas instruções com DynamicInstructions.Group. O framework chama onActivate e onDeactivate quando o perfil resolvido inclui ou remove um grupo."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每个阶段都使用 DynamicInstructions.Group 将指令分组。当解析后的配置文件包含或移除某个分组时，框架会调用 onActivate 和 onDeactivate。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每個階段都使用 DynamicInstructions.Group 將指令分組。當解析後的設定檔包含或移除某個群組時，框架會呼叫 onActivate 和 onDeactivate。"
+          }
+        }
+      }
+    },
+    "Instruction Lifecycle" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lebenszyklus der Anweisungen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instruction Lifecycle"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ciclo de vida de las instrucciones"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cycle de vie des instructions"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ciclo di vita delle istruzioni"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指示のライフサイクル"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지침 수명 주기"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ciclo de vida das instruções"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指令生命周期"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指令生命週期"
+          }
+        }
+      }
+    },
+    "Instruction lifecycle callbacks require iOS 27.2, macOS 27.2, or visionOS 27.2." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lebenszyklus-Callbacks für Anweisungen erfordern iOS 27.2, macOS 27.2 oder visionOS 27.2."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instruction lifecycle callbacks require iOS 27.2, macOS 27.2, or visionOS 27.2."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las devoluciones de llamada del ciclo de vida de las instrucciones requieren iOS 27.2, macOS 27.2 o visionOS 27.2."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les rappels de cycle de vie des instructions nécessitent iOS 27.2, macOS 27.2 ou visionOS 27.2."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I callback del ciclo di vita delle istruzioni richiedono iOS 27.2, macOS 27.2 o visionOS 27.2."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指示のライフサイクルコールバックには iOS 27.2、macOS 27.2、または visionOS 27.2 が必要です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지침 수명 주기 콜백에는 iOS 27.2, macOS 27.2 또는 visionOS 27.2가 필요합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os callbacks de ciclo de vida das instruções exigem iOS 27.2, macOS 27.2 ou visionOS 27.2."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指令生命周期回调需要 iOS 27.2、macOS 27.2 或 visionOS 27.2。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指令生命週期回呼需要 iOS 27.2、macOS 27.2 或 visionOS 27.2。"
+          }
+        }
+      }
+    },
+    "No lifecycle events recorded yet." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine Lebenszyklusereignisse aufgezeichnet."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No lifecycle events recorded yet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no se han registrado eventos del ciclo de vida."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun événement de cycle de vie enregistré pour l’instant."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun evento del ciclo di vita registrato finora."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ライフサイクルイベントはまだ記録されていません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 기록된 수명 주기 이벤트가 없습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum evento de ciclo de vida registrado ainda."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未记录生命周期事件。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未記錄生命週期事件。"
           }
         }
       }

@@ -19,7 +19,7 @@ Each playground consists of Swift files that demonstrate progressive concepts. A
 
 ### Prerequisites
 
-- Xcode 27.1 or later
+- Xcode 27.2 or later
 - iOS 26.0+ or macOS 26.0+
 
 ## Getting Started with Sessions

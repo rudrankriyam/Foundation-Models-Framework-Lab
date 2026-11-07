@@ -28,13 +28,16 @@ struct DynamicProfileWorkflowProfile: LanguageModelSession.DynamicProfile {
         switch state.stage {
         case .inspect:
             LanguageModelSession.Profile {
-                Instructions(
-                    """
-                    Inspect the bundled sample release record. Call the read-only tool before answering, use only its output as \
-                    release evidence, and label anything else as unknown. Never imply that the tool reads GitHub or a real build.
-                    """
-                )
-                tool
+                lifecycleGroup(stage: .inspect, runtime: .onDevice) {
+                    Instructions(
+                        """
+                        Inspect the bundled sample release record. Call the read-only tool before answering, use only its output \
+                        as release evidence, and label anything else as unknown. Never imply that the tool reads GitHub or a real \
+                        build.
+                        """
+                    )
+                    tool
+                }
             }
             .model(SystemLanguageModel.default)
             .temperature(0.1)
@@ -47,7 +50,9 @@ struct DynamicProfileWorkflowProfile: LanguageModelSession.DynamicProfile {
         case .review:
             if state.reviewRuntime == .privateCloudCompute {
                 LanguageModelSession.Profile {
-                    reviewInstructions
+                    lifecycleGroup(stage: .review, runtime: .privateCloudCompute) {
+                        reviewInstructions
+                    }
                 }
                 .model(privateCloudComputeModel)
                 .reasoningLevel(.moderate)
@@ -55,13 +60,38 @@ struct DynamicProfileWorkflowProfile: LanguageModelSession.DynamicProfile {
                 .maximumResponseTokens(480)
             } else {
                 LanguageModelSession.Profile {
-                    reviewInstructions
+                    lifecycleGroup(stage: .review, runtime: .onDevice) {
+                        reviewInstructions
+                    }
                 }
                 .model(SystemLanguageModel.default)
                 .temperature(0.1)
                 .maximumResponseTokens(360)
             }
         }
+    }
+
+    @DynamicInstructionsBuilder
+    private func lifecycleGroup<Content: DynamicInstructions>(
+        stage: DynamicProfileWorkflowStage,
+        runtime: DynamicProfileReviewRuntime,
+        @DynamicInstructionsBuilder content: () -> Content
+    ) -> some DynamicInstructions {
+        #if canImport(FoundationModels, _version: 2.2)
+        if #available(iOS 27.2, macOS 27.2, visionOS 27.2, *) {
+            DynamicInstructionsGroup(content: content)
+                .onActivate { @MainActor [state] in
+                    state.recordInstructionEvent(.activated, stage: stage, runtime: runtime)
+                }
+                .onDeactivate { @MainActor [state] in
+                    state.recordInstructionEvent(.deactivated, stage: stage, runtime: runtime)
+                }
+        } else {
+            content()
+        }
+        #else
+        content()
+        #endif
     }
 
     private var reviewInstructions: Instructions {
