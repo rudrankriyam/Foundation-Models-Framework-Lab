@@ -3,7 +3,7 @@
 //  FoundationLab
 //
 
-#if compiler(>=6.4) && arch(arm64)
+#if arch(arm64)
 import CoreSpotlight
 import Foundation
 import FoundationModels

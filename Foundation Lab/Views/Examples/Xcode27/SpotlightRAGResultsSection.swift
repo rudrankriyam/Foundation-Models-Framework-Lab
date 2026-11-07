@@ -3,7 +3,7 @@
 //  FoundationLab
 //
 
-#if compiler(>=6.4) && arch(arm64)
+#if arch(arm64)
 import SwiftUI
 
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)

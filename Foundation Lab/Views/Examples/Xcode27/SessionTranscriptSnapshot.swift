@@ -8,9 +8,7 @@ import FoundationLabCore
 import FoundationModelsKit
 import CoreGraphics
 
-#if compiler(>=6.4)
 import FoundationModels
-#endif
 
 struct SessionTranscriptSnapshot: Equatable, Sendable {
     struct Entry: Equatable, Identifiable, Sendable {
@@ -126,7 +124,6 @@ struct SessionTranscriptSnapshot: Equatable, Sendable {
     let toolEvents: [ToolEvent]
 }
 
-#if compiler(>=6.4)
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
@@ -418,4 +415,3 @@ extension SessionTranscriptSnapshot {
         return result
     }
 }
-#endif

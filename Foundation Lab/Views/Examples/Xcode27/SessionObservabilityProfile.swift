@@ -3,7 +3,6 @@
 //  FoundationLab
 //
 
-#if compiler(>=6.4)
 import FoundationLabCore
 import FoundationModelsKit
 import FoundationModels
@@ -42,4 +41,3 @@ struct SessionObservabilityProfile: LanguageModelSession.DynamicProfile {
         }
     }
 }
-#endif

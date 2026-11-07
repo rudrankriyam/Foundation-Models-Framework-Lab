@@ -17,12 +17,12 @@ The product serves two audiences without splitting into two apps:
 ## Toolchain
 
 - Deployment targets: iOS 26.0+ and macOS 26.0+
-- Supported compilers: Xcode 26.6 and Xcode 27
+- Supported compiler: Xcode 27.1 or later
 - Swift 6 with strict concurrency and Main Actor default isolation
 - Live on-device execution requires Apple Silicon and Apple Intelligence
 
-Xcode 27-only APIs must remain behind compiler and runtime availability checks.
-Do not break Xcode 26 compatibility when adding an OS 27 example.
+Do not add `#if compiler(...)` checks. Gate OS 27 APIs with runtime
+availability checks only, because the deployment targets stay at OS 26.
 
 ## Build and Validation
 
@@ -46,7 +46,6 @@ xcodebuild \
 ```
 
 For toolchain-specific checks, set `DEVELOPER_DIR` to the requested Xcode app.
-Use separate Derived Data directories when running Xcode 26 and 27 concurrently.
 
 ## App Architecture
 

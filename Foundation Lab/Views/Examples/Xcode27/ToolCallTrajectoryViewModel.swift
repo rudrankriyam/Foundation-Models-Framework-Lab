@@ -55,7 +55,6 @@ final class ToolCallTrajectoryViewModel {
             }
         }
 
-        #if compiler(>=6.4)
         guard #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) else {
             guard activeRunID == runID else { return }
             errorMessage = String(localized: "Live trajectory capture requires an OS 27 runtime.")
@@ -93,10 +92,6 @@ final class ToolCallTrajectoryViewModel {
             guard activeRunID == runID else { return }
             errorMessage = error.localizedDescription
         }
-        #else
-        guard activeRunID == runID else { return }
-        errorMessage = String(localized: "Live trajectory capture requires the Xcode 27 SDK.")
-        #endif
     }
 
     func reset() {

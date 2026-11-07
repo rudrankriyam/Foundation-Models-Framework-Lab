@@ -3,7 +3,6 @@
 //  FoundationLab
 //
 
-#if compiler(>=6.4)
 import Foundation
 
 nonisolated final class ImageInputFileCoordination: @unchecked Sendable {
@@ -41,4 +40,3 @@ nonisolated final class ImageInputFileCoordination: @unchecked Sendable {
         }
     }
 }
-#endif

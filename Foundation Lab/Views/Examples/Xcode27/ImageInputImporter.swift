@@ -3,7 +3,6 @@
 //  FoundationLab
 //
 
-#if compiler(>=6.4)
 import CoreGraphics
 import Foundation
 import ImageIO
@@ -215,4 +214,3 @@ actor ImageInputImporter {
         }
     }
 }
-#endif

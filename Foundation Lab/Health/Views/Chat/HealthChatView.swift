@@ -191,10 +191,8 @@ struct HealthTranscriptEntryView: View {
             // Tool outputs are typically incorporated into the response
             EmptyView()
 
-        #if compiler(>=6.4)
         case .reasoning:
             EmptyView()
-        #endif
 
         case .instructions:
             // Don't show instructions in chat UI

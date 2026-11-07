@@ -94,7 +94,6 @@ struct FoundationModelsErrorHandler: Sendable {
         )
     }
 
-    #if compiler(>=6.4)
     @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
     static func handlePrivateCloudComputeError(_ error: PrivateCloudComputeLanguageModel.Error) -> String {
         switch error {
@@ -117,7 +116,6 @@ struct FoundationModelsErrorHandler: Sendable {
             return String(localized: "Private Cloud Compute couldn’t complete the request. Try again later.")
         }
     }
-    #endif
 
     /// Consolidates error handling for LanguageModelSession operations
     static func handleError(_ error: Error) -> String {
@@ -129,12 +127,10 @@ struct FoundationModelsErrorHandler: Sendable {
             return handleToolCallError(toolCallError)
         }
 
-        #if compiler(>=6.4)
         if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *),
            let privateCloudComputeError = error as? PrivateCloudComputeLanguageModel.Error {
             return handlePrivateCloudComputeError(privateCloudComputeError)
         }
-        #endif
 
         if let coreError = error as? FoundationLabCoreError {
             return coreError.localizedDescription

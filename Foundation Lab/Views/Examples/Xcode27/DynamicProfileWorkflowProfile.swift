@@ -3,7 +3,6 @@
 //  FoundationLab
 //
 
-#if compiler(>=6.4)
 import FoundationModels
 
 @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
@@ -75,4 +74,3 @@ struct DynamicProfileWorkflowProfile: LanguageModelSession.DynamicProfile {
         )
     }
 }
-#endif

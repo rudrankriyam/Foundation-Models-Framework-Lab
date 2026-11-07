@@ -23,16 +23,11 @@ enum AppConfiguration {
         /// Target window size in tokens after applying sliding window
         static let targetWindowSize = 2000
 
-        /// Fetches the real context size from the model when available,
-        /// falling back to the default of 4096.
+        /// Fetches the context size from the model.
         static func contextSize(
             for model: SystemLanguageModel = .default
         ) async -> Int {
-            #if compiler(>=6.3)
             return model.contextSize
-            #else
-            return defaultMaxTokens
-            #endif
         }
 
         static func contextSize(

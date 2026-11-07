@@ -5,9 +5,7 @@
 
 import Foundation
 
-#if compiler(>=6.4)
 import FoundationModels
-#endif
 
 enum SessionObservabilityRunner {
     enum RunError: LocalizedError {
@@ -27,7 +25,6 @@ enum SessionObservabilityRunner {
         }
     }
 
-    #if compiler(>=6.4)
     @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -66,5 +63,4 @@ enum SessionObservabilityRunner {
         }
         return snapshot
     }
-    #endif
 }

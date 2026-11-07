@@ -3,7 +3,6 @@
 //  FoundationLab
 //
 
-#if compiler(>=6.4)
 import Foundation
 import FoundationModels
 
@@ -30,4 +29,3 @@ struct LocalReleaseRecordTool: Tool {
         return output
     }
 }
-#endif

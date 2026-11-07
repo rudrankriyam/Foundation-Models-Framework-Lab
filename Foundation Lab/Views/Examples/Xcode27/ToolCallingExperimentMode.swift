@@ -4,9 +4,7 @@
 //
 
 import Foundation
-#if compiler(>=6.4)
 import FoundationModels
-#endif
 
 nonisolated enum ToolCallingExperimentMode: String, CaseIterable, Identifiable, Sendable {
     case allowed
@@ -57,7 +55,6 @@ nonisolated enum ToolCallingExperimentMode: String, CaseIterable, Identifiable, 
         """
     }
 
-    #if compiler(>=6.4)
     @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
     var frameworkValue: GenerationOptions.ToolCallingMode {
         switch self {
@@ -69,7 +66,6 @@ nonisolated enum ToolCallingExperimentMode: String, CaseIterable, Identifiable, 
             .disallowed
         }
     }
-    #endif
 
     private static let requiredCode = """
     extension SessionPropertyValues {

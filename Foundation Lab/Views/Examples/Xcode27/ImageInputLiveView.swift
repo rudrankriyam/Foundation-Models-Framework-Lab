@@ -3,7 +3,6 @@
 //  FoundationLab
 //
 
-#if compiler(>=6.4)
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -150,4 +149,3 @@ struct ImageInputLiveView: View {
         }
     }
 }
-#endif
