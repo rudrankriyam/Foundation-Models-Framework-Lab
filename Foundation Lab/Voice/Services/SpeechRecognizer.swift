@@ -159,7 +159,7 @@ class SpeechRecognizer: NSObject, SpeechRecognitionService {
     // Simple flag to prevent double processing
     var hasProcessedFinalResult = false
     var finalizedText = ""
-    var idleRestartCount = 0
+    var idleRestartTask: Task<Void, Never>?
 
     // Amplitude monitoring parameters
     var amplitudeHistory: [Double] = []
@@ -209,6 +209,7 @@ class SpeechRecognizer: NSObject, SpeechRecognitionService {
 
     func startRecognition() async throws {
         logger.info("START RECOGNITION CALLED")
+        cancelIdleRestart()
 
         try validateAuthorization()
         try ensureRecognizerAvailable()
@@ -220,7 +221,6 @@ class SpeechRecognizer: NSObject, SpeechRecognitionService {
         recognitionRequest = request
         hasProcessedFinalResult = false
         finalizedText = ""
-        idleRestartCount = 0
 
         configureRecognitionTask(with: request)
         try prepareAudioEngine()
@@ -231,6 +231,7 @@ class SpeechRecognizer: NSObject, SpeechRecognitionService {
 
     func stopRecognition() {
         logger.info("STOP RECOGNITION CALLED")
+        cancelIdleRestart()
 
         // If we're listening and have partial text, complete with that text
         if case .listening(let partialText) = state,

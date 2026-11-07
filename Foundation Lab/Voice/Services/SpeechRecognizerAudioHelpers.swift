@@ -254,21 +254,16 @@ extension SpeechRecognizer {
         }
     }
 
-    private static let maximumIdleRestarts = 3
-
     func handleRecognitionError(_ error: Error) {
         logger.error("Speech recognition error: \(error.localizedDescription, privacy: .public)")
 
         if case .listening(let partialText) = state,
            !partialText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            if partialText == finalizedText {
-                guard idleRestartCount < Self.maximumIdleRestarts else {
-                    stopRecognition()
-                    return
-                }
-                idleRestartCount += 1
+            if partialText != finalizedText {
+                continueRecognition(after: partialText)
+            } else {
+                scheduleIdleRestart(with: partialText)
             }
-            continueRecognition(after: partialText)
         } else {
             hasProcessedFinalResult = true
             state = .error(.recognitionFailed(error.localizedDescription))
@@ -287,9 +282,6 @@ extension SpeechRecognizer {
             if VoiceLogging.isVerboseEnabled {
                 logger.debug("Partial result: \(transcription, privacy: .private)")
             }
-            if transcription != finalizedText {
-                idleRestartCount = 0
-            }
             state = .listening(partialText: transcription)
         }
     }
@@ -300,10 +292,22 @@ extension SpeechRecognizer {
         return "\(finalizedText) \(text)"
     }
 
-    private func continueRecognition(after text: String) {
-        if text != finalizedText {
-            idleRestartCount = 0
+    func cancelIdleRestart() {
+        idleRestartTask?.cancel()
+        idleRestartTask = nil
+    }
+
+    private func scheduleIdleRestart(with text: String) {
+        idleRestartTask?.cancel()
+        idleRestartTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(500))
+            guard !Task.isCancelled, let self else { return }
+            self.idleRestartTask = nil
+            self.continueRecognition(after: text)
         }
+    }
+
+    private func continueRecognition(after text: String) {
         finalizedText = text
         recognitionTask?.cancel()
         recognitionRequest?.endAudio()
