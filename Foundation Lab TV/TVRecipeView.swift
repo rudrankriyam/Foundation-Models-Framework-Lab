@@ -8,7 +8,7 @@ import SwiftUI
 
 @available(tvOS 27.3, *)
 struct TVRecipeView: View {
-    @State private var model = TVRecipeModel()
+    let model: TVRecipeModel
 
     var body: some View {
         ScrollView {
@@ -50,7 +50,6 @@ struct TVRecipeView: View {
             }
             .padding(60)
         }
-        .onDisappear(perform: model.stop)
     }
 
     private func recipeContent(_ recipe: TVRecipe.PartiallyGenerated) -> some View {

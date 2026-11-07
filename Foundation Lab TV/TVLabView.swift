@@ -11,6 +11,8 @@ import SwiftUI
 struct TVLabView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var availability = SystemLanguageModel.default.availability
+    @State private var promptModel = TVPromptModel()
+    @State private var recipeModel = TVRecipeModel()
 
     var body: some View {
         content
@@ -27,10 +29,10 @@ struct TVLabView: View {
         case .available:
             TabView {
                 Tab("Prompt", systemImage: "text.bubble") {
-                    TVPromptView()
+                    TVPromptView(model: promptModel)
                 }
                 Tab("Structured Output", systemImage: "list.bullet.rectangle") {
-                    TVRecipeView()
+                    TVRecipeView(model: recipeModel)
                 }
             }
         case .unavailable(let reason):
@@ -40,6 +42,10 @@ struct TVLabView: View {
 
     private func refreshAvailability() {
         availability = SystemLanguageModel.default.availability
+        if case .unavailable = availability {
+            promptModel.stop()
+            recipeModel.stop()
+        }
     }
 }
 #endif

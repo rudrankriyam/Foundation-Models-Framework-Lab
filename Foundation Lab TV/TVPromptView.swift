@@ -8,7 +8,7 @@ import SwiftUI
 
 @available(tvOS 27.3, *)
 struct TVPromptView: View {
-    @State private var model = TVPromptModel()
+    @Bindable var model: TVPromptModel
 
     var body: some View {
         ScrollView {
@@ -36,7 +36,6 @@ struct TVPromptView: View {
             }
             .padding(60)
         }
-        .onDisappear(perform: model.stop)
     }
 
     private var actionButton: some View {
