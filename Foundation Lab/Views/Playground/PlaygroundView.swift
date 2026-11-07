@@ -15,7 +15,8 @@ struct PlaygroundView: View {
     @AppStorage(FoundationLabPreferenceKey.playgroundInspectorWidth)
     private var persistedInspectorWidth = Double(FoundationLabLayout.inspectorIdealWidth)
 #else
-    @State private var showsInspector = false
+    @SceneStorage(FoundationLabPreferenceKey.playgroundInspectorIsVisible)
+    private var showsInspector = false
 #endif
 #if os(iOS)
     @State private var showsSettings = false
