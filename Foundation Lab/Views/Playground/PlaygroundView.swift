@@ -23,6 +23,7 @@ struct PlaygroundView: View {
 #endif
     @State private var showsDiscardConfirmation = false
     @State private var pendingVoiceConfiguration: FoundationLabExperimentConfiguration?
+    @State private var pendingVoiceMatchingPromptCount = 0
     @FocusState private var isPromptFocused: Bool
 
     var body: some View {
@@ -234,6 +235,22 @@ private extension PlaygroundView {
         experimentStore.updateActiveExperiment(configuration)
         let matchingPromptCountBeforeRun = transcriptPromptCount(matching: prompt)
         let outcome = await viewModel.sendMessage(prompt)
+        recordRun(
+            outcome,
+            configuration: configuration,
+            prompt: prompt,
+            startedAt: startedAt,
+            matchingPromptCountBeforeRun: matchingPromptCountBeforeRun
+        )
+    }
+
+    private func recordRun(
+        _ outcome: ChatGenerationOutcome,
+        configuration: FoundationLabExperimentConfiguration,
+        prompt: String,
+        startedAt: Date,
+        matchingPromptCountBeforeRun: Int
+    ) {
         let response: String
         let errorMessage: String?
         let status: FoundationLabExperimentRun.Status
@@ -318,17 +335,17 @@ private extension PlaygroundView {
         showsInspector = false
     }
 
-    private func prepareVoiceRun() {
+    private func prepareVoiceRun(prompt: String) {
         let configuration = ensureConfigurationIsApplied(configurationSnapshot())
         experimentStore.updateActiveExperiment(configuration)
         pendingVoiceConfiguration = configuration
+        pendingVoiceMatchingPromptCount = transcriptPromptCount(matching: prompt)
     }
 
     private func recordVoiceRun(
         prompt: String,
-        response: String,
-        startedAt: Date,
-        duration: TimeInterval
+        outcome: ChatGenerationOutcome,
+        startedAt: Date
     ) {
         var configuration = pendingVoiceConfiguration ?? configurationSnapshot()
         configuration.prompt = prompt
@@ -336,19 +353,12 @@ private extension PlaygroundView {
         experimentStore.updateActiveExperiment(configuration)
         pendingVoiceConfiguration = nil
 
-        experimentStore.record(
-            FoundationLabExperimentRun(
-                configuration: configuration,
-                prompt: prompt,
-                response: response,
-                startedAt: startedAt,
-                duration: duration,
-                provider: "Apple Foundation Models",
-                modelIdentifier: modelIdentifier(for: configuration.modelRuntime),
-                tokenCount: viewModel.currentTokenCount,
-                tokenUsage: viewModel.currentTokenUsage,
-                events: capturedRunEvents()
-            )
+        recordRun(
+            outcome,
+            configuration: configuration,
+            prompt: prompt,
+            startedAt: startedAt,
+            matchingPromptCountBeforeRun: pendingVoiceMatchingPromptCount
         )
     }
 
