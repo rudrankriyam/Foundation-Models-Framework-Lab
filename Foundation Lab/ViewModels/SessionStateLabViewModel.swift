@@ -188,7 +188,6 @@ private extension SessionStateLabViewModel {
             let observations = await currentLedger.snapshot()
             guard activeRunID == id else { return }
             latestReportedRemaining = observations.last?.remainingReplies
-            try Task.checkCancellation()
 
             turns.append(
                 SessionStateLabTurn(
