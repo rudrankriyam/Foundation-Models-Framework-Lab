@@ -37,12 +37,16 @@ struct SpotlightRAGConfigurationSection: View {
             VStack(alignment: .leading, spacing: Spacing.xSmall) {
                 Text("Search Settings")
                     .font(.headline)
-                Text("\(model.guidance.title) guidance · \(model.usesCompactFormat ? "Compact" : "Structured") output")
+                Text("\(model.guidance.title) guidance · \(outputFormatTitle) output")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
         }
         .padding(.vertical, Spacing.small)
+    }
+
+    private var outputFormatTitle: String {
+        model.usesCompactFormat ? String(localized: "Compact") : String(localized: "Structured")
     }
 }
 #endif
