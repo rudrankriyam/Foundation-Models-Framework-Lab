@@ -45,7 +45,7 @@ struct ArrayDynamicSchemaView: View {
                     // Example selector
                     Picker("Example", selection: $selectedExample) {
                         ForEach(schemaExample.presets) { preset in
-                            Text(preset.title).tag(preset.id)
+                            Text(LocalizedStringKey(preset.title)).tag(preset.id)
                         }
                     }
                     .pickerStyle(.segmented)
