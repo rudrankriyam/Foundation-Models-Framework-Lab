@@ -53,6 +53,10 @@ extension FoundationLabExperimentRun {
                 if let entry = Self.messageEntry(for: event) {
                     entries.append(entry)
                 }
+            case .reasoning:
+                if #available(iOS 27.0, macOS 27.0, visionOS 27.0, *) {
+                    entries.append(.reasoning(Transcript.Reasoning(segments: Self.segments(event.text))))
+                }
             }
         }
 

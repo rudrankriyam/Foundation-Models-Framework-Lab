@@ -458,6 +458,7 @@ private extension PlaygroundView {
             if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) {
                 return [FoundationLabExperimentEvent(
                     role: .assistant,
+                    kind: .reasoning,
                     text: transcriptText(from: reasoning.segments)
                 )]
             }
