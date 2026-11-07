@@ -42,6 +42,8 @@ extension ExampleType {
             ToolCallingModeLabView()
         case .dynamicProfileBuilder:
             DynamicProfileBuilderView()
+        case .sessionStateLab:
+            SessionStateLabView()
         case .reasoningLevelComparison:
             ReasoningLevelComparisonView()
         case .transcriptExplorer:

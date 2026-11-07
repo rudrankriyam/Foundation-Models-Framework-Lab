@@ -23,6 +23,7 @@ public struct FoundationLabExperimentEvent: Codable, Hashable, Identifiable, Sen
         case message
         case toolCall
         case toolResult
+        case reasoning
     }
 
     public let id: UUID

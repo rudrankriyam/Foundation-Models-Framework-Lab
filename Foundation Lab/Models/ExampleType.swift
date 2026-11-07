@@ -24,6 +24,7 @@ enum ExampleType: String, CaseIterable, Identifiable {
     case geminiVideoInput = "gemini_video_input"
     case toolCallingModeLab = "tool_calling_mode_lab"
     case dynamicProfileBuilder = "dynamic_profile_builder"
+    case sessionStateLab = "session_state_lab"
     case reasoningLevelComparison = "reasoning_level_comparison"
     case transcriptExplorer = "transcript_explorer"
     case agentFlowInspector = "agent_flow_inspector"
@@ -70,6 +71,7 @@ extension ExampleType {
             track: .workflows,
             examples: [
                 .dynamicProfileBuilder,
+                .sessionStateLab,
                 .reasoningLevelComparison,
                 .transcriptExplorer,
                 .agentFlowInspector,
@@ -125,6 +127,8 @@ extension ExampleType {
             return "Tool Calling Modes"
         case .dynamicProfileBuilder:
             return "Session Profile Builder"
+        case .sessionStateLab:
+            return "Session State"
         case .reasoningLevelComparison:
             return "Reasoning Levels"
         case .transcriptExplorer:
@@ -194,6 +198,8 @@ extension ExampleType {
             return "Compare allowed, required, and disallowed tool calling"
         case .dynamicProfileBuilder:
             return "Run one session across state-driven profiles"
+        case .sessionStateLab:
+            return "Share session-owned state with child profiles"
         case .reasoningLevelComparison:
             return "Compare one prompt across three reasoning levels"
         case .transcriptExplorer:
@@ -263,6 +269,8 @@ extension ExampleType {
             return "hammer"
         case .dynamicProfileBuilder:
             return "slider.horizontal.below.rectangle"
+        case .sessionStateLab:
+            return "memorychip"
         case .reasoningLevelComparison:
             return "brain.head.profile"
         case .transcriptExplorer:
