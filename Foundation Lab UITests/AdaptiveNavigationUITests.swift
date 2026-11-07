@@ -50,6 +50,7 @@ extension AdaptiveNavigationUITests {
         let hinge = try requireHinge()
         let app = try launchInRegularWidth()
         app.descendants(matching: .any)["sidebar.runs"].tap()
+        XCTAssertTrue(app.staticTexts["No Run Selected"].waitForExistence(timeout: Self.layoutTimeout))
 
         hinge.angle = HingeAngle.folded
 
@@ -106,6 +107,7 @@ private extension AdaptiveNavigationUITests {
         let app = XCUIApplication()
         app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
+        dismissModelUnavailableSheetIfPresent(in: app)
 
         let showsSidebar = app.descendants(matching: .any)["sidebar.library"].waitForExistence(timeout: Self.layoutTimeout)
         if !hasHinge, !showsSidebar {
@@ -114,6 +116,14 @@ private extension AdaptiveNavigationUITests {
         XCTAssertTrue(showsSidebar, "An unfolded iPhone Duo should show the split view sidebar.")
         XCTAssertFalse(app.tabBars.firstMatch.exists)
         return app
+    }
+
+    @MainActor
+    func dismissModelUnavailableSheetIfPresent(in app: XCUIApplication) {
+        let browseButton = app.buttons["Browse Foundation Lab"]
+        guard browseButton.waitForExistence(timeout: 5) else { return }
+        browseButton.tap()
+        XCTAssertTrue(browseButton.waitForNonExistence(timeout: Self.layoutTimeout))
     }
 
     @MainActor
