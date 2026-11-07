@@ -33,7 +33,7 @@ struct TVRecipeView: View {
                     }
                 } label: {
                     Label(
-                        model.isResponding ? "Stop" : "Run",
+                        model.isResponding ? LocalizedStringKey("Stop") : LocalizedStringKey("Run"),
                         systemImage: model.isResponding ? "stop.circle" : "play.fill"
                     )
                 }
