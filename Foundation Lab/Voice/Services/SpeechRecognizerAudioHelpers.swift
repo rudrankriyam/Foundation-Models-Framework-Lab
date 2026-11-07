@@ -277,7 +277,11 @@ extension SpeechRecognizer {
             if VoiceLogging.isVerboseEnabled {
                 logger.debug("Final result: \(transcription, privacy: .private)")
             }
-            continueRecognition(after: transcription)
+            if transcription == finalizedText {
+                scheduleIdleRestart(with: transcription)
+            } else {
+                continueRecognition(after: transcription)
+            }
         } else if !hasProcessedFinalResult {
             if VoiceLogging.isVerboseEnabled {
                 logger.debug("Partial result: \(transcription, privacy: .private)")
