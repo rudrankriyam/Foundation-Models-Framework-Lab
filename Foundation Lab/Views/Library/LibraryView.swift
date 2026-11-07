@@ -10,8 +10,8 @@ import SwiftUI
 struct LibraryView: View {
     @Environment(ExperimentStore.self) private var experimentStore
     @Environment(NavigationCoordinator.self) private var navigationCoordinator
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Binding var selection: LibraryItem?
+    let showsPreviews: Bool
     @State private var searchText = ""
     @State private var showsSettings = false
     @State private var experimentPendingDeletion: FoundationLabExperimentConfiguration?
@@ -62,7 +62,7 @@ struct LibraryView: View {
 
 private extension LibraryView {
     private var libraryList: some View {
-        List(selection: $selection) {
+        List(selection: listSelection) {
             if !filteredSavedExperiments.isEmpty {
                 Section("My Experiments") {
                     ForEach(filteredSavedExperiments) { experiment in
@@ -124,12 +124,25 @@ private extension LibraryView {
         }
     }
 
-    private var showsPreviews: Bool {
-#if os(macOS)
-        true
-#else
-        horizontalSizeClass == .regular
-#endif
+    private var listSelection: Binding<LibraryItem?> {
+        Binding(
+            get: { selection },
+            set: { newValue in
+                if newValue == nil, let selection, !isVisible(selection) {
+                    return
+                }
+                selection = newValue
+            }
+        )
+    }
+
+    private func isVisible(_ item: LibraryItem) -> Bool {
+        switch item {
+        case .template(let id):
+            filteredTemplates.contains { $0.id == id }
+        case .savedExperiment(let id):
+            filteredSavedExperiments.contains { $0.id == id }
+        }
     }
 
     private var hasResults: Bool {
@@ -216,7 +229,7 @@ private extension LibraryView {
 
 #Preview {
     NavigationStack {
-        LibraryView(selection: .constant(nil))
+        LibraryView(selection: .constant(nil), showsPreviews: false)
     }
     .environment(ExperimentStore.shared)
     .environment(NavigationCoordinator.shared)

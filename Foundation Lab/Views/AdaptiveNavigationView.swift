@@ -12,6 +12,7 @@ import SwiftUI
 struct AdaptiveNavigationView: View {
     @State private var languageService = LanguageService()
     @State private var columnVisibility: NavigationSplitViewVisibility
+    @State private var listColumnVisibility: NavigationSplitViewVisibility
     @State private var navigationCoordinator = NavigationCoordinator()
     @State private var experimentStore = ExperimentStore()
     @State private var playgroundViewModel = ChatViewModel()
@@ -95,7 +96,7 @@ struct AdaptiveNavigationView: View {
         TabView(selection: $navigationCoordinator.tabSelection) {
             Tab(TabSelection.library.displayName, systemImage: TabSelection.library.systemImage, value: .library) {
                 NavigationSplitView {
-                    libraryList
+                    libraryList(showsPreviews: false)
                 } detail: {
                     libraryDetail
                 }
@@ -133,7 +134,7 @@ struct AdaptiveNavigationView: View {
                     playgroundDetail
                 }
             } else {
-                NavigationSplitView(columnVisibility: $columnVisibility) {
+                NavigationSplitView(columnVisibility: $listColumnVisibility) {
                     sidebar
                 } content: {
                     listColumn
@@ -154,7 +155,10 @@ struct AdaptiveNavigationView: View {
             }
         }
         .onChange(of: columnVisibility) { _, newValue in
-            persistSidebarVisibility(newValue)
+            persistSidebarVisibility(newValue != .detailOnly)
+        }
+        .onChange(of: listColumnVisibility) { _, newValue in
+            persistSidebarVisibility(newValue != .doubleColumn && newValue != .detailOnly)
         }
     }
 
@@ -194,6 +198,7 @@ struct AdaptiveNavigationView: View {
             navigationCoordinator.splitViewSelection = selection
         }
         columnVisibility = persistedSidebarIsVisible ? .all : .detailOnly
+        listColumnVisibility = persistedSidebarIsVisible ? .all : .doubleColumn
 #endif
     }
 
@@ -203,9 +208,9 @@ struct AdaptiveNavigationView: View {
 #endif
     }
 
-    private func persistSidebarVisibility(_ visibility: NavigationSplitViewVisibility) {
+    private func persistSidebarVisibility(_ isVisible: Bool) {
 #if os(macOS)
-        persistedSidebarIsVisible = visibility != .detailOnly
+        persistedSidebarIsVisible = isVisible
 #endif
     }
 
@@ -242,7 +247,7 @@ private extension AdaptiveNavigationView {
         if navigationCoordinator.splitViewSelection == .runs {
             runsList
         } else {
-            libraryList
+            libraryList(showsPreviews: true)
         }
     }
 
@@ -255,9 +260,12 @@ private extension AdaptiveNavigationView {
         }
     }
 
-    var libraryList: some View {
+    func libraryList(showsPreviews: Bool) -> some View {
         @Bindable var navigationCoordinator = navigationCoordinator
-        return LibraryView(selection: $navigationCoordinator.librarySelection)
+        return LibraryView(
+            selection: $navigationCoordinator.librarySelection,
+            showsPreviews: showsPreviews
+        )
     }
 
     var libraryDetail: some View {
@@ -288,8 +296,12 @@ extension AdaptiveNavigationView {
         _columnVisibility = State(
             initialValue: isSidebarVisible ? .all : .detailOnly
         )
+        _listColumnVisibility = State(
+            initialValue: isSidebarVisible ? .all : .doubleColumn
+        )
 #else
         _columnVisibility = State(initialValue: .automatic)
+        _listColumnVisibility = State(initialValue: .automatic)
 #endif
     }
 }
