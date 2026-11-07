@@ -52,7 +52,7 @@ Library entries identify how they open:
 
 ## Requirements
 
-- iOS 26.0+ or macOS 26.0+
+- iOS 26.0+, macOS 26.0+, or visionOS 26.0+
 - watchOS 27.0+ for the `Foundation Lab Watch` companion, which ships inside the iOS app and runs prompts on Private Cloud Compute
 - tvOS 27.0+ for the Foundation Lab TV app; its Foundation Models features need tvOS 27.3 and an Xcode 27.3 SDK
 - Apple Silicon for on-device model execution

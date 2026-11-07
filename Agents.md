@@ -4,9 +4,10 @@ Guidance for agents working in the Foundation Models Framework Lab repository.
 
 ## Product
 
-Foundation Lab is a native iOS and macOS developer tool for learning, testing,
-and validating Apple's Foundation Models framework. The interface should feel
-quiet, precise, and familiar to users of Apple developer tools.
+Foundation Lab is a native iOS, macOS, and visionOS developer tool for
+learning, testing, and validating Apple's Foundation Models framework. The
+interface should feel quiet, precise, and familiar to users of Apple developer
+tools.
 
 The product serves two audiences without splitting into two apps:
 
@@ -16,8 +17,8 @@ The product serves two audiences without splitting into two apps:
 
 ## Toolchain
 
-- Deployment targets: iOS 26.0+ and macOS 26.0+; the `Foundation Lab Watch`
-  companion is watchOS 27.0+, embedded in the iOS app, and uses only Private
+- Deployment targets: iOS 26.0+, macOS 26.0+, and visionOS 26.0+; the
+  `Foundation Lab Watch` companion is watchOS 27.0+, embedded in the iOS app, and uses only Private
   Cloud Compute, because `SystemLanguageModel` is unavailable on watchOS
 - Foundation Lab TV: tvOS 27.0+ deployment target; Foundation Models needs tvOS 27.3
   and an Xcode 27.3 SDK, gated with `#if canImport(FoundationModels, _version: 2.2)`
