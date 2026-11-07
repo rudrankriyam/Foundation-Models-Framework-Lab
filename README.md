@@ -55,7 +55,7 @@ Library entries identify how they open:
 - iOS 26.0+ or macOS 26.0+
 - Apple Silicon for on-device model execution
 - Apple Intelligence enabled for live model runs
-- Xcode 27.1 or later
+- Xcode 27.2 or later
 
 The app still runs on OS 26. APIs introduced with OS 27 are availability-gated,
 so the newest labs appear only on an OS 27 runtime.

@@ -117,6 +117,10 @@ struct DynamicProfileBuilderLiveView: View {
                 Xcode27KeyValueList(items: [
                     (String(localized: "Transcript entries"), model.transcriptEntryCount.formatted())
                 ])
+                #if canImport(FoundationModels, _version: 2.2)
+                Divider()
+                DynamicProfileInstructionLifecycleView(events: model.instructionEvents)
+                #endif
             }
         }
     }

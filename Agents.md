@@ -17,12 +17,26 @@ The product serves two audiences without splitting into two apps:
 ## Toolchain
 
 - Deployment targets: iOS 26.0+ and macOS 26.0+
-- Supported compiler: Xcode 27.1 or later
+- Supported compiler: Xcode 27.2 or later
 - Swift 6 with strict concurrency and Main Actor default isolation
 - Live on-device execution requires Apple Silicon and Apple Intelligence
 
-Do not add `#if compiler(...)` checks. Gate OS 27 APIs with runtime
-availability checks only, because the deployment targets stay at OS 26.
+Gate OS 27 APIs with runtime availability checks, because the deployment
+targets stay at OS 26. Do not add `#if compiler(...)` checks: Xcode 27.x
+releases share Swift 6.4, so they can't tell SDKs apart.
+
+APIs that first ship in the Xcode 27.3 SDK (`SessionState`, `SessionBinding`,
+`DynamicInstructionsGroup`, `@Guide(key:)`, `onDataEntry`, tvOS availability)
+go behind the FoundationModels module version as well:
+
+```swift
+#if canImport(FoundationModels, _version: 2.2)
+// Xcode 27.3 SDK or later
+#endif
+```
+
+Xcode 27.2 ships FoundationModels 2.1.14 and Xcode 27.3 beta ships 2.2.6.
+Build gated code with both Xcode 27.2 and Xcode 27.3 before merging.
 
 ## Build and Validation
 
