@@ -1,6 +1,70 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "@Guide(key:) maps productName, rating, and recommendation to product_name, star_rating, and verdict in the generated content." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:) ordnet productName, rating und recommendation im generierten Inhalt product_name, star_rating und verdict zu."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:) maps productName, rating, and recommendation to product_name, star_rating, and verdict in the generated content."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:) asigna productName, rating y recommendation a product_name, star_rating y verdict en el contenido generado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:) associe productName, rating et recommendation à product_name, star_rating et verdict dans le contenu généré."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:) associa productName, rating e recommendation a product_name, star_rating e verdict nel contenuto generato."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:) は、生成されたコンテンツ内で productName、rating、recommendation を product_name、star_rating、verdict に対応付けます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:)는 생성된 콘텐츠에서 productName, rating, recommendation을 product_name, star_rating, verdict에 매핑합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:) mapeia productName, rating e recommendation para product_name, star_rating e verdict no conteúdo gerado."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:) 会在生成的内容中将 productName、rating 和 recommendation 映射为 product_name、star_rating 和 verdict。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@Guide(key:) 會在產生的內容中將 productName、rating 和 recommendation 對應為 product_name、star_rating 和 verdict。"
+          }
+        }
+      }
+    },
     "About Dynamic Profiles" : {
       "localizations" : {
         "de" : {
@@ -61,6 +125,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "關於動態設定檔"
+          }
+        }
+      }
+    },
+    "Generated Content" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generierter Inhalt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generated Content"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contenido generado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contenu généré"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contenuto generato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成されたコンテンツ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "생성된 콘텐츠"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conteúdo gerado"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成的内容"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "產生的內容"
           }
         }
       }
