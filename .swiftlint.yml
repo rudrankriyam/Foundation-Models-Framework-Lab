@@ -1,5 +1,6 @@
 included:
   - "Foundation Lab"
+  - "Foundation Lab TV"
 
 excluded:
   - Carthage

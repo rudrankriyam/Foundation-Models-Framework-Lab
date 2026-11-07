@@ -53,6 +53,7 @@ Library entries identify how they open:
 ## Requirements
 
 - iOS 26.0+ or macOS 26.0+
+- tvOS 27.3+ for the Foundation Lab TV app, built with Xcode 27.3 or later
 - Apple Silicon for on-device model execution
 - Apple Intelligence enabled for live model runs
 - Xcode 27.1 or later
@@ -82,6 +83,13 @@ xcodebuild \
   -project FoundationLab.xcodeproj \
   -scheme 'Foundation Lab' \
   -destination 'generic/platform=iOS Simulator' \
+  CODE_SIGNING_ALLOWED=NO \
+  build
+
+xcodebuild \
+  -project FoundationLab.xcodeproj \
+  -scheme 'Foundation Lab TV' \
+  -destination 'generic/platform=tvOS Simulator' \
   CODE_SIGNING_ALLOWED=NO \
   build
 ```
