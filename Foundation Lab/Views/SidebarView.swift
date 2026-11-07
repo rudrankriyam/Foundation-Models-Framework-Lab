@@ -27,6 +27,7 @@ struct SidebarView: View {
             ForEach(TabSelection.allCases, id: \.self) { tab in
                 Label(tab.displayName, systemImage: tab.systemImage)
                     .tag(tab)
+                    .accessibilityIdentifier("sidebar.\(tab.rawValue)")
             }
         }
         .listStyle(.sidebar)

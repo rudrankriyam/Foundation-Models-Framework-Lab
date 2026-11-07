@@ -14,10 +14,21 @@
 		FA43F9412E13A16E00F24BCC /* HighlightSwift in Frameworks */ = {isa = PBXBuildFile; productRef = FA43F9402E13A16E00F24BCC /* HighlightSwift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		0D17E5000000000000000007 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0AAE4FF72DF76E6600838F13 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0AAE4FFE2DF76E6600838F13;
+			remoteInfo = "Foundation Lab";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		0A5454A72E1148A8002C2152 /* Foundation Lab.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = "Foundation Lab.icon"; sourceTree = "<group>"; };
 		0AAE4FFF2DF76E6600838F13 /* Foundation Lab.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Foundation Lab.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C9AECE22E728F6D00F4C37F /* SampleCode.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SampleCode.xcconfig; sourceTree = "<group>"; };
+		0D17E5000000000000000002 /* Foundation Lab UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Foundation Lab UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -44,6 +55,11 @@
 			path = BookPlaygrounds;
 			sourceTree = "<group>";
 		};
+		0D17E5000000000000000003 /* Foundation Lab UITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Foundation Lab UITests";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +74,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0D17E5000000000000000005 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -67,6 +90,7 @@
 				6C9AECE22E728F6D00F4C37F /* SampleCode.xcconfig */,
 				0ADB46AD2E0CE6C100C29293 /* Foundation Lab */,
 				0B0A11002ECB000100000001 /* BookPlaygrounds */,
+				0D17E5000000000000000003 /* Foundation Lab UITests */,
 				0AAE50002DF76E6600838F13 /* Products */,
 				0A5454A72E1148A8002C2152 /* Foundation Lab.icon */,
 				0AFDF8422EA8C3F80071BEA5 /* Frameworks */,
@@ -77,6 +101,7 @@
 			isa = PBXGroup;
 			children = (
 				0AAE4FFF2DF76E6600838F13 /* Foundation Lab.app */,
+				0D17E5000000000000000002 /* Foundation Lab UITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -117,6 +142,29 @@
 			productReference = 0AAE4FFF2DF76E6600838F13 /* Foundation Lab.app */;
 			productType = "com.apple.product-type.application";
 		};
+		0D17E5000000000000000001 /* Foundation Lab UITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0D17E500000000000000000B /* Build configuration list for PBXNativeTarget "Foundation Lab UITests" */;
+			buildPhases = (
+				0D17E5000000000000000004 /* Sources */,
+				0D17E5000000000000000005 /* Frameworks */,
+				0D17E5000000000000000006 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0D17E5000000000000000008 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				0D17E5000000000000000003 /* Foundation Lab UITests */,
+			);
+			name = "Foundation Lab UITests";
+			packageProductDependencies = (
+			);
+			productName = "Foundation Lab UITests";
+			productReference = 0D17E5000000000000000002 /* Foundation Lab UITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -129,6 +177,10 @@
 				TargetAttributes = {
 					0AAE4FFE2DF76E6600838F13 = {
 						CreatedOnToolsVersion = 26.0;
+					};
+					0D17E5000000000000000001 = {
+						CreatedOnToolsVersion = 27.3;
+						TestTargetID = 0AAE4FFE2DF76E6600838F13;
 					};
 				};
 			};
@@ -153,6 +205,7 @@
 			projectRoot = "";
 			targets = (
 				0AAE4FFE2DF76E6600838F13 /* Foundation Lab */,
+				0D17E5000000000000000001 /* Foundation Lab UITests */,
 			);
 		};
 /* End PBXProject section */
@@ -166,6 +219,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0D17E5000000000000000006 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -176,7 +236,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0D17E5000000000000000004 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0D17E5000000000000000008 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0AAE4FFE2DF76E6600838F13 /* Foundation Lab */;
+			targetProxy = 0D17E5000000000000000007 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		0AAE50082DF76E6800838F13 /* Debug */ = {
@@ -471,6 +546,44 @@
 			};
 			name = Release;
 		};
+		0D17E5000000000000000009 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.rudrankriyam.foundationlab${SAMPLE_CODE_DISAMBIGUATOR}.uitests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Foundation Lab";
+			};
+			name = Debug;
+		};
+		0D17E500000000000000000A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.rudrankriyam.foundationlab${SAMPLE_CODE_DISAMBIGUATOR}.uitests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Foundation Lab";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -488,6 +601,15 @@
 			buildConfigurations = (
 				0AAE500B2DF76E6800838F13 /* Debug */,
 				0AAE500C2DF76E6800838F13 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0D17E500000000000000000B /* Build configuration list for PBXNativeTarget "Foundation Lab UITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0D17E5000000000000000009 /* Debug */,
+				0D17E500000000000000000A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
