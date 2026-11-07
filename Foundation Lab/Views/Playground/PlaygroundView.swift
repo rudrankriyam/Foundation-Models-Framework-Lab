@@ -23,6 +23,7 @@ struct PlaygroundView: View {
 #endif
     @State private var showsDiscardConfirmation = false
     @State private var pendingVoiceConfiguration: FoundationLabExperimentConfiguration?
+    @State private var isRecordingRun = false
     @FocusState private var isPromptFocused: Bool
 
     var body: some View {
@@ -171,6 +172,11 @@ struct PlaygroundView: View {
         .task(id: experimentStore.activeExperimentLoadRevision) {
             loadActiveExperiment()
         }
+        .onChange(of: isRecordingRun) { _, isRecordingRun in
+            if !isRecordingRun {
+                loadActiveExperiment()
+            }
+        }
     }
 }
 
@@ -197,7 +203,8 @@ private extension PlaygroundView {
     }
 
     private func loadActiveExperiment() {
-        guard viewModel.activeExperimentLoadRevision != experimentStore.activeExperimentLoadRevision else {
+        guard !isRecordingRun,
+              viewModel.activeExperimentLoadRevision != experimentStore.activeExperimentLoadRevision else {
             return
         }
         let configuration = experimentStore.activeExperiment
@@ -227,6 +234,8 @@ private extension PlaygroundView {
     }
 
     private func run(_ prompt: String) async {
+        isRecordingRun = true
+        defer { isRecordingRun = false }
         let startedAt = Date.now
         let configuration = ensureConfigurationIsApplied(
             configurationSnapshot(prompt: prompt)
