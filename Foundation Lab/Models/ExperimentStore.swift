@@ -94,7 +94,7 @@ final class ExperimentStore {
                 ?? FoundationLabExperimentConfiguration(name: "")
         ).normalized
         activePersistenceErrorMessage = restoredActiveExperiment.failed
-            ? "Couldn’t restore the active experiment. Your library is still available."
+            ? String(localized: "Couldn’t restore the active experiment. Your library is still available.")
             : nil
         activeExperimentPersistenceTask = nil
     }
@@ -219,8 +219,9 @@ extension ExperimentStore {
 }
 
 private extension ExperimentStore {
-    static let activeSaveFailureMessage =
-        "Your active experiment couldn’t be saved. You can keep working and retry."
+    static var activeSaveFailureMessage: String {
+        String(localized: "Your active experiment couldn’t be saved. You can keep working and retry.")
+    }
 
     static func makeLibraryRepository(
         userDefaults: UserDefaults,

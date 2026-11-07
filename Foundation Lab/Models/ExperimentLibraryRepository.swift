@@ -62,9 +62,7 @@ final class ExperimentLibraryRepository {
         runs = restoredRuns
         writesBlocked = restoration.blocksWrites
         shouldRemoveLegacyValuesAfterPersisting = restoration.removeLegacyValuesAfterPersisting
-        persistenceErrorMessage = restoration.message.map {
-            "Couldn’t fully restore \($0). Your in-memory work is still available."
-        }
+        persistenceErrorMessage = restoration.message
 
         let restoredValuesChanged = restoredExperiments != restoration.document.savedExperiments
             || restoredRuns != restoration.document.runs
@@ -161,10 +159,12 @@ final class ExperimentLibraryRepository {
 }
 
 private extension ExperimentLibraryRepository {
-    static let newerVersionMessage =
-        "This experiment library was created by a newer app version and can’t be overwritten."
-    static let saveFailureMessage =
-        "Your experiment library couldn’t be saved. You can keep working and retry."
+    static var newerVersionMessage: String {
+        String(localized: "This experiment library was created by a newer app version and can’t be overwritten.")
+    }
+    static var saveFailureMessage: String {
+        String(localized: "Your experiment library couldn’t be saved. You can keep working and retry.")
+    }
 
     func persistCollections() {
         guard !writesBlocked else {
