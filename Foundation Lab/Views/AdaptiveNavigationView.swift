@@ -106,8 +106,10 @@ struct AdaptiveNavigationView: View {
             }
 
             Tab(TabSelection.runs.displayName, systemImage: TabSelection.runs.systemImage, value: .runs) {
-                NavigationStack(path: $navigationCoordinator.runsPath) {
-                    RunsView()
+                NavigationSplitView {
+                    runsList
+                } detail: {
+                    runDetail
                 }
             }
         }
@@ -121,17 +123,27 @@ struct AdaptiveNavigationView: View {
 
     @ViewBuilder
     private var splitViewNavigation: some View {
-        @Bindable var navigationCoordinator = navigationCoordinator
-        NavigationSplitView(
-            columnVisibility: $columnVisibility
-        ) {
-            SidebarView(
-                selection: $navigationCoordinator.splitViewSelection,
-                preferredWidth: sidebarPreferredWidth,
-                onWidthChange: persistSidebarWidth
-            )
-        } detail: {
-            detailView
+        Group {
+            if navigationCoordinator.splitViewSelection == .runs {
+                NavigationSplitView(columnVisibility: $columnVisibility) {
+                    sidebar
+                } content: {
+                    runsList
+                        .navigationSplitViewColumnWidth(
+                            min: FoundationLabLayout.listColumnMinimumWidth,
+                            ideal: FoundationLabLayout.listColumnIdealWidth,
+                            max: FoundationLabLayout.listColumnMaximumWidth
+                        )
+                } detail: {
+                    runDetail
+                }
+            } else {
+                NavigationSplitView(columnVisibility: $columnVisibility) {
+                    sidebar
+                } detail: {
+                    detailView
+                }
+            }
         }
         .navigationSplitViewStyle(.balanced)
         .onChange(of: navigationCoordinator.splitViewSelection) { _, newValue in
@@ -141,25 +153,6 @@ struct AdaptiveNavigationView: View {
         }
         .onChange(of: columnVisibility) { _, newValue in
             persistSidebarVisibility(newValue)
-        }
-    }
-
-    @ViewBuilder
-    private var detailView: some View {
-        @Bindable var navigationCoordinator = navigationCoordinator
-        switch navigationCoordinator.splitViewSelection ?? .library {
-        case .library:
-            NavigationStack(path: $navigationCoordinator.libraryPath) {
-                LibraryView()
-            }
-        case .playground:
-            NavigationStack(path: $navigationCoordinator.playgroundPath) {
-                PlaygroundView(viewModel: playgroundViewModel)
-            }
-        case .runs:
-            NavigationStack(path: $navigationCoordinator.runsPath) {
-                RunsView()
-            }
         }
     }
 
@@ -222,6 +215,42 @@ struct AdaptiveNavigationView: View {
         }
         persistedSidebarWidth = Double(width)
 #endif
+    }
+}
+
+private extension AdaptiveNavigationView {
+    var sidebar: some View {
+        @Bindable var navigationCoordinator = navigationCoordinator
+        return SidebarView(
+            selection: $navigationCoordinator.splitViewSelection,
+            preferredWidth: sidebarPreferredWidth,
+            onWidthChange: persistSidebarWidth
+        )
+    }
+
+    @ViewBuilder
+    var detailView: some View {
+        @Bindable var navigationCoordinator = navigationCoordinator
+        if navigationCoordinator.splitViewSelection == .playground {
+            NavigationStack(path: $navigationCoordinator.playgroundPath) {
+                PlaygroundView(viewModel: playgroundViewModel)
+            }
+        } else {
+            NavigationStack(path: $navigationCoordinator.libraryPath) {
+                LibraryView()
+            }
+        }
+    }
+
+    var runsList: some View {
+        @Bindable var navigationCoordinator = navigationCoordinator
+        return RunsView(selection: $navigationCoordinator.runSelection)
+    }
+
+    var runDetail: some View {
+        NavigationStack {
+            RunDetailColumn(runID: navigationCoordinator.runSelection)
+        }
     }
 }
 
