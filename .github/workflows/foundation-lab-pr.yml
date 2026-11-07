@@ -6,6 +6,7 @@ on:
     paths:
       - 'BookPlaygrounds/**'
       - 'Foundation Lab/**'
+      - 'Foundation Lab Watch/**'
       - 'FoundationLabCore/**'
       - 'FoundationLab.xcodeproj/**'
       - 'Package.swift'
@@ -39,3 +40,12 @@ jobs:
 
       - name: Typecheck book playgrounds
         run: bash Tools/BookPlaygrounds/typecheck.sh
+
+      - name: Build Foundation Lab Watch
+        run: |
+          xcodebuild \
+            -project FoundationLab.xcodeproj \
+            -scheme 'Foundation Lab Watch' \
+            -destination 'generic/platform=watchOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            build
