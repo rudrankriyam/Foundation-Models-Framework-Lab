@@ -13,6 +13,7 @@ struct MultilingualResponsesView: View {
     @State private var isRunning = false
     @State private var results: [MultilingualResponseEntry] = []
     @State private var errorMessage: String?
+    @State private var runTask: Task<Void, Never>?
 
     @Environment(LanguageService.self) private var languageService
     private let generateMultilingualResponsesUseCase = GenerateMultilingualResponsesUseCase()
@@ -26,9 +27,16 @@ struct MultilingualResponsesView: View {
                 ToolExecuteButton(
                     "Generate Responses",
                     systemImage: "character.bubble",
-                    isRunning: isRunning
+                    isRunning: isRunning || runTask != nil,
+                    stopAction: cancelRun
                 ) {
-                    Task { await generateMultilingualResponses() }
+                    runTask = Task {
+                        defer {
+                            isRunning = false
+                            runTask = nil
+                        }
+                        await generateMultilingualResponses()
+                    }
                 }
 
                 if let errorMessage {
@@ -57,6 +65,11 @@ struct MultilingualResponsesView: View {
 #if os(iOS)
         .navigationBarTitleDisplayMode(.large)
 #endif
+        .onDisappear(perform: cancelRun)
+    }
+
+    private func cancelRun() {
+        runTask?.cancel()
     }
 
     private var codeExample: String {
@@ -110,8 +123,10 @@ for prompt in prompts {
                     )
                 )
             )
+            guard !Task.isCancelled else { return }
             results = result.responses
         } catch {
+            guard !Task.isCancelled else { return }
             errorMessage = error.localizedDescription
         }
 

@@ -60,6 +60,7 @@
 		0A5454A82E1148A8002C2152 /* Exceptions for "Foundation Lab" folder in "Foundation Lab" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Info.plist,
 				Views/Examples/DynamicSchemas/README.md,
 			);
 			target = 0AAE4FFE2DF76E6600838F13 /* Foundation Lab */;
@@ -548,6 +549,7 @@
 				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Foundation Lab/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Foundation Lab";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
@@ -633,6 +635,7 @@
 				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Foundation Lab/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Foundation Lab";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";

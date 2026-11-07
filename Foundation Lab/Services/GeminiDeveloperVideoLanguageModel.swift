@@ -224,7 +224,7 @@ private extension GeminiDeveloperVideoLanguageModelExecutor {
                             cachedTokenCount: usage.cachedContentTokenCount ?? 0
                         ),
                         output: .init(
-                            totalTokenCount: usage.candidatesTokenCount,
+                            totalTokenCount: usage.candidatesTokenCount ?? 0,
                             reasoningTokenCount: usage.thoughtsTokenCount ?? 0
                         )
                     )
@@ -288,6 +288,22 @@ nonisolated struct GeminiDeveloperAPIClient: Sendable {
     struct Content: Codable, Sendable {
         let role: String?
         let parts: [Part]
+
+        init(role: String?, parts: [Part]) {
+            self.role = role
+            self.parts = parts
+        }
+
+        init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            role = try container.decodeIfPresent(String.self, forKey: .role)
+            parts = try container.decodeIfPresent([Part].self, forKey: .parts) ?? []
+        }
+
+        enum CodingKeys: String, CodingKey {
+            case role
+            case parts
+        }
     }
 
     struct Part: Codable, Sendable {
@@ -326,23 +342,23 @@ nonisolated struct GeminiDeveloperAPIClient: Sendable {
 
     struct Response: Decodable, Sendable {
         struct Candidate: Decodable, Sendable {
-            let content: Content
+            let content: Content?
         }
 
         struct UsageMetadata: Decodable, Sendable {
             let promptTokenCount: Int
             let cachedContentTokenCount: Int?
-            let candidatesTokenCount: Int
+            let candidatesTokenCount: Int?
             let thoughtsTokenCount: Int?
             let totalTokenCount: Int
         }
 
-        let candidates: [Candidate]
+        let candidates: [Candidate]?
         let usageMetadata: UsageMetadata?
         let modelVersion: String?
 
         var text: String {
-            candidates.first?.content.parts.compactMap(\.text).joined() ?? ""
+            candidates?.first?.content?.parts.compactMap(\.text).joined() ?? ""
         }
     }
 
